@@ -1,0 +1,66 @@
+------------------------------------------------------
+-- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
+-- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
+-- Script Version: 4.2.0
+-- Created by DJ_GLiTCH
+-- License: GNU GENERAL PUBLIC LICENSE 3.0
+------------------------------------------------------
+
+area51:
+1. Missing GameStatus
+2. Check data widths are correct
+3. Check Memory Alignment = 32 or false
+
+bbust:
+1. Missing GameStatus
+2. Check Memory Alignment = 32 or false
+
+carnevil:
+1. Missing GameStatus
+2. Check Memory Alignment = 32 or false
+
+cryptklr:
+1. Check Memory Alignment = 32 or false
+
+duckhunt:
+1. Check turn based player counts
+
+invasnab:
+1. Check Max Ammo for primary weapon is only ever 9 (ignore rockets, as they are an alt weapon)
+2. General check of values in gameplay
+
+jdredd:
+1. Check Memory Alignment = 32 or false
+2. Check GameStatus works the same for either P1 or P2
+
+le2:
+1. Check Max Ammo is only ever 6
+2. Check Max Life is only ever 5
+
+lethalen:
+1. General check of values in gameplay
+
+lethalj
+1. General check of values in gameplay
+
+maxforce:
+1. Missing GameStatus
+
+policetr:
+1. General check of values in gameplay
+
+ptblank:
+1. General check of values in gameplay
+
+sgunner:
+1. General check of values in gameplay
+
+timecris:
+1. General check of values in gameplay
+
+timecrs2:
+1. General check of values in gameplay
+
+vcop2:
+1. Check Memory Alignment = 32 or false
+2. General check of values in gameplay
