@@ -1,8 +1,9 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Script Version: 4.2.0
--- Created by DJ_GLiTCH
+-- Universal Script Version: 4.2.0
+-- Last Modified Date: 2026.02.24
+-- Created by DJ GLiTCH
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: policetr
 ------------------------------------------------------
