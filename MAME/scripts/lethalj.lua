@@ -1,9 +1,9 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 4.2.0
--- Last Modified Date: 2026.02.24
--- Created by DJ GLiTCH
+-- Universal Script Version: 4.4.1
+-- Last Modified Date: 2026.03.06
+-- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: lethalj
 ------------------------------------------------------
@@ -519,8 +519,8 @@ function Register_Outputs_Safe(out_handle)
         if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then table.insert(list, p.Str_LifeLost) end
     end
     
-    -- Pulse Player outputs
-    for _, name in ipairs(list) do out_handle:set_value(name, 1); out_handle:set_value(name, 0) end
+	-- Silently initialize Player outputs to 0 (no pulse)
+    for _, name in ipairs(list) do out_handle:set_value(name, 0) end
     
     -- Force clear specific counters
     for i = 1, CFG.MAX_PLAYERS do
@@ -626,17 +626,22 @@ function Compute_Outputs()
         -- 3. Logic Execution
         local divisor = CFG.COINS_PER_CREDIT or 1
         if divisor < 1 then divisor = 1 end
+        
+        -- Cache the Warmup Status at the start of the frame for efficiency and consistency
+        local warmup_ok = Is_Warmup_Complete()
 
         -- Global Credits & Latch Check
         if CFG.CREDITS then 
             local raw = Read_Data_Safe(mem, CFG.CREDITS, CFG.DATA_WIDTHS.CREDITS)
             local credit_val = math.floor(raw / divisor)
-            out:set_value("Credits", credit_val) 
+            
+            -- Set to exact credit_val if warmup is complete, else force 0
+            out:set_value("Credits", warmup_ok and credit_val or 0) 
             
             -- The "Double Lock":
             -- Only latch the "Has Coined Up" flag AFTER the STARTUP_DELAY_MS has passed.
             -- This prevents the latch from being tripped by dirty memory during boot.
-            if credit_val > 0 and Is_Warmup_Complete() then 
+            if credit_val > 0 and warmup_ok then 
                 _HasCoinedUp = true 
             end
         end
@@ -706,7 +711,8 @@ function Compute_Outputs()
                 elseif cfg.CREDITS == "auto" and CFG.CREDITS then 
                     p_credits = Read_Data_Safe(mem, CFG.CREDITS, CFG.DATA_WIDTHS.CREDITS) 
                 end
-                out:set_value(Get_Output_Str(i, "Credits"), math.floor(p_credits / divisor))
+                -- Gate Output
+                out:set_value(Get_Output_Str(i, "Credits"), warmup_ok and math.floor(p_credits / divisor) or 0)
             end
 
             -- --------------------------------------------------------
@@ -717,7 +723,10 @@ function Compute_Outputs()
             -- Priority 1: Specific Player Status
             if cfg.STATUS and cfg.STATUS ~= "auto" then
                 local p_stat_val = Read_Data_Safe(mem, cfg.STATUS, CFG.DATA_WIDTHS.STATUS)
-                out:set_value(Get_Output_Str(i, "Status"), p_stat_val)
+                
+                -- Gate Output
+                out:set_value(Get_Output_Str(i, "Status"), warmup_ok and p_stat_val or 0)
+                
                 -- We trust the status address immediately.
                 if p_stat_val > 0 then 
                     is_player_active = true 
@@ -738,6 +747,12 @@ function Compute_Outputs()
                 end
             end
             
+            -- HARD WARMUP GATE
+            -- Force active state to false during warmup so hardware events do not trigger
+            if not warmup_ok then
+                is_player_active = false
+            end
+            
             -- Save State for Tap Handler
             -- We save this so the Tap Handler knows whether to allow high-speed recoil.
             p.IsActive = is_player_active
@@ -745,16 +760,16 @@ function Compute_Outputs()
             -- Used for Status Synthesis below
             if is_player_active then any_player_active = true end
 
-            -- Outputs
-            if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LampStart"), Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START)) end
-            if cfg.AMMO then out:set_value(Get_Output_Str(i, "Ammo"), curr_ammo) end
-            if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AmmoAlt"), curr_ammo_alt) end
-            if cfg.LIFE then out:set_value(Get_Output_Str(i, "Life"), curr_life) end
+            -- Outputs (Forced to 0 during Warmup)
+            if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LampStart"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0) end
+            if cfg.AMMO then out:set_value(Get_Output_Str(i, "Ammo"), warmup_ok and curr_ammo or 0) end
+            if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AmmoAlt"), warmup_ok and curr_ammo_alt or 0) end
+            if cfg.LIFE then out:set_value(Get_Output_Str(i, "Life"), warmup_ok and curr_life or 0) end
 
             -- [GATED ACTION LOGIC] - Runs only if Player is Active
             if is_player_active then
                 -- Primary Shot Counter
-                if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED and Is_Warmup_Complete() then
+                if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED and warmup_ok then
                     if type(cfg.SHOTS_FIRED) == "number" then
                         -- Use Read_Data_Safe for variable width support
                         local mem_val = Read_Data_Safe(mem, cfg.SHOTS_FIRED, CFG.DATA_WIDTHS.SHOTS_FIRED)
@@ -786,7 +801,7 @@ function Compute_Outputs()
                 end
 
                 -- Alternate Shot Counter
-                if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_ALT and Is_Warmup_Complete() then
+                if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_ALT and warmup_ok then
                     if type(cfg.SHOTS_FIRED_ALT) == "number" then
                         local mem_val = Read_Data_Safe(mem, cfg.SHOTS_FIRED_ALT, CFG.DATA_WIDTHS.SHOTS_FIRED_ALT)
                         out:set_value(Get_Output_Str(i, "ShotsFiredAlt"), mem_val)
@@ -822,7 +837,7 @@ function Compute_Outputs()
                         -- Use Read_Data_Safe for variable width support
                         local mem_val = Read_Data_Safe(mem, cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
                         if mem_val > p.LastDmgMem then
-                            if Is_Warmup_Complete() then
+                            if warmup_ok then
                                 p.DamageCount = p.DamageCount + 1
                                 out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
                                 rumble_triggered = true
@@ -838,7 +853,7 @@ function Compute_Outputs()
                             if curr_life > p.LastLife then hit = true end
                         end
                         if hit then
-                            if Is_Warmup_Complete() then
+                            if warmup_ok then
                                 p.DamageCount = p.DamageCount + 1
                                 out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
                                 rumble_triggered = true 
@@ -871,7 +886,7 @@ function Compute_Outputs()
                                 _Player[1].DamageTick = manager.machine.time 
                             end
 
-                            if CFG.ENABLE_DAMAGE_COUNT and cfg.DAMAGE_TAKEN == "auto" and not rumble_triggered and Is_Warmup_Complete() then
+                            if CFG.ENABLE_DAMAGE_COUNT and cfg.DAMAGE_TAKEN == "auto" and not rumble_triggered and warmup_ok then
                                  p.DamageCount = p.DamageCount + 1
                                  out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
                             end
@@ -882,7 +897,7 @@ function Compute_Outputs()
                 
                 -- Life Lost Logic
                 if CFG.ENABLE_LIFE_LOST then
-                    if cfg.LIFE_LOST == "auto" and cfg.LIFE and Is_Warmup_Complete() then
+                    if cfg.LIFE_LOST == "auto" and cfg.LIFE and warmup_ok then
                          local lost = false
                          if CFG.LIFE_DIRECTION == "decrease" then
                              if curr_life < p.LastLife then lost = true end
@@ -925,7 +940,7 @@ function Compute_Outputs()
                       
                       if trigger_type > 0 then
                           -- MACHINE GUN RATE LIMITER
-                          if (manager.machine.time - p.RecoilTick) > _MinRecoilInterval then
+                          if (manager.machine.time.as_double() - p.RecoilTick.as_double()) > _MinRecoilInterval.as_double() then
                               -- Dynamically assign duration based on weapon type
                               if trigger_type == 1 then
                                   p.CurrentRecoilDuration = _RecoilDuration
@@ -969,14 +984,14 @@ function Compute_Outputs()
                 -- Only check time if it is currently ON (1)
                 if out:get_value(recoil_out) == 1 then
                     -- Use the dynamically set duration instead of the fixed primary duration
-                    if (manager.machine.time - p.RecoilTick) > p.CurrentRecoilDuration then
+                    if (manager.machine.time.as_double() - p.RecoilTick.as_double()) > p.CurrentRecoilDuration.as_double() then
                         out:set_value(recoil_out, 0)
                     end
                 end
                 
                 local dmg_out = Get_Output_Str(i, "Damage")
                 if out:get_value(dmg_out) == 1 then
-                    if (manager.machine.time - p.DamageTick) > _DamageDuration then
+                    if (manager.machine.time.as_double() - p.DamageTick.as_double()) > _DamageDuration.as_double() then
                         out:set_value(dmg_out, 0)
                     end
                 end
@@ -986,9 +1001,9 @@ function Compute_Outputs()
         -- Final Step: Report Global GameStatus
         -- If global address exists, use it. If not, synthesize from individual player status.
         if global_exists then
-            out:set_value("GameStatus", global_val)
+            out:set_value("GameStatus", warmup_ok and global_val or 0)
         else
-            out:set_value("GameStatus", any_player_active and 1 or 0)
+            out:set_value("GameStatus", warmup_ok and (any_player_active and 1 or 0) or 0)
         end
 
     end)

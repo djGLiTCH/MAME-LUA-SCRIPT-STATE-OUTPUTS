@@ -1,9 +1,9 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 4.2.0
--- Last Modified Date: 2026.02.24
--- Created by DJ_GLiTCH
+-- Universal Script Version: 4.4.1
+-- Last Modified Date: 2026.03.06
+-- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
 
@@ -11,8 +11,7 @@ Please rename your "defaultLG" folder inside your Hook Of The Reaper installatio
 
 area51:
 1. Missing GameStatus
-2. Check data widths are correct
-3. Check Memory Alignment = 32 or false
+2. Check Memory Alignment = 32 or false
 
 bbust:
 1. Missing GameStatus
