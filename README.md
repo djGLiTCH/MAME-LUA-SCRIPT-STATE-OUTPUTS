@@ -12,4 +12,8 @@ MAME/ini
 MAME/scripts
 HOTR/defaultLG/MAME_LUA
 
-Special thanks to Muggins for all of his help in beta testing for me and verifying compatibility with Sinden light guns. I have personally tested with Retroshooter RS3 Reapers as well.
+Special thanks to Muggins for all of his help in beta testing with me and verifying compatibility with Sinden light guns.
+
+The following lightguns have been tested and proven to work with these MAME LUA scripts and Hook Of The Reaper (https://github.com/6Bolt/Hook-Of-The-Reaper):
+- Retroshooter RS3 Reaper Pro
+- Sinden
