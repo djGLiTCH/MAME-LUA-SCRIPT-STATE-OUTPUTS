@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 4.4.1
--- Last Modified Date: 2026.03.06
+-- Universal Script Version: 4.4.7
+-- Last Modified Date: 2026.03.09
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -10,22 +10,22 @@
 Please rename your "defaultLG" folder inside your Hook Of The Reaper installation location before copying the new files over for testing.
 
 area51:
-1. Missing GameStatus
+1. Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
 2. Check Memory Alignment = 32 or false
 
 bbust:
-1. Missing GameStatus
+1. Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
 2. Check Memory Alignment = 32 or false
 
 carnevil:
-1. Missing GameStatus
+1. Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
 2. Check Memory Alignment = 32 or false
 
 cryptklr:
 1. Check Memory Alignment = 32 or false
 
 duckhunt:
-1. Check turn based player counts
+1. Missing individual player GameStatus, which is needed to split statistic counters between players accurately (P2 is added to P1 without individual player Game Status memory addresses)
 
 invasnab:
 1. Check Max Ammo for primary weapon is only ever 9 (ignore rockets, as they are an alt weapon)
@@ -46,7 +46,7 @@ lethalj
 1. General check of values in gameplay
 
 maxforce:
-1. Missing GameStatus
+1. Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
 
 policetr:
 1. General check of values in gameplay
@@ -62,7 +62,9 @@ timecris:
 
 timecrs2:
 1. General check of values in gameplay
+2. Might need to investigate defaultLG file, as something doesn't seem to be right in initial tests
 
 vcop2:
 1. Check Memory Alignment = 32 or false
 2. General check of values in gameplay
+3. Rename defaultLG file to use same naming convention as Model 2 emulator, which makes things more compatible for more users without additional effort of swapping txt files

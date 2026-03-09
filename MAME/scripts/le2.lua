@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 4.4.1
--- Last Modified Date: 2026.03.06
+-- Universal Script Version: 4.4.7
+-- Last Modified Date: 2026.03.09
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: le2
@@ -94,6 +94,7 @@ local CFG = {
     --
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0).
+    -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games.
     PLAYER_MEMORY_OFFSET = false,
 
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only.
@@ -163,6 +164,11 @@ local CFG = {
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback).
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active.
     GAME_STATUS = false,
+    
+    -- GAME_STATUS_ACTIVE_VALUE:
+    -- Defines the exact numerical value that indicates active gameplay for STATUS and GAME_STATUS.
+    -- Set to 'false' to use the default logic (any value > 0 is considered active).
+    GAME_STATUS_ACTIVE_VALUE = false,
 
     P1 = {
         -- Use specific addresses (e.g. 0x...) if you know them, otherwise set to "auto" (if applicable) or false
@@ -206,6 +212,7 @@ local CFG = {
         -- Use specific addresses (e.g. 0x...) if you know them, otherwise set to "auto" (if applicable) or false
         -- NOTE: If P1 is set to a "Native Output String" (e.g. "lamp0"), P2 "auto" will be disabled.
         -- You must manually enter "lamp1" etc for P2 if using Native Outputs.
+		-- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play.
         CREDITS      = "auto", -- If set to "auto" for CREDITS, then it will be determined using PLAYER_CREDIT_MEMORY_OFFSET, but if this is false, then PLAYER_MEMORY_OFFSET is used
         STATUS       = "auto",
         AMMO         = "auto",
@@ -321,7 +328,6 @@ function Resolve_Addresses()
     -- 1. Sanitize P1 Hardware Outputs
     -- If P1 hardware outputs are "auto", disable them (false)
     -- because P1 cannot inherit addresses from itself.
-    -- Renamed keys
     local p1_hardware = { "RECOIL", "DAMAGE", "LAMP_START", "STATUS" }
     for _, key in ipairs(p1_hardware) do
         if CFG.P1[key] == "auto" then
@@ -396,8 +402,6 @@ function Resolve_Addresses()
         -- Life Dependencies
         if not p_cfg.LIFE then
             -- Do NOT disable DAMAGE if it is auto; we need it for calculated rumble!
-            -- Only disable if DAMAGE was relying on an address that doesn't exist.
-            -- But here, DAMAGE="auto" means "use life math". So we keep it.
             if p_cfg.DAMAGE_TAKEN == "auto" then p_cfg.DAMAGE_TAKEN = false end
             -- Also disable LIFE_LOST if no Life source
             if p_cfg.LIFE_LOST == "auto" then p_cfg.LIFE_LOST = false end
@@ -499,7 +503,6 @@ function Register_Outputs_Safe(out_handle)
         if p_cfg.STATUS then out_handle:set_value(p.Str_Status, 0) end
         if p_cfg.CREDITS then out_handle:set_value(p.Str_Credits, 0) end
         
-        -- Add others to pulse list (1->0) to clear lamps/counters cleanly
         -- Conditional check: Only register outputs if the source is valid
         if p_cfg.AMMO then table.insert(list, p.Str_Ammo) end
         if p_cfg.AMMO_ALT then table.insert(list, p.Str_AmmoAlt) end
@@ -519,7 +522,7 @@ function Register_Outputs_Safe(out_handle)
         if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then table.insert(list, p.Str_LifeLost) end
     end
     
-	-- Silently initialize Player outputs to 0 (no pulse)
+    -- Silently initialize Player outputs to 0 (no pulse)
     for _, name in ipairs(list) do out_handle:set_value(name, 0) end
     
     -- Force clear specific counters
@@ -539,8 +542,14 @@ end
 -- Helper to get the correct output string based on Simultaneous Play setting
 function Get_Output_Str(player_idx, type_suffix)
     local target_p = player_idx
-    -- If NOT Simultaneous Play (Shared Hardware), force everyone to P1
-    if not CFG.SIMULTANEOUS_PLAY then target_p = 1 end
+    -- SPLIT ROUTING FOR SHARED HARDWARE:
+    -- If NOT Simultaneous Play (Shared Hardware), we route PHYSICAL hardware outputs to Player 1.
+    -- However, we allow software UI outputs (Ammo, Life, Stats, Status) to stay separated to the actual player.
+    if not CFG.SIMULTANEOUS_PLAY then 
+        if type_suffix == "Recoil" or type_suffix == "Damage" or type_suffix == "LampStart" then
+            target_p = 1
+        end
+    end
     return "P" .. target_p .. "_" .. type_suffix
 end
 
@@ -649,9 +658,15 @@ function Compute_Outputs()
         -- Step 1: Check Global Status (if available)
         local global_val = 0
         local global_exists = false
+        local is_game_active = false
         if CFG.GAME_STATUS then 
             global_val = Read_Data_Safe(mem, CFG.GAME_STATUS, CFG.DATA_WIDTHS.GAME_STATUS)
             global_exists = true
+            if type(CFG.GAME_STATUS_ACTIVE_VALUE) == "number" then
+                if global_val == CFG.GAME_STATUS_ACTIVE_VALUE then is_game_active = true end
+            else
+                if global_val > 0 then is_game_active = true end
+            end
         end
 
         -- Step 2: Main Player Loop
@@ -724,17 +739,31 @@ function Compute_Outputs()
             if cfg.STATUS and cfg.STATUS ~= "auto" then
                 local p_stat_val = Read_Data_Safe(mem, cfg.STATUS, CFG.DATA_WIDTHS.STATUS)
                 
-                -- Gate Output
-                out:set_value(Get_Output_Str(i, "Status"), warmup_ok and p_stat_val or 0)
-                
-                -- We trust the status address immediately.
-                if p_stat_val > 0 then 
-                    is_player_active = true 
+                local p_stat_active = false
+                if type(CFG.GAME_STATUS_ACTIVE_VALUE) == "number" then
+                    if p_stat_val == CFG.GAME_STATUS_ACTIVE_VALUE then p_stat_active = true end
+                else
+                    if p_stat_val > 0 then p_stat_active = true end
                 end
 
-            -- Priority 2: Global Game Status
+                -- INTERSECTION LOGIC: If global status is known, BOTH must be active.
+                if global_exists then
+                    if is_game_active and p_stat_active then
+                        is_player_active = true
+                    end
+                else
+                    -- If no global status is mapped, rely purely on player status
+                    if p_stat_active then 
+                        is_player_active = true 
+                    end
+                end
+
+            -- Priority 2: Global Game Status + Life (No Individual Status mapped)
             elseif global_exists then
-                if global_val > 0 then is_player_active = true end
+                -- Both must be true: Game is active AND player has life remaining
+                if is_game_active and curr_life > 0 then 
+                    is_player_active = true 
+                end
 
             -- Priority 3: Fallback (Coin + Life)
             else
@@ -760,14 +789,20 @@ function Compute_Outputs()
             -- Used for Status Synthesis below
             if is_player_active then any_player_active = true end
 
-            -- Outputs (Forced to 0 during Warmup)
-            if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LampStart"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0) end
-            if cfg.AMMO then out:set_value(Get_Output_Str(i, "Ammo"), warmup_ok and curr_ammo or 0) end
-            if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AmmoAlt"), warmup_ok and curr_ammo_alt or 0) end
-            if cfg.LIFE then out:set_value(Get_Output_Str(i, "Life"), warmup_ok and curr_life or 0) end
+            -- Normalized Output: Send clean 1 or 0
+            if cfg.STATUS then 
+                out:set_value(Get_Output_Str(i, "Status"), is_player_active and 1 or 0) 
+            end
 
             -- [GATED ACTION LOGIC] - Runs only if Player is Active
             if is_player_active then
+            
+                -- Base UI Outputs (Software UI is frozen for inactive players in Turn-Based play)
+                if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LampStart"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0) end
+                if cfg.AMMO then out:set_value(Get_Output_Str(i, "Ammo"), warmup_ok and curr_ammo or 0) end
+                if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AmmoAlt"), warmup_ok and curr_ammo_alt or 0) end
+                if cfg.LIFE then out:set_value(Get_Output_Str(i, "Life"), warmup_ok and curr_life or 0) end
+
                 -- Primary Shot Counter
                 if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED and warmup_ok then
                     if type(cfg.SHOTS_FIRED) == "number" then
@@ -830,34 +865,36 @@ function Compute_Outputs()
                     end
                 end
 
-                -- Damage Logic
+                -- DECOUPLED DAMAGE LOGIC
+                -- Physical hardware rumble triggers independently from the on-screen statistics counter.
                 local rumble_triggered = false
-                if CFG.ENABLE_DAMAGE_COUNT and cfg.DAMAGE_TAKEN then
-                    if type(cfg.DAMAGE_TAKEN) == "number" then
-                        -- Use Read_Data_Safe for variable width support
-                        local mem_val = Read_Data_Safe(mem, cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
-                        if mem_val > p.LastDmgMem then
-                            if warmup_ok then
+                
+                if type(cfg.DAMAGE_TAKEN) == "number" then
+                    -- Use Read_Data_Safe for variable width support
+                    local mem_val = Read_Data_Safe(mem, cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
+                    if mem_val > p.LastDmgMem then
+                        if warmup_ok then
+                            rumble_triggered = true
+                            if CFG.ENABLE_DAMAGE_COUNT then
                                 p.DamageCount = p.DamageCount + 1
                                 out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
-                                rumble_triggered = true
                             end
                         end
-                        p.LastDmgMem = mem_val
-                    elseif cfg.DAMAGE_TAKEN == "auto" and cfg.LIFE then
-                        local hit = false
-                        if CFG.LIFE_DIRECTION == "decrease" then
-                            -- Simple check works because Offset/Max logic (above) smoothed the data
-                            if curr_life < p.LastLife then hit = true end
-                        else
-                            if curr_life > p.LastLife then hit = true end
-                        end
-                        if hit then
-                            if warmup_ok then
-                                p.DamageCount = p.DamageCount + 1
-                                out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
-                                rumble_triggered = true 
-                            end
+                    end
+                    p.LastDmgMem = mem_val
+                elseif cfg.DAMAGE_TAKEN == "auto" and cfg.LIFE then
+                    local hit = false
+                    if CFG.LIFE_DIRECTION == "decrease" then
+                        -- Simple check works because Offset/Max logic (above) smoothed the data
+                        if curr_life < p.LastLife then hit = true end
+                    else
+                        if curr_life > p.LastLife then hit = true end
+                    end
+                    if hit and warmup_ok then
+                        rumble_triggered = true 
+                        if CFG.ENABLE_DAMAGE_COUNT then
+                            p.DamageCount = p.DamageCount + 1
+                            out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
                         end
                     end
                 end
@@ -906,12 +943,12 @@ function Compute_Outputs()
                          end
                          if lost then
                              p.LifeLostCount = p.LifeLostCount + 1
-                             out:set_value(_Player[i].Str_LifeLost, p.LifeLostCount)
+                             out:set_value(Get_Output_Str(i, "LifeLost"), p.LifeLostCount)
                          end
                     elseif type(cfg.LIFE_LOST) == "number" then
                          -- Support direct reading if user supplies an address (uses variable width)
                          local val = Read_Data_Safe(mem, cfg.LIFE_LOST, CFG.DATA_WIDTHS.LIFE_LOST)
-                         out:set_value(_Player[i].Str_LifeLost, val)
+                         out:set_value(Get_Output_Str(i, "LifeLost"), val)
                     end
                 end
 
@@ -940,7 +977,8 @@ function Compute_Outputs()
                       
                       if trigger_type > 0 then
                           -- MACHINE GUN RATE LIMITER
-                          if (manager.machine.time.as_double() - p.RecoilTick.as_double()) > _MinRecoilInterval.as_double() then
+                          local time_since_last = manager.machine.time - p.RecoilTick
+                          if time_since_last > _MinRecoilInterval then
                               -- Dynamically assign duration based on weapon type
                               if trigger_type == 1 then
                                   p.CurrentRecoilDuration = _RecoilDuration
@@ -961,9 +999,12 @@ function Compute_Outputs()
                 end
             else
                 -- [SAFETY CLAMP FIX]
-                -- Force outputs to 0 if Inactive, regardless of whether Hardware or Auto config is used
-                if cfg.RECOIL or cfg.AMMO or cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "Recoil"), 0) end
-                if cfg.DAMAGE or cfg.LIFE then out:set_value(Get_Output_Str(i, "Damage"), 0) end
+                -- Only allow inactive players to wipe physical hardware if it is standard simultaneous play.
+                -- Otherwise, inactive players will accidentally wipe the Active Player's hardware lines.
+                if CFG.SIMULTANEOUS_PLAY then
+                    if cfg.RECOIL or cfg.AMMO or cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "Recoil"), 0) end
+                    if cfg.DAMAGE or cfg.LIFE then out:set_value(Get_Output_Str(i, "Damage"), 0) end
+                end
             end
             -- [GATED LOGIC END]
 
@@ -983,25 +1024,34 @@ function Compute_Outputs()
                 local recoil_out = Get_Output_Str(i, "Recoil")
                 -- Only check time if it is currently ON (1)
                 if out:get_value(recoil_out) == 1 then
-                    -- Use the dynamically set duration instead of the fixed primary duration
-                    if (manager.machine.time.as_double() - p.RecoilTick.as_double()) > p.CurrentRecoilDuration.as_double() then
+                    -- Use standard attotime comparison to prevent pcall crashes
+                    local recoil_elapsed = manager.machine.time - p.RecoilTick
+                    if recoil_elapsed > p.CurrentRecoilDuration then
                         out:set_value(recoil_out, 0)
                     end
                 end
                 
                 local dmg_out = Get_Output_Str(i, "Damage")
                 if out:get_value(dmg_out) == 1 then
-                    if (manager.machine.time.as_double() - p.DamageTick.as_double()) > _DamageDuration.as_double() then
+                    local damage_elapsed = manager.machine.time - p.DamageTick
+                    if damage_elapsed > _DamageDuration then
                         out:set_value(dmg_out, 0)
                     end
                 end
             end
         end -- End Player Loop
 
+        -- GLOBAL SHARED HARDWARE CLAMP
+        -- If no one is actively playing, safely pull down the physical hardware lines.
+        if not CFG.SIMULTANEOUS_PLAY and not any_player_active then
+            out:set_value("P1_Recoil", 0)
+            out:set_value("P1_Damage", 0)
+        end
+
         -- Final Step: Report Global GameStatus
-        -- If global address exists, use it. If not, synthesize from individual player status.
+        -- If global address exists, use it (normalized to 1 or 0). If not, synthesize from individual player status.
         if global_exists then
-            out:set_value("GameStatus", warmup_ok and global_val or 0)
+            out:set_value("GameStatus", (warmup_ok and is_game_active) and 1 or 0)
         else
             out:set_value("GameStatus", warmup_ok and (any_player_active and 1 or 0) or 0)
         end
