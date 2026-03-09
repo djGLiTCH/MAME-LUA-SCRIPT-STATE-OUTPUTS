@@ -8,12 +8,14 @@ These files are needed to enable state outputs (or enhanced state outputs with s
 I have made these scripts with a priority for light guns, however, it can be adapted to suit any kind of force feedback as desired.
 
 Copy the relevant files into the following folders as appropriate (and overwrite if necessary):
-MAME/ini
-MAME/scripts
-HOTR/defaultLG/MAME_LUA
-
-Special thanks to Muggins for all of his help in beta testing with me and verifying compatibility with Sinden light guns.
+- MAME/ini
+- MAME/scripts
+- HOTR/defaultLG/MAME_LUA
 
 The following lightguns have been tested and proven to work with these MAME LUA scripts and Hook Of The Reaper (https://github.com/6Bolt/Hook-Of-The-Reaper):
 - Retroshooter RS3 Reaper Pro
 - Sinden
+
+Please refer to the "Progress Notes" to understand what is being worked on and what to look out for prior to the final release.
+
+Special thanks to Muggins for all of his help in beta testing with me and verifying compatibility with Sinden light guns.
