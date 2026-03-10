@@ -1,0 +1,95 @@
+------------------------------------------------------
+-- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
+-- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
+-- Universal Script Version: 5.0.0
+-- Last Modified Date: 2026.03.10
+-- Created by DJ GLiTCH, with testing help from Muggins
+-- License: GNU GENERAL PUBLIC LICENSE 3.0
+------------------------------------------------------
+
+Please rename your "defaultLG" folder inside your Hook Of The Reaper installation location before copying the new files over for testing.
+
+ROM: area51
+Status: Working
+Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+
+ROM: bbust2
+Status: Working
+Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+
+ROM: carnevil
+Status: Working
+Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+
+ROM: cryptklr
+Status: Working
+Issues: Verify that Player 3 works as expected (I only have access to 2 guns, not 3 guns)
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+
+ROM: duckhunt
+Status: Working / Complete
+Issues: None known
+Side Objective: None
+
+ROM: invasnab
+Status: Working
+Issues: Verify that Max Ammo is only ever 9 for primary weapon (ignore secondary weapon that uses rockets, as that is treated as an alternative weapon)
+Side Objective: None
+
+ROM: jdredd
+Status: Working / Complete
+Issues: None known
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+
+ROM: le2
+Status: Working
+Issues: Verify that Max Ammo is only ever 6; Verify that Max Life is only ever 5
+Side Objective: None
+
+ROM: lethalen
+Status: Working / Complete
+Issues: None known
+Side Objective: None
+
+ROM: lethalj
+Status: Working / Complete
+Issues: None known
+Side Objective: None
+
+ROM: maxforce
+Status: Working
+Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Side Objective: None
+
+ROM: policetr
+Status: Working / Complete
+Issues: None known
+Side Objective: None
+
+ROM: ptblank
+Status: Working
+Issues: Verify that Damage is working as expected during gameplay when shooting objects that -1 life
+Side Objective: None
+
+ROM: sgunner
+Status: Working / Complete
+Issues: None known
+Side Objective: None
+
+ROM: timecris
+Status: Working / Complete
+Issues: None known
+Side Objective: None
+
+ROM: timecrs2
+Status: Working
+Issues: Need to investigate defaultLG file, as something doesn't seem to be right in initial tests
+Side Objective: None
+
+ROM: vcop2
+Status: Working
+Issues: Requires original defaultLG file to be replaced which can impact Model 2 emulator players (will rename state outputs in future revision to improve cross-emulator compatibility of shared roms)
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)

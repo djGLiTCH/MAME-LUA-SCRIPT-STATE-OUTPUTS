@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 4.4.7
--- Last Modified Date: 2026.03.09
+-- Universal Script Version: 5.0.0
+-- Last Modified Date: 2026.03.10
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: ptblank
@@ -15,7 +15,7 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms).
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot.
     -- Default: 5000 (5 seconds).
-    STARTUP_DELAY_MS = 5000,
+    STARTUP_DELAY_MS = 2000,
 
     -- COINS_PER_CREDIT: How many coins make 1 Credit?
     -- Used to calculate the correct "Credits" value for state outputs.
@@ -36,6 +36,29 @@ local CFG = {
     --          All players route to P1 outputs (P2 memory events trigger P1_Recoil).
     --          Use this if passing a single physical gun between players (e.g. Lethal Enforcers 2).
     SIMULTANEOUS_PLAY = true,
+
+    --------------------------------------------------
+    -- STATE OUTPUT NAMES (SUFFIXES)                --
+    --------------------------------------------------
+    -- Customize the string names sent to external software.
+    -- The script will automatically prepend the player number (e.g., "P1_").
+    -- Change these if your hardware software expects different names.
+    OUTPUT_SUFFIXES = {
+        GLOBAL_GAME_STATUS = "GameStatus",
+        GLOBAL_CREDITS     = "Credits",
+        AMMO               = "Ammo",
+        AMMO_ALT           = "AmmoAlt",
+        LIFE               = "Life",
+        CREDITS            = "Credits",
+        RECOIL             = "Recoil",
+        DAMAGE             = "Damage",
+        LAMP_START         = "LampStart",
+        STATUS             = "Status",
+        DAMAGE_TAKEN       = "DamageTaken",
+        SHOTS_FIRED        = "ShotsFired",
+        SHOTS_FIRED_ALT    = "ShotsFiredAlt",
+        LIFE_LOST          = "LifeLost",
+    },
 
     --------------------------------------------------
     -- HARDWARE CONFIGURATION                       --
@@ -209,11 +232,8 @@ local CFG = {
         LIFE_LOST    = "auto",
     },
     P2 = {
-        -- Use specific addresses (e.g. 0x...) if you know them, otherwise set to "auto" (if applicable) or false
-        -- NOTE: If P1 is set to a "Native Output String" (e.g. "lamp0"), P2 "auto" will be disabled.
-        -- You must manually enter "lamp1" etc for P2 if using Native Outputs.
-		-- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play.
-        CREDITS      = "auto", -- If set to "auto" for CREDITS, then it will be determined using PLAYER_CREDIT_MEMORY_OFFSET, but if this is false, then PLAYER_MEMORY_OFFSET is used
+        -- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play.
+        CREDITS      = "auto", -- If set to "auto" for CREDITS, then it will be determined using PLAYER_CREDIT_MEMORY_OFFSET, but if PLAYER_CREDIT_MEMORY_OFFSET is set to false, then PLAYER_MEMORY_OFFSET is used
         STATUS       = 0x002105C5,
         AMMO         = "auto",
         AMMO_ALT     = "auto",
@@ -257,40 +277,40 @@ local CFG = {
         LIFE_LOST    = "auto",
     },
 
-    -- ENABLE_OSD: Controls on-screen messages.
-    -- true  = Shows startup messages.
-    -- false = Silent mode (Maximum performance, no stutter).
-    ENABLE_OSD = false,
-
-    -- ENABLE_SHOT_COUNT: Global Master Switch for Shot Counters.
-    -- true  = Enable counters (Source defined in P1/P2 tables below).
-    -- false = Completely disable all shot counting logic.
-    ENABLE_SHOT_COUNT = true,
-
+    -- AMMO_DIRECTION: How the game counts ammo (Used for "auto" logic).
+    -- "decrease" = Counts down (6->5->4). Standard for most games.
+    -- "increase" = Counts up (0->1->2). Used in Point Blank/Mechanical games.
+    AMMO_DIRECTION = "increase",
+    AMMO_ALT_DIRECTION = "decrease",
+    
+    -- LIFE_DIRECTION: How the game counts life (Used for "auto" logic).
+    -- "decrease" = Life bar goes down (Standard).
+    -- "increase" = Damage counter goes up (Hits Taken).
+    LIFE_DIRECTION = "decrease",
+    
     -- SHOTS_FIRED_METHOD: Calculation Logic (Used only if Source is "auto").
     -- "trigger" = Counts +1 for every event (Best for semi-auto).
     -- "bullets" = Counts exact difference (Best for machine guns).
     SHOTS_FIRED_METHOD = "trigger",
     SHOTS_FIRED_ALT_METHOD = "trigger",
-
-    -- AMMO_DIRECTION: How the game counts ammo (Used for "auto" logic).
-    -- "decrease" = Counts down (6->5->4). Standard for most games.
-    -- "increase" = Counts up (0->1->2). Used in Point Blank/Mechanical games.
-    AMMO_DIRECTION = "decrease",
-    AMMO_ALT_DIRECTION = "decrease",
-
-    -- ENABLE_DAMAGE_COUNT: Global Master Switch for Damage Counters.
-    ENABLE_DAMAGE_COUNT = true,
+    
+    -- ENABLE_SHOT_COUNT: Global Master Switch for Shot Counters.
+    -- true  = Enable counters (Source defined in P1/P2 tables below).
+    -- false = Completely disable all shot counting logic.
+    ENABLE_SHOT_COUNT = true,
     
     -- ENABLE_LIFE_LOST: Global Master Switch for Life Lost Counters.
     -- true  = Enable counters (Source defined in P1/P2 tables above).
     -- false = Completely disable all life lost counting logic.
     ENABLE_LIFE_LOST = true,
-
-    -- LIFE_DIRECTION: How the game counts life (Used for "auto" logic).
-    -- "decrease" = Life bar goes down (Standard).
-    -- "increase" = Damage counter goes up (Hits Taken).
-    LIFE_DIRECTION = "decrease",
+    
+    -- ENABLE_DAMAGE_COUNT: Global Master Switch for Damage Counters.
+    ENABLE_DAMAGE_COUNT = true,
+    
+    -- ENABLE_OSD: Controls on-screen messages.
+    -- true  = Shows startup messages.
+    -- false = Silent mode (Maximum performance, no stutter).
+    ENABLE_OSD = false,
 }
 
 ------------------------------------------------------
@@ -427,13 +447,7 @@ for i = 1, 4 do
         CurrentRecoilDuration=_RecoilDuration, -- Dynamically set before clearing
         LastRecoilVal=0, LastRumbleVal=0, 
         ShotCount=0, ShotCountAlt=0, DamageCount=0, LifeLostCount=0,
-        IsActive=false, -- Tracks active state for Tap Handler logic
-        -- Output Strings (Default to P1..P4)
-        Str_Ammo="P"..i.."_Ammo", Str_AmmoAlt="P"..i.."_AmmoAlt", Str_Life="P"..i.."_Life", 
-        Str_Credits="P"..i.."_Credits", Str_Recoil="P"..i.."_Recoil", 
-        Str_Damaged="P"..i.."_Damage", Str_Lamp="P"..i.."_LampStart", 
-        Str_Status="P"..i.."_Status", Str_DmgCount="P"..i.."_DamageTaken", 
-        Str_ShotCount="P"..i.."_ShotsFired", Str_ShotCountAlt="P"..i.."_ShotsFiredAlt", Str_LifeLost="P"..i.."_LifeLost"
+        IsActive=false -- Tracks active state for Tap Handler logic
     }
 end
 
@@ -452,6 +466,23 @@ end
 function Is_Warmup_Complete()
     -- This function uses CFG.STARTUP_DELAY_MS
     return manager.machine.time > _StartupTime
+end
+
+-- Helper to get the correct output string based on Simultaneous Play setting and User Config
+function Get_Output_Str(player_idx, type_key)
+    local target_p = player_idx
+    -- SPLIT ROUTING FOR SHARED HARDWARE:
+    -- If NOT Simultaneous Play (Shared Hardware), we route PHYSICAL hardware outputs to Player 1.
+    -- However, we allow software UI outputs (Ammo, Life, Stats, Status) to stay separated to the actual player.
+    if not CFG.SIMULTANEOUS_PLAY then 
+        if type_key == "RECOIL" or type_key == "DAMAGE" or type_key == "LAMP_START" then
+            target_p = 1
+        end
+    end
+    
+    -- Dynamically pull the user-defined suffix, defaulting to the key if not found
+    local suffix = CFG.OUTPUT_SUFFIXES[type_key] or type_key
+    return "P" .. target_p .. "_" .. suffix
 end
 
 -- Read_Data_Safe handles both Memory and Native Outputs
@@ -489,37 +520,36 @@ function Register_Outputs_Safe(out_handle)
     
     -- Global Output Initialization (No 1->0 pulse for these)
     -- This ensures they are registered immediately as 0 if that is their true state.
-    out_handle:set_value("GameStatus", 0)
-    if CFG.CREDITS then out_handle:set_value("Credits", 0) end
+    out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_GAME_STATUS, 0)
+    if CFG.CREDITS then out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_CREDITS, 0) end
     
     -- Player Output Initialization List
     local list = {}
     for i = 1, CFG.MAX_PLAYERS do
-        local p = _Player[i]
         local p_cfg = CFG["P"..i] -- Access config for conditional checks
         
         -- Set Player Status & Credits to 0 immediately (No pulse)
         -- Only if configured (not false)
-        if p_cfg.STATUS then out_handle:set_value(p.Str_Status, 0) end
-        if p_cfg.CREDITS then out_handle:set_value(p.Str_Credits, 0) end
+        if p_cfg.STATUS then out_handle:set_value(Get_Output_Str(i, "STATUS"), 0) end
+        if p_cfg.CREDITS then out_handle:set_value(Get_Output_Str(i, "CREDITS"), 0) end
         
         -- Conditional check: Only register outputs if the source is valid
-        if p_cfg.AMMO then table.insert(list, p.Str_Ammo) end
-        if p_cfg.AMMO_ALT then table.insert(list, p.Str_AmmoAlt) end
-        if p_cfg.LIFE then table.insert(list, p.Str_Life) end
+        if p_cfg.AMMO then table.insert(list, Get_Output_Str(i, "AMMO")) end
+        if p_cfg.AMMO_ALT then table.insert(list, Get_Output_Str(i, "AMMO_ALT")) end
+        if p_cfg.LIFE then table.insert(list, Get_Output_Str(i, "LIFE")) end
         
         -- Ensure Recoil/Damage are registered if "Auto" mode is possible
         -- (If AMMO exists, Auto-Recoil exists. If LIFE exists, Auto-Damage exists)
-        if p_cfg.RECOIL or p_cfg.AMMO or p_cfg.AMMO_ALT then table.insert(list, p.Str_Recoil) end
-        if p_cfg.DAMAGE or p_cfg.LIFE then table.insert(list, p.Str_Damaged) end
+        if p_cfg.RECOIL or p_cfg.AMMO or p_cfg.AMMO_ALT then table.insert(list, Get_Output_Str(i, "RECOIL")) end
+        if p_cfg.DAMAGE or p_cfg.LIFE then table.insert(list, Get_Output_Str(i, "DAMAGE")) end
         
-        if p_cfg.LAMP_START then table.insert(list, p.Str_Lamp) end
+        if p_cfg.LAMP_START then table.insert(list, Get_Output_Str(i, "LAMP_START")) end
         
-        if CFG.ENABLE_DAMAGE_COUNT and (p_cfg.DAMAGE_TAKEN or p_cfg.LIFE) then table.insert(list, p.Str_DmgCount) end
-        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED or p_cfg.AMMO) then table.insert(list, p.Str_ShotCount) end
-        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED_ALT or p_cfg.AMMO_ALT) then table.insert(list, p.Str_ShotCountAlt) end
+        if CFG.ENABLE_DAMAGE_COUNT and (p_cfg.DAMAGE_TAKEN or p_cfg.LIFE) then table.insert(list, Get_Output_Str(i, "DAMAGE_TAKEN")) end
+        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED or p_cfg.AMMO) then table.insert(list, Get_Output_Str(i, "SHOTS_FIRED")) end
+        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED_ALT or p_cfg.AMMO_ALT) then table.insert(list, Get_Output_Str(i, "SHOTS_FIRED_ALT")) end
         -- Register output only if enabled globally and per-player
-        if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then table.insert(list, p.Str_LifeLost) end
+        if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then table.insert(list, Get_Output_Str(i, "LIFE_LOST")) end
     end
     
     -- Silently initialize Player outputs to 0 (no pulse)
@@ -528,29 +558,15 @@ function Register_Outputs_Safe(out_handle)
     -- Force clear specific counters
     for i = 1, CFG.MAX_PLAYERS do
         local p_cfg = CFG["P"..i]
-        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED or p_cfg.AMMO) then out_handle:set_value(_Player[i].Str_ShotCount, 0) end
-        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED_ALT or p_cfg.AMMO_ALT) then out_handle:set_value(_Player[i].Str_ShotCountAlt, 0) end
-        if CFG.ENABLE_DAMAGE_COUNT and (p_cfg.DAMAGE_TAKEN or p_cfg.LIFE) then out_handle:set_value(_Player[i].Str_DmgCount, 0) end
-        if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then out_handle:set_value(_Player[i].Str_LifeLost, 0) end
+        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED or p_cfg.AMMO) then out_handle:set_value(Get_Output_Str(i, "SHOTS_FIRED"), 0) end
+        if CFG.ENABLE_SHOT_COUNT and (p_cfg.SHOTS_FIRED_ALT or p_cfg.AMMO_ALT) then out_handle:set_value(Get_Output_Str(i, "SHOTS_FIRED_ALT"), 0) end
+        if CFG.ENABLE_DAMAGE_COUNT and (p_cfg.DAMAGE_TAKEN or p_cfg.LIFE) then out_handle:set_value(Get_Output_Str(i, "DAMAGE_TAKEN"), 0) end
+        if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then out_handle:set_value(Get_Output_Str(i, "LIFE_LOST"), 0) end
     end
 end
 
 function Get_Safe_Tap_Address(addr)
     return addr - (addr % 4)
-end
-
--- Helper to get the correct output string based on Simultaneous Play setting
-function Get_Output_Str(player_idx, type_suffix)
-    local target_p = player_idx
-    -- SPLIT ROUTING FOR SHARED HARDWARE:
-    -- If NOT Simultaneous Play (Shared Hardware), we route PHYSICAL hardware outputs to Player 1.
-    -- However, we allow software UI outputs (Ammo, Life, Stats, Status) to stay separated to the actual player.
-    if not CFG.SIMULTANEOUS_PLAY then 
-        if type_suffix == "Recoil" or type_suffix == "Damage" or type_suffix == "LampStart" then
-            target_p = 1
-        end
-    end
-    return "P" .. target_p .. "_" .. type_suffix
 end
 
 ------------------------------------------------------
@@ -571,7 +587,7 @@ function OnWrite_Generic(name, val, player_idx, type_key)
     if type_key == "RECOIL" then
         if val == 1 and p.LastRecoilVal == 0 then
             -- Use Simultaneous Play logic for output name
-            local out_name = Get_Output_Str(player_idx, "Recoil")
+            local out_name = Get_Output_Str(player_idx, "RECOIL")
             out:set_value(out_name, 1)
             p.RecoilTick = manager.machine.time
             p.CurrentRecoilDuration = _RecoilDuration -- Default hardware taps to standard duration
@@ -645,7 +661,7 @@ function Compute_Outputs()
             local credit_val = math.floor(raw / divisor)
             
             -- Set to exact credit_val if warmup is complete, else force 0
-            out:set_value("Credits", warmup_ok and credit_val or 0) 
+            out:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_CREDITS, warmup_ok and credit_val or 0) 
             
             -- The "Double Lock":
             -- Only latch the "Has Coined Up" flag AFTER the STARTUP_DELAY_MS has passed.
@@ -662,6 +678,8 @@ function Compute_Outputs()
         if CFG.GAME_STATUS then 
             global_val = Read_Data_Safe(mem, CFG.GAME_STATUS, CFG.DATA_WIDTHS.GAME_STATUS)
             global_exists = true
+            
+            -- Pre-calculate Global Game Active boolean
             if type(CFG.GAME_STATUS_ACTIVE_VALUE) == "number" then
                 if global_val == CFG.GAME_STATUS_ACTIVE_VALUE then is_game_active = true end
             else
@@ -727,7 +745,7 @@ function Compute_Outputs()
                     p_credits = Read_Data_Safe(mem, CFG.CREDITS, CFG.DATA_WIDTHS.CREDITS) 
                 end
                 -- Gate Output
-                out:set_value(Get_Output_Str(i, "Credits"), warmup_ok and math.floor(p_credits / divisor) or 0)
+                out:set_value(Get_Output_Str(i, "CREDITS"), warmup_ok and math.floor(p_credits / divisor) or 0)
             end
 
             -- --------------------------------------------------------
@@ -789,26 +807,26 @@ function Compute_Outputs()
             -- Used for Status Synthesis below
             if is_player_active then any_player_active = true end
 
-            -- Normalized Output: Send clean 1 or 0
+            -- Normalized Output: Send clean 1 or 0 instead of raw memory value
             if cfg.STATUS then 
-                out:set_value(Get_Output_Str(i, "Status"), is_player_active and 1 or 0) 
+                out:set_value(Get_Output_Str(i, "STATUS"), is_player_active and 1 or 0) 
             end
 
             -- [GATED ACTION LOGIC] - Runs only if Player is Active
             if is_player_active then
             
                 -- Base UI Outputs (Software UI is frozen for inactive players in Turn-Based play)
-                if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LampStart"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0) end
-                if cfg.AMMO then out:set_value(Get_Output_Str(i, "Ammo"), warmup_ok and curr_ammo or 0) end
-                if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AmmoAlt"), warmup_ok and curr_ammo_alt or 0) end
-                if cfg.LIFE then out:set_value(Get_Output_Str(i, "Life"), warmup_ok and curr_life or 0) end
+                if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LAMP_START"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0) end
+                if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), warmup_ok and curr_ammo or 0) end
+                if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), warmup_ok and curr_ammo_alt or 0) end
+                if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), warmup_ok and curr_life or 0) end
 
                 -- Primary Shot Counter
                 if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED and warmup_ok then
                     if type(cfg.SHOTS_FIRED) == "number" then
                         -- Use Read_Data_Safe for variable width support
                         local mem_val = Read_Data_Safe(mem, cfg.SHOTS_FIRED, CFG.DATA_WIDTHS.SHOTS_FIRED)
-                        out:set_value(Get_Output_Str(i, "ShotsFired"), mem_val)
+                        out:set_value(Get_Output_Str(i, "SHOTS_FIRED"), mem_val)
                         p.ShotCount = mem_val
                     elseif cfg.SHOTS_FIRED == "auto" and cfg.AMMO then
                         local shot = false
@@ -830,7 +848,7 @@ function Compute_Outputs()
                             else
                                 p.ShotCount = p.ShotCount + 1
                             end
-                            out:set_value(Get_Output_Str(i, "ShotsFired"), p.ShotCount)
+                            out:set_value(Get_Output_Str(i, "SHOTS_FIRED"), p.ShotCount)
                         end
                     end
                 end
@@ -839,7 +857,7 @@ function Compute_Outputs()
                 if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_ALT and warmup_ok then
                     if type(cfg.SHOTS_FIRED_ALT) == "number" then
                         local mem_val = Read_Data_Safe(mem, cfg.SHOTS_FIRED_ALT, CFG.DATA_WIDTHS.SHOTS_FIRED_ALT)
-                        out:set_value(Get_Output_Str(i, "ShotsFiredAlt"), mem_val)
+                        out:set_value(Get_Output_Str(i, "SHOTS_FIRED_ALT"), mem_val)
                         p.ShotCountAlt = mem_val
                     elseif cfg.SHOTS_FIRED_ALT == "auto" and cfg.AMMO_ALT then
                         local shot = false
@@ -860,7 +878,7 @@ function Compute_Outputs()
                             else
                                 p.ShotCountAlt = p.ShotCountAlt + 1
                             end
-                            out:set_value(Get_Output_Str(i, "ShotsFiredAlt"), p.ShotCountAlt)
+                            out:set_value(Get_Output_Str(i, "SHOTS_FIRED_ALT"), p.ShotCountAlt)
                         end
                     end
                 end
@@ -877,7 +895,7 @@ function Compute_Outputs()
                             rumble_triggered = true
                             if CFG.ENABLE_DAMAGE_COUNT then
                                 p.DamageCount = p.DamageCount + 1
-                                out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
+                                out:set_value(Get_Output_Str(i, "DAMAGE_TAKEN"), p.DamageCount)
                             end
                         end
                     end
@@ -894,13 +912,13 @@ function Compute_Outputs()
                         rumble_triggered = true 
                         if CFG.ENABLE_DAMAGE_COUNT then
                             p.DamageCount = p.DamageCount + 1
-                            out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
+                            out:set_value(Get_Output_Str(i, "DAMAGE_TAKEN"), p.DamageCount)
                         end
                     end
                 end
 
                 if rumble_triggered then
-                    out:set_value(Get_Output_Str(i, "Damage"), 1)
+                    out:set_value(Get_Output_Str(i, "DAMAGE"), 1)
                     p.DamageTick = manager.machine.time
                     -- If NOT Simultaneous (Shared Hardware), Sync P1 timer
                     if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
@@ -915,7 +933,7 @@ function Compute_Outputs()
                     if type(cfg.DAMAGE) == "number" or (type(cfg.DAMAGE) == "string" and cfg.DAMAGE ~= "auto") then
                         local val = Read_Data_Safe(mem, cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
                         if val == 1 and p.LastRumbleVal == 0 then
-                            out:set_value(Get_Output_Str(i, "Damage"), 1)
+                            out:set_value(Get_Output_Str(i, "DAMAGE"), 1)
                             p.DamageTick = manager.machine.time
                             
                             -- If NOT Simultaneous (Shared Hardware), Sync P1 timer
@@ -925,7 +943,7 @@ function Compute_Outputs()
 
                             if CFG.ENABLE_DAMAGE_COUNT and cfg.DAMAGE_TAKEN == "auto" and not rumble_triggered and warmup_ok then
                                  p.DamageCount = p.DamageCount + 1
-                                 out:set_value(Get_Output_Str(i, "DamageTaken"), p.DamageCount)
+                                 out:set_value(Get_Output_Str(i, "DAMAGE_TAKEN"), p.DamageCount)
                             end
                         end
                         p.LastRumbleVal = val
@@ -943,12 +961,12 @@ function Compute_Outputs()
                          end
                          if lost then
                              p.LifeLostCount = p.LifeLostCount + 1
-                             out:set_value(Get_Output_Str(i, "LifeLost"), p.LifeLostCount)
+                             out:set_value(Get_Output_Str(i, "LIFE_LOST"), p.LifeLostCount)
                          end
                     elseif type(cfg.LIFE_LOST) == "number" then
                          -- Support direct reading if user supplies an address (uses variable width)
                          local val = Read_Data_Safe(mem, cfg.LIFE_LOST, CFG.DATA_WIDTHS.LIFE_LOST)
-                         out:set_value(Get_Output_Str(i, "LifeLost"), val)
+                         out:set_value(Get_Output_Str(i, "LIFE_LOST"), val)
                     end
                 end
 
@@ -986,7 +1004,7 @@ function Compute_Outputs()
                                   p.CurrentRecoilDuration = _RecoilAltDuration
                               end
 
-                              out:set_value(Get_Output_Str(i, "Recoil"), 1)
+                              out:set_value(Get_Output_Str(i, "RECOIL"), 1)
                               p.RecoilTick = manager.machine.time
                               
                               -- If NOT Simultaneous (Shared Hardware), Sync P1 timer and duration
@@ -1002,8 +1020,8 @@ function Compute_Outputs()
                 -- Only allow inactive players to wipe physical hardware if it is standard simultaneous play.
                 -- Otherwise, inactive players will accidentally wipe the Active Player's hardware lines.
                 if CFG.SIMULTANEOUS_PLAY then
-                    if cfg.RECOIL or cfg.AMMO or cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "Recoil"), 0) end
-                    if cfg.DAMAGE or cfg.LIFE then out:set_value(Get_Output_Str(i, "Damage"), 0) end
+                    if cfg.RECOIL or cfg.AMMO or cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "RECOIL"), 0) end
+                    if cfg.DAMAGE or cfg.LIFE then out:set_value(Get_Output_Str(i, "DAMAGE"), 0) end
                 end
             end
             -- [GATED LOGIC END]
@@ -1021,7 +1039,7 @@ function Compute_Outputs()
             end
 
             if can_clear_output then
-                local recoil_out = Get_Output_Str(i, "Recoil")
+                local recoil_out = Get_Output_Str(i, "RECOIL")
                 -- Only check time if it is currently ON (1)
                 if out:get_value(recoil_out) == 1 then
                     -- Use standard attotime comparison to prevent pcall crashes
@@ -1031,7 +1049,7 @@ function Compute_Outputs()
                     end
                 end
                 
-                local dmg_out = Get_Output_Str(i, "Damage")
+                local dmg_out = Get_Output_Str(i, "DAMAGE")
                 if out:get_value(dmg_out) == 1 then
                     local damage_elapsed = manager.machine.time - p.DamageTick
                     if damage_elapsed > _DamageDuration then
@@ -1044,16 +1062,16 @@ function Compute_Outputs()
         -- GLOBAL SHARED HARDWARE CLAMP
         -- If no one is actively playing, safely pull down the physical hardware lines.
         if not CFG.SIMULTANEOUS_PLAY and not any_player_active then
-            out:set_value("P1_Recoil", 0)
-            out:set_value("P1_Damage", 0)
+            out:set_value(Get_Output_Str(1, "RECOIL"), 0)
+            out:set_value(Get_Output_Str(1, "DAMAGE"), 0)
         end
 
         -- Final Step: Report Global GameStatus
         -- If global address exists, use it (normalized to 1 or 0). If not, synthesize from individual player status.
         if global_exists then
-            out:set_value("GameStatus", (warmup_ok and is_game_active) and 1 or 0)
+            out:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_GAME_STATUS, (warmup_ok and is_game_active) and 1 or 0)
         else
-            out:set_value("GameStatus", warmup_ok and (any_player_active and 1 or 0) or 0)
+            out:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_GAME_STATUS, warmup_ok and (any_player_active and 1 or 0) or 0)
         end
 
     end)

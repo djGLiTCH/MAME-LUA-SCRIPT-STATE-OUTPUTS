@@ -15,14 +15,14 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms).
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot.
     -- Default: 5000 (5 seconds).
-    STARTUP_DELAY_MS = 5000,
+    STARTUP_DELAY_MS = 7000,
 
     -- COINS_PER_CREDIT: How many coins make 1 Credit?
     -- Used to calculate the correct "Credits" value for state outputs.
     -- Logic: math.floor(Coins / COINS_PER_CREDIT).
     -- Example: Set to 2. If you insert 3 coins, output is 1 Credit (1.5 rounded down).
     -- Default: 1 (1 Coin = 1 Credit).
-    COINS_PER_CREDIT = 1,
+    COINS_PER_CREDIT = 2,
 
     -- MAX_PLAYERS: Set the number of players to track (1 to 4).
     -- Default: 2
@@ -163,7 +163,7 @@ local CFG = {
     -- GAME_STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback).
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active.
-    GAME_STATUS = false,
+    GAME_STATUS = 0x00002000,
     
     -- GAME_STATUS_ACTIVE_VALUE:
     -- Defines the exact numerical value that indicates active gameplay for STATUS and GAME_STATUS.
@@ -179,7 +179,7 @@ local CFG = {
         -- PLAYER STATUS (Priority 1):
         -- If set, this value strictly determines if this player is active.
         -- It overrides Global Status and Fallback logic for this specific player.
-        STATUS       = 0x00002000,
+        STATUS       = 0x0000219C,
         
         -- At a minimum, it is recommended that AMMO and LIFE contain memory addresses for P1, which will enable automatic logic for other variables and functions
         AMMO         = 0x00002193,
@@ -214,7 +214,7 @@ local CFG = {
         -- You must manually enter "lamp1" etc for P2 if using Native Outputs.
 		-- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play.
         CREDITS      = "auto", -- If set to "auto" for CREDITS, then it will be determined using PLAYER_CREDIT_MEMORY_OFFSET, but if this is false, then PLAYER_MEMORY_OFFSET is used
-        STATUS       = "auto",
+        STATUS       = 0x000021DC,
         AMMO         = "auto",
         AMMO_ALT     = "auto",
         LIFE         = "auto",
