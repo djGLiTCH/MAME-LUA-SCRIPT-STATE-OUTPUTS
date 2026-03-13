@@ -1,32 +1,34 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.0.0
--- Last Modified Date: 2026.03.10
+-- Universal Script Version: 5.0.2
+-- Last Modified Date: 2026.03.13
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
 
 Please rename your "defaultLG" folder inside your Hook Of The Reaper installation location before copying the new files over for testing.
 
+As a general note, these LUA scripts require the original defaultLG files for HOTR to be replaced, so work is needed to ensure compatibility with original defaultLG file and other emulators. This will be addressed in a future release (where possible).
+
 ROM: area51
-Status: Working
-Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Status: Working / Complete
+Issues: None known
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: bbust2
-Status: Working
-Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Status: Working / Complete
+Issues: None known
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: carnevil
-Status: Working
-Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Status: Working / Complete
+Issues: None known
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: cryptklr
 Status: Working
-Issues: Verify that Player 3 works as expected (I only have access to 2 guns, not 3 guns)
+Issues: Verify that Player 3 works as expected (I only have access to 2 guns, so someone with access to 3 guns needs to test this)
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: duckhunt
@@ -45,8 +47,8 @@ Issues: None known
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: le2
-Status: Working
-Issues: Verify that Max Ammo is only ever 6; Verify that Max Life is only ever 5
+Status: Working / Complete
+Issues: None known
 Side Objective: None
 
 ROM: lethalen
@@ -60,8 +62,8 @@ Issues: None known
 Side Objective: None
 
 ROM: maxforce
-Status: Working
-Issues: Missing official GameStatus memory address (fallback logic is in use to prevent force feedback during attract mode upon initial bootup)
+Status: Working / Complete
+Issues: None known
 Side Objective: None
 
 ROM: policetr
@@ -70,8 +72,8 @@ Issues: None known
 Side Objective: None
 
 ROM: ptblank
-Status: Working
-Issues: Verify that Damage is working as expected during gameplay when shooting objects that -1 life
+Status: Working / Complete
+Issues: None known
 Side Objective: None
 
 ROM: sgunner
@@ -85,11 +87,11 @@ Issues: None known
 Side Objective: None
 
 ROM: timecrs2
-Status: Working
-Issues: Need to investigate defaultLG file, as something doesn't seem to be right in initial tests
-Side Objective: None
+Status: Working / Complete
+Issues: None known
+Side Objective: Need to investigate defaultLG file and verify inputs/outputs, as something doesn't seem to be right in initial tests
 
 ROM: vcop2
-Status: Working
-Issues: Requires original defaultLG file to be replaced which can impact Model 2 emulator players (will rename state outputs in future revision to improve cross-emulator compatibility of shared roms)
+Status: Working / Complete
+Issues: None known
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)

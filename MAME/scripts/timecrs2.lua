@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.0.0
--- Last Modified Date: 2026.03.10
+-- Universal Script Version: 5.0.2
+-- Last Modified Date: 2026.03.13
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: timecrs2
@@ -10,7 +10,7 @@
 
 local CFG = {
     --------------------------------------------------
-    -- SYSTEM SETTINGS                                --
+    -- SYSTEM SETTINGS                              --
     --------------------------------------------------
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms).
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot.
@@ -305,6 +305,8 @@ local CFG = {
     ENABLE_LIFE_LOST = true,
     
     -- ENABLE_DAMAGE_COUNT: Global Master Switch for Damage Counters.
+    -- true  = Enable counters (Source defined in P1/P2 tables above).
+    -- false = Completely disable all damage counting logic.
     ENABLE_DAMAGE_COUNT = true,
     
     -- ENABLE_OSD: Controls on-screen messages.
@@ -447,7 +449,9 @@ for i = 1, 4 do
         CurrentRecoilDuration=_RecoilDuration, -- Dynamically set before clearing
         LastRecoilVal=0, LastRumbleVal=0, 
         ShotCount=0, ShotCountAlt=0, DamageCount=0, LifeLostCount=0,
-        IsActive=false -- Tracks active state for Tap Handler logic
+        IsActive=false, -- Tracks active state for Tap Handler logic
+        IsRecoilActive=false, -- Internal boolean to prevent out:get_value read failures
+        IsDamageActive=false
     }
 end
 
@@ -585,17 +589,20 @@ function OnWrite_Generic(name, val, player_idx, type_key)
     if not p.IsActive then return end
     
     if type_key == "RECOIL" then
-        if val == 1 and p.LastRecoilVal == 0 then
+        -- V5.0.2: Checks if value increased, supporting both binary toggles and incrementing counters
+        if val > p.LastRecoilVal then
             -- Use Simultaneous Play logic for output name
             local out_name = Get_Output_Str(player_idx, "RECOIL")
             out:set_value(out_name, 1)
             p.RecoilTick = manager.machine.time
             p.CurrentRecoilDuration = _RecoilDuration -- Default hardware taps to standard duration
+            p.IsRecoilActive = true
             
             -- If Turn Based (Shared Hardware), sync P1 timer so P1 logic handles cleanup
             if (not CFG.SIMULTANEOUS_PLAY) and player_idx > 1 then 
                 _Player[1].RecoilTick = manager.machine.time 
                 _Player[1].CurrentRecoilDuration = _RecoilDuration
+                _Player[1].IsRecoilActive = true
             end
         end
         p.LastRecoilVal = val
@@ -920,9 +927,11 @@ function Compute_Outputs()
                 if rumble_triggered then
                     out:set_value(Get_Output_Str(i, "DAMAGE"), 1)
                     p.DamageTick = manager.machine.time
+                    p.IsDamageActive = true
                     -- If NOT Simultaneous (Shared Hardware), Sync P1 timer
                     if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
                         _Player[1].DamageTick = manager.machine.time 
+                        _Player[1].IsDamageActive = true
                     end
                 end
                 
@@ -932,13 +941,17 @@ function Compute_Outputs()
                     -- Only try to read if it is NOT "auto" string
                     if type(cfg.DAMAGE) == "number" or (type(cfg.DAMAGE) == "string" and cfg.DAMAGE ~= "auto") then
                         local val = Read_Data_Safe(mem, cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
-                        if val == 1 and p.LastRumbleVal == 0 then
+                        
+                        -- V5.0.2: Checks if value increased, supporting both binary toggles and incrementing counters
+                        if val > p.LastRumbleVal then
                             out:set_value(Get_Output_Str(i, "DAMAGE"), 1)
                             p.DamageTick = manager.machine.time
+                            p.IsDamageActive = true
                             
                             -- If NOT Simultaneous (Shared Hardware), Sync P1 timer
                             if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
                                 _Player[1].DamageTick = manager.machine.time 
+                                _Player[1].IsDamageActive = true
                             end
 
                             if CFG.ENABLE_DAMAGE_COUNT and cfg.DAMAGE_TAKEN == "auto" and not rumble_triggered and warmup_ok then
@@ -1006,11 +1019,13 @@ function Compute_Outputs()
 
                               out:set_value(Get_Output_Str(i, "RECOIL"), 1)
                               p.RecoilTick = manager.machine.time
+                              p.IsRecoilActive = true
                               
                               -- If NOT Simultaneous (Shared Hardware), Sync P1 timer and duration
                               if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
                                   _Player[1].RecoilTick = manager.machine.time 
                                   _Player[1].CurrentRecoilDuration = p.CurrentRecoilDuration
+                                  _Player[1].IsRecoilActive = true
                               end
                           end
                       end
@@ -1020,8 +1035,14 @@ function Compute_Outputs()
                 -- Only allow inactive players to wipe physical hardware if it is standard simultaneous play.
                 -- Otherwise, inactive players will accidentally wipe the Active Player's hardware lines.
                 if CFG.SIMULTANEOUS_PLAY then
-                    if cfg.RECOIL or cfg.AMMO or cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "RECOIL"), 0) end
-                    if cfg.DAMAGE or cfg.LIFE then out:set_value(Get_Output_Str(i, "DAMAGE"), 0) end
+                    if cfg.RECOIL or cfg.AMMO or cfg.AMMO_ALT then 
+                        out:set_value(Get_Output_Str(i, "RECOIL"), 0) 
+                        p.IsRecoilActive = false
+                    end
+                    if cfg.DAMAGE or cfg.LIFE then 
+                        out:set_value(Get_Output_Str(i, "DAMAGE"), 0) 
+                        p.IsDamageActive = false
+                    end
                 end
             end
             -- [GATED LOGIC END]
@@ -1038,22 +1059,21 @@ function Compute_Outputs()
                 can_clear_output = false 
             end
 
+            -- DECOUPLED TIMER CLEARING (No longer relies on out:get_value)
             if can_clear_output then
-                local recoil_out = Get_Output_Str(i, "RECOIL")
-                -- Only check time if it is currently ON (1)
-                if out:get_value(recoil_out) == 1 then
-                    -- Use standard attotime comparison to prevent pcall crashes
+                if p.IsRecoilActive then
                     local recoil_elapsed = manager.machine.time - p.RecoilTick
                     if recoil_elapsed > p.CurrentRecoilDuration then
-                        out:set_value(recoil_out, 0)
+                        out:set_value(Get_Output_Str(i, "RECOIL"), 0)
+                        p.IsRecoilActive = false
                     end
                 end
                 
-                local dmg_out = Get_Output_Str(i, "DAMAGE")
-                if out:get_value(dmg_out) == 1 then
+                if p.IsDamageActive then
                     local damage_elapsed = manager.machine.time - p.DamageTick
                     if damage_elapsed > _DamageDuration then
-                        out:set_value(dmg_out, 0)
+                        out:set_value(Get_Output_Str(i, "DAMAGE"), 0)
+                        p.IsDamageActive = false
                     end
                 end
             end
@@ -1064,6 +1084,8 @@ function Compute_Outputs()
         if not CFG.SIMULTANEOUS_PLAY and not any_player_active then
             out:set_value(Get_Output_Str(1, "RECOIL"), 0)
             out:set_value(Get_Output_Str(1, "DAMAGE"), 0)
+            _Player[1].IsRecoilActive = false
+            _Player[1].IsDamageActive = false
         end
 
         -- Final Step: Report Global GameStatus
