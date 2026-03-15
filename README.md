@@ -24,6 +24,7 @@ Note: If a file exists within HOTR/defaultLG with the same filename, then this w
 
 The following lightguns have been tested and proven to work with these MAME LUA scripts and Hook Of The Reaper (https://github.com/6Bolt/Hook-Of-The-Reaper):
 
+- Gun4IR Namco Guncom
 - Retroshooter RS3 Reaper Pro
 - Sinden
 
