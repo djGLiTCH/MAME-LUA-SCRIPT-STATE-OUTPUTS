@@ -18,7 +18,7 @@ Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame res
 
 ROM: area51mx
 Status: Working / Complete
-Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised LUA script (requires v5.1.8)
+Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised LUA script (requires v5.1.8); Ammo and Life cannot be shown correctly in HOTR, as HOTR only expects 1 value for ammo and life respectively, but area51mx has 2 for each (1 for area51 and 1 for maxforce)
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: bbust2

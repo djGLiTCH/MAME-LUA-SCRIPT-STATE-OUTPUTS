@@ -22,7 +22,7 @@ local CFG = {
     -- Logic: math.floor(Coins / COINS_PER_CREDIT)
     -- Example: Set COINS_PER_CREDIT = 2. If you insert 3 coins, output is 1 Credit (1.5 credits rounds down to 1 credit)
     -- Default: 1 (1 Coin = 1 Credit)
-    COINS_PER_CREDIT = 2
+    COINS_PER_CREDIT = 2,
 
     -- MAX_PLAYERS: Set the number of players to track (1 to 4)
     -- Default: 2
