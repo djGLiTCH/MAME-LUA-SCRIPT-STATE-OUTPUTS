@@ -5,7 +5,7 @@
 -- Last Modified Date: 2026.03.15
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: vcop2
+-- MAME ROM: 
 ------------------------------------------------------
 
 local CFG = {
@@ -15,7 +15,7 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms)
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot
     -- Default: 5000 (5 seconds)
-    STARTUP_DELAY_MS = 13000,
+    STARTUP_DELAY_MS = 5000,
 
     -- COINS_PER_CREDIT: How many coins make 1 Credit?
     -- Used to calculate the correct "Credits" value for state outputs
@@ -78,13 +78,13 @@ local CFG = {
     --                 Instead, it will read the value of a native MAME output string
     --                 (e.g. "lamp0") that you define in the Player Tables below
     DATA_WIDTHS = {
-        CREDITS     = 16,
-        GAME_STATUS = 16,
-        STATUS      = 16,
+        CREDITS     = 8,
+        GAME_STATUS = 8,
+        STATUS      = 8,
         STATUS_ALT  = 8,
-        AMMO        = 32,
+        AMMO        = 8,
         AMMO_ALT    = 8,
-        LIFE        = 32,
+        LIFE        = 8,
         LIFE_ALT    = 8,
         RECOIL      = 8,
         DAMAGE      = 8,
@@ -120,7 +120,7 @@ local CFG = {
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0)
     -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games
-    PLAYER_MEMORY_OFFSET = 4,
+    PLAYER_MEMORY_OFFSET = false,
 
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only
     -- Use this if Credits are stored in a different area than Ammo/Life
@@ -185,12 +185,12 @@ local CFG = {
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS     = 0x005D05C0,
+    CREDITS     = false,
 
     -- GAME_STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS = 0x00500035,
+    GAME_STATUS = false,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
@@ -210,11 +210,11 @@ local CFG = {
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
-        STATUS       = 0x0050003D,
+        STATUS       = "auto",
         STATUS_ALT   = false,
-        AMMO         = 0x00507260,
+        AMMO         = false,
         AMMO_ALT     = false,
-        LIFE         = 0x00502090,
+        LIFE         = false,
         LIFE_ALT     = false,
         
         -- Set to "auto" to calculate based on Ammo change, or set a memory address if recoil specific targets are available
@@ -242,7 +242,7 @@ local CFG = {
     P2 = {
         -- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play
         CREDITS      = "auto",
-        STATUS       = 0x0050208C,
+        STATUS       = "auto",
         STATUS_ALT   = "auto",
         AMMO         = "auto",
         AMMO_ALT     = "auto",

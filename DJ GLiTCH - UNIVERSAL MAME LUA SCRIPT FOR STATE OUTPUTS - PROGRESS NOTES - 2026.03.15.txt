@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.0.2
--- Last Modified Date: 2026.03.13
+-- Universal Script Version: 5.1.8
+-- Last Modified Date: 2026.03.15
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -14,6 +14,11 @@ As a general note, these LUA scripts require the original defaultLG files for HO
 ROM: area51
 Status: Working / Complete
 Issues: None known
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+
+ROM: area51mx
+Status: Working / Complete
+Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised LUA script (requires v5.1.8)
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: bbust2
@@ -33,7 +38,7 @@ Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame res
 
 ROM: duckhunt
 Status: Working / Complete
-Issues: None known
+Issues: Statistic counters / trackers cannot distinguish between P1 and P2 since there is no way of knowing which player is actively playing the game (e.g. P1_ShotsFired counts for both P1 and P2)
 Side Objective: None
 
 ROM: invasnab
@@ -43,7 +48,7 @@ Side Objective: None
 
 ROM: jdredd
 Status: Working / Complete
-Issues: None known
+Issues: Machine gun is prioritised as alternative weapon over grenades
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: le2
