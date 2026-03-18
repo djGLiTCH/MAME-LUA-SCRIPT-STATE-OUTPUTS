@@ -1,13 +1,13 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.1.8
--- Last Modified Date: 2026.03.15
+-- Universal Script Version: 5.2.1
+-- Last Modified Date: 2026.03.18
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
 
-Please rename your "defaultLG" folder inside your Hook Of The Reaper installation location before copying the new files over for testing.
+Please rename your "defaultLG" folder inside your Hook Of The Reaper installation location before copying the new files from "MAME_LUA".
 
 As a general note, these LUA scripts require the original defaultLG files for HOTR to be replaced, so work is needed to ensure compatibility with original defaultLG file and other emulators. This will be addressed in a future release (where possible).
 
@@ -18,7 +18,7 @@ Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame res
 
 ROM: area51mx
 Status: Working / Complete
-Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised LUA script (requires v5.1.8); Ammo and Life cannot be shown correctly in HOTR, as HOTR only expects 1 value for ammo and life respectively, but area51mx has 2 for each (1 for area51 and 1 for maxforce)
+Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised LUA script (requires v5.2.1 or higher); Ammo and Life cannot be shown correctly in HOTR, as HOTR only expects 1 value for ammo and life respectively, but area51mx has 2 for each (1 for area51 and 1 for maxforce)
 Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: bbust2
