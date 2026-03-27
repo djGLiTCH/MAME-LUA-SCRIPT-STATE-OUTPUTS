@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.2.1
--- Last Modified Date: 2026.03.18
+-- Universal Script Version: 5.2.3
+-- Last Modified Date: 2026.03.27
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -95,6 +95,11 @@ ROM: timecrs2
 Status: Working / Complete
 Issues: None known
 Side Objective: Need to investigate defaultLG file and verify inputs/outputs, as something doesn't seem to be right in initial tests
+
+ROM: vcop
+Status: Working / Complete
+Issues: None known
+Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
 
 ROM: vcop2
 Status: Working / Complete
