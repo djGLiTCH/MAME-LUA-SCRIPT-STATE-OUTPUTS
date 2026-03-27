@@ -15,7 +15,7 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms)
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot
     -- Default: 5000 (5 seconds)
-    STARTUP_DELAY_MS = 13000,
+    STARTUP_DELAY_MS = 5000,
 
     -- COINS_PER_CREDIT: How many coins make 1 Credit?
     -- Used to calculate the correct "Credits" value for state outputs
@@ -79,19 +79,19 @@ local CFG = {
     --                 Instead, it will read the value of a native MAME output string
     --                 (e.g. "lamp0") that you define in the Player Tables below
     DATA_WIDTHS = {
-        GLOBAL_CREDITS     = 16,
-        GLOBAL_GAME_STATUS = 16,
+        GLOBAL_CREDITS     = 8,
+        GLOBAL_GAME_STATUS = 8,
         CREDITS            = 8,
-        STATUS             = 16,
+        STATUS             = 8,
         STATUS_ALT         = 8,
-        AMMO               = 32,
+        AMMO               = 8,
         AMMO_ALT           = 8,
-        LIFE               = 32,
+        LIFE               = 8,
         LIFE_ALT           = 8,
         RECOIL             = 8,
         RELOAD             = 8,
         DAMAGE             = 8,
-        LAMP_START         = "output",
+        LAMP_START         = 8,
         SHOTS_FIRED        = 16,
         SHOTS_FIRED_ALT    = 16,
         LIFE_LOST          = 16,
@@ -123,7 +123,7 @@ local CFG = {
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0)
     -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games
-    PLAYER_MEMORY_OFFSET = 4,
+    PLAYER_MEMORY_OFFSET = false,
 
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only
     -- Use this if Credits are stored in a different area than Ammo/Life
@@ -189,12 +189,12 @@ local CFG = {
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS     = 0x005D05C0,
+    CREDITS     = false,
 
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS = 0x00500035,
+    GAME_STATUS = false,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
@@ -214,11 +214,11 @@ local CFG = {
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
-        STATUS       = 0x0050003D,
+        STATUS       = false,
         STATUS_ALT   = false,
-        AMMO         = 0x00507260,
+        AMMO         = false,
         AMMO_ALT     = false,
-        LIFE         = 0x00502090,
+        LIFE         = false,
         LIFE_ALT     = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
@@ -230,7 +230,7 @@ local CFG = {
         -- If you want to mirror the native MAME output 'lamp0':
         -- 1. Set DATA_WIDTHS.LAMP_START = "output" above.
         -- 2. Set LAMP_START = "lamp0" here.
-        LAMP_START   = "lamp0",
+        LAMP_START   = false,
         
         -- "auto" = Calculate based on Ammo/Life changes, 0xADDRESS = Read directly from game memory (no quotes), false = Disable this specific counter
         SHOTS_FIRED  = "auto",
@@ -241,7 +241,7 @@ local CFG = {
     P2 = {
         -- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play
         CREDITS      = "auto",
-        STATUS       = 0x0050208C,
+        STATUS       = "auto",
         STATUS_ALT   = "auto",
         AMMO         = "auto",
         AMMO_ALT     = "auto",
@@ -250,7 +250,7 @@ local CFG = {
         RECOIL       = "auto",
         RELOAD       = "auto",
         DAMAGE       = "auto",
-        LAMP_START   = "lamp1",
+        LAMP_START   = "auto",
         SHOTS_FIRED  = "auto",
         SHOTS_FIRED_ALT = "auto",
         DAMAGE_TAKEN = "auto",

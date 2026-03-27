@@ -1,11 +1,11 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.2.1
--- Last Modified Date: 2026.03.18
+-- Universal Script Version: 5.2.3
+-- Last Modified Date: 2026.03.27
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: 
+-- MAME ROM: vcop
 ------------------------------------------------------
 
 local CFG = {
@@ -15,7 +15,7 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms)
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot
     -- Default: 5000 (5 seconds)
-    STARTUP_DELAY_MS = 5000,
+    STARTUP_DELAY_MS = 15000,
 
     -- COINS_PER_CREDIT: How many coins make 1 Credit?
     -- Used to calculate the correct "Credits" value for state outputs
@@ -51,9 +51,9 @@ local CFG = {
         AMMO_ALT           = "AmmoAlt",
         LIFE               = "Life",
         LIFE_ALT           = "LifeAlt",
-        RECOIL             = "Recoil",
+        RECOIL             = "CtmRecoil",
         RELOAD             = "Reload",
-        DAMAGE             = "Damage",
+        DAMAGE             = "Damaged",
         LAMP_START         = "LampStart",
         SHOTS_FIRED        = "ShotsFired",
         SHOTS_FIRED_ALT    = "ShotsFiredAlt",
@@ -91,7 +91,7 @@ local CFG = {
         RECOIL             = 8,
         RELOAD             = 8,
         DAMAGE             = 8,
-        LAMP_START         = 8,
+        LAMP_START         = "output",
         SHOTS_FIRED        = 16,
         SHOTS_FIRED_ALT    = 16,
         LIFE_LOST          = 16,
@@ -123,7 +123,7 @@ local CFG = {
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0)
     -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games
-    PLAYER_MEMORY_OFFSET = false,
+    PLAYER_MEMORY_OFFSET = 4,
 
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only
     -- Use this if Credits are stored in a different area than Ammo/Life
@@ -189,7 +189,7 @@ local CFG = {
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS     = false,
+    CREDITS     = 0x00559270,
 
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
@@ -214,11 +214,11 @@ local CFG = {
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
-        STATUS       = "auto",
+        STATUS       = 0x0050EE30,
         STATUS_ALT   = false,
-        AMMO         = false,
+        AMMO         = 0x0019B75F,
         AMMO_ALT     = false,
-        LIFE         = false,
+        LIFE         = 0x0019B74C,
         LIFE_ALT     = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
@@ -230,7 +230,7 @@ local CFG = {
         -- If you want to mirror the native MAME output 'lamp0':
         -- 1. Set DATA_WIDTHS.LAMP_START = "output" above.
         -- 2. Set LAMP_START = "lamp0" here.
-        LAMP_START   = false,
+        LAMP_START   = "lamp0",
         
         -- "auto" = Calculate based on Ammo/Life changes, 0xADDRESS = Read directly from game memory (no quotes), false = Disable this specific counter
         SHOTS_FIRED  = "auto",
@@ -250,7 +250,7 @@ local CFG = {
         RECOIL       = "auto",
         RELOAD       = "auto",
         DAMAGE       = "auto",
-        LAMP_START   = "auto",
+        LAMP_START   = "lamp1",
         SHOTS_FIRED  = "auto",
         SHOTS_FIRED_ALT = "auto",
         DAMAGE_TAKEN = "auto",
@@ -462,12 +462,22 @@ end
 
 function Read_Data_Safe(mem_handle, source, width)
     if not source then return 0 end
+    
+    -- Coerce native MAME output to strict integer
     if width == "output" then
         if type(source) == "string" and manager.machine.output then
-            return manager.machine.output:get_value(source)
+            local native_val = manager.machine.output:get_value(source)
+            if type(native_val) == "number" then
+                return native_val
+            elseif native_val then
+                return 1
+            else
+                return 0
+            end
         end
         return 0
     end
+    
     if not mem_handle then return 0 end
     
     if width == "float32" then
@@ -492,7 +502,7 @@ function Register_Outputs_Safe(out_handle)
     
     local list = {}
     for i = 1, CFG.MAX_PLAYERS do
-        local p_cfg = CFG["P"..i]
+        local p_cfg = CFG["P"..i] 
         
         if p_cfg.STATUS then out_handle:set_value(Get_Output_Str(i, "STATUS"), 0) end
         if p_cfg.STATUS_ALT then out_handle:set_value(Get_Output_Str(i, "STATUS_ALT"), 0) end
@@ -677,6 +687,11 @@ function Compute_Outputs()
                 end
                 out:set_value(Get_Output_Str(i, "CREDITS"), warmup_ok and math.floor(p_credits / divisor) or 0)
             end
+            
+            -- LAMP START (Must be processed BEFORE the Active Gate, so it blinks during Attract Mode)
+            if cfg.LAMP_START then
+                out:set_value(Get_Output_Str(i, "LAMP_START"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0)
+            end
 
             local is_player_active = false
             local out_status_val = 0
@@ -752,14 +767,13 @@ function Compute_Outputs()
                 local primary_active = (out_status_val == 1)
                 local alternate_active = false
                 
-                if cfg.STATUS_ALT then
+                if cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto" then
                     alternate_active = (out_status_alt_val == 1)
                 else
                     alternate_active = primary_active
                 end
             
                 if primary_active then
-                    if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LAMP_START"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0) end
                     if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), warmup_ok and curr_ammo or 0) end
                     if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), warmup_ok and curr_life or 0) end
 
@@ -975,7 +989,6 @@ function Compute_Outputs()
                           end
                       end
                       
-                      -- Reload Check (Inverse of Recoil logic)
                       local reload_trigger = false
                       if primary_active and cfg.AMMO then
                           if CFG.AMMO_DIRECTION == "decrease" then
