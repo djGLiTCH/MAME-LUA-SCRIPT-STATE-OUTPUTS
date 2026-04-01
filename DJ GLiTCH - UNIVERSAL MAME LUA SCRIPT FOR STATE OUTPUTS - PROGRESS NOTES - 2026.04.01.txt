@@ -7,9 +7,19 @@
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
 
-Please rename your "defaultLG" folder inside your Hook Of The Reaper installation location before copying the new files from "MAME_LUA".
+Basic installation instructions:
 
-As a general note, these LUA scripts require the original defaultLG files for HOTR to be replaced, so work is needed to ensure compatibility with original defaultLG file and other emulators. This will be addressed in a future release (where possible).
+1. Please copy and paste the "defaultLG" folder into your Hook Of The Reaper (HOTR) "defaultLG" folder, and overwrite any files when prompted.
+
+2. Please delete the "MAME_LUA" folder inside "defaultLG\MAME_LUA", as this is needed for these versions of the LUA scripts to work correctly.
+
+3. Copy the relevant "ini" folder into your "MAME/ini" folder, depending on which version of MAME you are using.
+
+4. Copy the "scripts" folder into your "MAME/scripts" folder, regardless of whether it exists or not.
+
+5. Ensure your mame.ini file inside your MAME root directory has "output" set to "network".
+
+---
 
 ROM: area51
 Status: Working / Complete

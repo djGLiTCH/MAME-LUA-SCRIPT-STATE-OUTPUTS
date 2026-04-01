@@ -16,8 +16,6 @@ Recoil_Value 1 Reload_Value
 >Close_COM
 [Signals]
 :Credits
-:P1_LampStart
-:P2_LampStart
 :P1_Ammo
 *P1
 #Ammo_Value

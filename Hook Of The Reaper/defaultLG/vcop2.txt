@@ -3,10 +3,10 @@ Players
 P1
 P2
 Recoil & Reload
-Ammo_Value 0
-Recoil 1
+Ammo_Value 1 Ammo_Value
+Recoil 1 Reload_Value
 Recoil_R2S 0
-Recoil_Value 1
+Recoil_Value 1 Reload_Value
 [States]
 :mame_start
 *All
@@ -15,38 +15,44 @@ Recoil_Value 1
 *All
 >Close_COM
 [Signals]
-:GameStatus
-:P1_Credits
-:P2_Credits
+:Credits
 :P1_Ammo
 *P1
 #Ammo_Value
 #Reload_Value
 >Display_Ammo
+:P1_CtmRecoil
+*P1
+#Recoil
+#Recoil_Value
+:P1_Reload
+*P1
+#Reload
+#Reload_Value
+:P1_Life
+*P1
+>Display_Life
+>Death_Value
+:P1_Damaged
+*P1
+>Damage
 :P2_Ammo
 *P2
 #Ammo_Value
 #Reload_Value
 >Display_Ammo
-:P1_Recoil
-*P1
-#Recoil
-#Recoil_Value
-:P2_Recoil
+:P2_CtmRecoil
 *P2
 #Recoil
 #Recoil_Value
-:P1_Life
-*P1
->Display_Life
->Death_Value
+:P2_Reload
+*P2
+#Reload
+#Reload_Value
 :P2_Life
 *P2
 >Display_Life
 >Death_Value
-:P1_Damage
-*P1
->Damage
-:P2_Damage
+:P2_Damaged
 *P2
 >Damage
