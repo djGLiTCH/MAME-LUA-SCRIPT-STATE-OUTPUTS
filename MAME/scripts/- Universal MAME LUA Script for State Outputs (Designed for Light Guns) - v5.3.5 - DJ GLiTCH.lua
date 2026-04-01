@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.3.2
--- Last Modified Date (YYYY.MM.DD): 2026.04.01
+-- Universal Script Version: 5.3.5
+-- Last Modified Date (YYYY.MM.DD): 2026.04.02
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: 
@@ -14,11 +14,11 @@ local CFG = {
     --------------------------------------------------
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 531 = v5.3.1)
+    -- LUA Version can only be integer numbers (e.g. 535 = v5.3.5)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260401 = 2026.04.01)
-    LUA_VERSION = 532,
-    LUA_DATE    = 20260401,
+    -- LUA Date can only be integer numbers (e.g. 20260402 = 2026.04.02)
+    LUA_VERSION = 535,
+    LUA_DATE    = 20260402,
 
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -203,7 +203,7 @@ local CFG = {
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
     CREDITS     = false,
-
+    
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
@@ -327,6 +327,16 @@ local CFG = {
     SHOTS_FIRED_METHOD = "trigger",
     SHOTS_FIRED_ALT_METHOD = "trigger",
     
+    -- RECOIL_METHOD: How direct memory recoil addresses are processed
+    -- "pulse" = Triggers only when the memory value increases (Best for semi-auto)
+    -- "hold"  = Triggers continuously while the value is > 0 (Best for machine guns like BEL)
+    RECOIL_METHOD = "pulse",
+    
+    -- RECOIL_PRIORITY: Selection of trigger to control the physical recoil solenoid
+    -- "ammo"   = Ammo changes trigger recoil. The Recoil memory address is ignored unless Ammo = 0.
+    -- "recoil" = The Recoil memory address ALWAYS triggers recoil. Ammo changes are completely ignored for physical feedback.
+    RECOIL_PRIORITY = "ammo",
+    
     --------------------------------------------------
     -- GLOBAL MASTER SWITCHES                       --
     --------------------------------------------------
@@ -378,6 +388,16 @@ end)
 -- 2. SETUP & PRE-CALCULATION                        --
 ------------------------------------------------------
 function Resolve_Addresses()
+    -- Normalize all "auto" string inputs to lowercase for exact matching
+    local all_players = { CFG.P1, CFG.P2, CFG.P3, CFG.P4 }
+    for _, p_cfg in ipairs(all_players) do
+        for k, val in pairs(p_cfg) do
+            if type(val) == "string" and string.upper(val) == "AUTO" then
+                p_cfg[k] = "auto"
+            end
+        end
+    end
+
     local p1_hardware = { "RECOIL", "RELOAD", "DAMAGE", "LAMP_START", "STATUS", "STATUS_ALT" }
     for _, key in ipairs(p1_hardware) do
         if CFG.P1[key] == "auto" then
@@ -416,7 +436,6 @@ function Resolve_Addresses()
         end
     end
 
-    local all_players = { CFG.P1, CFG.P2, CFG.P3, CFG.P4 }
     for _, p_cfg in ipairs(all_players) do
         if not p_cfg.AMMO then
             if p_cfg.RECOIL == "auto" and not p_cfg.AMMO_ALT then p_cfg.RECOIL = false end
@@ -489,29 +508,35 @@ end
 function Read_Data_Safe(mem_handle, source, width)
     if not source then return 0 end
     
-    if width == "output" then
-        if type(source) == "string" and manager.machine.output then
-            local native_val = manager.machine.output:get_value(source)
-            if type(native_val) == "number" then
-                return native_val
-            elseif native_val then
-                return 1
-            else
-                return 0
+    if type(width) == "string" then
+        local w_up = string.upper(width)
+        if w_up == "OUTPUT" then
+            if type(source) == "string" and manager.machine.output then
+                local native_val = manager.machine.output:get_value(source)
+                if type(native_val) == "number" then
+                    return native_val
+                elseif native_val then
+                    return 1
+                else
+                    return 0
+                end
             end
+            return 0
         end
-        return 0
     end
     
     if not mem_handle then return 0 end
     
-    if width == "float32" then
-        local val = mem_handle:read_u32(source)
-        return string.unpack("f", string.pack("I4", val))
-    elseif width == "float32be" then
-        local val = mem_handle:read_u32(source)
-        val = ((val & 0xFF) << 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8) | ((val & 0xFF000000) >> 24)
-        return string.unpack("f", string.pack("I4", val))
+    if type(width) == "string" then
+        local w_up = string.upper(width)
+        if w_up == "FLOAT32" then
+            local val = mem_handle:read_u32(source)
+            return string.unpack("f", string.pack("I4", val))
+        elseif w_up == "FLOAT32BE" then
+            local val = mem_handle:read_u32(source)
+            val = ((val & 0xFF) << 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8) | ((val & 0xFF000000) >> 24)
+            return string.unpack("f", string.pack("I4", val))
+        end
     end
 
     if width == 16 then return mem_handle:read_u16(source) end
@@ -801,7 +826,9 @@ function Compute_Outputs()
             if cfg.STATUS then out:set_value(Get_Output_Str(i, "STATUS"), out_status_val) end
             if cfg.STATUS_ALT then out:set_value(Get_Output_Str(i, "STATUS_ALT"), out_status_alt_val) end
 
-            if is_player_active then
+            local just_died = (not is_player_active and p.WasActive)
+
+            if is_player_active or just_died then
             
                 local primary_active = (out_status_val == 1)
                 local alternate_active = false
@@ -825,7 +852,7 @@ function Compute_Outputs()
                             local shot = false
                             local diff = 0
                             
-                            if CFG.AMMO_DIRECTION == "decrease" then
+                            if string.upper(tostring(CFG.AMMO_DIRECTION)) == "DECREASE" then
                                 if curr_ammo < p.LastAmmo and p.LastAmmo <= 200 then
                                     shot = true; diff = p.LastAmmo - curr_ammo
                                 end
@@ -835,7 +862,7 @@ function Compute_Outputs()
                                 end
                             end
                             if shot then
-                                if CFG.SHOTS_FIRED_METHOD == "bullets" then
+                                if string.upper(tostring(CFG.SHOTS_FIRED_METHOD)) == "BULLETS" then
                                     p.ShotCount = p.ShotCount + diff
                                 else
                                     p.ShotCount = p.ShotCount + 1
@@ -862,7 +889,7 @@ function Compute_Outputs()
                             local shot = false
                             local diff = 0
                             
-                            if CFG.AMMO_ALT_DIRECTION == "decrease" then
+                            if string.upper(tostring(CFG.AMMO_ALT_DIRECTION)) == "DECREASE" then
                                 if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= 200 then
                                     shot = true; diff = p.LastAmmoAlt - curr_ammo_alt
                                 end
@@ -872,7 +899,7 @@ function Compute_Outputs()
                                 end
                             end
                             if shot then
-                                if CFG.SHOTS_FIRED_ALT_METHOD == "bullets" then
+                                if string.upper(tostring(CFG.SHOTS_FIRED_ALT_METHOD)) == "BULLETS" then
                                     p.ShotCountAlt = p.ShotCountAlt + diff
                                 else
                                     p.ShotCountAlt = p.ShotCountAlt + 1
@@ -884,6 +911,51 @@ function Compute_Outputs()
                 else
                     if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), 0) end
                     if cfg.LIFE_ALT then out:set_value(Get_Output_Str(i, "LIFE_ALT"), 0) end
+                end
+
+                -- Direct Memory Polling for RECOIL (If a specific address is provided)
+                if cfg.RECOIL and type(cfg.RECOIL) == "number" then
+                    local recoil_val = Read_Data_Safe(mem, cfg.RECOIL, CFG.DATA_WIDTHS.RECOIL)
+                    
+                    local allowed_by_priority = false
+                    if string.upper(tostring(CFG.RECOIL_PRIORITY)) == "RECOIL" then
+                        allowed_by_priority = true
+                    elseif string.upper(tostring(CFG.RECOIL_PRIORITY)) == "AMMO" and curr_ammo == 0 then
+                        allowed_by_priority = true
+                    end
+                    
+                    if allowed_by_priority then
+                        local trigger_recoil = false
+                        if string.upper(tostring(CFG.RECOIL_METHOD)) == "HOLD" then
+                            if recoil_val > 0 then trigger_recoil = true end
+                        else
+                            -- Trigger if the value increases (catches pulses like 0->1 or 1->2)
+                            if recoil_val > p.LastRecoilVal then trigger_recoil = true end
+                        end
+                        
+                        if trigger_recoil then
+                            local time_since_last = manager.machine.time - p.RecoilTick
+                            if time_since_last > _MinRecoilInterval then
+                                p.CurrentRecoilDuration = _RecoilDuration
+                                out:set_value(Get_Output_Str(i, "RECOIL"), 1)
+                                
+                                if CFG.DEMULSHOOTER_COMPATIBILITY then
+                                    local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                                    out:set_value("P" .. target_p .. "_CtmRecoil", 1)
+                                end
+                                
+                                p.RecoilTick = manager.machine.time
+                                p.IsRecoilActive = true
+                                
+                                if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
+                                    _Player[1].RecoilTick = manager.machine.time 
+                                    _Player[1].CurrentRecoilDuration = p.CurrentRecoilDuration
+                                    _Player[1].IsRecoilActive = true
+                                end
+                            end
+                        end
+                    end
+                    p.LastRecoilVal = recoil_val
                 end
 
                 local rumble_triggered = false
@@ -903,16 +975,16 @@ function Compute_Outputs()
                 elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and p.WasActive then
                     local hit = false
                     
-                    if primary_active and cfg.LIFE then
-                        if CFG.LIFE_DIRECTION == "decrease" then
+                    if cfg.LIFE then
+                        if string.upper(tostring(CFG.LIFE_DIRECTION)) == "DECREASE" then
                             if curr_life < p.LastLife then hit = true end
                         else
                             if curr_life > p.LastLife then hit = true end
                         end
                     end
                     
-                    if alternate_active and cfg.LIFE_ALT then
-                        if CFG.LIFE_ALT_DIRECTION == "decrease" then
+                    if cfg.LIFE_ALT then
+                        if string.upper(tostring(CFG.LIFE_ALT_DIRECTION)) == "DECREASE" then
                             if curr_life_alt < p.LastLifeAlt then hit = true end
                         else
                             if curr_life_alt > p.LastLifeAlt then hit = true end
@@ -973,15 +1045,15 @@ function Compute_Outputs()
                 if CFG.ENABLE_LIFE_LOST then
                     if cfg.LIFE_LOST == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and warmup_ok and p.WasActive then
                          local lost = false
-                         if primary_active and cfg.LIFE then
-                             if CFG.LIFE_DIRECTION == "decrease" then
+                         if cfg.LIFE then
+                             if string.upper(tostring(CFG.LIFE_DIRECTION)) == "DECREASE" then
                                  if curr_life < p.LastLife then lost = true end
                              else
                                  if curr_life > p.LastLife then lost = true end
                              end
                          end
-                         if alternate_active and cfg.LIFE_ALT then
-                             if CFG.LIFE_ALT_DIRECTION == "decrease" then
+                         if cfg.LIFE_ALT then
+                             if string.upper(tostring(CFG.LIFE_ALT_DIRECTION)) == "DECREASE" then
                                  if curr_life_alt < p.LastLifeAlt then lost = true end
                              else
                                  if curr_life_alt > p.LastLifeAlt then lost = true end
@@ -998,11 +1070,11 @@ function Compute_Outputs()
                     end
                 end
 
-                if not CFG.MEMORY_ALIGNMENT then
+                if not CFG.MEMORY_ALIGNMENT and primary_active then
                       local trigger_type = 0 
                       
-                      if primary_active and p.WasActive and cfg.AMMO then
-                          if CFG.AMMO_DIRECTION == "decrease" then
+                      if p.WasActive and cfg.AMMO then
+                          if string.upper(tostring(CFG.AMMO_DIRECTION)) == "DECREASE" then
                               if curr_ammo < p.LastAmmo and p.LastAmmo <= 200 then trigger_type = 1 end
                           else
                               if curr_ammo > p.LastAmmo then trigger_type = 1 end
@@ -1010,14 +1082,21 @@ function Compute_Outputs()
                       end
                       
                       if alternate_active and p.WasActive and cfg.AMMO_ALT then
-                          if CFG.AMMO_ALT_DIRECTION == "decrease" then
+                          if string.upper(tostring(CFG.AMMO_ALT_DIRECTION)) == "DECREASE" then
                               if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= 200 then trigger_type = 2 end
                           else
                               if curr_ammo_alt > p.LastAmmoAlt then trigger_type = 2 end
                           end
                       end
+
+                      local allowed_by_priority = false
+                      if cfg.RECOIL == "auto" then
+                          allowed_by_priority = true
+                      elseif type(cfg.RECOIL) == "number" and string.upper(tostring(CFG.RECOIL_PRIORITY)) == "AMMO" then
+                          allowed_by_priority = true
+                      end
                       
-                      if trigger_type > 0 then
+                      if trigger_type > 0 and allowed_by_priority then
                           local time_since_last = manager.machine.time - p.RecoilTick
                           if time_since_last > _MinRecoilInterval then
                               if trigger_type == 1 then
@@ -1044,8 +1123,8 @@ function Compute_Outputs()
                       end
                       
                       local reload_trigger = false
-                      if primary_active and p.WasActive and cfg.AMMO then
-                          if CFG.AMMO_DIRECTION == "decrease" then
+                      if p.WasActive and cfg.AMMO then
+                          if string.upper(tostring(CFG.AMMO_DIRECTION)) == "DECREASE" then
                               if curr_ammo > p.LastAmmo then reload_trigger = true end
                           else
                               if curr_ammo < p.LastAmmo then reload_trigger = true end
@@ -1053,7 +1132,7 @@ function Compute_Outputs()
                       end
                       
                       if alternate_active and p.WasActive and cfg.AMMO_ALT then
-                          if CFG.AMMO_ALT_DIRECTION == "decrease" then
+                          if string.upper(tostring(CFG.AMMO_ALT_DIRECTION)) == "DECREASE" then
                               if curr_ammo_alt > p.LastAmmoAlt then reload_trigger = true end
                           else
                               if curr_ammo_alt < p.LastAmmoAlt then reload_trigger = true end
@@ -1074,22 +1153,11 @@ function Compute_Outputs()
                       end
                 end
             else
-                if CFG.SIMULTANEOUS_PLAY then
-                    if cfg.RECOIL then 
-                        out:set_value(Get_Output_Str(i, "RECOIL"), 0) 
-                        if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P" .. i .. "_CtmRecoil", 0) end
-                        p.IsRecoilActive = false
-                    end
-                    if cfg.RELOAD then
-                        out:set_value(Get_Output_Str(i, "RELOAD"), 0)
-                        p.IsReloadActive = false
-                    end
-                    if cfg.DAMAGE then 
-                        out:set_value(Get_Output_Str(i, "DAMAGE"), 0) 
-                        if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P" .. i .. "_Damaged", 0) end
-                        p.IsDamageActive = false
-                    end
-                end
+                -- Explicitly clear static values when a player dies or is inactive
+                if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), 0) end
+                if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), 0) end
+                if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), 0) end
+                if cfg.LIFE_ALT then out:set_value(Get_Output_Str(i, "LIFE_ALT"), 0) end
             end
 
             p.LastAmmo = curr_ammo
@@ -1136,21 +1204,6 @@ function Compute_Outputs()
                     end
                 end
             end
-        end
-
-        if not CFG.SIMULTANEOUS_PLAY and not any_player_active then
-            if CFG.P1.RECOIL then 
-                out:set_value(Get_Output_Str(1, "RECOIL"), 0) 
-                if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P1_CtmRecoil", 0) end
-            end
-            if CFG.P1.RELOAD then out:set_value(Get_Output_Str(1, "RELOAD"), 0) end
-            if CFG.P1.DAMAGE then 
-                out:set_value(Get_Output_Str(1, "DAMAGE"), 0) 
-                if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P1_Damaged", 0) end
-            end
-            _Player[1].IsRecoilActive = false
-            _Player[1].IsReloadActive = false
-            _Player[1].IsDamageActive = false
         end
 
         if global_exists then

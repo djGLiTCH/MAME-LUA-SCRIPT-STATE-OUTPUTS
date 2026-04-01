@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.3.2
--- Last Modified Date (YYYY.MM.DD): 2026.04.01
+-- Universal Script Version: 5.3.5
+-- Last Modified Date (YYYY.MM.DD): 2026.04.02
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -24,31 +24,41 @@ Basic installation instructions:
 ROM: area51
 Status: Working / Complete
 Issues: None known
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
 
 ROM: area51mx
 Status: Working / Complete
 Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised LUA script (requires v5.2.1 or higher); Ammo and Life cannot be shown correctly in HOTR, as HOTR only expects 1 value for ammo and life respectively, but area51mx has 2 for each (1 for area51 and 1 for maxforce)
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
 
 ROM: bbust2
 Status: Working / Complete
 Issues: None known
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
+
+ROM: bel
+Status: Working / Complete
+Issues: None known
+Side Objective: None
 
 ROM: carnevil
 Status: Working / Complete
 Issues: None known
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
 
 ROM: cryptklr
 Status: Working
 Issues: Verify that Player 3 works as expected (I only have access to 2 guns, so someone with access to 3 guns needs to test this)
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
 
 ROM: duckhunt
 Status: Working / Complete
 Issues: Statistic counters / trackers cannot distinguish between P1 and P2 since there is no way of knowing which player is actively playing the game (e.g. P1_ShotsFired counts for both P1 and P2)
+Side Objective: None
+
+ROM: hotd
+Status: Working / Complete
+Issues: None known
 Side Objective: None
 
 ROM: invasnab
@@ -59,7 +69,7 @@ Side Objective: None
 ROM: jdredd
 Status: Working / Complete
 Issues: Machine gun is prioritised as alternative weapon over grenades
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
 
 ROM: le2
 Status: Working / Complete
@@ -109,9 +119,9 @@ Side Objective: Need to investigate defaultLG file and verify inputs/outputs, as
 ROM: vcop
 Status: Working / Complete
 Issues: None known
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
 
 ROM: vcop2
 Status: Working / Complete
 Issues: None known
-Side Objective: Check if Memory Alignment = 32 improves latency to sub-frame response timeframe (currently set to false)
+Side Objective: None
