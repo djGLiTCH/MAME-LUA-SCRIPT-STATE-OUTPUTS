@@ -1,14 +1,25 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.2.1
--- Last Modified Date: 2026.03.18
+-- Universal Script Version: 5.3.2
+-- Last Modified Date (YYYY.MM.DD): 2026.04.01
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: le2
 ------------------------------------------------------
 
 local CFG = {
+    --------------------------------------------------
+    -- SCRIPT METADATA                              --
+    --------------------------------------------------
+    -- MAME state outputs only support integers (no decimals or text strings)
+    -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
+    -- LUA Version can only be integer numbers (e.g. 531 = v5.3.1)
+    -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
+    -- LUA Date can only be integer numbers (e.g. 20260401 = 2026.04.01)
+    LUA_VERSION = 532,
+    LUA_DATE    = 20260401,
+
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
     --------------------------------------------------
@@ -42,6 +53,8 @@ local CFG = {
     -- The script will automatically prepend the player number (e.g., "P1_")
     -- Change these if your hardware software expects different names
     OUTPUT_SUFFIXES = {
+        GLOBAL_LUA_VERSION = "LUA_VERSION",
+        GLOBAL_LUA_DATE    = "LUA_DATE",
         GLOBAL_CREDITS     = "Credits",
         GLOBAL_GAME_STATUS = "GameStatus",
         CREDITS            = "Credits",
@@ -108,9 +121,9 @@ local CFG = {
     -- 5. If 8 fails or causes instability, set to false (Standard Polling)
     --
     -- VALID VALUES:
-    -- 32          = 32-bit (Model 2/3, Namco System 11/12, PlayStation, Beast Busters, CarnEvil)
-    -- 16          = 16-bit (Sega System 16/32, SNES/Genesis, NeoGeo)
-    -- 8           = 8-bit  (Operation Wolf, T2, Midway Y-Unit)
+    -- 32          = 32-bit (Model 2/3, Namco System 11/12, PlayStation, Beast Busters, CarnEvil, etc)
+    -- 16          = 16-bit (Sega System 16/32, SNES/Genesis, NeoGeo, etc)
+    -- 8           = 8-bit  (Operation Wolf, T2, Midway Y-Unit, etc)
     -- false / nil = Standard Polling (Safe Mode, slightly more latency, typically 1 frame / 16ms)
     MEMORY_ALIGNMENT = false,
 
@@ -236,6 +249,9 @@ local CFG = {
         SHOTS_FIRED  = "auto",
         SHOTS_FIRED_ALT = false,
         DAMAGE_TAKEN = "auto",
+        
+        -- Tracks number of lives lost
+        -- "auto" = Calculate based on Life change, 0xADDRESS = Read memory, false = Disable
         LIFE_LOST    = "auto",
     },
     P2 = {
@@ -311,6 +327,10 @@ local CFG = {
     SHOTS_FIRED_METHOD = "trigger",
     SHOTS_FIRED_ALT_METHOD = "trigger",
     
+    --------------------------------------------------
+    -- GLOBAL MASTER SWITCHES                       --
+    --------------------------------------------------
+    
     -- ENABLE_SHOT_COUNT: Global Master Switch for Shot Counters
     -- true  = Enable counters (Source defined in P1/P2 tables below)
     -- false = Completely disable all shot counting logic
@@ -325,6 +345,11 @@ local CFG = {
     -- true  = Enable counters (Source defined in P1/P2 tables above)
     -- false = Completely disable all life lost counting logic
     ENABLE_LIFE_LOST = true,
+    
+    -- DEMULSHOOTER_COMPATIBILITY: Duplicates Recoil and Damage outputs
+    -- true  = Outputs standard suffixes (default is "Recoil" & "Damage"), PLUS "CtmRecoil" & "Damaged" for DemulShooter
+    -- false = Outputs standard suffixes only (default is "Recoil" & "Damage")
+    DEMULSHOOTER_COMPATIBILITY = true,
     
     -- ENABLE_OSD: Controls on-screen messages
     -- true  = Shows startup messages
@@ -426,6 +451,7 @@ for i = 1, 4 do
         LastRecoilVal=0, LastRumbleVal=0, 
         ShotCount=0, ShotCountAlt=0, DamageCount=0, LifeLostCount=0,
         IsActive=false,
+        WasActive=false,
         IsRecoilActive=false,
         IsReloadActive=false,
         IsDamageActive=false
@@ -462,12 +488,21 @@ end
 
 function Read_Data_Safe(mem_handle, source, width)
     if not source then return 0 end
+    
     if width == "output" then
         if type(source) == "string" and manager.machine.output then
-            return manager.machine.output:get_value(source)
+            local native_val = manager.machine.output:get_value(source)
+            if type(native_val) == "number" then
+                return native_val
+            elseif native_val then
+                return 1
+            else
+                return 0
+            end
         end
         return 0
     end
+    
     if not mem_handle then return 0 end
     
     if width == "float32" then
@@ -488,11 +523,14 @@ function Register_Outputs_Safe(out_handle)
     if not out_handle then return end
     
     out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_GAME_STATUS, 0)
+    out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_LUA_VERSION, CFG.LUA_VERSION)
+    out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_LUA_DATE, CFG.LUA_DATE)
+
     if CFG.CREDITS then out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_CREDITS, 0) end
     
     local list = {}
     for i = 1, CFG.MAX_PLAYERS do
-        local p_cfg = CFG["P"..i]
+        local p_cfg = CFG["P"..i] 
         
         if p_cfg.STATUS then out_handle:set_value(Get_Output_Str(i, "STATUS"), 0) end
         if p_cfg.STATUS_ALT then out_handle:set_value(Get_Output_Str(i, "STATUS_ALT"), 0) end
@@ -503,9 +541,15 @@ function Register_Outputs_Safe(out_handle)
         if p_cfg.LIFE then table.insert(list, Get_Output_Str(i, "LIFE")) end
         if p_cfg.LIFE_ALT then table.insert(list, Get_Output_Str(i, "LIFE_ALT")) end
         
-        if p_cfg.RECOIL then table.insert(list, Get_Output_Str(i, "RECOIL")) end
+        if p_cfg.RECOIL then 
+            table.insert(list, Get_Output_Str(i, "RECOIL")) 
+            if CFG.DEMULSHOOTER_COMPATIBILITY then table.insert(list, "P" .. ((not CFG.SIMULTANEOUS_PLAY) and 1 or i) .. "_CtmRecoil") end
+        end
         if p_cfg.RELOAD then table.insert(list, Get_Output_Str(i, "RELOAD")) end
-        if p_cfg.DAMAGE then table.insert(list, Get_Output_Str(i, "DAMAGE")) end
+        if p_cfg.DAMAGE then 
+            table.insert(list, Get_Output_Str(i, "DAMAGE")) 
+            if CFG.DEMULSHOOTER_COMPATIBILITY then table.insert(list, "P" .. ((not CFG.SIMULTANEOUS_PLAY) and 1 or i) .. "_Damaged") end
+        end
         
         if p_cfg.LAMP_START then table.insert(list, Get_Output_Str(i, "LAMP_START")) end
         
@@ -545,6 +589,11 @@ function OnWrite_Generic(name, val, player_idx, type_key)
         if val > p.LastRecoilVal then
             local out_name = Get_Output_Str(player_idx, "RECOIL")
             out:set_value(out_name, 1)
+            if CFG.DEMULSHOOTER_COMPATIBILITY then
+                local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or player_idx
+                out:set_value("P" .. target_p .. "_CtmRecoil", 1)
+            end
+            
             p.RecoilTick = manager.machine.time
             p.CurrentRecoilDuration = _RecoilDuration 
             p.IsRecoilActive = true
@@ -677,6 +726,11 @@ function Compute_Outputs()
                 end
                 out:set_value(Get_Output_Str(i, "CREDITS"), warmup_ok and math.floor(p_credits / divisor) or 0)
             end
+            
+            -- LAMP START (Must be processed BEFORE the Active Gate, so it blinks during Attract Mode)
+            if cfg.LAMP_START then
+                out:set_value(Get_Output_Str(i, "LAMP_START"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0)
+            end
 
             local is_player_active = false
             local out_status_val = 0
@@ -752,14 +806,13 @@ function Compute_Outputs()
                 local primary_active = (out_status_val == 1)
                 local alternate_active = false
                 
-                if cfg.STATUS_ALT then
+                if cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto" then
                     alternate_active = (out_status_alt_val == 1)
                 else
                     alternate_active = primary_active
                 end
             
                 if primary_active then
-                    if cfg.LAMP_START then out:set_value(Get_Output_Str(i, "LAMP_START"), warmup_ok and Read_Data_Safe(mem, cfg.LAMP_START, CFG.DATA_WIDTHS.LAMP_START) or 0) end
                     if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), warmup_ok and curr_ammo or 0) end
                     if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), warmup_ok and curr_life or 0) end
 
@@ -768,7 +821,7 @@ function Compute_Outputs()
                             local mem_val = Read_Data_Safe(mem, cfg.SHOTS_FIRED, CFG.DATA_WIDTHS.SHOTS_FIRED)
                             out:set_value(Get_Output_Str(i, "SHOTS_FIRED"), mem_val)
                             p.ShotCount = mem_val
-                        elseif cfg.SHOTS_FIRED == "auto" and cfg.AMMO then
+                        elseif cfg.SHOTS_FIRED == "auto" and cfg.AMMO and p.WasActive then
                             local shot = false
                             local diff = 0
                             
@@ -805,7 +858,7 @@ function Compute_Outputs()
                             local mem_val = Read_Data_Safe(mem, cfg.SHOTS_FIRED_ALT, CFG.DATA_WIDTHS.SHOTS_FIRED_ALT)
                             out:set_value(Get_Output_Str(i, "SHOTS_FIRED_ALT"), mem_val)
                             p.ShotCountAlt = mem_val
-                        elseif cfg.SHOTS_FIRED_ALT == "auto" and cfg.AMMO_ALT then
+                        elseif cfg.SHOTS_FIRED_ALT == "auto" and cfg.AMMO_ALT and p.WasActive then
                             local shot = false
                             local diff = 0
                             
@@ -847,7 +900,7 @@ function Compute_Outputs()
                         end
                     end
                     p.LastDmgMem = mem_val
-                elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) then
+                elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and p.WasActive then
                     local hit = false
                     
                     if primary_active and cfg.LIFE then
@@ -877,6 +930,11 @@ function Compute_Outputs()
 
                 if rumble_triggered then
                     out:set_value(Get_Output_Str(i, "DAMAGE"), 1)
+                    if CFG.DEMULSHOOTER_COMPATIBILITY then
+                        local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                        out:set_value("P" .. target_p .. "_Damaged", 1)
+                    end
+                    
                     p.DamageTick = manager.machine.time
                     p.IsDamageActive = true
                     if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
@@ -890,6 +948,11 @@ function Compute_Outputs()
                         local val = Read_Data_Safe(mem, cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
                         if val > p.LastRumbleVal then
                             out:set_value(Get_Output_Str(i, "DAMAGE"), 1)
+                            if CFG.DEMULSHOOTER_COMPATIBILITY then
+                                local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                                out:set_value("P" .. target_p .. "_Damaged", 1)
+                            end
+                            
                             p.DamageTick = manager.machine.time
                             p.IsDamageActive = true
                             
@@ -908,7 +971,7 @@ function Compute_Outputs()
                 end
                 
                 if CFG.ENABLE_LIFE_LOST then
-                    if cfg.LIFE_LOST == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and warmup_ok then
+                    if cfg.LIFE_LOST == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and warmup_ok and p.WasActive then
                          local lost = false
                          if primary_active and cfg.LIFE then
                              if CFG.LIFE_DIRECTION == "decrease" then
@@ -938,7 +1001,7 @@ function Compute_Outputs()
                 if not CFG.MEMORY_ALIGNMENT then
                       local trigger_type = 0 
                       
-                      if primary_active and cfg.AMMO then
+                      if primary_active and p.WasActive and cfg.AMMO then
                           if CFG.AMMO_DIRECTION == "decrease" then
                               if curr_ammo < p.LastAmmo and p.LastAmmo <= 200 then trigger_type = 1 end
                           else
@@ -946,7 +1009,7 @@ function Compute_Outputs()
                           end
                       end
                       
-                      if alternate_active and cfg.AMMO_ALT then
+                      if alternate_active and p.WasActive and cfg.AMMO_ALT then
                           if CFG.AMMO_ALT_DIRECTION == "decrease" then
                               if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= 200 then trigger_type = 2 end
                           else
@@ -964,6 +1027,11 @@ function Compute_Outputs()
                               end
 
                               out:set_value(Get_Output_Str(i, "RECOIL"), 1)
+                              if CFG.DEMULSHOOTER_COMPATIBILITY then
+                                  local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                                  out:set_value("P" .. target_p .. "_CtmRecoil", 1)
+                              end
+                              
                               p.RecoilTick = manager.machine.time
                               p.IsRecoilActive = true
                               
@@ -975,9 +1043,8 @@ function Compute_Outputs()
                           end
                       end
                       
-                      -- Reload Check (Inverse of Recoil logic)
                       local reload_trigger = false
-                      if primary_active and cfg.AMMO then
+                      if primary_active and p.WasActive and cfg.AMMO then
                           if CFG.AMMO_DIRECTION == "decrease" then
                               if curr_ammo > p.LastAmmo then reload_trigger = true end
                           else
@@ -985,7 +1052,7 @@ function Compute_Outputs()
                           end
                       end
                       
-                      if alternate_active and cfg.AMMO_ALT then
+                      if alternate_active and p.WasActive and cfg.AMMO_ALT then
                           if CFG.AMMO_ALT_DIRECTION == "decrease" then
                               if curr_ammo_alt > p.LastAmmoAlt then reload_trigger = true end
                           else
@@ -1010,6 +1077,7 @@ function Compute_Outputs()
                 if CFG.SIMULTANEOUS_PLAY then
                     if cfg.RECOIL then 
                         out:set_value(Get_Output_Str(i, "RECOIL"), 0) 
+                        if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P" .. i .. "_CtmRecoil", 0) end
                         p.IsRecoilActive = false
                     end
                     if cfg.RELOAD then
@@ -1018,6 +1086,7 @@ function Compute_Outputs()
                     end
                     if cfg.DAMAGE then 
                         out:set_value(Get_Output_Str(i, "DAMAGE"), 0) 
+                        if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P" .. i .. "_Damaged", 0) end
                         p.IsDamageActive = false
                     end
                 end
@@ -1027,6 +1096,7 @@ function Compute_Outputs()
             p.LastAmmoAlt = curr_ammo_alt
             p.LastLife = curr_life
             p.LastLifeAlt = curr_life_alt
+            p.WasActive = p.IsActive
 
             local can_clear_output = true
             if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
@@ -1038,6 +1108,10 @@ function Compute_Outputs()
                     local recoil_elapsed = manager.machine.time - p.RecoilTick
                     if recoil_elapsed > p.CurrentRecoilDuration then
                         out:set_value(Get_Output_Str(i, "RECOIL"), 0)
+                        if CFG.DEMULSHOOTER_COMPATIBILITY then
+                            local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                            out:set_value("P" .. target_p .. "_CtmRecoil", 0)
+                        end
                         p.IsRecoilActive = false
                     end
                 end
@@ -1054,6 +1128,10 @@ function Compute_Outputs()
                     local damage_elapsed = manager.machine.time - p.DamageTick
                     if damage_elapsed > _DamageDuration then
                         out:set_value(Get_Output_Str(i, "DAMAGE"), 0)
+                        if CFG.DEMULSHOOTER_COMPATIBILITY then
+                            local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                            out:set_value("P" .. target_p .. "_Damaged", 0)
+                        end
                         p.IsDamageActive = false
                     end
                 end
@@ -1061,9 +1139,15 @@ function Compute_Outputs()
         end
 
         if not CFG.SIMULTANEOUS_PLAY and not any_player_active then
-            if CFG.P1.RECOIL then out:set_value(Get_Output_Str(1, "RECOIL"), 0) end
+            if CFG.P1.RECOIL then 
+                out:set_value(Get_Output_Str(1, "RECOIL"), 0) 
+                if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P1_CtmRecoil", 0) end
+            end
             if CFG.P1.RELOAD then out:set_value(Get_Output_Str(1, "RELOAD"), 0) end
-            if CFG.P1.DAMAGE then out:set_value(Get_Output_Str(1, "DAMAGE"), 0) end
+            if CFG.P1.DAMAGE then 
+                out:set_value(Get_Output_Str(1, "DAMAGE"), 0) 
+                if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P1_Damaged", 0) end
+            end
             _Player[1].IsRecoilActive = false
             _Player[1].IsReloadActive = false
             _Player[1].IsDamageActive = false
@@ -1074,6 +1158,9 @@ function Compute_Outputs()
         else
             out:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_GAME_STATUS, warmup_ok and (any_player_active and 1 or 0) or 0)
         end
+        
+        out:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_LUA_VERSION, CFG.LUA_VERSION)
+        out:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_LUA_DATE, CFG.LUA_DATE)
 
     end)
     
