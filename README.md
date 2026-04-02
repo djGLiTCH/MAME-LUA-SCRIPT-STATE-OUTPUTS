@@ -14,13 +14,19 @@ For example, most games will have a memory address for an ammo magazine that dec
 - Ammo
 - Life
 
-To help the light gun community, I have prepared a selection of MAME games for use with this LUA script. To install these, copy the relevant files into the following folders as appropriate (and overwrite if necessary):
+To help the light gun community, I have prepared a selection of MAME games for use with this LUA script. To install these, copy the relevant files into the following folders as appropriate (and overwrite if necessary). Basic install instructions are available below (to update to the latest release, just repeat these steps and overwrite all files when prompted):
 
-- MAME/ini
-- MAME/scripts
-- HOTR/defaultLG/MAME_LUA
+1. Please copy and paste the "defaultLG" folder into your "HookOfTheReaper\defaultLG" folder, and overwrite any files when prompted.
 
-Note: If a file exists within HOTR/defaultLG with the same filename, then this will take priority over the file in HOTR/defaultLG/MAME_LUA, and so the original filename in HOTR/defaultLG must be deleted. I will attempt to improve compatibility of defaultLG files for use with multiple emulators in a future release.
+2. Please delete the "MAME_LUA" folder located at "HookOfTheReaper\defaultLG\MAME_LUA", as this can cause issues with my LUA scripts since they are not what HOTR is expecting by default.
+
+3. Copy the relevant "ini" files into your "MAME\ini" folder, depending on which version of MAME you are using.
+
+4. Copy the "scripts" files into your "MAME\scripts" folder, and create the "scripts" folder if it does not yet exist.
+
+5. Ensure your mame.ini file inside your MAME root directory has "output" set to "network" if using Hook Of The Reaper (HOTR).
+
+Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename, then this should take priority over a file with the same filename in "HookOfTheReaper\defaultLG\MAME_LUA", but to prevent issues it is advised you delete the "HookOfTheReaper\defaultLG\MAME_LUA" folder altogether when using my LUA scripts.
 
 The following lightguns have been tested and proven to work with these MAME LUA scripts and Hook Of The Reaper (https://github.com/6Bolt/Hook-Of-The-Reaper):
 
