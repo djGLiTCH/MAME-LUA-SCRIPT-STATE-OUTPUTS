@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.3.2
--- Last Modified Date (YYYY.MM.DD): 2026.04.01
+-- Universal Script Version: 5.4.4
+-- Last Modified Date (YYYY.MM.DD): 2026.04.02
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: invasnab
@@ -14,12 +14,12 @@ local CFG = {
     --------------------------------------------------
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 531 = v5.3.1)
+    -- LUA Version can only be integer numbers (e.g. 543 = v5.4.3)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260401 = 2026.04.01)
-    LUA_VERSION = 532,
-    LUA_DATE    = 20260401,
-
+    -- LUA Date can only be integer numbers (e.g. 20260402 = 2026.04.02)
+    LUA_VERSION = 544,
+    LUA_DATE    = 20260402,
+    
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
     --------------------------------------------------
@@ -27,53 +27,59 @@ local CFG = {
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot
     -- Default: 5000 (5 seconds)
     STARTUP_DELAY_MS = 7000,
-
+    
+    -- STATUS_DEBOUNCE_MS: Time (in ms) to wait before validating an "Active" state
+    -- Prevents 1-frame flashes if a game updates its GameStatus memory a frame BEFORE its AttractStatus / Attract Mode memory
+    -- Default: 34 (Approx 2 frames at 60fps)
+    STATUS_DEBOUNCE_MS = 34,
+    
     -- COINS_PER_CREDIT: How many coins make 1 Credit?
     -- Used to calculate the correct "Credits" value for state outputs
     -- Logic: math.floor(Coins / COINS_PER_CREDIT)
     -- Example: Set COINS_PER_CREDIT = 2. If you insert 3 coins, output is 1 Credit (1.5 credits rounds down to 1 credit)
     -- Default: 1 (1 Coin = 1 Credit)
     COINS_PER_CREDIT = 2,
-
+    
     -- MAX_PLAYERS: Set the number of players to track (1 to 4)
     -- Default: 2
     MAX_PLAYERS = 2,
-
+    
     -- SIMULTANEOUS_PLAY: Controls how outputs are routed
     -- true  = Standard Arcade Mode (Simultaneous)
     --          Each player has their own outputs (P1 triggers P1_Recoil, P2 triggers P2_Recoil)
     -- false = Shared Hardware Mode (Turn Based)
     --          All players route to P1 outputs (P2 memory events trigger P1_Recoil)
     SIMULTANEOUS_PLAY = true,
-
+    
     --------------------------------------------------
     -- STATE OUTPUT NAMES (SUFFIXES)                --
     --------------------------------------------------
     -- Customize the string names sent to external software
-    -- The script will automatically prepend the player number (e.g., "P1_")
+    -- The script will automatically prepend the player number (e.g. "P1_")
     -- Change these if your hardware software expects different names
     OUTPUT_SUFFIXES = {
-        GLOBAL_LUA_VERSION = "LUA_VERSION",
-        GLOBAL_LUA_DATE    = "LUA_DATE",
-        GLOBAL_CREDITS     = "Credits",
-        GLOBAL_GAME_STATUS = "GameStatus",
-        CREDITS            = "Credits",
-        STATUS             = "Status",
-        STATUS_ALT         = "StatusAlt",
-        AMMO               = "Ammo",
-        AMMO_ALT           = "AmmoAlt",
-        LIFE               = "Life",
-        LIFE_ALT           = "LifeAlt",
-        RECOIL             = "Recoil",
-        RELOAD             = "Reload",
-        DAMAGE             = "Damage",
-        LAMP_START         = "LampStart",
-        SHOTS_FIRED        = "ShotsFired",
-        SHOTS_FIRED_ALT    = "ShotsFiredAlt",
-        DAMAGE_TAKEN       = "DamageTaken",
-        LIFE_LOST          = "LifeLost",
+        GLOBAL_LUA_VERSION    = "LUA_VERSION",
+        GLOBAL_LUA_DATE       = "LUA_DATE",
+        GLOBAL_CREDITS        = "Credits",
+        GLOBAL_GAME_STATUS    = "GameStatus",
+        GLOBAL_ATTRACT_STATUS = "AttractStatus",
+        CREDITS               = "Credits",
+        STATUS                = "Status",
+        STATUS_ALT            = "StatusAlt",
+        AMMO                  = "Ammo",
+        AMMO_ALT              = "AmmoAlt",
+        LIFE                  = "Life",
+        LIFE_ALT              = "LifeAlt",
+        RECOIL                = "Recoil",
+        RELOAD                = "Reload",
+        DAMAGE                = "Damage",
+        LAMP_START            = "LampStart",
+        SHOTS_FIRED           = "ShotsFired",
+        SHOTS_FIRED_ALT       = "ShotsFiredAlt",
+        DAMAGE_TAKEN          = "DamageTaken",
+        LIFE_LOST             = "LifeLost",
     },
-
+    
     --------------------------------------------------
     -- HARDWARE CONFIGURATION                       --
     --------------------------------------------------
@@ -82,35 +88,35 @@ local CFG = {
     -- Define how many bits to read for each data type
     --
     -- VALID VALUES:
-    -- 8             = Byte (Standard). Most arcade lamps/outputs
-    -- 16            = Word. Common for Timers, Beast Busters Life/Recoil
-    -- 32            = Dword. Common for modern hardware (Lindbergh, Type X)
-    -- "float32"     = 32-bit Float. Standard 3D games
+    -- 8             = Byte (standard) - default for majority of arcade state outputs
+    -- 16            = Word
+    -- 32            = Dword
+    -- "float32"     = 32-bit Float
     -- "float32be"   = 32-bit Big Endian Float
     -- "output"      = NATIVE MIRROR MODE
     --                 If set to "output", the script will NOT read memory addresses
-    --                 Instead, it will read the value of a native MAME output string
-    --                 (e.g. "lamp0") that you define in the Player Tables below
+    --                 Instead, it will read the value of a native MAME output string that you define in the player tables below
     DATA_WIDTHS = {
-        GLOBAL_CREDITS     = 16,
-        GLOBAL_GAME_STATUS = 8,
-        CREDITS            = 8,
-        STATUS             = 16,
-        STATUS_ALT         = 8,
-        AMMO               = 8,
-        AMMO_ALT           = 16,
-        LIFE               = 32,
-        LIFE_ALT           = 8,
-        RECOIL             = 8,
-        RELOAD             = 8,
-        DAMAGE             = 8,
-        LAMP_START         = 8,
-        SHOTS_FIRED        = 16,
-        SHOTS_FIRED_ALT    = 16,
-        LIFE_LOST          = 16,
-        DAMAGE_TAKEN       = 16,
+        GLOBAL_ATTRACT_STATUS = 8,
+        GLOBAL_CREDITS        = 16,
+        GLOBAL_GAME_STATUS    = 8,
+        CREDITS               = 8,
+        STATUS                = 16,
+        STATUS_ALT            = 8,
+        AMMO                  = 8,
+        AMMO_ALT              = 16,
+        LIFE                  = 32,
+        LIFE_ALT              = 8,
+        RECOIL                = 8,
+        RELOAD                = 8,
+        DAMAGE                = 8,
+        LAMP_START            = 8,
+        SHOTS_FIRED           = 16,
+        SHOTS_FIRED_ALT       = 16,
+        LIFE_LOST             = 16,
+        DAMAGE_TAKEN          = 16,
     },
-
+    
     -- MEMORY_ALIGNMENT: Controls the "width" of the high-speed memory tap
     --
     -- TROUBLESHOOTING GUIDE:
@@ -126,7 +132,7 @@ local CFG = {
     -- 8           = 8-bit  (Operation Wolf, T2, Midway Y-Unit, etc)
     -- false / nil = Standard Polling (Safe Mode, slightly more latency, typically 1 frame / 16ms)
     MEMORY_ALIGNMENT = false,
-
+    
     -- PLAYER_MEMORY_OFFSET: Distance between P1 and next player's memory (in bytes)
     -- Used ONLY when P2, P3, P4 addresses below are set to "auto"
     --
@@ -137,7 +143,7 @@ local CFG = {
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0)
     -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games
     PLAYER_MEMORY_OFFSET = 0x36,
-
+    
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only
     -- Use this if Credits are stored in a different area than Ammo/Life
     -- 
@@ -146,23 +152,22 @@ local CFG = {
     -- 1           = Adjacent Byte (Common for NeoGeo / packed arrays)
     -- 4           = Adjacent Integer (If credits are 32-bit)
     PLAYER_CREDIT_MEMORY_OFFSET = false,
-
+    
     --------------------------------------------------
     -- PULSE TIMING (Milliseconds)                  --
     --------------------------------------------------
-    RECOIL_DURATION_MS = 40,       -- Standard Recoil Solenoid ON time
-    RECOIL_ALT_DURATION_MS = 80,   -- Heavier/Longer kick for Alternate Weapon
-    RELOAD_DURATION_MS = 40,       -- Signal pulse duration for calculated reload outputs
+    RECOIL_DURATION_MS     = 40, -- Signal pulse duration for standard recoil outputs
+    RECOIL_ALT_DURATION_MS = 80, -- Signal pulse duration for alternate recoil outputs (lower to 40 if a standard typical weapon is used as an alternative weapon in-game)
+    RELOAD_DURATION_MS     = 40, -- Signal pulse duration for reload outputs
     
     -- MACHINE GUN RATE LIMITER
-    -- Minimum time (in ms) between recoil pulses.
-    -- If the game fires faster than this, the script ignores the extra shots
-    -- to allow the solenoid to physically return and "kick" again.
+    -- Minimum time (in ms) between recoil pulses
+    -- If the game fires faster than this, the script ignores the extra shots to allow the solenoid to physically return and "kick" again
     -- Recommended: 80ms - 100ms for Machine Guns (approx 10-12 rounds/sec)
     -- Set to 0 to disable (fires as fast as possible, may cause "humming")
-    MIN_RECOIL_INTERVAL_MS = 100,
-
-    DAMAGE_DURATION_MS = 250,  -- Damage Rumble ON time
+    MIN_RECOIL_INTERVAL_MS = 100, -- Minimum time gap between each signal pulse for recoil outputs (prevents burning out solenoids)
+    
+    DAMAGE_DURATION_MS     = 250, -- Signal pulse duration for damage (useful if light gun supports rumble feedback)
     
     --------------------------------------------------
     -- AMMO MATH ADJUSTMENTS                        --
@@ -170,16 +175,16 @@ local CFG = {
     -- AMMO_OFFSET: Added to the memory value before processing
     -- Useful if the game stores "0" for 1 bullet remaining
     -- Set to 0 or false to disable (use raw memory value)
-    AMMO_OFFSET = false,
+    AMMO_OFFSET     = false,
     AMMO_ALT_OFFSET = false,
-
+    
     -- AMMO_MAX: Any value ABOVE this number is clamped to 0
     -- Useful if the game sets ammo to 255 (0xFF) or 99 during reloading/infinity states
     -- Prevents massive jumps in the "Shots Fired" counter and stops infinite recoil loops
     -- Recommend setting this to exactly the max capacity of the primary weapon
-    AMMO_MAX = false,
+    AMMO_MAX     = 9,
     AMMO_ALT_MAX = false,
-
+    
     --------------------------------------------------
     -- LIFE MATH ADJUSTMENTS                        --
     --------------------------------------------------
@@ -187,145 +192,161 @@ local CFG = {
     -- Useful if the game stores "0" for 1 life remaining
     -- Example: Memory reads 0. LIFE_OFFSET = 1. Result = 1
     -- Set to 0 or false to disable this logic (use raw memory value)
-    LIFE_OFFSET = false,
+    LIFE_OFFSET     = false,
     LIFE_ALT_OFFSET = false,
-
+    
     -- LIFE_MAX: Any value ABOVE this number is clamped to 0
     -- Useful if the game wraps memory to 255 (0xFF) when the player dies
     -- Set to false to disable this logic (no clamping)
-    LIFE_MAX = false,
+    LIFE_MAX     = false,
     LIFE_ALT_MAX = false,
-
+    
     --------------------------------------------------
     -- MEMORY ADDRESSES / OUTPUT NAMES              --
     --------------------------------------------------
+    -- GLOBAL ATTRACT STATUS:
+    -- If provided, forces GameStatus to 0 (inactive) whenever this memory address reads > 0 (or exactly matches ATTRACT_STATUS_ACTIVE_VALUE).
+    -- Useful for games that erroneously flag GameStatus as active during attract mode sequences.
+    ATTRACT_STATUS = false,
+    
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS     = 0x0000AF08,
-
+    CREDITS        = 0x0000AF08,
+    
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS = false,
+    GAME_STATUS    = false,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
     -- Set to 'false' to use the default logic (any value > 0 is considered active)
     -- Set to 0 if the game uses 0 to denote active gameplay
-    GAME_STATUS_ACTIVE_VALUE = false,
-    STATUS_ACTIVE_VALUE      = false,
-    STATUS_ALT_ACTIVE_VALUE  = false,
-
+    ATTRACT_STATUS_ACTIVE_VALUE = false,
+	GAME_STATUS_ACTIVE_VALUE    = false,
+    STATUS_ACTIVE_VALUE         = false,
+    STATUS_ALT_ACTIVE_VALUE     = false,
+    
     P1 = {
         -- Use specific addresses (e.g. 0x...) if you know them, otherwise set to "auto" (if applicable) or false (if appropriate)
         -- At a minimum, it is recommended that AMMO and LIFE contain memory addresses for P1, which will enable automatic logic for other variables and functions
         
         -- If CREDITS = "auto", then use Global CREDITS address defined above
-        CREDITS      = false,
+        CREDITS         = false,
         
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
-        STATUS       = 0x0000A011,
-        STATUS_ALT   = false,
-        AMMO         = 0x0000C07C,
-        AMMO_ALT     = 0x0000A034, -- P1 Rockets = 0x0000A034
-        LIFE         = 0x0000A01D,
-        LIFE_ALT     = false,
+        STATUS          = 0x0000A011,
+        STATUS_ALT      = false,
+        AMMO            = 0x0000C07C,
+        AMMO_ALT        = 0x0000A034, -- P1 Rockets = 0x0000A034
+        LIFE            = 0x0000A01D,
+        LIFE_ALT        = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
-        RECOIL       = "auto",
-        RELOAD       = "auto",
-        DAMAGE       = "auto",
+        RECOIL          = "auto",
+        RELOAD          = "auto",
+        DAMAGE          = "auto",
         
         -- LAMP_START: 
-        -- If you want to mirror the native MAME output 'lamp0':
-        -- 1. Set DATA_WIDTHS.LAMP_START = "output" above.
-        -- 2. Set LAMP_START = "lamp0" here.
-        LAMP_START   = false,
+        -- If you want to mirror the native MAME output:
+        -- 1. Set DATA_WIDTHS.LAMP_START = "output" above
+        -- 2. Set LAMP_START = "lamp0" or whatever is appropriate below
+        LAMP_START      = false,
         
         -- "auto" = Calculate based on Ammo/Life changes, 0xADDRESS = Read directly from game memory (no quotes), false = Disable this specific counter
-        SHOTS_FIRED  = "auto",
+        SHOTS_FIRED     = "auto",
         SHOTS_FIRED_ALT = "auto",
-        DAMAGE_TAKEN = "auto",
+        DAMAGE_TAKEN    = "auto",
         
         -- Tracks number of lives lost
         -- "auto" = Calculate based on Life change, 0xADDRESS = Read memory, false = Disable
-        LIFE_LOST    = "auto",
+        LIFE_LOST       = "auto",
     },
     P2 = {
         -- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play
-        CREDITS      = "auto",
-        STATUS       = 0x0000A047,
-        STATUS_ALT   = "auto",
-        AMMO         = 0x0000C07E,
-        AMMO_ALT     = 0x0000A068, -- P2 Rockets = 0x0000A068
-        LIFE         = 0x0000A053,
-        LIFE_ALT     = "auto",
-        RECOIL       = "auto",
-        RELOAD       = "auto",
-        DAMAGE       = "auto",
-        LAMP_START   = "auto",
-        SHOTS_FIRED  = "auto",
+        CREDITS         = "auto",
+        STATUS          = 0x0000A047,
+        STATUS_ALT      = "auto",
+        AMMO            = 0x0000C07E,
+        AMMO_ALT        = 0x0000A068, -- P2 Rockets = 0x0000A068
+        LIFE            = 0x0000A053,
+        LIFE_ALT        = "auto",
+        RECOIL          = "auto",
+        RELOAD          = "auto",
+        DAMAGE          = "auto",
+        LAMP_START      = "auto",
+        SHOTS_FIRED     = "auto",
         SHOTS_FIRED_ALT = "auto",
-        DAMAGE_TAKEN = "auto",
-        LIFE_LOST    = "auto",
+        DAMAGE_TAKEN    = "auto",
+        LIFE_LOST       = "auto",
     },
     P3 = {
         -- Configuration for Player 3. "auto" will use (P1 Address + PLAYER_MEMORY_OFFSET * 2)
-        CREDITS      = "auto",
-        STATUS       = "auto",
-        STATUS_ALT   = "auto",
-        AMMO         = "auto",
-        AMMO_ALT     = "auto",
-        LIFE         = "auto",
-        LIFE_ALT     = "auto",
-        RECOIL       = "auto",
-        RELOAD       = "auto",
-        DAMAGE       = "auto",
-        LAMP_START   = "auto",
-        SHOTS_FIRED  = "auto",
+        CREDITS         = "auto",
+        STATUS          = "auto",
+        STATUS_ALT      = "auto",
+        AMMO            = "auto",
+        AMMO_ALT        = "auto",
+        LIFE            = "auto",
+        LIFE_ALT        = "auto",
+        RECOIL          = "auto",
+        RELOAD          = "auto",
+        DAMAGE          = "auto",
+        LAMP_START      = "auto",
+        SHOTS_FIRED     = "auto",
         SHOTS_FIRED_ALT = "auto",
-        DAMAGE_TAKEN = "auto",
-        LIFE_LOST    = "auto",
+        DAMAGE_TAKEN    = "auto",
+        LIFE_LOST       = "auto",
     },
     P4 = {
         -- Configuration for Player 4. "auto" will use (P1 Address + PLAYER_MEMORY_OFFSET * 3)
-        CREDITS      = "auto",
-        STATUS       = "auto",
-        STATUS_ALT   = "auto",
-        AMMO         = "auto",
-        AMMO_ALT     = "auto",
-        LIFE         = "auto",
-        LIFE_ALT     = "auto",
-        RECOIL       = "auto",
-        RELOAD       = "auto",
-        DAMAGE       = "auto",
-        LAMP_START   = "auto",
-        SHOTS_FIRED  = "auto",
+        CREDITS         = "auto",
+        STATUS          = "auto",
+        STATUS_ALT      = "auto",
+        AMMO            = "auto",
+        AMMO_ALT        = "auto",
+        LIFE            = "auto",
+        LIFE_ALT        = "auto",
+        RECOIL          = "auto",
+        RELOAD          = "auto",
+        DAMAGE          = "auto",
+        LAMP_START      = "auto",
+        SHOTS_FIRED     = "auto",
         SHOTS_FIRED_ALT = "auto",
-        DAMAGE_TAKEN = "auto",
-        LIFE_LOST    = "auto",
+        DAMAGE_TAKEN    = "auto",
+        LIFE_LOST       = "auto",
     },
-
+    
     -- AMMO_DIRECTION: How the game counts ammo (Used for "auto" logic)
     -- "decrease" = Counts down (6->5->4). Standard for most games
-    -- "increase" = Counts up (0->1->2). Used in Point Blank/Mechanical games
-    AMMO_DIRECTION = "decrease",
+    -- "increase" = Counts up (0->1->2)
+    AMMO_DIRECTION     = "decrease",
     AMMO_ALT_DIRECTION = "increase",
     
     -- LIFE_DIRECTION: How the game counts life (Used for "auto" logic)
     -- "decrease" = Life bar goes down (Standard)
     -- "increase" = Damage counter goes up (Hits Taken)
-    LIFE_DIRECTION = "increase",
+    LIFE_DIRECTION     = "increase",
     LIFE_ALT_DIRECTION = "decrease",
     
     -- SHOTS_FIRED_METHOD: Calculation Logic (Used only if Source is "auto")
     -- "trigger" = Counts +1 for every event (Best for semi-auto)
     -- "bullets" = Counts exact difference (Best for machine guns)
-    SHOTS_FIRED_METHOD = "trigger",
+    SHOTS_FIRED_METHOD     = "trigger",
     SHOTS_FIRED_ALT_METHOD = "trigger",
+    
+    -- RECOIL_METHOD: How direct memory recoil addresses are processed
+    -- "pulse" = Triggers only when the memory value increases (best for semi-auto)
+    -- "hold"  = Triggers continuously while the value is > 0 (best for machine guns)
+    RECOIL_METHOD = "pulse",
+    
+    -- RECOIL_PRIORITY: Trigger to control the physical solenoid
+    -- "ammo"   = ammo drops trigger recoil. The recoil memory address is ignored UNLESS Ammo = 0.
+    -- "recoil" = the recoil memory address ALWAYS triggers recoil. Ammo drops are completely ignored for physical feedback.
+    RECOIL_PRIORITY = "ammo",
     
     --------------------------------------------------
     -- GLOBAL MASTER SWITCHES                       --
@@ -378,6 +399,16 @@ end)
 -- 2. SETUP & PRE-CALCULATION                        --
 ------------------------------------------------------
 function Resolve_Addresses()
+    -- Normalize all "auto" string inputs to lowercase for exact matching
+    local all_players = { CFG.P1, CFG.P2, CFG.P3, CFG.P4 }
+    for _, p_cfg in ipairs(all_players) do
+        for k, val in pairs(p_cfg) do
+            if type(val) == "string" and string.lower(val) == "auto" then
+                p_cfg[k] = "auto"
+            end
+        end
+    end
+
     local p1_hardware = { "RECOIL", "RELOAD", "DAMAGE", "LAMP_START", "STATUS", "STATUS_ALT" }
     for _, key in ipairs(p1_hardware) do
         if CFG.P1[key] == "auto" then
@@ -416,7 +447,6 @@ function Resolve_Addresses()
         end
     end
 
-    local all_players = { CFG.P1, CFG.P2, CFG.P3, CFG.P4 }
     for _, p_cfg in ipairs(all_players) do
         if not p_cfg.AMMO then
             if p_cfg.RECOIL == "auto" and not p_cfg.AMMO_ALT then p_cfg.RECOIL = false end
@@ -442,6 +472,8 @@ local _DamageDuration = emu.attotime.from_msec(CFG.DAMAGE_DURATION_MS)
 local _StartupTime = emu.attotime.from_msec(CFG.STARTUP_DELAY_MS)
 local _ZeroTime = emu.attotime.from_seconds(0)
 
+local _GameActiveTick = _ZeroTime
+
 local _Player = {}
 for i = 1, 4 do
     _Player[i] = { 
@@ -452,6 +484,7 @@ for i = 1, 4 do
         ShotCount=0, ShotCountAlt=0, DamageCount=0, LifeLostCount=0,
         IsActive=false,
         WasActive=false,
+        ActiveTick=_ZeroTime,
         IsRecoilActive=false,
         IsReloadActive=false,
         IsDamageActive=false
@@ -489,29 +522,35 @@ end
 function Read_Data_Safe(mem_handle, source, width)
     if not source then return 0 end
     
-    if width == "output" then
-        if type(source) == "string" and manager.machine.output then
-            local native_val = manager.machine.output:get_value(source)
-            if type(native_val) == "number" then
-                return native_val
-            elseif native_val then
-                return 1
-            else
-                return 0
+    if type(width) == "string" then
+        local w_low = string.lower(width)
+        if w_low == "output" then
+            if type(source) == "string" and manager.machine.output then
+                local native_val = manager.machine.output:get_value(source)
+                if type(native_val) == "number" then
+                    return native_val
+                elseif native_val then
+                    return 1
+                else
+                    return 0
+                end
             end
+            return 0
         end
-        return 0
     end
     
     if not mem_handle then return 0 end
     
-    if width == "float32" then
-        local val = mem_handle:read_u32(source)
-        return string.unpack("f", string.pack("I4", val))
-    elseif width == "float32be" then
-        local val = mem_handle:read_u32(source)
-        val = ((val & 0xFF) << 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8) | ((val & 0xFF000000) >> 24)
-        return string.unpack("f", string.pack("I4", val))
+    if type(width) == "string" then
+        local w_low = string.lower(width)
+        if w_low == "float32" then
+            local val = mem_handle:read_u32(source)
+            return string.unpack("f", string.pack("I4", val))
+        elseif w_low == "float32be" then
+            local val = mem_handle:read_u32(source)
+            val = ((val & 0xFF) << 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8) | ((val & 0xFF000000) >> 24)
+            return string.unpack("f", string.pack("I4", val))
+        end
     end
 
     if width == 16 then return mem_handle:read_u16(source) end
@@ -523,6 +562,7 @@ function Register_Outputs_Safe(out_handle)
     if not out_handle then return end
     
     out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_GAME_STATUS, 0)
+    if CFG.ATTRACT_STATUS then out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_ATTRACT_STATUS, 0) end
     out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_LUA_VERSION, CFG.LUA_VERSION)
     out_handle:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_LUA_DATE, CFG.LUA_DATE)
 
@@ -661,18 +701,46 @@ function Compute_Outputs()
             end
         end
         
+        local is_attract_mode = false
+        if CFG.ATTRACT_STATUS and type(CFG.ATTRACT_STATUS) == "number" then
+            local attract_val = Read_Data_Safe(mem, CFG.ATTRACT_STATUS, CFG.DATA_WIDTHS.GLOBAL_ATTRACT_STATUS or 8)
+            if type(CFG.ATTRACT_STATUS_ACTIVE_VALUE) == "number" then
+                if attract_val == CFG.ATTRACT_STATUS_ACTIVE_VALUE then
+                    is_attract_mode = true
+                end
+            else
+                if attract_val > 0 then
+                    is_attract_mode = true
+                end
+            end
+            out:set_value(CFG.OUTPUT_SUFFIXES.GLOBAL_ATTRACT_STATUS, warmup_ok and (is_attract_mode and 1 or 0) or 0)
+        end
+
         local global_val = 0
         local global_exists = false
         local is_game_active = false
+        
         if CFG.GAME_STATUS then 
-            global_val = Read_Data_Safe(mem, CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
             global_exists = true
-            
-            if type(CFG.GAME_STATUS_ACTIVE_VALUE) == "number" then
-                if global_val == CFG.GAME_STATUS_ACTIVE_VALUE then is_game_active = true end
-            else
-                if global_val > 0 then is_game_active = true end
+            if not is_attract_mode then
+                global_val = Read_Data_Safe(mem, CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
+                if type(CFG.GAME_STATUS_ACTIVE_VALUE) == "number" then
+                    if global_val == CFG.GAME_STATUS_ACTIVE_VALUE then is_game_active = true end
+                else
+                    if global_val > 0 then is_game_active = true end
+                end
             end
+        end
+        
+        -- GAME STATUS DEBOUNCE
+        if is_game_active then
+            if _GameActiveTick == _ZeroTime then _GameActiveTick = manager.machine.time end
+            if (manager.machine.time - _GameActiveTick) <= emu.attotime.from_msec(CFG.STATUS_DEBOUNCE_MS or 0) then
+                is_game_active = false
+            end
+        else
+            _GameActiveTick = _ZeroTime
+            is_game_active = false
         end
 
         local any_player_active = false
@@ -736,7 +804,10 @@ function Compute_Outputs()
             local out_status_val = 0
             local out_status_alt_val = 0
 
-            if (cfg.STATUS and cfg.STATUS ~= "auto") or (cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto") then
+            if is_attract_mode then
+                -- Player is forced inactive during attract mode
+                is_player_active = false
+            elseif (cfg.STATUS and cfg.STATUS ~= "auto") or (cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto") then
                 local p_stat_active = false
                 local p_stat_alt_active = false
 
@@ -795,13 +866,29 @@ function Compute_Outputs()
                 out_status_alt_val = 0
             end
             
+            -- PLAYER STATUS DEBOUNCE
+            if is_player_active then
+                if p.ActiveTick == _ZeroTime then p.ActiveTick = manager.machine.time end
+                if (manager.machine.time - p.ActiveTick) <= emu.attotime.from_msec(CFG.STATUS_DEBOUNCE_MS or 0) then
+                    is_player_active = false
+                    out_status_val = 0
+                    out_status_alt_val = 0
+                end
+            else
+                p.ActiveTick = _ZeroTime
+                out_status_val = 0
+                out_status_alt_val = 0
+            end
+            
             p.IsActive = is_player_active
             if is_player_active then any_player_active = true end
 
             if cfg.STATUS then out:set_value(Get_Output_Str(i, "STATUS"), out_status_val) end
             if cfg.STATUS_ALT then out:set_value(Get_Output_Str(i, "STATUS_ALT"), out_status_alt_val) end
 
-            if is_player_active then
+            local just_died = (not is_player_active and p.WasActive)
+
+            if is_player_active or just_died then
             
                 local primary_active = (out_status_val == 1)
                 local alternate_active = false
@@ -825,7 +912,7 @@ function Compute_Outputs()
                             local shot = false
                             local diff = 0
                             
-                            if CFG.AMMO_DIRECTION == "decrease" then
+                            if string.lower(tostring(CFG.AMMO_DIRECTION)) == "decrease" then
                                 if curr_ammo < p.LastAmmo and p.LastAmmo <= 200 then
                                     shot = true; diff = p.LastAmmo - curr_ammo
                                 end
@@ -835,7 +922,7 @@ function Compute_Outputs()
                                 end
                             end
                             if shot then
-                                if CFG.SHOTS_FIRED_METHOD == "bullets" then
+                                if string.lower(tostring(CFG.SHOTS_FIRED_METHOD)) == "bullets" then
                                     p.ShotCount = p.ShotCount + diff
                                 else
                                     p.ShotCount = p.ShotCount + 1
@@ -862,7 +949,7 @@ function Compute_Outputs()
                             local shot = false
                             local diff = 0
                             
-                            if CFG.AMMO_ALT_DIRECTION == "decrease" then
+                            if string.lower(tostring(CFG.AMMO_ALT_DIRECTION)) == "decrease" then
                                 if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= 200 then
                                     shot = true; diff = p.LastAmmoAlt - curr_ammo_alt
                                 end
@@ -872,7 +959,7 @@ function Compute_Outputs()
                                 end
                             end
                             if shot then
-                                if CFG.SHOTS_FIRED_ALT_METHOD == "bullets" then
+                                if string.lower(tostring(CFG.SHOTS_FIRED_ALT_METHOD)) == "bullets" then
                                     p.ShotCountAlt = p.ShotCountAlt + diff
                                 else
                                     p.ShotCountAlt = p.ShotCountAlt + 1
@@ -884,6 +971,51 @@ function Compute_Outputs()
                 else
                     if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), 0) end
                     if cfg.LIFE_ALT then out:set_value(Get_Output_Str(i, "LIFE_ALT"), 0) end
+                end
+
+                -- Direct Memory Polling for RECOIL (If a specific address is provided)
+                if cfg.RECOIL and type(cfg.RECOIL) == "number" then
+                    local recoil_val = Read_Data_Safe(mem, cfg.RECOIL, CFG.DATA_WIDTHS.RECOIL)
+                    
+                    local allowed_by_priority = false
+                    if string.lower(tostring(CFG.RECOIL_PRIORITY)) == "recoil" then
+                        allowed_by_priority = true
+                    elseif string.lower(tostring(CFG.RECOIL_PRIORITY)) == "ammo" and curr_ammo == 0 then
+                        allowed_by_priority = true
+                    end
+                    
+                    if allowed_by_priority then
+                        local trigger_recoil = false
+                        if string.lower(tostring(CFG.RECOIL_METHOD)) == "hold" then
+                            if recoil_val > 0 then trigger_recoil = true end
+                        else
+                            -- Trigger if the value increases (catches pulses like 0->1 or 1->2)
+                            if recoil_val > p.LastRecoilVal then trigger_recoil = true end
+                        end
+                        
+                        if trigger_recoil then
+                            local time_since_last = manager.machine.time - p.RecoilTick
+                            if time_since_last > _MinRecoilInterval then
+                                p.CurrentRecoilDuration = _RecoilDuration
+                                out:set_value(Get_Output_Str(i, "RECOIL"), 1)
+                                
+                                if CFG.DEMULSHOOTER_COMPATIBILITY then
+                                    local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                                    out:set_value("P" .. target_p .. "_CtmRecoil", 1)
+                                end
+                                
+                                p.RecoilTick = manager.machine.time
+                                p.IsRecoilActive = true
+                                
+                                if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
+                                    _Player[1].RecoilTick = manager.machine.time 
+                                    _Player[1].CurrentRecoilDuration = p.CurrentRecoilDuration
+                                    _Player[1].IsRecoilActive = true
+                                end
+                            end
+                        end
+                    end
+                    p.LastRecoilVal = recoil_val
                 end
 
                 local rumble_triggered = false
@@ -903,16 +1035,16 @@ function Compute_Outputs()
                 elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and p.WasActive then
                     local hit = false
                     
-                    if primary_active and cfg.LIFE then
-                        if CFG.LIFE_DIRECTION == "decrease" then
+                    if cfg.LIFE then
+                        if string.lower(tostring(CFG.LIFE_DIRECTION)) == "decrease" then
                             if curr_life < p.LastLife then hit = true end
                         else
                             if curr_life > p.LastLife then hit = true end
                         end
                     end
                     
-                    if alternate_active and cfg.LIFE_ALT then
-                        if CFG.LIFE_ALT_DIRECTION == "decrease" then
+                    if cfg.LIFE_ALT then
+                        if string.lower(tostring(CFG.LIFE_ALT_DIRECTION)) == "decrease" then
                             if curr_life_alt < p.LastLifeAlt then hit = true end
                         else
                             if curr_life_alt > p.LastLifeAlt then hit = true end
@@ -973,15 +1105,15 @@ function Compute_Outputs()
                 if CFG.ENABLE_LIFE_LOST then
                     if cfg.LIFE_LOST == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and warmup_ok and p.WasActive then
                          local lost = false
-                         if primary_active and cfg.LIFE then
-                             if CFG.LIFE_DIRECTION == "decrease" then
+                         if cfg.LIFE then
+                             if string.lower(tostring(CFG.LIFE_DIRECTION)) == "decrease" then
                                  if curr_life < p.LastLife then lost = true end
                              else
                                  if curr_life > p.LastLife then lost = true end
                              end
                          end
-                         if alternate_active and cfg.LIFE_ALT then
-                             if CFG.LIFE_ALT_DIRECTION == "decrease" then
+                         if cfg.LIFE_ALT then
+                             if string.lower(tostring(CFG.LIFE_ALT_DIRECTION)) == "decrease" then
                                  if curr_life_alt < p.LastLifeAlt then lost = true end
                              else
                                  if curr_life_alt > p.LastLifeAlt then lost = true end
@@ -998,11 +1130,11 @@ function Compute_Outputs()
                     end
                 end
 
-                if not CFG.MEMORY_ALIGNMENT then
+                if not CFG.MEMORY_ALIGNMENT and primary_active then
                       local trigger_type = 0 
                       
-                      if primary_active and p.WasActive and cfg.AMMO then
-                          if CFG.AMMO_DIRECTION == "decrease" then
+                      if p.WasActive and cfg.AMMO then
+                          if string.lower(tostring(CFG.AMMO_DIRECTION)) == "decrease" then
                               if curr_ammo < p.LastAmmo and p.LastAmmo <= 200 then trigger_type = 1 end
                           else
                               if curr_ammo > p.LastAmmo then trigger_type = 1 end
@@ -1010,14 +1142,21 @@ function Compute_Outputs()
                       end
                       
                       if alternate_active and p.WasActive and cfg.AMMO_ALT then
-                          if CFG.AMMO_ALT_DIRECTION == "decrease" then
+                          if string.lower(tostring(CFG.AMMO_ALT_DIRECTION)) == "decrease" then
                               if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= 200 then trigger_type = 2 end
                           else
                               if curr_ammo_alt > p.LastAmmoAlt then trigger_type = 2 end
                           end
                       end
+
+                      local allowed_by_priority = false
+                      if cfg.RECOIL == "auto" then
+                          allowed_by_priority = true
+                      elseif type(cfg.RECOIL) == "number" and string.lower(tostring(CFG.RECOIL_PRIORITY)) == "ammo" then
+                          allowed_by_priority = true
+                      end
                       
-                      if trigger_type > 0 then
+                      if trigger_type > 0 and allowed_by_priority then
                           local time_since_last = manager.machine.time - p.RecoilTick
                           if time_since_last > _MinRecoilInterval then
                               if trigger_type == 1 then
@@ -1044,8 +1183,8 @@ function Compute_Outputs()
                       end
                       
                       local reload_trigger = false
-                      if primary_active and p.WasActive and cfg.AMMO then
-                          if CFG.AMMO_DIRECTION == "decrease" then
+                      if p.WasActive and cfg.AMMO then
+                          if string.lower(tostring(CFG.AMMO_DIRECTION)) == "decrease" then
                               if curr_ammo > p.LastAmmo then reload_trigger = true end
                           else
                               if curr_ammo < p.LastAmmo then reload_trigger = true end
@@ -1053,7 +1192,7 @@ function Compute_Outputs()
                       end
                       
                       if alternate_active and p.WasActive and cfg.AMMO_ALT then
-                          if CFG.AMMO_ALT_DIRECTION == "decrease" then
+                          if string.lower(tostring(CFG.AMMO_ALT_DIRECTION)) == "decrease" then
                               if curr_ammo_alt > p.LastAmmoAlt then reload_trigger = true end
                           else
                               if curr_ammo_alt < p.LastAmmoAlt then reload_trigger = true end
@@ -1074,22 +1213,11 @@ function Compute_Outputs()
                       end
                 end
             else
-                if CFG.SIMULTANEOUS_PLAY then
-                    if cfg.RECOIL then 
-                        out:set_value(Get_Output_Str(i, "RECOIL"), 0) 
-                        if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P" .. i .. "_CtmRecoil", 0) end
-                        p.IsRecoilActive = false
-                    end
-                    if cfg.RELOAD then
-                        out:set_value(Get_Output_Str(i, "RELOAD"), 0)
-                        p.IsReloadActive = false
-                    end
-                    if cfg.DAMAGE then 
-                        out:set_value(Get_Output_Str(i, "DAMAGE"), 0) 
-                        if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P" .. i .. "_Damaged", 0) end
-                        p.IsDamageActive = false
-                    end
-                end
+                -- Explicitly clear static values when a player dies or is inactive
+                if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), 0) end
+                if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), 0) end
+                if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), 0) end
+                if cfg.LIFE_ALT then out:set_value(Get_Output_Str(i, "LIFE_ALT"), 0) end
             end
 
             p.LastAmmo = curr_ammo
@@ -1136,21 +1264,6 @@ function Compute_Outputs()
                     end
                 end
             end
-        end
-
-        if not CFG.SIMULTANEOUS_PLAY and not any_player_active then
-            if CFG.P1.RECOIL then 
-                out:set_value(Get_Output_Str(1, "RECOIL"), 0) 
-                if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P1_CtmRecoil", 0) end
-            end
-            if CFG.P1.RELOAD then out:set_value(Get_Output_Str(1, "RELOAD"), 0) end
-            if CFG.P1.DAMAGE then 
-                out:set_value(Get_Output_Str(1, "DAMAGE"), 0) 
-                if CFG.DEMULSHOOTER_COMPATIBILITY then out:set_value("P1_Damaged", 0) end
-            end
-            _Player[1].IsRecoilActive = false
-            _Player[1].IsReloadActive = false
-            _Player[1].IsDamageActive = false
         end
 
         if global_exists then

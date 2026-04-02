@@ -1,7 +1,7 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.3.5
+-- Universal Script Version: 5.4.4
 -- Last Modified Date (YYYY.MM.DD): 2026.04.02
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
@@ -48,7 +48,7 @@ Side Objective: None
 
 ROM: cryptklr
 Status: Working
-Issues: Verify that Player 3 works as expected (I only have access to 2 guns, so someone with access to 3 guns needs to test this)
+Issues: Verify that Player 3 works as expected (I only have access to 2 guns, so someone with access to 3 guns needs to test this and confirm it is working for me)
 Side Objective: None
 
 ROM: duckhunt
@@ -63,12 +63,12 @@ Side Objective: None
 
 ROM: invasnab
 Status: Working
-Issues: Verify that Max Ammo is only ever 9 for primary weapon (ignore secondary weapon that uses rockets, as that is treated as an alternative weapon)
+Issues: Check max ammo never exceeds 9 (ignore rockets as this is treated as an alternative weapon)
 Side Objective: None
 
 ROM: jdredd
 Status: Working / Complete
-Issues: Machine gun is prioritised as alternative weapon over grenades
+Issues: Machine gun pickup weapon is prioritised as alternative weapon (grenades were previously prioritised instead)
 Side Objective: None
 
 ROM: le2
