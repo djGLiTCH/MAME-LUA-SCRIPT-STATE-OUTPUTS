@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.4
--- Last Modified Date (YYYY.MM.DD): 2026.04.02
+-- Universal Script Version: 5.4.5
+-- Last Modified Date (YYYY.MM.DD): 2026.04.03
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -40,7 +40,7 @@ Side Objective: None
 
 ROM: bel
 Status: Working / Complete
-Issues: None known
+Issues: Recoil may go in and out of sync when ammo is "empty" and trigger is continuously held (currently set to 480ms recoil intervals)
 Side Objective: None
 
 ROM: carnevil
@@ -116,7 +116,7 @@ Side Objective: None
 ROM: timecrs2
 Status: Working / Complete
 Issues: None known
-Side Objective: Need to investigate defaultLG file and verify inputs/outputs, as something doesn't seem to be right in initial tests
+Side Objective: Need to investigate defaultLG file and verify inputs/outputs
 
 ROM: vcop
 Status: Working / Complete

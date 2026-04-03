@@ -3,7 +3,7 @@ Players
 P1
 P2
 Recoil & Reload
-Ammo_Value 1 Ammo_Value
+Ammo_Value 0 Ammo_Value
 Recoil 1 Reload_Value
 Recoil_R2S 0
 Recoil_Value 1 Reload_Value
@@ -16,11 +16,8 @@ Recoil_Value 1 Reload_Value
 >Close_COM
 [Signals]
 :Credits
-:P1_Ammo
-*P1
-#Ammo_Value
-#Reload_Value
->Display_Ammo
+:P1_LampStart
+:P2_LampStart
 :P1_CtmRecoil
 *P1
 #Recoil
@@ -36,11 +33,6 @@ Recoil_Value 1 Reload_Value
 :P1_Damaged
 *P1
 >Damage
-:P2_Ammo
-*P2
-#Ammo_Value
-#Reload_Value
->Display_Ammo
 :P2_CtmRecoil
 *P2
 #Recoil

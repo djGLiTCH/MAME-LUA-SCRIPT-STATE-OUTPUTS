@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.4
--- Last Modified Date (YYYY.MM.DD): 2026.04.02
+-- Universal Script Version: 5.4.5
+-- Last Modified Date (YYYY.MM.DD): 2026.04.03
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 -- MAME ROM: bel
@@ -14,11 +14,11 @@ local CFG = {
     --------------------------------------------------
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 543 = v5.4.3)
+    -- LUA Version can only be integer numbers (e.g. 545 = v5.4.5)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260402 = 2026.04.02)
-    LUA_VERSION = 544,
-    LUA_DATE    = 20260402,
+    -- LUA Date can only be integer numbers (e.g. 20260403 = 2026.04.03)
+    LUA_VERSION = 545,
+    LUA_DATE    = 20260403,
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -110,7 +110,7 @@ local CFG = {
         RECOIL                = 8,
         RELOAD                = 8,
         DAMAGE                = 8,
-        LAMP_START            = 8,
+        LAMP_START            = "output",
         SHOTS_FIRED           = 16,
         SHOTS_FIRED_ALT       = 16,
         LIFE_LOST             = 16,
@@ -166,6 +166,11 @@ local CFG = {
     -- Recommended: 80ms - 100ms for Machine Guns (approx 10-12 rounds/sec)
     -- Set to 0 to disable (fires as fast as possible, may cause "humming")
     MIN_RECOIL_INTERVAL_MS = 100, -- Minimum time gap between each signal pulse for recoil outputs (prevents burning out solenoids)
+    
+    -- RECOIL_HOLD_MS: Interval (in ms) between recoil pulses when RECOIL_METHOD = "hold" and recoil memory address is provided
+    -- If set to false, it will fall back to the MIN_RECOIL_INTERVAL_MS value
+    -- Useful if a game's "hold" rate should be different from its "pulse" rate limit
+    RECOIL_HOLD_MS         = 480, -- Minimum time gap between each signal pulse for recoil outputs when using recoil memory address and holding trigger (useful if recoil memory address >= 1 when holding trigger)
     
     DAMAGE_DURATION_MS     = 250, -- Signal pulse duration for damage (useful if light gun supports rumble feedback)
     
@@ -224,7 +229,7 @@ local CFG = {
     -- Set to 'false' to use the default logic (any value > 0 is considered active)
     -- Set to 0 if the game uses 0 to denote active gameplay
     ATTRACT_STATUS_ACTIVE_VALUE = false,
-	GAME_STATUS_ACTIVE_VALUE    = false,
+    GAME_STATUS_ACTIVE_VALUE    = false,
     STATUS_ACTIVE_VALUE         = false,
     STATUS_ALT_ACTIVE_VALUE     = false,
     
@@ -254,7 +259,7 @@ local CFG = {
         -- If you want to mirror the native MAME output:
         -- 1. Set DATA_WIDTHS.LAMP_START = "output" above
         -- 2. Set LAMP_START = "lamp0" or whatever is appropriate below
-        LAMP_START      = false,
+        LAMP_START      = "lamp0",
         
         -- "auto" = Calculate based on Ammo/Life changes, 0xADDRESS = Read directly from game memory (no quotes), false = Disable this specific counter
         SHOTS_FIRED     = "auto",
@@ -277,7 +282,7 @@ local CFG = {
         RECOIL          = 0x005A87B1, -- 0x005A87B1 > 0 for recoil in-game for P2
         RELOAD          = "auto",
         DAMAGE          = 0x005A8138, -- 0x005A8138 > 0 when the red "DAMAGE" text appears on-screen for both players
-        LAMP_START      = "auto",
+        LAMP_START      = "lamp1",
         SHOTS_FIRED     = "auto",
         SHOTS_FIRED_ALT = "auto",
         DAMAGE_TAKEN    = "auto",
@@ -467,6 +472,7 @@ Resolve_Addresses()
 local _RecoilDuration = emu.attotime.from_msec(CFG.RECOIL_DURATION_MS)
 local _RecoilAltDuration = emu.attotime.from_msec(CFG.RECOIL_ALT_DURATION_MS or 80)
 local _MinRecoilInterval = emu.attotime.from_msec(CFG.MIN_RECOIL_INTERVAL_MS or 0)
+local _RecoilHoldInterval = CFG.RECOIL_HOLD_MS and emu.attotime.from_msec(CFG.RECOIL_HOLD_MS) or _MinRecoilInterval
 local _ReloadDuration = emu.attotime.from_msec(CFG.RELOAD_DURATION_MS or 40)
 local _DamageDuration = emu.attotime.from_msec(CFG.DAMAGE_DURATION_MS)
 local _StartupTime = emu.attotime.from_msec(CFG.STARTUP_DELAY_MS)
@@ -986,7 +992,8 @@ function Compute_Outputs()
                     
                     if allowed_by_priority then
                         local trigger_recoil = false
-                        if string.lower(tostring(CFG.RECOIL_METHOD)) == "hold" then
+                        local is_hold_method = string.lower(tostring(CFG.RECOIL_METHOD)) == "hold"
+                        if is_hold_method then
                             if recoil_val > 0 then trigger_recoil = true end
                         else
                             -- Trigger if the value increases (catches pulses like 0->1 or 1->2)
@@ -995,7 +1002,9 @@ function Compute_Outputs()
                         
                         if trigger_recoil then
                             local time_since_last = manager.machine.time - p.RecoilTick
-                            if time_since_last > _MinRecoilInterval then
+                            local active_interval = is_hold_method and _RecoilHoldInterval or _MinRecoilInterval
+                            
+                            if time_since_last > active_interval then
                                 p.CurrentRecoilDuration = _RecoilDuration
                                 out:set_value(Get_Output_Str(i, "RECOIL"), 1)
                                 
