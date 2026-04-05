@@ -1,24 +1,28 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.5
--- Last Modified Date (YYYY.MM.DD): 2026.04.04
+-- Universal Script Version: 6.0.4
+-- Last Modified Date (YYYY.MM.DD): 2026.04.05
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: lethalj
 ------------------------------------------------------
 
 local CFG = {
     --------------------------------------------------
     -- SCRIPT METADATA                              --
     --------------------------------------------------
+
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 545 = v5.4.5)
+    -- LUA Version can only be integer numbers (e.g. 604 = v6.0.4)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260403 = 2026.04.03)
-    LUA_VERSION = 545,
-    LUA_DATE    = 20260403,
+    -- LUA Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
+    -- LUA ROM is the MAME ROM filename that is associated with this LUA script
+    -- LUA GAME is the official game name for the rom
+    LUA_VERSION = 604,
+    LUA_DATE    = 20260405,
+    LUA_ROM     = "bel",
+    LUA_GAME    = "Behind Enemy Lines",
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -26,7 +30,7 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms)
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot
     -- Default: 5000 (5 seconds)
-    STARTUP_DELAY_MS = 8000,
+    STARTUP_DELAY_MS = 5000,
     
     -- STATUS_DEBOUNCE_MS: Time (in ms) to wait before validating an "Active" state
     -- Prevents 1-frame flashes if a game updates its GameStatus memory a frame BEFORE its AttractStatus / Attract Mode memory
@@ -38,7 +42,7 @@ local CFG = {
     -- Logic: math.floor(Coins / COINS_PER_CREDIT)
     -- Example: Set COINS_PER_CREDIT = 2. If you insert 3 coins, output is 1 Credit (1.5 credits rounds down to 1 credit)
     -- Default: 1 (1 Coin = 1 Credit)
-    COINS_PER_CREDIT = 16,
+    COINS_PER_CREDIT = 1,
     
     -- MAX_PLAYERS: Set the number of players to track (1 to 4)
     -- Default: 2
@@ -110,7 +114,7 @@ local CFG = {
         RECOIL                = 8,
         RELOAD                = 8,
         DAMAGE                = 8,
-        LAMP_START            = 8,
+        LAMP_START            = "output",
         SHOTS_FIRED           = 16,
         SHOTS_FIRED_ALT       = 16,
         LIFE_LOST             = 16,
@@ -170,7 +174,7 @@ local CFG = {
     -- RECOIL_HOLD_MS: Interval (in ms) between recoil pulses when RECOIL_METHOD = "hold" and recoil memory address is provided
     -- If set to false, it will fall back to the MIN_RECOIL_INTERVAL_MS value
     -- Useful if a game's "hold" rate should be different from its "pulse" rate limit
-    RECOIL_HOLD_MS         = false, -- Minimum time gap between each signal pulse for recoil outputs when using recoil memory address and holding trigger (useful if recoil memory address >= 1 when holding trigger)
+    RECOIL_HOLD_MS         = 480, -- Minimum time gap between each signal pulse for recoil outputs when using recoil memory address and holding trigger (useful if recoil memory address >= 1 when holding trigger)
     
     DAMAGE_DURATION_MS     = 250, -- Signal pulse duration for damage (useful if light gun supports rumble feedback)
     
@@ -217,12 +221,12 @@ local CFG = {
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS        = 0x00300220,
+    CREDITS        = 0x005A87F0,
     
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS    = 0x000900C8,
+    GAME_STATUS    = 0x00506BD2,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
@@ -245,21 +249,21 @@ local CFG = {
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
         STATUS          = "auto",
         STATUS_ALT      = false,
-        AMMO            = 0x00300710,
+        AMMO            = 0x005B494C,
         AMMO_ALT        = false,
-        LIFE            = 0x00300870,
+        LIFE            = 0x005B4997,
         LIFE_ALT        = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
-        RECOIL          = "auto",
+        RECOIL          = 0x005A87B0, -- 0x005A87B0 > 0 for recoil in-game for P1
         RELOAD          = "auto",
-        DAMAGE          = "auto",
+        DAMAGE          = 0x005A8138, -- 0x005A8138 > 0 when the red "DAMAGE" text appears on-screen for both players
         
         -- LAMP_START: 
         -- If you want to mirror the native MAME output:
         -- 1. Set DATA_WIDTHS.LAMP_START = "output" above
         -- 2. Set LAMP_START = "lamp0" or whatever is appropriate below
-        LAMP_START      = false,
+        LAMP_START      = "lamp0",
         
         -- "auto" = Calculate based on Ammo/Life changes, 0xADDRESS = Read directly from game memory (no quotes), false = Disable this specific counter
         SHOTS_FIRED     = "auto",
@@ -275,14 +279,14 @@ local CFG = {
         CREDITS         = "auto",
         STATUS          = "auto",
         STATUS_ALT      = "auto",
-        AMMO            = 0x00300750,
+        AMMO            = 0x005B49D0,
         AMMO_ALT        = "auto",
-        LIFE            = 0x00300890,
+        LIFE            = 0x005B4A1B,
         LIFE_ALT        = "auto",
-        RECOIL          = "auto",
+        RECOIL          = 0x005A87B1, -- 0x005A87B1 > 0 for recoil in-game for P2
         RELOAD          = "auto",
-        DAMAGE          = "auto",
-        LAMP_START      = "auto",
+        DAMAGE          = 0x005A8138, -- 0x005A8138 > 0 when the red "DAMAGE" text appears on-screen for both players
+        LAMP_START      = "lamp1",
         SHOTS_FIRED     = "auto",
         SHOTS_FIRED_ALT = "auto",
         DAMAGE_TAKEN    = "auto",
@@ -346,7 +350,7 @@ local CFG = {
     -- RECOIL_METHOD: How direct memory recoil addresses are processed
     -- "pulse" = Triggers only when the memory value increases (best for semi-auto)
     -- "hold"  = Triggers continuously while the value is > 0 (best for machine guns)
-    RECOIL_METHOD = "pulse",
+    RECOIL_METHOD = "hold",
     
     -- RECOIL_PRIORITY: Trigger to control the physical solenoid
     -- "ammo"   = ammo drops trigger recoil. The recoil memory address is ignored UNLESS Ammo = 0.

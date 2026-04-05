@@ -1,24 +1,28 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.5
--- Last Modified Date (YYYY.MM.DD): 2026.04.04
+-- Universal Script Version: 6.0.4
+-- Last Modified Date (YYYY.MM.DD): 2026.04.05
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: lethalj
 ------------------------------------------------------
 
 local CFG = {
     --------------------------------------------------
     -- SCRIPT METADATA                              --
     --------------------------------------------------
+
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 545 = v5.4.5)
+    -- LUA Version can only be integer numbers (e.g. 604 = v6.0.4)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260403 = 2026.04.03)
-    LUA_VERSION = 545,
-    LUA_DATE    = 20260403,
+    -- LUA Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
+    -- LUA ROM is the MAME ROM filename that is associated with this LUA script
+    -- LUA GAME is the official game name for the rom
+    LUA_VERSION = 604,
+    LUA_DATE    = 20260405,
+    LUA_ROM     = "jdredd",
+    LUA_GAME    = "Judge Dredd",
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -26,7 +30,7 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms)
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot
     -- Default: 5000 (5 seconds)
-    STARTUP_DELAY_MS = 8000,
+    STARTUP_DELAY_MS = 18000,
     
     -- STATUS_DEBOUNCE_MS: Time (in ms) to wait before validating an "Active" state
     -- Prevents 1-frame flashes if a game updates its GameStatus memory a frame BEFORE its AttractStatus / Attract Mode memory
@@ -38,7 +42,7 @@ local CFG = {
     -- Logic: math.floor(Coins / COINS_PER_CREDIT)
     -- Example: Set COINS_PER_CREDIT = 2. If you insert 3 coins, output is 1 Credit (1.5 credits rounds down to 1 credit)
     -- Default: 1 (1 Coin = 1 Credit)
-    COINS_PER_CREDIT = 16,
+    COINS_PER_CREDIT = 1,
     
     -- MAX_PLAYERS: Set the number of players to track (1 to 4)
     -- Default: 2
@@ -142,7 +146,7 @@ local CFG = {
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0)
     -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games
-    PLAYER_MEMORY_OFFSET = false,
+    PLAYER_MEMORY_OFFSET = 0x48,
     
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only
     -- Use this if Credits are stored in a different area than Ammo/Life
@@ -157,7 +161,7 @@ local CFG = {
     -- PULSE TIMING (Milliseconds)                  --
     --------------------------------------------------
     RECOIL_DURATION_MS     = 40, -- Signal pulse duration for standard recoil outputs
-    RECOIL_ALT_DURATION_MS = 80, -- Signal pulse duration for alternate recoil outputs (lower to 40 if a standard typical weapon is used as an alternative weapon in-game)
+    RECOIL_ALT_DURATION_MS = 20, -- Signal pulse duration for alternate recoil outputs (lower to 40 if a standard typical weapon is used as an alternative weapon in-game)
     RELOAD_DURATION_MS     = 40, -- Signal pulse duration for reload outputs
     
     -- MACHINE GUN RATE LIMITER
@@ -217,12 +221,12 @@ local CFG = {
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS        = 0x00300220,
+    CREDITS        = 0x003E6CAE,
     
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS    = 0x000900C8,
+    GAME_STATUS    = 0x003E6E8A,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
@@ -245,9 +249,9 @@ local CFG = {
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
         STATUS          = "auto",
         STATUS_ALT      = false,
-        AMMO            = 0x00300710,
-        AMMO_ALT        = false,
-        LIFE            = 0x00300870,
+        AMMO            = 0x0010ED5D,
+        AMMO_ALT        = 0x0010ED48, -- Machine Gun = 0x0010ED48 and Grenade = 0x0010ED5F in Judge Dredd (preference is to use Machine Gun for alt weapon)
+        LIFE            = 0x0010ED5C,
         LIFE_ALT        = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
@@ -263,7 +267,7 @@ local CFG = {
         
         -- "auto" = Calculate based on Ammo/Life changes, 0xADDRESS = Read directly from game memory (no quotes), false = Disable this specific counter
         SHOTS_FIRED     = "auto",
-        SHOTS_FIRED_ALT = false,
+        SHOTS_FIRED_ALT = "auto",
         DAMAGE_TAKEN    = "auto",
         
         -- Tracks number of lives lost
@@ -275,9 +279,9 @@ local CFG = {
         CREDITS         = "auto",
         STATUS          = "auto",
         STATUS_ALT      = "auto",
-        AMMO            = 0x00300750,
+        AMMO            = "auto",
         AMMO_ALT        = "auto",
-        LIFE            = 0x00300890,
+        LIFE            = "auto",
         LIFE_ALT        = "auto",
         RECOIL          = "auto",
         RELOAD          = "auto",

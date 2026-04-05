@@ -1,0 +1,570 @@
+{
+    "default": {
+        "LUA_VERSION": 604,
+        "LUA_DATE": 20260405,
+        "LUA_GAME": "Default LUA Script Values",
+        "STARTUP_DELAY_MS": 5000,
+        "STATUS_DEBOUNCE_MS": 34,
+        "COINS_PER_CREDIT": 1,
+        "MAX_PLAYERS": 2,
+        "SIMULTANEOUS_PLAY": true,
+        "OUTPUT_SUFFIXES": {
+            "GLOBAL_LUA_VERSION": "LUA_VERSION",
+            "GLOBAL_LUA_DATE": "LUA_DATE",
+            "GLOBAL_CREDITS": "Credits",
+            "GLOBAL_GAME_STATUS": "GameStatus",
+            "GLOBAL_ATTRACT_STATUS": "AttractStatus",
+            "CREDITS": "Credits",
+            "STATUS": "Status",
+            "STATUS_ALT": "StatusAlt",
+            "AMMO": "Ammo",
+            "AMMO_ALT": "AmmoAlt",
+            "LIFE": "Life",
+            "LIFE_ALT": "LifeAlt",
+            "RECOIL": "Recoil",
+            "RELOAD": "Reload",
+            "DAMAGE": "Damage",
+            "LAMP_START": "LampStart",
+            "SHOTS_FIRED": "ShotsFired",
+            "SHOTS_FIRED_ALT": "ShotsFiredAlt",
+            "DAMAGE_TAKEN": "DamageTaken",
+            "LIFE_LOST": "LifeLost"
+        },
+        "DATA_WIDTHS": {
+            "GLOBAL_ATTRACT_STATUS": 8,
+            "GLOBAL_CREDITS": 8,
+            "GLOBAL_GAME_STATUS": 8,
+            "CREDITS": 8,
+            "STATUS": 8,
+            "STATUS_ALT": 8,
+            "AMMO": 8,
+            "AMMO_ALT": 8,
+            "LIFE": 8,
+            "LIFE_ALT": 8,
+            "RECOIL": 8,
+            "RELOAD": 8,
+            "DAMAGE": 8,
+            "LAMP_START": 8,
+            "SHOTS_FIRED": 16,
+            "SHOTS_FIRED_ALT": 16,
+            "LIFE_LOST": 16,
+            "DAMAGE_TAKEN": 16
+        },
+        "MEMORY_ALIGNMENT": false,
+        "PLAYER_MEMORY_OFFSET": false,
+        "PLAYER_CREDIT_MEMORY_OFFSET": false,
+        "RECOIL_DURATION_MS": 40,
+        "RECOIL_ALT_DURATION_MS": 80,
+        "RELOAD_DURATION_MS": 40,
+        "MIN_RECOIL_INTERVAL_MS": 100,
+        "RECOIL_HOLD_MS": false,
+        "DAMAGE_DURATION_MS": 250,
+        "AMMO_OFFSET": false,
+        "AMMO_ALT_OFFSET": false,
+        "AMMO_MAX": false,
+        "AMMO_ALT_MAX": false,
+        "LIFE_OFFSET": false,
+        "LIFE_ALT_OFFSET": false,
+        "LIFE_MAX": false,
+        "LIFE_ALT_MAX": false,
+        "ATTRACT_STATUS": false,
+        "CREDITS": false,
+        "GAME_STATUS": false,
+        "ATTRACT_STATUS_ACTIVE_VALUE": false,
+        "GAME_STATUS_ACTIVE_VALUE": false,
+        "STATUS_ACTIVE_VALUE": false,
+        "STATUS_ALT_ACTIVE_VALUE": false,
+        "P1": {
+            "CREDITS": false,
+            "STATUS": false,
+            "STATUS_ALT": false,
+            "AMMO": false,
+            "AMMO_ALT": false,
+            "LIFE": false,
+            "LIFE_ALT": false,
+            "RECOIL": "auto",
+            "RELOAD": "auto",
+            "DAMAGE": "auto",
+            "LAMP_START": false,
+            "SHOTS_FIRED": "auto",
+            "SHOTS_FIRED_ALT": false,
+            "DAMAGE_TAKEN": "auto",
+            "LIFE_LOST": "auto"
+        },
+        "P2": {
+            "CREDITS": "auto",
+            "STATUS": "auto",
+            "STATUS_ALT": "auto",
+            "AMMO": "auto",
+            "AMMO_ALT": "auto",
+            "LIFE": "auto",
+            "LIFE_ALT": "auto",
+            "RECOIL": "auto",
+            "RELOAD": "auto",
+            "DAMAGE": "auto",
+            "LAMP_START": "auto",
+            "SHOTS_FIRED": "auto",
+            "SHOTS_FIRED_ALT": "auto",
+            "DAMAGE_TAKEN": "auto",
+            "LIFE_LOST": "auto"
+        },
+        "P3": {
+            "CREDITS": "auto",
+            "STATUS": "auto",
+            "STATUS_ALT": "auto",
+            "AMMO": "auto",
+            "AMMO_ALT": "auto",
+            "LIFE": "auto",
+            "LIFE_ALT": "auto",
+            "RECOIL": "auto",
+            "RELOAD": "auto",
+            "DAMAGE": "auto",
+            "LAMP_START": "auto",
+            "SHOTS_FIRED": "auto",
+            "SHOTS_FIRED_ALT": "auto",
+            "DAMAGE_TAKEN": "auto",
+            "LIFE_LOST": "auto"
+        },
+        "P4": {
+            "CREDITS": "auto",
+            "STATUS": "auto",
+            "STATUS_ALT": "auto",
+            "AMMO": "auto",
+            "AMMO_ALT": "auto",
+            "LIFE": "auto",
+            "LIFE_ALT": "auto",
+            "RECOIL": "auto",
+            "RELOAD": "auto",
+            "DAMAGE": "auto",
+            "LAMP_START": "auto",
+            "SHOTS_FIRED": "auto",
+            "SHOTS_FIRED_ALT": "auto",
+            "DAMAGE_TAKEN": "auto",
+            "LIFE_LOST": "auto"
+        },
+        "AMMO_DIRECTION": "decrease",
+        "AMMO_ALT_DIRECTION": "decrease",
+        "LIFE_DIRECTION": "decrease",
+        "LIFE_ALT_DIRECTION": "decrease",
+        "SHOTS_FIRED_METHOD": "trigger",
+        "SHOTS_FIRED_ALT_METHOD": "trigger",
+        "RECOIL_METHOD": "pulse",
+        "RECOIL_PRIORITY": "ammo",
+        "ENABLE_SHOT_COUNT": true,
+        "ENABLE_DAMAGE_COUNT": true,
+        "ENABLE_LIFE_LOST": true,
+        "DEMULSHOOTER_COMPATIBILITY": true,
+        "ENABLE_OSD": false
+    },
+    "quick_template": {
+        "LUA_GAME": "changeme",
+        "STARTUP_DELAY_MS": 5000,
+        "COINS_PER_CREDIT": 1,
+        "MAX_PLAYERS": 2,
+        "SIMULTANEOUS_PLAY": true,
+        "CREDITS": "changeme",
+        "GAME_STATUS": "changeme",
+        "P1": {
+            "STATUS": "changeme",
+            "AMMO": "changeme",
+            "LIFE": "changeme"
+        },
+        "P2": {
+            "STATUS": "changemeordeleteline",
+            "AMMO": "changemeordeleteline",
+            "LIFE": "changemeordeleteline"
+        }
+    },
+    "area51": {
+        "LUA_GAME": "Area 51",
+        "STARTUP_DELAY_MS": 4000,
+        "COINS_PER_CREDIT": 2,
+        "PLAYER_MEMORY_OFFSET": "0xA8",
+        "CREDITS": "0x100003A5",
+        "P1": {
+            "STATUS": "0x10008733",
+            "AMMO": "0x1000876F",
+            "LIFE": "0x1000879B"
+        }
+    },
+    "area51mx": {
+        "LUA_GAME": "Area 51 / Maximum Force Duo",
+        "COINS_PER_CREDIT": 2,
+        "RECOIL_ALT_DURATION_MS": 40,
+        "CREDITS": "0x00A0073F",
+        "P1": {
+            "STATUS": "0x00A19979",
+            "STATUS_comment": "P1 STATUS for Area 51",
+            "STATUS_ALT": "0x00A09001",
+            "STATUS_ALT_comment": "P1 STATUS for Maximum Force",
+            "AMMO": "0x00A199B5",
+            "AMMO_comment": "P1 AMMO for Area 51",
+            "AMMO_ALT": "0x00A19479",
+            "AMMO_ALT_comment": "P1 AMMO for Maximum Force",
+            "LIFE": "0x00A199E1",
+            "LIFE_comment": "P1 LIFE for Area 51",
+            "LIFE_ALT": "0x00A19425",
+            "LIFE_ALT_comment": "P1 LIFE for Maximum Force",
+            "SHOTS_FIRED_ALT": "auto"
+        },
+        "P2": {
+            "STATUS": "0x00A19A59",
+            "STATUS_comment": "P2 STATUS for Area 51",
+            "STATUS_ALT": "0x00A09005",
+            "STATUS_ALT_comment": "P2 STATUS for Maximum Force",
+            "AMMO": "0x00A19A5D",
+            "AMMO_comment": "P2 AMMO for Area 51",
+            "AMMO_ALT": "0x00A19505",
+            "AMMO_ALT_comment": "P2 AMMO for Maximum Force",
+            "LIFE": "0x00A19A89",
+            "LIFE_comment": "P2 LIFE for Area 51",
+            "LIFE_ALT": "0x00A194B1",
+            "LIFE_ALT_comment": "P2 LIFE for Maximum Force"
+        }
+    },
+    "bbust2": {
+        "LUA_GAME": "Beast Busters: Second Nightmare",
+        "STARTUP_DELAY_MS": 8000,
+        "DATA_WIDTHS": {
+            "LIFE": 16,
+            "RECOIL": 16
+        },
+        "PLAYER_MEMORY_OFFSET": "0x60",
+        "PLAYER_CREDIT_MEMORY_OFFSET": "0x2",
+        "GAME_STATUS": "0x001844F3",
+        "P1": {
+            "CREDITS": "0x00184589",
+            "STATUS": "auto",
+            "AMMO": "0x0019B75F",
+            "LIFE": "0x0019B74C",
+            "RECOIL": "0x0019B792"
+        },
+        "P2": {
+            "CREDITS": "0x0018458B"
+        }
+    },
+    "bel": {
+        "LUA_GAME": "Behind Enemy Lines",
+        "DATA_WIDTHS": {
+            "LAMP_START": "output"
+        },
+        "RECOIL_HOLD_MS": 480,
+        "CREDITS": "0x005A87F0",
+        "GAME_STATUS": "0x00506BD2",
+        "P1": {
+            "STATUS": "auto",
+            "AMMO": "0x005B494C",
+            "LIFE": "0x005B4997",
+            "RECOIL": "0x005A87B0",
+            "RECOIL_comment": "0x005A87B0 > 0 for recoil in-game for P1",
+            "DAMAGE": "0x005A8138",
+            "DAMAGE_comment": "0x005A8138 > 0 when the red \"DAMAGE\" text appears on-screen for both players",
+            "LAMP_START": "lamp0"
+        },
+        "P2": {
+            "AMMO": "0x005B49D0",
+            "LIFE": "0x005B4A1B",
+            "RECOIL": "0x005A87B1",
+            "RECOIL_comment": "0x005A87B1 > 0 for recoil in-game for P2",
+            "DAMAGE": "0x005A8138",
+            "DAMAGE_comment": "0x005A8138 > 0 when the red \"DAMAGE\" text appears on-screen for both players",
+            "LAMP_START": "lamp1"
+        },
+        "RECOIL_METHOD": "hold"
+    },
+    "carnevil": {
+        "LUA_GAME": "CarnEvil",
+        "STARTUP_DELAY_MS": 23000,
+        "COINS_PER_CREDIT": 2,
+        "DATA_WIDTHS": {
+            "GLOBAL_CREDITS": 32,
+            "STATUS": 32,
+            "AMMO": 32,
+            "LIFE": "float32"
+        },
+        "PLAYER_MEMORY_OFFSET": "0x120",
+        "CREDITS": "0x001DE8D8",
+        "P1": {
+            "STATUS": "0x001E0F64",
+            "AMMO": "0x001E0FFC",
+            "LIFE": "0x001E0F84"
+        }
+    },
+    "cryptklr": {
+        "LUA_GAME": "Crypt Killer",
+        "STARTUP_DELAY_MS": 70000,
+        "MAX_PLAYERS": 3,
+        "PLAYER_MEMORY_OFFSET": "0x58",
+        "CREDITS": "0x002189C1",
+        "P1": {
+            "STATUS": "0x002377C8",
+            "AMMO": "0x002377D3",
+            "LIFE": "0x002377CC"
+        }
+    },
+    "duckhunt": {
+        "LUA_GAME": "Duck Hunt",
+        "STARTUP_DELAY_MS": 1000,
+        "SIMULTANEOUS_PLAY": false,
+        "PLAYER_MEMORY_OFFSET": 0,
+        "AMMO_MAX": 3,
+        "LIFE_OFFSET": 1,
+        "LIFE_MAX": 5,
+        "CREDITS": "0x00000635",
+        "GAME_STATUS": "0x000000EF",
+        "P1": {
+            "STATUS": "0x0000067C",
+            "AMMO": "0x000000BA",
+            "LIFE": "0x000000C5"
+        },
+        "P2": {
+            "STATUS": "0x00000602"
+        }
+    },
+    "hotd": {
+        "LUA_GAME": "The House of the Dead",
+        "STARTUP_DELAY_MS": 14000,
+        "COINS_PER_CREDIT": 1,
+        "COINS_PER_CREDIT_comment": "2 Credits required to start a game for either player, but only 1 Credit required to continue the game once started",
+        "DATA_WIDTHS": {
+            "LAMP_START": "output"
+        },
+        "ATTRACT_STATUS": "0x0051F5E8",
+        "CREDITS": "0x0051E868",
+        "CREDITS_comment": "Alternatives might include: 0x0051E868, 0x0051E888, 0x0051F4B8, 0X01D0000A, 0X01D0005E",
+        "GAME_STATUS": "0x0051F4A0",
+        "GAME_STATUS_comment": "Alternatives might include: 0x0051F4A0, 0x0051F4A2; If either = 1 then 1 player is active (can be either P1 or P2), if either = 2 then both 2 players are active",
+        "P1": {
+            "STATUS": "auto",
+            "AMMO": "0x0051F2C1",
+            "LIFE": "0x0051F290",
+            "LAMP_START": "lamp0"
+        },
+        "P2": {
+            "AMMO": "0x0051F38D",
+            "LIFE": "0x0051F35C",
+            "LAMP_START": "lamp1"
+        }
+    },
+    "invasnab": {
+        "LUA_GAME": "Invasion: The Abductors",
+        "STARTUP_DELAY_MS": 7000,
+        "COINS_PER_CREDIT": 2,
+        "DATA_WIDTHS": {
+            "GLOBAL_CREDITS": 16,
+            "STATUS": 16,
+            "AMMO_ALT": 16,
+            "LIFE": 32
+        },
+        "PLAYER_MEMORY_OFFSET": "0x36",
+        "AMMO_MAX": 9,
+        "CREDITS": "0x0000AF08",
+        "P1": {
+            "STATUS": "0x0000A011",
+            "AMMO": "0x0000C07C",
+            "AMMO_ALT": "0x0000A034",
+            "AMMO_ALT_comment": "P1 Rockets = 0x0000A034",
+            "LIFE": "0x0000A01D",
+            "SHOTS_FIRED_ALT": "auto"
+        },
+        "P2": {
+            "STATUS": "0x0000A047",
+            "AMMO": "0x0000C07E",
+            "AMMO_ALT": "0x0000A068",
+            "AMMO_ALT_comment": "P2 Rockets = 0x0000A068",
+            "LIFE": "0x0000A053"
+        },
+        "AMMO_ALT_DIRECTION": "increase",
+        "LIFE_DIRECTION": "increase"
+    },
+    "jdredd": {
+        "LUA_GAME": "Judge Dredd",
+        "STARTUP_DELAY_MS": 18000,
+        "PLAYER_MEMORY_OFFSET": "0x48",
+        "RECOIL_ALT_DURATION_MS": 20,
+        "CREDITS": "0x003E6CAE",
+        "GAME_STATUS": "0x003E6E8A",
+        "P1": {
+            "STATUS": "auto",
+            "AMMO": "0x0010ED5D",
+            "AMMO_ALT": "0x0010ED48",
+            "AMMO_ALT_comment": "Machine Gun = 0x0010ED48 and Grenade = 0x0010ED5F in Judge Dredd (preference is to use Machine Gun for alt weapon)",
+            "LIFE": "0x0010ED5C",
+            "SHOTS_FIRED_ALT": "auto"
+        }
+    },
+    "le2": {
+        "LUA_GAME": "Lethal Enforcers II: Gun Fighters",
+        "STARTUP_DELAY_MS": 14000,
+        "PLAYER_MEMORY_OFFSET": "0x40",
+        "CREDITS": "0x00C012AD",
+        "P1": {
+            "STATUS": "0x00C012F0",
+            "AMMO": "0x00C01316",
+            "LIFE": "0x00C012F4"
+        }
+    },
+    "lethalen": {
+        "LUA_GAME": "Lethal Enforcers",
+        "STARTUP_DELAY_MS": 7000,
+        "COINS_PER_CREDIT": 2,
+        "PLAYER_MEMORY_OFFSET": "0x40",
+        "CREDITS": "0x00002030",
+        "GAME_STATUS": "0x00002000",
+        "P1": {
+            "STATUS": "0x0000219C",
+            "AMMO": "0x00002193",
+            "LIFE": "0x00002191"
+        },
+        "P2": {
+            "STATUS": "0x000021DC"
+        }
+    },
+    "lethalj": {
+        "LUA_GAME": "Lethal Justice",
+        "STARTUP_DELAY_MS": 8000,
+        "COINS_PER_CREDIT": 16,
+        "CREDITS": "0x00300220",
+        "GAME_STATUS": "0x000900C8",
+        "P1": {
+            "STATUS": "auto",
+            "AMMO": "0x00300710",
+            "LIFE": "0x00300870"
+        },
+        "P3": {
+            "AMMO": "0x00300750",
+            "LIFE": "0x00300890"
+        }
+    },
+    "maxforce": {
+        "LUA_GAME": "Maximum Force",
+        "STARTUP_DELAY_MS": 3000,
+        "COINS_PER_CREDIT": 2,
+        "PLAYER_MEMORY_OFFSET": "0x8C",
+        "CREDITS": "0x100003E5",
+        "GAME_STATUS": "0x1001DEC7",
+        "P1": {
+            "STATUS": "0x1000A543",
+            "AMMO": "0x1000AB37",
+            "LIFE": "0x1000AAE3"
+        },
+        "P2": {
+            "STATUS": "0x1000A547"
+        }
+    },
+    "policetr": {
+        "LUA_GAME": "Police Trainer",
+        "STARTUP_DELAY_MS": 3000,
+        "DATA_WIDTHS": {
+            "CREDITS": 16,
+            "AMMO": 16
+        },
+        "PLAYER_MEMORY_OFFSET": "0xC",
+        "CREDITS": "0x00017D66",
+        "P1": {
+            "STATUS": "0x00017D1B",
+            "AMMO": "0x00018D96",
+            "LIFE": "0x00017D4B"
+        },
+        "P2": {
+            "AMMO": "0x00018DA6"
+        }
+    },
+    "ptblank": {
+        "LUA_GAME": "Point Blank",
+        "STARTUP_DELAY_MS": 2000,
+        "PLAYER_MEMORY_OFFSET": "0x02",
+        "CREDITS": "0x001C004D",
+        "GAME_STATUS": "0x00210081",
+        "P1": {
+            "STATUS": "0x00210427",
+            "AMMO": "0x00210011",
+            "LIFE": "0x001C00B7",
+            "DAMAGE": "0x001C00B3"
+        },
+        "P2": {
+            "STATUS": "0x002105C5"
+        },
+        "AMMO_DIRECTION": "increase"
+    },
+    "sgunner": {
+        "LUA_GAME": "Steel Gunner",
+        "STARTUP_DELAY_MS": 4000,
+        "DATA_WIDTHS": {
+            "AMMO": 16
+        },
+        "PLAYER_MEMORY_OFFSET": "0x2",
+        "GAME_STATUS": "0x00100373",
+        "P1": {
+            "CREDITS": "0x00100121",
+            "STATUS": "auto",
+            "AMMO": "0x00100324",
+            "LIFE": "0x00100125"
+        }
+    },
+    "timecris": {
+        "LUA_GAME": "Time Crisis",
+        "STARTUP_DELAY_MS": 3000,
+        "COINS_PER_CREDIT": 3,
+        "MAX_PLAYERS": 1,
+        "SIMULTANEOUS_PLAY": false,
+        "CREDITS": "0x00E0D2A1",
+        "GAME_STATUS": "0x00E01772",
+        "P1": {
+            "STATUS": "auto",
+            "AMMO": "0x00E00793",
+            "LIFE": "0x00E00791"
+        }
+    },
+    "timecrs2": {
+        "LUA_GAME": "Time Crisis II",
+        "STARTUP_DELAY_MS": 17000,
+        "COINS_PER_CREDIT": 4,
+        "MAX_PLAYERS": 1,
+        "SIMULTANEOUS_PLAY": false,
+        "CREDITS": "0x002CE7B7",
+        "GAME_STATUS": "0x002CE8AF",
+        "P1": {
+            "STATUS": "auto",
+            "AMMO": "0x002F43FF",
+            "LIFE": "0x002F4401"
+        }
+    },
+    "vcop": {
+        "LUA_GAME": "Virtua Cop",
+        "STARTUP_DELAY_MS": 15000,
+        "DATA_WIDTHS": {
+            "LAMP_START": "output"
+        },
+        "PLAYER_MEMORY_OFFSET": 4,
+        "CREDITS": "0x00559270",
+        "P1": {
+            "STATUS": "0x0050EE30",
+            "AMMO": "0x0050EE38",
+            "LIFE": "0x0050EE70",
+            "LAMP_START": "lamp0"
+        },
+        "P2": {
+            "LAMP_START": "lamp1"
+        }
+    },
+    "vcop2": {
+        "LUA_GAME": "Virtua Cop 2",
+        "STARTUP_DELAY_MS": 13000,
+        "DATA_WIDTHS": {
+            "LAMP_START": "output"
+        },
+        "PLAYER_MEMORY_OFFSET": 4,
+        "CREDITS": "0x005D05C0",
+        "GAME_STATUS": "0x00500035",
+        "P1": {
+            "STATUS": "0x0050A2E8",
+            "AMMO": "0x00507260",
+            "LIFE": "0x00502090",
+            "LAMP_START": "lamp0"
+        },
+        "P2": {
+            "LAMP_START": "lamp1"
+        }
+    }
+}

@@ -1,24 +1,28 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.5
--- Last Modified Date (YYYY.MM.DD): 2026.04.04
+-- Universal Script Version: 6.0.4
+-- Last Modified Date (YYYY.MM.DD): 2026.04.05
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: lethalj
 ------------------------------------------------------
 
 local CFG = {
     --------------------------------------------------
     -- SCRIPT METADATA                              --
     --------------------------------------------------
+
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 545 = v5.4.5)
+    -- LUA Version can only be integer numbers (e.g. 604 = v6.0.4)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260403 = 2026.04.03)
-    LUA_VERSION = 545,
-    LUA_DATE    = 20260403,
+    -- LUA Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
+    -- LUA ROM is the MAME ROM filename that is associated with this LUA script
+    -- LUA GAME is the official game name for the rom
+    LUA_VERSION = 604,
+    LUA_DATE    = 20260405,
+    LUA_ROM     = "invasnab",
+    LUA_GAME    = "Invasion: The Abductors",
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -26,7 +30,7 @@ local CFG = {
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms)
     -- Prevents false "shots fired" events and blocks "Dirty RAM" on boot
     -- Default: 5000 (5 seconds)
-    STARTUP_DELAY_MS = 8000,
+    STARTUP_DELAY_MS = 7000,
     
     -- STATUS_DEBOUNCE_MS: Time (in ms) to wait before validating an "Active" state
     -- Prevents 1-frame flashes if a game updates its GameStatus memory a frame BEFORE its AttractStatus / Attract Mode memory
@@ -38,7 +42,7 @@ local CFG = {
     -- Logic: math.floor(Coins / COINS_PER_CREDIT)
     -- Example: Set COINS_PER_CREDIT = 2. If you insert 3 coins, output is 1 Credit (1.5 credits rounds down to 1 credit)
     -- Default: 1 (1 Coin = 1 Credit)
-    COINS_PER_CREDIT = 16,
+    COINS_PER_CREDIT = 2,
     
     -- MAX_PLAYERS: Set the number of players to track (1 to 4)
     -- Default: 2
@@ -98,14 +102,14 @@ local CFG = {
     --                 Instead, it will read the value of a native MAME output string that you define in the player tables below
     DATA_WIDTHS = {
         GLOBAL_ATTRACT_STATUS = 8,
-        GLOBAL_CREDITS        = 8,
+        GLOBAL_CREDITS        = 16,
         GLOBAL_GAME_STATUS    = 8,
         CREDITS               = 8,
-        STATUS                = 8,
+        STATUS                = 16,
         STATUS_ALT            = 8,
         AMMO                  = 8,
-        AMMO_ALT              = 8,
-        LIFE                  = 8,
+        AMMO_ALT              = 16,
+        LIFE                  = 32,
         LIFE_ALT              = 8,
         RECOIL                = 8,
         RELOAD                = 8,
@@ -142,7 +146,7 @@ local CFG = {
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0)
     -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games
-    PLAYER_MEMORY_OFFSET = false,
+    PLAYER_MEMORY_OFFSET = 0x36,
     
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only
     -- Use this if Credits are stored in a different area than Ammo/Life
@@ -187,7 +191,7 @@ local CFG = {
     -- Useful if the game sets ammo to 255 (0xFF) or 99 during reloading/infinity states
     -- Prevents massive jumps in the "Shots Fired" counter and stops infinite recoil loops
     -- Recommend setting this to exactly the max capacity of the primary weapon
-    AMMO_MAX     = false,
+    AMMO_MAX     = 9,
     AMMO_ALT_MAX = false,
     
     --------------------------------------------------
@@ -217,12 +221,12 @@ local CFG = {
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS        = 0x00300220,
+    CREDITS        = 0x0000AF08,
     
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS    = 0x000900C8,
+    GAME_STATUS    = false,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
@@ -243,11 +247,11 @@ local CFG = {
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
-        STATUS          = "auto",
+        STATUS          = 0x0000A011,
         STATUS_ALT      = false,
-        AMMO            = 0x00300710,
-        AMMO_ALT        = false,
-        LIFE            = 0x00300870,
+        AMMO            = 0x0000C07C,
+        AMMO_ALT        = 0x0000A034, -- P1 Rockets = 0x0000A034
+        LIFE            = 0x0000A01D,
         LIFE_ALT        = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
@@ -263,7 +267,7 @@ local CFG = {
         
         -- "auto" = Calculate based on Ammo/Life changes, 0xADDRESS = Read directly from game memory (no quotes), false = Disable this specific counter
         SHOTS_FIRED     = "auto",
-        SHOTS_FIRED_ALT = false,
+        SHOTS_FIRED_ALT = "auto",
         DAMAGE_TAKEN    = "auto",
         
         -- Tracks number of lives lost
@@ -273,11 +277,11 @@ local CFG = {
     P2 = {
         -- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play
         CREDITS         = "auto",
-        STATUS          = "auto",
+        STATUS          = 0x0000A047,
         STATUS_ALT      = "auto",
-        AMMO            = 0x00300750,
-        AMMO_ALT        = "auto",
-        LIFE            = 0x00300890,
+        AMMO            = 0x0000C07E,
+        AMMO_ALT        = 0x0000A068, -- P2 Rockets = 0x0000A068
+        LIFE            = 0x0000A053,
         LIFE_ALT        = "auto",
         RECOIL          = "auto",
         RELOAD          = "auto",
@@ -329,12 +333,12 @@ local CFG = {
     -- "decrease" = Counts down (6->5->4). Standard for most games
     -- "increase" = Counts up (0->1->2)
     AMMO_DIRECTION     = "decrease",
-    AMMO_ALT_DIRECTION = "decrease",
+    AMMO_ALT_DIRECTION = "increase",
     
     -- LIFE_DIRECTION: How the game counts life (Used for "auto" logic)
     -- "decrease" = Life bar goes down (Standard)
     -- "increase" = Damage counter goes up (Hits Taken)
-    LIFE_DIRECTION     = "decrease",
+    LIFE_DIRECTION     = "increase",
     LIFE_ALT_DIRECTION = "decrease",
     
     -- SHOTS_FIRED_METHOD: Calculation Logic (Used only if Source is "auto")

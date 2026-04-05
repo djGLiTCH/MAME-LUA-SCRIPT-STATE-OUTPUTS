@@ -1,24 +1,28 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.5
--- Last Modified Date (YYYY.MM.DD): 2026.04.04
+-- Universal Script Version: 6.0.4
+-- Last Modified Date (YYYY.MM.DD): 2026.04.05
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: lethalj
 ------------------------------------------------------
 
 local CFG = {
     --------------------------------------------------
     -- SCRIPT METADATA                              --
     --------------------------------------------------
+
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 545 = v5.4.5)
+    -- LUA Version can only be integer numbers (e.g. 604 = v6.0.4)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260403 = 2026.04.03)
-    LUA_VERSION = 545,
-    LUA_DATE    = 20260403,
+    -- LUA Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
+    -- LUA ROM is the MAME ROM filename that is associated with this LUA script
+    -- LUA GAME is the official game name for the rom
+    LUA_VERSION = 604,
+    LUA_DATE    = 20260405,
+    LUA_ROM     = "bbust2",
+    LUA_GAME    = "Beast Busters: Second Nightmare",
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -38,7 +42,7 @@ local CFG = {
     -- Logic: math.floor(Coins / COINS_PER_CREDIT)
     -- Example: Set COINS_PER_CREDIT = 2. If you insert 3 coins, output is 1 Credit (1.5 credits rounds down to 1 credit)
     -- Default: 1 (1 Coin = 1 Credit)
-    COINS_PER_CREDIT = 16,
+    COINS_PER_CREDIT = 1,
     
     -- MAX_PLAYERS: Set the number of players to track (1 to 4)
     -- Default: 2
@@ -105,9 +109,9 @@ local CFG = {
         STATUS_ALT            = 8,
         AMMO                  = 8,
         AMMO_ALT              = 8,
-        LIFE                  = 8,
+        LIFE                  = 16,
         LIFE_ALT              = 8,
-        RECOIL                = 8,
+        RECOIL                = 16,
         RELOAD                = 8,
         DAMAGE                = 8,
         LAMP_START            = 8,
@@ -142,7 +146,7 @@ local CFG = {
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0)
     -- Setting to 0 perfectly syncs P2 logic to P1 memory for Turn-Based games
-    PLAYER_MEMORY_OFFSET = false,
+    PLAYER_MEMORY_OFFSET = 0x60,
     
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only
     -- Use this if Credits are stored in a different area than Ammo/Life
@@ -151,7 +155,7 @@ local CFG = {
     -- nil / false = Uses the standard PLAYER_MEMORY_OFFSET defined above
     -- 1           = Adjacent Byte (Common for NeoGeo / packed arrays)
     -- 4           = Adjacent Integer (If credits are 32-bit)
-    PLAYER_CREDIT_MEMORY_OFFSET = false,
+    PLAYER_CREDIT_MEMORY_OFFSET = 0x2,
     
     --------------------------------------------------
     -- PULSE TIMING (Milliseconds)                  --
@@ -217,12 +221,12 @@ local CFG = {
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass the 
     -- "Wait for Credits" safety check.
-    CREDITS        = 0x00300220,
+    CREDITS        = false,
     
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS    = 0x000900C8,
+    GAME_STATUS    = 0x001844F3,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
@@ -238,20 +242,20 @@ local CFG = {
         -- At a minimum, it is recommended that AMMO and LIFE contain memory addresses for P1, which will enable automatic logic for other variables and functions
         
         -- If CREDITS = "auto", then use Global CREDITS address defined above
-        CREDITS         = false,
+        CREDITS         = 0x00184589,
         
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
         STATUS          = "auto",
         STATUS_ALT      = false,
-        AMMO            = 0x00300710,
+        AMMO            = 0x0019B75F,
         AMMO_ALT        = false,
-        LIFE            = 0x00300870,
+        LIFE            = 0x0019B74C,
         LIFE_ALT        = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
-        RECOIL          = "auto",
+        RECOIL          = 0x0019B792,
         RELOAD          = "auto",
         DAMAGE          = "auto",
         
@@ -272,12 +276,12 @@ local CFG = {
     },
     P2 = {
         -- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play
-        CREDITS         = "auto",
+        CREDITS         = 0x0018458B,
         STATUS          = "auto",
         STATUS_ALT      = "auto",
-        AMMO            = 0x00300750,
+        AMMO            = "auto",
         AMMO_ALT        = "auto",
-        LIFE            = 0x00300890,
+        LIFE            = "auto",
         LIFE_ALT        = "auto",
         RECOIL          = "auto",
         RELOAD          = "auto",

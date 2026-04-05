@@ -1,24 +1,28 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.5
--- Last Modified Date (YYYY.MM.DD): 2026.04.04
+-- Universal Script Version: 6.0.4
+-- Last Modified Date (YYYY.MM.DD): 2026.04.05
 -- Created by DJ GLiTCH, with testing help from Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: lethalj
 ------------------------------------------------------
 
 local CFG = {
     --------------------------------------------------
     -- SCRIPT METADATA                              --
     --------------------------------------------------
+
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 545 = v5.4.5)
+    -- LUA Version can only be integer numbers (e.g. 604 = v6.0.4)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260403 = 2026.04.03)
-    LUA_VERSION = 545,
-    LUA_DATE    = 20260403,
+    -- LUA Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
+    -- LUA ROM is the MAME ROM filename that is associated with this LUA script
+    -- LUA GAME is the official game name for the rom
+    LUA_VERSION = 604,
+    LUA_DATE    = 20260405,
+    LUA_ROM     = "lethalj",
+    LUA_GAME    = "Lethal Justice",
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -275,9 +279,9 @@ local CFG = {
         CREDITS         = "auto",
         STATUS          = "auto",
         STATUS_ALT      = "auto",
-        AMMO            = 0x00300750,
+        AMMO            = "auto",
         AMMO_ALT        = "auto",
-        LIFE            = 0x00300890,
+        LIFE            = "auto",
         LIFE_ALT        = "auto",
         RECOIL          = "auto",
         RELOAD          = "auto",
@@ -293,9 +297,9 @@ local CFG = {
         CREDITS         = "auto",
         STATUS          = "auto",
         STATUS_ALT      = "auto",
-        AMMO            = "auto",
+        AMMO            = 0x00300750,
         AMMO_ALT        = "auto",
-        LIFE            = "auto",
+        LIFE            = 0x00300890,
         LIFE_ALT        = "auto",
         RECOIL          = "auto",
         RELOAD          = "auto",
