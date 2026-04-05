@@ -26,7 +26,7 @@ To help the light gun community, I have prepared a selection of MAME games for u
 
 5. Ensure your mame.ini file inside your MAME root directory has "output" set to "network" if using Hook Of The Reaper (HOTR).
 
-Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename, then this should take priority over a file with the same filename in "HookOfTheReaper\defaultLG\MAME_LUA", but to prevent issues it is advised you delete the "HookOfTheReaper\defaultLG\MAME_LUA" folder altogether when using my LUA scripts.
+- Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename, then this should take priority over a file with the same filename in "HookOfTheReaper\defaultLG\MAME_LUA", but to prevent issues it is advised you delete the "HookOfTheReaper\defaultLG\MAME_LUA" folder altogether when using my LUA scripts.
 
 The following lightguns have been tested and proven to work with these MAME LUA scripts and Hook Of The Reaper (https://github.com/6Bolt/Hook-Of-The-Reaper):
 
@@ -34,8 +34,36 @@ The following lightguns have been tested and proven to work with these MAME LUA 
 - Retroshooter RS3 Reaper Pro
 - Sinden
 
-Please refer to the "Progress Notes" included in each release to understand what is being worked on and what to look out for prior to the final release. As things stand right now, it should only be a few games requiring official Game Status memory address identification, but in the meantime fallback logic has been used which prevents recoil and rumble during attract mode on initial game bootup, but after playing a game, dying, and returning to the main menu, then recoil and rumble may operate during attract mode (only initial attract mode upon bootup is ignored with the fallback logic).
+Please refer to the "Progress Notes" included in each release to understand what is being worked on and what issues might exist in each release.
+
+The list of currently supported MAME ROMs / games are:
+
+| ROM | Game |
+| :--- | :--- |
+| `area51` | Area 51 |
+| `area51mx` | Area 51 / Maximum Force Duo |
+| `bbust2` | Beast Busters: Second Nightmare |
+| `bel` | Behind Enemy Lines |
+| `carnevil` | CarnEvil |
+| `cryptklr` | Crypt Killer |
+| `duckhunt` | Duck Hunt |
+| `hotd` | The House of the Dead |
+| `invasnab` | Invasion: The Abductors |
+| `jdredd` | Judge Dredd |
+| `le2` | Lethal Enforcers II: Gun Fighters |
+| `lethalen` | Lethal Enforcers |
+| `lethalj` | Lethal Justice |
+| `maxforce` | Maximum Force |
+| `policetr` | Police Trainer |
+| `ptblank` | Point Blank |
+| `sgunner` | Steel Gunner |
+| `timecris` | Time Crisis |
+| `timecrs2` | Time Crisis II |
+| `vcop` | Virtua Cop |
+| `vcop2` | Virtua Cop 2 |
 
 Special thanks to Muggins for all of his help in beta testing with me and verifying compatibility with Sinden light guns. And a special thanks to Argon for the original idea, who I believe created the original MAME LUA script that was floating around online, which inspired me to create this version from the ground up for easier maintenance, compatibility, and collaboration across the light gun community through a unified template design.
+
+
 
 https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
