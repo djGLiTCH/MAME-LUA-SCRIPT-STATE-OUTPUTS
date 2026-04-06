@@ -1,9 +1,9 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 6.0.4
--- Last Modified Date (YYYY.MM.DD): 2026.04.05
--- Created by DJ GLiTCH, with testing help from Muggins
+-- Universal MAME LUA Script Version: 6.1.2
+-- Last Modified Date (YYYY.MM.DD): 2026.04.06
+-- Created by DJ GLiTCH, with additional testing by Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
 
@@ -11,7 +11,6 @@ local CFG = {
     --------------------------------------------------
     -- SCRIPT METADATA                              --
     --------------------------------------------------
-
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
     -- LUA Version can only be integer numbers (e.g. 604 = v6.0.4)
@@ -348,14 +347,20 @@ local CFG = {
     SHOTS_FIRED_ALT_METHOD = {{SHOTS_FIRED_ALT_METHOD}},{{SHOTS_FIRED_ALT_METHOD_comment}}
     
     -- RECOIL_METHOD: How direct memory recoil addresses are processed
-    -- "pulse" = Triggers only when the memory value increases (best for semi-auto)
-    -- "hold"  = Triggers continuously while the value is > 0 (best for machine guns)
+    -- "pulse"  = Triggers only when the memory value increases (best for semi-auto)
+    -- "hold"   = Triggers continuously while the value is > 0 (best for machine guns)
+    -- "change" = Triggers whenever the value changes, as long as the new value is > 0
+    -- "latch"  = Triggers once when the value becomes > 0, and won't trigger again until it returns to 0
     RECOIL_METHOD = {{RECOIL_METHOD}},{{RECOIL_METHOD_comment}}
     
     -- RECOIL_PRIORITY: Trigger to control the physical solenoid
     -- "ammo"   = ammo drops trigger recoil. The recoil memory address is ignored UNLESS Ammo = 0.
     -- "recoil" = the recoil memory address ALWAYS triggers recoil. Ammo drops are completely ignored for physical feedback.
     RECOIL_PRIORITY = {{RECOIL_PRIORITY}},{{RECOIL_PRIORITY_comment}}
+    
+    -- RECOIL_MEM_ADD_VALUE: Defines a specific required value for the recoil memory address to trigger
+    -- If set to false, any value greater than 0 is assumed to be a recoil event based on the RECOIL_METHOD
+    RECOIL_MEM_ADD_VALUE = {{RECOIL_MEM_ADD_VALUE}},{{RECOIL_MEM_ADD_VALUE_comment}}
     
     --------------------------------------------------
     -- GLOBAL MASTER SWITCHES                       --
@@ -636,7 +641,31 @@ function OnWrite_Generic(name, val, player_idx, type_key)
     if not p.IsActive then return end
     
     if type_key == "RECOIL" then
-        if val > p.LastRecoilVal then
+        local trigger_recoil = false
+        local r_method = string.lower(tostring(CFG.RECOIL_METHOD))
+        local target_val = CFG.RECOIL_MEM_ADD_VALUE
+        local has_target = type(target_val) == "number"
+
+        if has_target then
+            if r_method == "hold" then
+                if val == target_val then trigger_recoil = true end
+            else
+                if val == target_val and p.LastRecoilVal ~= target_val then trigger_recoil = true end
+            end
+        else
+            if r_method == "change" then
+                if val ~= p.LastRecoilVal and val > 0 then trigger_recoil = true end
+            elseif r_method == "hold" then
+                if val > 0 then trigger_recoil = true end
+            elseif r_method == "latch" then
+                if val > 0 and p.LastRecoilVal == 0 then trigger_recoil = true end
+            else
+                -- default "pulse"
+                if val > p.LastRecoilVal then trigger_recoil = true end
+            end
+        end
+
+        if trigger_recoil then
             local out_name = Get_Output_Str(player_idx, "RECOIL")
             out:set_value(out_name, 1)
             if CFG.DEMULSHOOTER_COMPATIBILITY then
@@ -996,17 +1025,32 @@ function Compute_Outputs()
                     
                     if allowed_by_priority then
                         local trigger_recoil = false
-                        local is_hold_method = string.lower(tostring(CFG.RECOIL_METHOD)) == "hold"
-                        if is_hold_method then
-                            if recoil_val > 0 then trigger_recoil = true end
+                        local r_method = string.lower(tostring(CFG.RECOIL_METHOD))
+                        local target_val = CFG.RECOIL_MEM_ADD_VALUE
+                        local has_target = type(target_val) == "number"
+                        
+                        if has_target then
+                            if r_method == "hold" then
+                                if recoil_val == target_val then trigger_recoil = true end
+                            else
+                                if recoil_val == target_val and p.LastRecoilVal ~= target_val then trigger_recoil = true end
+                            end
                         else
-                            -- Trigger if the value increases (catches pulses like 0->1 or 1->2)
-                            if recoil_val > p.LastRecoilVal then trigger_recoil = true end
+                            if r_method == "hold" then
+                                if recoil_val > 0 then trigger_recoil = true end
+                            elseif r_method == "change" then
+                                if recoil_val ~= p.LastRecoilVal and recoil_val > 0 then trigger_recoil = true end
+                            elseif r_method == "latch" then
+                                if recoil_val > 0 and p.LastRecoilVal == 0 then trigger_recoil = true end
+                            else
+                                -- default "pulse" (Trigger if the value increases)
+                                if recoil_val > p.LastRecoilVal then trigger_recoil = true end
+                            end
                         end
                         
                         if trigger_recoil then
                             local time_since_last = manager.machine.time - p.RecoilTick
-                            local active_interval = is_hold_method and _RecoilHoldInterval or _MinRecoilInterval
+                            local active_interval = (r_method == "hold") and _RecoilHoldInterval or _MinRecoilInterval
                             
                             if time_since_last > active_interval then
                                 p.CurrentRecoilDuration = _RecoilDuration

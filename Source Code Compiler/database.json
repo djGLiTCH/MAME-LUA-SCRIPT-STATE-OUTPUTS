@@ -1,8 +1,8 @@
 {
-    "default": {
-        "LUA_VERSION": 604,
-        "LUA_DATE": 20260405,
-        "LUA_GAME": "Default LUA Script Values",
+    "_default": {
+        "LUA_VERSION": 612,
+        "LUA_DATE": 20260406,
+        "LUA_GAME": "Default Universal MAME LUA Script Values",
         "STARTUP_DELAY_MS": 5000,
         "STATUS_DEBOUNCE_MS": 34,
         "COINS_PER_CREDIT": 1,
@@ -150,13 +150,14 @@
         "SHOTS_FIRED_ALT_METHOD": "trigger",
         "RECOIL_METHOD": "pulse",
         "RECOIL_PRIORITY": "ammo",
+        "RECOIL_MEM_ADD_VALUE": false,
         "ENABLE_SHOT_COUNT": true,
         "ENABLE_DAMAGE_COUNT": true,
         "ENABLE_LIFE_LOST": true,
         "DEMULSHOOTER_COMPATIBILITY": true,
         "ENABLE_OSD": false
     },
-    "quick_template": {
+    "_quick_template": {
         "LUA_GAME": "changeme",
         "STARTUP_DELAY_MS": 5000,
         "COINS_PER_CREDIT": 1,
@@ -245,6 +246,7 @@
     },
     "bel": {
         "LUA_GAME": "Behind Enemy Lines",
+        "STARTUP_DELAY_MS": 7000,
         "DATA_WIDTHS": {
             "LAMP_START": "output"
         },
@@ -256,7 +258,7 @@
             "AMMO": "0x005B494C",
             "LIFE": "0x005B4997",
             "RECOIL": "0x005A87B0",
-            "RECOIL_comment": "0x005A87B0 > 0 for recoil in-game for P1",
+            "RECOIL_comment": "Alternative recoil triggers can include: 0x005A87B0 > 0 for trigger press in-game for P1; 0x005B494B > 0 for a shot countdown",
             "DAMAGE": "0x005A8138",
             "DAMAGE_comment": "0x005A8138 > 0 when the red \"DAMAGE\" text appears on-screen for both players",
             "LAMP_START": "lamp0"
@@ -265,7 +267,7 @@
             "AMMO": "0x005B49D0",
             "LIFE": "0x005B4A1B",
             "RECOIL": "0x005A87B1",
-            "RECOIL_comment": "0x005A87B1 > 0 for recoil in-game for P2",
+            "RECOIL_comment": "Alternative recoil triggers can include: 0x005A87B1 > 0 for trigger press in-game for P2; 0x005B49CF > 0 for a shot countdown",
             "DAMAGE": "0x005A8138",
             "DAMAGE_comment": "0x005A8138 > 0 when the red \"DAMAGE\" text appears on-screen for both players",
             "LAMP_START": "lamp1"
@@ -431,7 +433,7 @@
             "AMMO": "0x00300710",
             "LIFE": "0x00300870"
         },
-        "P3": {
+        "P2": {
             "AMMO": "0x00300750",
             "LIFE": "0x00300890"
         }
@@ -500,7 +502,8 @@
             "STATUS": "auto",
             "AMMO": "0x00100324",
             "LIFE": "0x00100125"
-        }
+        },
+        "AMMO_DIRECTION": "increase"
     },
     "timecris": {
         "LUA_GAME": "Time Crisis",

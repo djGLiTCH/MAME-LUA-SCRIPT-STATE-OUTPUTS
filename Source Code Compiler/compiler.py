@@ -1,9 +1,9 @@
 #
 # UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 # GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
-# Universal Script Compiler Version: 1.3.2
-# Last Modified Date (YYYY.MM.DD): 2026.04.05
-# Created by DJ GLiTCH, with testing help from Muggins
+# Universal Script Compiler Version: 1.3.4
+# Last Modified Date (YYYY.MM.DD): 2026.04.06
+# Created by DJ GLiTCH, with additional testing by Muggins
 # License: GNU GENERAL PUBLIC LICENSE 3.0
 #
 
@@ -74,12 +74,12 @@ def extract_version_metadata(template_content):
     version_num = None
     date_num = None
     
-    # Look for: -- Universal Script Version: 6.0.1
-    v_match = re.search(r'-- Universal Script Version:\s*(\d+)\.(\d+)\.(\d+)', template_content, re.IGNORECASE)
+    # Look for latest script version line, example: -- Universal MAME LUA Script Version: 6.1.0
+    v_match = re.search(r'-- Universal MAME LUA Script Version:\s*(\d+)\.(\d+)\.(\d+)', template_content, re.IGNORECASE)
     if v_match:
         version_num = int(f"{v_match.group(1)}{v_match.group(2)}{v_match.group(3)}")
         
-    # Look for: -- Last Modified Date (YYYY.MM.DD): 2026.04.05
+    # Look for latest script last modified date line, example: -- Last Modified Date (YYYY.MM.DD): 2026.04.06
     d_match = re.search(r'-- Last Modified Date \(YYYY\.MM\.DD\):\s*(\d{4})\.(\d{2})\.(\d{2})', template_content, re.IGNORECASE)
     if d_match:
         date_num = int(f"{d_match.group(1)}{d_match.group(2)}{d_match.group(3)}")
@@ -87,7 +87,7 @@ def extract_version_metadata(template_content):
     return version_num, date_num
 
 def compile_scripts():
-    print("Starting Universal MAME Lua Compilation...")
+    print("Starting Universal MAME LUA Script Compilation...")
     
     if not os.path.exists(OUTPUT_DIR):
         os.makedirs(OUTPUT_DIR)
@@ -106,12 +106,12 @@ def compile_scripts():
         print(f"Error: Could not find {TEMPLATE_FILE}")
         return
 
-    # Extract the master defaults from the JSON
-    default_config = database.get("default", {})
+    # Extract the master defaults from the JSON using the new "_default" key
+    default_config = database.get("_default", {})
     if not default_config:
-        print("Warning: No 'default' block found in database.json. Proceeding without base defaults.")
+        print("Warning: No '_default' block found in database.json. Proceeding without base defaults. Noting the compiled LUA scripts will likely not work as expected.")
 
-    # --- NEW: PULL METADATA FROM SCRIPT.LUA HEADER AND UPDATE JSON ---
+    # --- PULL METADATA FROM SCRIPT.LUA HEADER AND UPDATE JSON ---
     lua_version, lua_date = extract_version_metadata(template_content)
     db_updated = False
     
@@ -126,15 +126,15 @@ def compile_scripts():
         print(f" -> Syncing LUA_DATE to {lua_date} from script.lua header.")
         
     if db_updated:
-        database["default"] = default_config
+        database["_default"] = default_config
         with open(DATABASE_FILE, 'w', encoding='utf-8') as f:
             json.dump(database, f, indent=4)
         print(" -> database.json successfully updated with new metadata.\n")
     # ------------------------------------------------------------------
 
     for rom_name, game_data in database.items():
-        # Skip the structural reference blocks
-        if rom_name in ["default", "quick_template"]:
+        # Skip ONLY the structural template block. Allow "_default" to compile!
+        if rom_name in ["_quick_template"]:
             continue
             
         # 1. Deep merge the game specific overrides on top of the master defaults
@@ -175,7 +175,7 @@ def compile_scripts():
             
         print(f" -> Compiled: {rom_name}.lua")
         
-    print(f"\nCompilation complete! Check the '{OUTPUT_DIR}' folder.")
+    print(f"\nUniversal MAME LUA Script Compilation is complete! Check the '{OUTPUT_DIR}' folder.")
 
 if __name__ == "__main__":
     compile_scripts()
