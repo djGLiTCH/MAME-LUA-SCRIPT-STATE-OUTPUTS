@@ -12,6 +12,7 @@ Recoil_Value 1 Reload_Value
 :mame_start
 *All
 >Open_COM
+>AspectRatio_4:3
 :mame_stop
 *All
 >Close_COM

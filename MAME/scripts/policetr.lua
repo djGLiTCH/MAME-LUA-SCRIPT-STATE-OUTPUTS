@@ -1,24 +1,28 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.5
--- Last Modified Date (YYYY.MM.DD): 2026.04.03
--- Created by DJ GLiTCH, with testing help from Muggins
+-- Universal MAME LUA Script Version: 6.2.1
+-- Last Modified Date (YYYY.MM.DD): 2026.04.07
+-- Created by DJ GLiTCH, with additional testing by Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
--- MAME ROM: policetr
 ------------------------------------------------------
 
 local CFG = {
     --------------------------------------------------
     -- SCRIPT METADATA                              --
     --------------------------------------------------
+
     -- MAME state outputs only support integers (no decimals or text strings)
     -- LUA Version represents the version of the universal MAME LUA script used as the baseline code
-    -- LUA Version can only be integer numbers (e.g. 545 = v5.4.5)
+    -- LUA Version can only be integer numbers (e.g. 604 = v6.0.4)
     -- LUA Date represents the date that the script was last modified (since this is often later than when the LUA Version was created)
-    -- LUA Date can only be integer numbers (e.g. 20260403 = 2026.04.03)
-    LUA_VERSION = 545,
-    LUA_DATE    = 20260403,
+    -- LUA Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
+    -- LUA ROM is the MAME ROM filename that is associated with this LUA script
+    -- LUA GAME is the official game name for the rom
+    LUA_VERSION = 621,
+    LUA_DATE    = 20260407,
+    LUA_ROM     = "policetr",
+    LUA_GAME    = "Police Trainer",
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -343,15 +347,28 @@ local CFG = {
     SHOTS_FIRED_METHOD     = "trigger",
     SHOTS_FIRED_ALT_METHOD = "trigger",
     
+    -- FORCE_FEEDBACK_ENABLER: Controls what conditions must be met for physical force feedback to trigger (Recoil, Reload, Damage/Rumble)
+    -- "gamestatus" = Feedback triggers as long as the global game status is active (useful if individual player status is unknown and life can be 0)
+    -- "both"       = Default behavior (requires player to be fully active via Status/Life/Credits)
+    -- "status"     = Feedback triggers as long as the player's individual status is active
+    -- "life"       = Feedback triggers as long as the player's life is > 0
+    FORCE_FEEDBACK_ENABLER = "both",
+    
     -- RECOIL_METHOD: How direct memory recoil addresses are processed
-    -- "pulse" = Triggers only when the memory value increases (best for semi-auto)
-    -- "hold"  = Triggers continuously while the value is > 0 (best for machine guns)
+    -- "pulse"  = Triggers only when the memory value increases (best for semi-auto)
+    -- "hold"   = Triggers continuously while the value is > 0 (best for machine guns)
+    -- "change" = Triggers whenever the value changes, as long as the new value is > 0
+    -- "latch"  = Triggers once when the value becomes > 0, and won't trigger again until it returns to 0
     RECOIL_METHOD = "pulse",
     
     -- RECOIL_PRIORITY: Trigger to control the physical solenoid
     -- "ammo"   = ammo drops trigger recoil. The recoil memory address is ignored UNLESS Ammo = 0.
     -- "recoil" = the recoil memory address ALWAYS triggers recoil. Ammo drops are completely ignored for physical feedback.
     RECOIL_PRIORITY = "ammo",
+    
+    -- RECOIL_MEM_ADD_VALUE: Defines a specific required value for the recoil memory address to trigger
+    -- If set to false, any value greater than 0 is assumed to be a recoil event based on the RECOIL_METHOD
+    RECOIL_MEM_ADD_VALUE = false,
     
     --------------------------------------------------
     -- GLOBAL MASTER SWITCHES                       --
@@ -493,7 +510,9 @@ for i = 1, 4 do
         ActiveTick=_ZeroTime,
         IsRecoilActive=false,
         IsReloadActive=false,
-        IsDamageActive=false
+        IsDamageActive=false,
+        IsFFBAllowed=false,
+        WasFFBAllowed=false
     }
 end
 
@@ -629,10 +648,34 @@ function OnWrite_Generic(name, val, player_idx, type_key)
     
     local p = _Player[player_idx]
 
-    if not p.IsActive then return end
-    
     if type_key == "RECOIL" then
-        if val > p.LastRecoilVal then
+        if not p.IsFFBAllowed then return end
+        
+        local trigger_recoil = false
+        local r_method = string.lower(tostring(CFG.RECOIL_METHOD))
+        local target_val = CFG.RECOIL_MEM_ADD_VALUE
+        local has_target = type(target_val) == "number"
+
+        if has_target then
+            if r_method == "hold" then
+                if val == target_val then trigger_recoil = true end
+            else
+                if val == target_val and p.LastRecoilVal ~= target_val then trigger_recoil = true end
+            end
+        else
+            if r_method == "change" then
+                if val ~= p.LastRecoilVal and val > 0 then trigger_recoil = true end
+            elseif r_method == "hold" then
+                if val > 0 then trigger_recoil = true end
+            elseif r_method == "latch" then
+                if val > 0 and p.LastRecoilVal == 0 then trigger_recoil = true end
+            else
+                -- default "pulse"
+                if val > p.LastRecoilVal then trigger_recoil = true end
+            end
+        end
+
+        if trigger_recoil then
             local out_name = Get_Output_Str(player_idx, "RECOIL")
             out:set_value(out_name, 1)
             if CFG.DEMULSHOOTER_COMPATIBILITY then
@@ -651,6 +694,8 @@ function OnWrite_Generic(name, val, player_idx, type_key)
             end
         end
         p.LastRecoilVal = val
+    else
+        if not p.IsActive then return end
     end
 end
 
@@ -889,22 +934,39 @@ function Compute_Outputs()
             p.IsActive = is_player_active
             if is_player_active then any_player_active = true end
 
+            -- ==============================================
+            -- FORCE FEEDBACK ENABLER LOGIC
+            -- ==============================================
+            local enabler = string.lower(tostring(CFG.FORCE_FEEDBACK_ENABLER or "both"))
+            local ffb_allowed = false
+            if enabler == "status" then
+                ffb_allowed = (out_status_val == 1 or out_status_alt_val == 1)
+            elseif enabler == "life" then
+                ffb_allowed = (curr_life > 0 or curr_life_alt > 0)
+            elseif enabler == "gamestatus" then
+                ffb_allowed = is_game_active
+            else
+                ffb_allowed = is_player_active
+            end
+            p.IsFFBAllowed = ffb_allowed
+
             if cfg.STATUS then out:set_value(Get_Output_Str(i, "STATUS"), out_status_val) end
             if cfg.STATUS_ALT then out:set_value(Get_Output_Str(i, "STATUS_ALT"), out_status_alt_val) end
 
             local just_died = (not is_player_active and p.WasActive)
+            local primary_active = (out_status_val == 1)
+            local alternate_active = false
+            
+            if cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto" then
+                alternate_active = (out_status_alt_val == 1)
+            else
+                alternate_active = primary_active
+            end
 
+            -- ==============================================
+            -- 1. STATS OUTPUT (Ammo, Life, Shots Fired)
+            -- ==============================================
             if is_player_active or just_died then
-            
-                local primary_active = (out_status_val == 1)
-                local alternate_active = false
-                
-                if cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto" then
-                    alternate_active = (out_status_alt_val == 1)
-                else
-                    alternate_active = primary_active
-                end
-            
                 if primary_active then
                     if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), warmup_ok and curr_ammo or 0) end
                     if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), warmup_ok and curr_life or 0) end
@@ -978,8 +1040,18 @@ function Compute_Outputs()
                     if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), 0) end
                     if cfg.LIFE_ALT then out:set_value(Get_Output_Str(i, "LIFE_ALT"), 0) end
                 end
+            else
+                -- Explicitly clear static values when a player dies or is inactive
+                if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), 0) end
+                if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), 0) end
+                if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), 0) end
+                if cfg.LIFE_ALT then out:set_value(Get_Output_Str(i, "LIFE_ALT"), 0) end
+            end
 
-                -- Direct Memory Polling for RECOIL (If a specific address is provided)
+            -- ==============================================
+            -- 2. DIRECT MEMORY RECOIL
+            -- ==============================================
+            if ffb_allowed then
                 if cfg.RECOIL and type(cfg.RECOIL) == "number" then
                     local recoil_val = Read_Data_Safe(mem, cfg.RECOIL, CFG.DATA_WIDTHS.RECOIL)
                     
@@ -992,17 +1064,32 @@ function Compute_Outputs()
                     
                     if allowed_by_priority then
                         local trigger_recoil = false
-                        local is_hold_method = string.lower(tostring(CFG.RECOIL_METHOD)) == "hold"
-                        if is_hold_method then
-                            if recoil_val > 0 then trigger_recoil = true end
+                        local r_method = string.lower(tostring(CFG.RECOIL_METHOD))
+                        local target_val = CFG.RECOIL_MEM_ADD_VALUE
+                        local has_target = type(target_val) == "number"
+                        
+                        if has_target then
+                            if r_method == "hold" then
+                                if recoil_val == target_val then trigger_recoil = true end
+                            else
+                                if recoil_val == target_val and p.LastRecoilVal ~= target_val then trigger_recoil = true end
+                            end
                         else
-                            -- Trigger if the value increases (catches pulses like 0->1 or 1->2)
-                            if recoil_val > p.LastRecoilVal then trigger_recoil = true end
+                            if r_method == "hold" then
+                                if recoil_val > 0 then trigger_recoil = true end
+                            elseif r_method == "change" then
+                                if recoil_val ~= p.LastRecoilVal and recoil_val > 0 then trigger_recoil = true end
+                            elseif r_method == "latch" then
+                                if recoil_val > 0 and p.LastRecoilVal == 0 then trigger_recoil = true end
+                            else
+                                -- default "pulse" (Trigger if the value increases)
+                                if recoil_val > p.LastRecoilVal then trigger_recoil = true end
+                            end
                         end
                         
                         if trigger_recoil then
                             local time_since_last = manager.machine.time - p.RecoilTick
-                            local active_interval = is_hold_method and _RecoilHoldInterval or _MinRecoilInterval
+                            local active_interval = (r_method == "hold") and _RecoilHoldInterval or _MinRecoilInterval
                             
                             if time_since_last > active_interval then
                                 p.CurrentRecoilDuration = _RecoilDuration
@@ -1026,7 +1113,12 @@ function Compute_Outputs()
                     end
                     p.LastRecoilVal = recoil_val
                 end
+            end
 
+            -- ==============================================
+            -- 3. RUMBLE / DAMAGE / LIFE LOST
+            -- ==============================================
+            if is_player_active or just_died then
                 local rumble_triggered = false
                 
                 if type(cfg.DAMAGE_TAKEN) == "number" then
@@ -1069,7 +1161,9 @@ function Compute_Outputs()
                     end
                 end
 
-                if rumble_triggered then
+                local ffb_active_now = ffb_allowed or (just_died and p.WasFFBAllowed)
+
+                if rumble_triggered and ffb_active_now then
                     out:set_value(Get_Output_Str(i, "DAMAGE"), 1)
                     if CFG.DEMULSHOOTER_COMPATIBILITY then
                         local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
@@ -1084,7 +1178,7 @@ function Compute_Outputs()
                     end
                 end
                 
-                if cfg.DAMAGE then
+                if cfg.DAMAGE and ffb_active_now then
                     if type(cfg.DAMAGE) == "number" or (type(cfg.DAMAGE) == "string" and cfg.DAMAGE ~= "auto") then
                         local val = Read_Data_Safe(mem, cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
                         if val > p.LastRumbleVal then
@@ -1138,95 +1232,92 @@ function Compute_Outputs()
                          out:set_value(Get_Output_Str(i, "LIFE_LOST"), val)
                     end
                 end
+            end
 
-                if not CFG.MEMORY_ALIGNMENT and primary_active then
-                      local trigger_type = 0 
-                      
-                      if p.WasActive and cfg.AMMO then
-                          if string.lower(tostring(CFG.AMMO_DIRECTION)) == "decrease" then
-                              if curr_ammo < p.LastAmmo and p.LastAmmo <= 200 then trigger_type = 1 end
-                          else
-                              if curr_ammo > p.LastAmmo then trigger_type = 1 end
-                          end
+            -- ==============================================
+            -- 4. AUTO RECOIL & RELOAD
+            -- ==============================================
+            if not CFG.MEMORY_ALIGNMENT and ffb_allowed then
+                  local trigger_type = 0 
+                  
+                  if p.WasFFBAllowed and cfg.AMMO then
+                      if string.lower(tostring(CFG.AMMO_DIRECTION)) == "decrease" then
+                          if curr_ammo < p.LastAmmo and p.LastAmmo <= 200 then trigger_type = 1 end
+                      else
+                          if curr_ammo > p.LastAmmo then trigger_type = 1 end
                       end
-                      
-                      if alternate_active and p.WasActive and cfg.AMMO_ALT then
-                          if string.lower(tostring(CFG.AMMO_ALT_DIRECTION)) == "decrease" then
-                              if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= 200 then trigger_type = 2 end
-                          else
-                              if curr_ammo_alt > p.LastAmmoAlt then trigger_type = 2 end
-                          end
+                  end
+                  
+                  if p.WasFFBAllowed and cfg.AMMO_ALT then
+                      if string.lower(tostring(CFG.AMMO_ALT_DIRECTION)) == "decrease" then
+                          if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= 200 then trigger_type = 2 end
+                      else
+                          if curr_ammo_alt > p.LastAmmoAlt then trigger_type = 2 end
                       end
+                  end
 
-                      local allowed_by_priority = false
-                      if cfg.RECOIL == "auto" then
-                          allowed_by_priority = true
-                      elseif type(cfg.RECOIL) == "number" and string.lower(tostring(CFG.RECOIL_PRIORITY)) == "ammo" then
-                          allowed_by_priority = true
-                      end
-                      
-                      if trigger_type > 0 and allowed_by_priority then
-                          local time_since_last = manager.machine.time - p.RecoilTick
-                          if time_since_last > _MinRecoilInterval then
-                              if trigger_type == 1 then
-                                  p.CurrentRecoilDuration = _RecoilDuration
-                              else
-                                  p.CurrentRecoilDuration = _RecoilAltDuration
-                              end
+                  local allowed_by_priority = false
+                  if cfg.RECOIL == "auto" then
+                      allowed_by_priority = true
+                  elseif type(cfg.RECOIL) == "number" and string.lower(tostring(CFG.RECOIL_PRIORITY)) == "ammo" then
+                      allowed_by_priority = true
+                  end
+                  
+                  if trigger_type > 0 and allowed_by_priority then
+                      local time_since_last = manager.machine.time - p.RecoilTick
+                      if time_since_last > _MinRecoilInterval then
+                          if trigger_type == 1 then
+                              p.CurrentRecoilDuration = _RecoilDuration
+                          else
+                              p.CurrentRecoilDuration = _RecoilAltDuration
+                          end
 
-                              out:set_value(Get_Output_Str(i, "RECOIL"), 1)
-                              if CFG.DEMULSHOOTER_COMPATIBILITY then
-                                  local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
-                                  out:set_value("P" .. target_p .. "_CtmRecoil", 1)
-                              end
-                              
-                              p.RecoilTick = manager.machine.time
-                              p.IsRecoilActive = true
-                              
-                              if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
-                                  _Player[1].RecoilTick = manager.machine.time 
-                                  _Player[1].CurrentRecoilDuration = p.CurrentRecoilDuration
-                                  _Player[1].IsRecoilActive = true
-                              end
+                          out:set_value(Get_Output_Str(i, "RECOIL"), 1)
+                          if CFG.DEMULSHOOTER_COMPATIBILITY then
+                              local target_p = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
+                              out:set_value("P" .. target_p .. "_CtmRecoil", 1)
+                          end
+                          
+                          p.RecoilTick = manager.machine.time
+                          p.IsRecoilActive = true
+                          
+                          if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 
+                              _Player[1].RecoilTick = manager.machine.time 
+                              _Player[1].CurrentRecoilDuration = p.CurrentRecoilDuration
+                              _Player[1].IsRecoilActive = true
                           end
                       end
-                      
-                      local reload_trigger = false
-                      if p.WasActive and cfg.AMMO then
-                          if string.lower(tostring(CFG.AMMO_DIRECTION)) == "decrease" then
-                              if curr_ammo > p.LastAmmo then reload_trigger = true end
-                          else
-                              if curr_ammo < p.LastAmmo then reload_trigger = true end
+                  end
+                  
+                  local reload_trigger = false
+                  if p.WasFFBAllowed and cfg.AMMO then
+                      if string.lower(tostring(CFG.AMMO_DIRECTION)) == "decrease" then
+                          if curr_ammo > p.LastAmmo then reload_trigger = true end
+                      else
+                          if curr_ammo < p.LastAmmo then reload_trigger = true end
+                      end
+                  end
+                  
+                  if p.WasFFBAllowed and cfg.AMMO_ALT then
+                      if string.lower(tostring(CFG.AMMO_ALT_DIRECTION)) == "decrease" then
+                          if curr_ammo_alt > p.LastAmmoAlt then reload_trigger = true end
+                      else
+                          if curr_ammo_alt < p.LastAmmoAlt then reload_trigger = true end
+                      end
+                  end
+                  
+                  if reload_trigger and warmup_ok then
+                      if cfg.RELOAD then
+                          out:set_value(Get_Output_Str(i, "RELOAD"), 1)
+                          p.ReloadTick = manager.machine.time
+                          p.IsReloadActive = true
+                          
+                          if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then
+                              _Player[1].ReloadTick = manager.machine.time
+                              _Player[1].IsReloadActive = true
                           end
                       end
-                      
-                      if alternate_active and p.WasActive and cfg.AMMO_ALT then
-                          if string.lower(tostring(CFG.AMMO_ALT_DIRECTION)) == "decrease" then
-                              if curr_ammo_alt > p.LastAmmoAlt then reload_trigger = true end
-                          else
-                              if curr_ammo_alt < p.LastAmmoAlt then reload_trigger = true end
-                          end
-                      end
-                      
-                      if reload_trigger and warmup_ok then
-                          if cfg.RELOAD then
-                              out:set_value(Get_Output_Str(i, "RELOAD"), 1)
-                              p.ReloadTick = manager.machine.time
-                              p.IsReloadActive = true
-                              
-                              if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then
-                                  _Player[1].ReloadTick = manager.machine.time
-                                  _Player[1].IsReloadActive = true
-                              end
-                          end
-                      end
-                end
-            else
-                -- Explicitly clear static values when a player dies or is inactive
-                if cfg.AMMO then out:set_value(Get_Output_Str(i, "AMMO"), 0) end
-                if cfg.LIFE then out:set_value(Get_Output_Str(i, "LIFE"), 0) end
-                if cfg.AMMO_ALT then out:set_value(Get_Output_Str(i, "AMMO_ALT"), 0) end
-                if cfg.LIFE_ALT then out:set_value(Get_Output_Str(i, "LIFE_ALT"), 0) end
+                  end
             end
 
             p.LastAmmo = curr_ammo
@@ -1234,6 +1325,7 @@ function Compute_Outputs()
             p.LastLife = curr_life
             p.LastLifeAlt = curr_life_alt
             p.WasActive = p.IsActive
+            p.WasFFBAllowed = ffb_allowed
 
             local can_clear_output = true
             if (not CFG.SIMULTANEOUS_PLAY) and i > 1 then 

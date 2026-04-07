@@ -1,8 +1,8 @@
 #
 # UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 # GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
-# Universal Script Compiler Version: 1.3.4
-# Last Modified Date (YYYY.MM.DD): 2026.04.06
+# Universal Script Compiler Version: 1.3.5
+# Last Modified Date (YYYY.MM.DD): 2026.04.07
 # Created by DJ GLiTCH, with additional testing by Muggins
 # License: GNU GENERAL PUBLIC LICENSE 3.0
 #
@@ -13,9 +13,9 @@ import copy
 import re
 
 # Configuration Paths
-DATABASE_FILE = "database.json"
-TEMPLATE_FILE = "script.lua"
-OUTPUT_DIR = "./compiled_lua_scripts"
+DATABASE_FILE = "lua_database.json"
+TEMPLATE_FILE = "lua_script.lua"
+OUTPUT_DIR = "./MAME/scripts"
 
 def deep_merge(base, override):
     """Recursively merges the override dictionary into the base dictionary."""
