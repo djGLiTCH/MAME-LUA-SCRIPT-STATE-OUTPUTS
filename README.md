@@ -46,7 +46,7 @@ The list of currently supported MAME ROMs / games are:
 | `bel` | Behind Enemy Lines |
 | `carnevil` | CarnEvil |
 | `cryptklr` | Crypt Killer |
-| `duckhunt` | Duck Hunt |
+| `duckhunt` | Vs. Duck Hunt |
 | `hotd` | The House of the Dead |
 | `invasnab` | Invasion: The Abductors |
 | `jdredd` | Judge Dredd |
