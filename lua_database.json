@@ -1,7 +1,7 @@
 {
     "_default": {
         "LUA_VERSION": 621,
-        "LUA_DATE": 20260407,
+        "LUA_DATE": 20260408,
         "LUA_GAME": "Default Universal MAME LUA Script Values",
         "STARTUP_DELAY_MS": 5000,
         "STATUS_DEBOUNCE_MS": 34,
@@ -251,7 +251,8 @@
         "DATA_WIDTHS": {
             "LAMP_START": "output"
         },
-        "RECOIL_HOLD_MS": 480,
+        "RECOIL_HOLD_MS": 400,
+        "RECOIL_HOLD_MS_comment": "When ammo = 0, burst fire shot speed changes. First burst fire shot > small gap > second burst fire shot > large gap > restart from first burst fire shot.",
         "CREDITS": "0x005A87F0",
         "GAME_STATUS": "0x00506BD2",
         "P1": {

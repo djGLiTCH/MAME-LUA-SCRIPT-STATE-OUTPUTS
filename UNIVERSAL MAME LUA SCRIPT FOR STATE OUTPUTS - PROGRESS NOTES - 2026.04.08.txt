@@ -1,9 +1,9 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 5.4.5
--- Last Modified Date (YYYY.MM.DD): 2026.04.04
--- Created by DJ GLiTCH, with testing help from Muggins
+-- Universal Script Version: 6.2.1
+-- Last Modified Date (YYYY.MM.DD): 2026.04.08
+-- Created by DJ GLiTCH, with additional testing by Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
 
@@ -24,106 +24,127 @@ Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename
 ---
 
 ROM: area51
+Game: Area 51
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: area51mx
+Game: Area 51 / Maximum Force Duo
 Status: Working / Complete
 Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised LUA script (requires v5.2.1 or higher); Ammo and Life cannot be shown correctly in HOTR, as HOTR only expects 1 value for ammo and life respectively, but area51mx has 2 for each (1 for area51 and 1 for maxforce)
 Side Objective: None
 
 ROM: bbust2
+Game: Beast Busters: Second Nightmare
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: bel
-Status: Working / Complete
-Issues: Recoil may go in and out of sync when ammo is "empty" and trigger is continuously held (currently set to 480ms recoil intervals)
+Game: Behind Enemy Lines
+Status: Working / In-Progress
+Issues: Recoil may go in and out of sync when ammo is "empty" and trigger is continuously held (currently set to 400ms recoil intervals until the correct interval can be determined)
 Side Objective: None
 
 ROM: carnevil
+Game: CarnEvil
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: cryptklr
-Status: Working
+Game: Crypt Killer
+Status: Working / Awaiting Testing
 Issues: Verify that Player 3 works as expected (I only have access to 2 guns, so someone with access to 3 guns needs to test this and confirm it is working for me)
 Side Objective: None
 
 ROM: duckhunt
+Game: Vs. Duck Hunt
 Status: Working / Complete
 Issues: Statistic counters / trackers cannot distinguish between P1 and P2 since there is no way of knowing which player is actively playing the game (e.g. P1_ShotsFired counts for both P1 and P2)
 Side Objective: None
 
 ROM: hotd
+Game: The House of the Dead
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: invasnab
-Status: Working
+Game: Invasion: The Abductors
+Status: Working / Awaiting Confirmation
 Issues: Check max ammo never exceeds 9 (ignore rockets as this is treated as an alternative weapon)
 Side Objective: None
 
 ROM: jdredd
+Game: Judge Dredd
 Status: Working / Complete
 Issues: Machine gun pickup weapon is prioritised as alternative weapon (grenades were previously prioritised instead)
 Side Objective: None
 
 ROM: le2
+Game: Lethal Enforcers II: Gun Fighters
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: lethalen
+Game: Lethal Enforcers
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: lethalj
+Game: Lethal Justice
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: maxforce
+Game: Maximum Force
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: policetr
+Game: Police Trainer
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: ptblank
+Game: Point Blank
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: sgunner
+Game: Steel Gunner
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: timecris
+Game: Time Crisis
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: timecrs2
+Game: Time Crisis II
 Status: Working / Complete
 Issues: None known
 Side Objective: Need to investigate defaultLG file and verify inputs/outputs
 
 ROM: vcop
+Game: Virtua Cop
 Status: Working / Complete
 Issues: None known
 Side Objective: None
 
 ROM: vcop2
+Game: Virtua Cop 2
 Status: Working / Complete
 Issues: None known
 Side Objective: None

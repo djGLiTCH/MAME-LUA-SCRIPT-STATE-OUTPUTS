@@ -2,7 +2,7 @@
 # UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 # GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # Universal Script Compiler Version: 1.3.5
-# Last Modified Date (YYYY.MM.DD): 2026.04.07
+# Last Modified Date (YYYY.MM.DD): 2026.04.08
 # Created by DJ GLiTCH, with additional testing by Muggins
 # License: GNU GENERAL PUBLIC LICENSE 3.0
 #

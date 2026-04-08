@@ -2,7 +2,7 @@
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- Universal MAME LUA Script Version: 6.2.1
--- Last Modified Date (YYYY.MM.DD): 2026.04.07
+-- Last Modified Date (YYYY.MM.DD): 2026.04.08
 -- Created by DJ GLiTCH, with additional testing by Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -20,7 +20,7 @@ local CFG = {
     -- LUA ROM is the MAME ROM filename that is associated with this LUA script
     -- LUA GAME is the official game name for the rom
     LUA_VERSION = 621,
-    LUA_DATE    = 20260407,
+    LUA_DATE    = 20260408,
     LUA_ROM     = "bel",
     LUA_GAME    = "Behind Enemy Lines",
     
@@ -174,7 +174,7 @@ local CFG = {
     -- RECOIL_HOLD_MS: Interval (in ms) between recoil pulses when RECOIL_METHOD = "hold" and recoil memory address is provided
     -- If set to false, it will fall back to the MIN_RECOIL_INTERVAL_MS value
     -- Useful if a game's "hold" rate should be different from its "pulse" rate limit
-    RECOIL_HOLD_MS         = 480, -- Minimum time gap between each signal pulse for recoil outputs when using recoil memory address and holding trigger (useful if recoil memory address >= 1 when holding trigger)
+    RECOIL_HOLD_MS         = 400, -- When ammo = 0, burst fire shot speed changes. First burst fire shot > small gap > second burst fire shot > large gap > restart from first burst fire shot. -- Minimum time gap between each signal pulse for recoil outputs when using recoil memory address and holding trigger (useful if recoil memory address >= 1 when holding trigger)
     
     DAMAGE_DURATION_MS     = 250, -- Signal pulse duration for damage (useful if light gun supports rumble feedback)
     

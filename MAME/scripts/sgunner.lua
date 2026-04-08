@@ -2,7 +2,7 @@
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- Universal MAME LUA Script Version: 6.2.1
--- Last Modified Date (YYYY.MM.DD): 2026.04.07
+-- Last Modified Date (YYYY.MM.DD): 2026.04.08
 -- Created by DJ GLiTCH, with additional testing by Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -20,7 +20,7 @@ local CFG = {
     -- LUA ROM is the MAME ROM filename that is associated with this LUA script
     -- LUA GAME is the official game name for the rom
     LUA_VERSION = 621,
-    LUA_DATE    = 20260407,
+    LUA_DATE    = 20260408,
     LUA_ROM     = "sgunner",
     LUA_GAME    = "Steel Gunner",
     
