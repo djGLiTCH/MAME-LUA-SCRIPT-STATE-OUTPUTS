@@ -16,17 +16,17 @@ For example, most games will have a memory address for an ammo magazine that dec
 
 To help the light gun community, I have prepared a selection of MAME games for use with this LUA script. To install these, copy the relevant files into the following folders as appropriate (and overwrite if necessary). Basic install instructions are available below (to update to the latest release, just repeat these steps and overwrite all files when prompted):
 
-1. Please copy and paste the "defaultLG" folder into your "HookOfTheReaper\defaultLG" folder, and overwrite any files when prompted.
+1. Please delete the "MAME_LUA" folder located at "HookOfTheReaper\defaultLG\MAME_LUA", as these are different Lua scripts that will cause conflicts. The Lua scripts you are about to copy over have more features and supported games, so the existing "MAME_LUA" folder included with HOTR must be deleted to prevent conflicts.
 
-2. Please delete the "MAME_LUA" folder located at "HookOfTheReaper\defaultLG\MAME_LUA", as this can cause issues with my LUA scripts since they are not what HOTR is expecting by default.
+2. Please copy and paste the "defaultLG" folder into your "HookOfTheReaper\defaultLG" folder, and overwrite any files when prompted. The copied over files should work with both MAME and Model 2 emulators if playing the same ROM/game (e.g. vcop2).
 
-3. Copy the relevant "ini" files into your "MAME\ini" folder, depending on which version of MAME you are using.
+3. Copy the relevant "ini" files into your "MAME\ini" folder. The ini version you copy over will depend on whether you are using the MAME offscreen reload plugin or not (if you do not know what this means, just copy over the files from the "ini" folder).
 
-4. Copy the "scripts" files into your "MAME\scripts" folder, and create the "scripts" folder if it does not yet exist.
+4. Copy the "scripts" files into your "MAME\scripts" folder. If the "scripts" folder does not exist in your MAME root directory, please create the "scripts" folder.
 
 5. Ensure your mame.ini file inside your MAME root directory has "output" set to "network" if using Hook Of The Reaper (HOTR).
 
-- Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename, then this should take priority over a file with the same filename in "HookOfTheReaper\defaultLG\MAME_LUA", but to prevent issues it is advised you delete the "HookOfTheReaper\defaultLG\MAME_LUA" folder altogether when using my LUA scripts.
+Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename, then this should take priority over a file with the same filename in "HookOfTheReaper\defaultLG\MAME_LUA", but to prevent issues it is advised you delete the "HookOfTheReaper\defaultLG\MAME_LUA" folder altogether when using my Lua scripts.
 
 The following lightguns have been tested and proven to work with these MAME LUA scripts and Hook Of The Reaper (https://github.com/6Bolt/Hook-Of-The-Reaper):
 
@@ -46,10 +46,12 @@ The list of currently supported MAME ROMs / games are:
 | `bel` | Behind Enemy Lines |
 | `carnevil` | CarnEvil |
 | `cryptklr` | Crypt Killer |
+| `dragngun` | Dragon Gun |
 | `duckhunt` | Vs. Duck Hunt |
 | `hotd` | The House of the Dead |
 | `invasnab` | Invasion: The Abductors |
 | `jdredd` | Judge Dredd |
+| `jpark` | Jurassic Park |
 | `le2` | Lethal Enforcers II: Gun Fighters |
 | `lethalen` | Lethal Enforcers |
 | `lethalj` | Lethal Justice |
@@ -57,6 +59,7 @@ The list of currently supported MAME ROMs / games are:
 | `policetr` | Police Trainer |
 | `ptblank` | Point Blank |
 | `sgunner` | Steel Gunner |
+| `sgunner2` | Steel Gunner 2 |
 | `timecris` | Time Crisis |
 | `timecrs2` | Time Crisis II |
 | `vcop` | Virtua Cop |
