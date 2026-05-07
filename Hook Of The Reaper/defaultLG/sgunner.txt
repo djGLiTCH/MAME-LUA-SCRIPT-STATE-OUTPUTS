@@ -17,11 +17,6 @@ Recoil_Value 1 Reload_Value
 >Close_COM
 [Signals]
 :Credits
-:P1_Ammo
-*P1
-#Ammo_Value
-#Reload_Value
->Display_Ammo
 :P1_CtmRecoil
 *P1
 #Recoil
@@ -37,11 +32,6 @@ Recoil_Value 1 Reload_Value
 :P1_Damaged
 *P1
 >Damage
-:P2_Ammo
-*P2
-#Ammo_Value
-#Reload_Value
->Display_Ammo
 :P2_CtmRecoil
 *P2
 #Recoil
