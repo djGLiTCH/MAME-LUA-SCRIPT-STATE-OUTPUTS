@@ -1,6 +1,7 @@
 name: Package Latest Scripts
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'MAME/**'
