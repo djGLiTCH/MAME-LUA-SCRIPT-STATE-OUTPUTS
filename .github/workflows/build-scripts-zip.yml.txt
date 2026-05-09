@@ -1,0 +1,35 @@
+name: Package Latest Scripts
+
+on:
+  push:
+    paths:
+      - 'MAME/**'
+      - 'Hook Of The Reaper/**'
+      - 'MAME Hooker/**'
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Create ZIP archive
+      run: |
+        zip -r MAME-LUA-SCRIPT-STATE-OUTPUTS-LATEST-SCRIPTS.zip MAME "Hook Of The Reaper" "MAME Hooker"
+
+    - name: Move ZIP to Updater folder
+      run: |
+        mkdir -p Updater
+        mv MAME-LUA-SCRIPT-STATE-OUTPUTS-LATEST-SCRIPTS.zip Updater/
+
+    - name: Commit and push the new ZIP
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Auto-package latest scripts into zip file"
+        file_pattern: 'Updater/MAME-LUA-SCRIPT-STATE-OUTPUTS-LATEST-SCRIPTS.zip'
