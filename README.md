@@ -39,21 +39,31 @@ If you prefer to manage the file structure yourself, follow these manual steps:
 There are many state output "hooking" programs that exist, however, support has been provided for the following tools. These are sorted alphabetically, and are not sorted by preference or recommendation.
 
 #### Hook of the Reaper (HOTR)
+
 GitHub: https://github.com/6Bolt/Hook-Of-The-Reaper
+
 Website: https://hotr.6bolt.com/
-1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`. 
+
+1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`.
+
 2. **Copy New Files:** Copy the files from the `defaultLG` folder from the latest release into your `HookOfTheReaper\defaultLG\` directory. Overwrite any files when prompted.
 
 #### MAME Hooker
+
 Website: https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker
+
 *TBC*
 
 #### OutputHooker
+
 GitHub: https://github.com/PolybiusExtreme/OutputHooker
+
 *TBC*
 
 #### QMameHook
+
 GitHub: https://github.com/SeongGino/QMamehook
+
 *TBC*
 
 ## 🔫 Light Gun Compatibility
