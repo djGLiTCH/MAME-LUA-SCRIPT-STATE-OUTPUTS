@@ -70,11 +70,11 @@ These scripts handle the logic, while your external Output Program handles the c
 - Retroshooter MX24
 - Retroshooter RS3 (Reaper Pro)
 - Sinden Lightgun
-- xGunner
+- X-Gunner
 
 ## 🎮 Supported MAME ROMs / Games
 
-The latest source code and release includes support for the following MAME ROMs / Games:
+The latest source code and release includes support for the following MAME ROMs / games:
 
 | ROM | Game |
 | :--- | :--- |
