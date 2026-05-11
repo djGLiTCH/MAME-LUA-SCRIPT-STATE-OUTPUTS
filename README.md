@@ -1,7 +1,7 @@
 # MAME Universal State Outputs (LUA)
 
 [![License: GPL-v3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![MAME](https://img.shields.io/badge/MAME-Compatible-red.svg)](https://mamedev.org/)
+[![MAME](https://img.shields.io/badge/MAME-Compatible-green.svg)](https://mamedev.org/)
 
 **A universal Lua framework for MAME designed to enable force feedback (recoil, reload, rumble, lights, display, etc.) for light gun games that lack native state outputs or require additional state outputs.**
 
