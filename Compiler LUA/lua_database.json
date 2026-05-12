@@ -1,7 +1,7 @@
 {
     "_default": {
         "LUA_VERSION": 661,
-        "LUA_DATE": 20260509,
+        "LUA_DATE": 20260512,
         "LUA_GAME": "Default Universal MAME Lua Script Values",
         "LUA_ROM_ID": 0,
         "CPU_TAG": ":maincpu",

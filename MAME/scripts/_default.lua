@@ -2,7 +2,7 @@
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- Universal MAME LUA Script Version: 6.6.1
--- Last Modified Date (YYYY.MM.DD): 2026.05.09
+-- Last Modified Date (YYYY.MM.DD): 2026.05.12
 -- Created by DJ GLiTCH, with additional testing by Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -20,7 +20,7 @@ local CFG = {
     -- Lua ROM is the MAME ROM filename that is associated with this Lua script
     -- Lua GAME is the official game name for the rom
     LUA_VERSION = 661,
-    LUA_DATE    = 20260509,
+    LUA_DATE    = 20260512,
     LUA_ROM     = "_default",
     LUA_GAME    = "Default Universal MAME Lua Script Values",
     LUA_ROM_ID  = 0,
