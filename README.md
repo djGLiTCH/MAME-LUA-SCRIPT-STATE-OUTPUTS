@@ -1,17 +1,17 @@
 # MAME Universal State Outputs (LUA)
 
 [![License: GPL-v3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![MAME](https://img.shields.io/badge/MAME-Compatible-red.svg)](https://mamedev.org/)
+[![MAME](https://img.shields.io/badge/MAME-Compatible-green.svg)](https://mamedev.org/)
 
-**A universal Lua framework for MAME designed to enable force feedback (recoil, reload, and rumble) for light gun games that lack native state outputs or require additional state outputs.**
+**A universal Lua framework for MAME designed to enable force feedback (recoil, reload, rumble, lights, display, etc.) for light gun games that lack native state outputs or require additional state outputs.**
 
 ---
 
 ## 📖 What Does This Do?
 
-Many classic MAME arcade games do not natively output "state" data. Without this data, external tools like **Hook of The Reaper (HOTR)**, **MAME Hooker**, **OutputHooker**, and/or **QMameHook** have no way of knowing when you fire your weapon or take damage, meaning your light gun's physical recoil, rumble and/or lights won't work.
+Many classic MAME arcade games do not natively output "state" data. Without this data, external tools like [**Hook of The Reaper (HOTR)**](https://hotr.6bolt.com/), [**MAME Hooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker), [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and/or [**QMameHook**](https://github.com/SeongGino/QMamehook) have no way of knowing when you fire your weapon or take damage, meaning your light gun's physical recoil, rumble, lights, display, etc. won't work.
 
-This Lua script fixes that. It quietly monitors the game in the background and sends a standardised signal to your hardware whenever an action happens, ensuring your light gun kicks and flashes exactly when it should.
+This Lua script fixes that. It quietly monitors the game in the background and sends a standardised signal to your hardware whenever an action happens, ensuring your light gun physically aligns to what is happening in-game and on-screen.
 
 ---
 
@@ -39,21 +39,25 @@ If you prefer to manage the file structure yourself, follow these manual steps:
 There are many state output "hooking" programs that exist, however, support has been provided for the following tools. These are sorted alphabetically, and are not sorted by preference or recommendation.
 
 #### Hook of the Reaper (HOTR)
-GitHub: https://github.com/6Bolt/Hook-Of-The-Reaper
-Website: https://hotr.6bolt.com/
-1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`. 
+[**GitHub**](https://github.com/6Bolt/Hook-Of-The-Reaper) | [**Website**](https://hotr.6bolt.com/)
+
+1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`.
+
 2. **Copy New Files:** Copy the files from the `defaultLG` folder from the latest release into your `HookOfTheReaper\defaultLG\` directory. Overwrite any files when prompted.
 
 #### MAME Hooker
-Website: https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker
+[**Website**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker)
+
 *TBC*
 
 #### OutputHooker
-GitHub: https://github.com/PolybiusExtreme/OutputHooker
+[**GitHub**](https://github.com/PolybiusExtreme/OutputHooker)
+
 *TBC*
 
 #### QMameHook
-GitHub: https://github.com/SeongGino/QMamehook
+[**GitHub**](https://github.com/SeongGino/QMamehook)
+
 *TBC*
 
 ## 🔫 Light Gun Compatibility
@@ -66,11 +70,11 @@ These scripts handle the logic, while your external Output Program handles the c
 - Retroshooter MX24
 - Retroshooter RS3 (Reaper Pro)
 - Sinden Lightgun
-- xGunner
+- X-Gunner
 
 ## 🎮 Supported MAME ROMs / Games
 
-The latest source code and release includes support for the following MAME ROMs / Games:
+The latest source code and release includes support for the following MAME ROMs / games:
 
 | ROM | Game |
 | :--- | :--- |
@@ -99,7 +103,7 @@ The latest source code and release includes support for the following MAME ROMs 
 | `vcop` | Virtua Cop |
 | `vcop2` | Virtua Cop 2 |
 
-Please check the detailed "Progress Notes" included in the latest release for additional details and/or comments for each MAME ROM / game, including any known issues.
+Please check the detailed "Progress Notes" included in the latest release for additional details and/or comments for each MAME ROM / game, including any known issues. If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 
 ## ⚙️ Under the Hood (Technical Details)
 
@@ -128,5 +132,6 @@ By funneling all game events through this standardised logic flow, external tool
 This is a community-driven project. If you find a game that isn't supported, please use the provided template in `Compiler\lua_database.json` to map the memory addresses and submit a Pull Request!
 
 Special Thanks:
-- Muggins, for grueling beta testing and Sinden verification
+- Muggins, for grueling beta testing of the Lua scripts and Sinden light gun verification
+- Bandicoot, for assisting with additional beta testing of the Lua scripts and Alien light gun verification
 - Argon, who created the original concept that inspired this ground-up rewrite for better compatibility and unified template design
