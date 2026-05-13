@@ -1,8 +1,8 @@
 ------------------------------------------------------
 -- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
 -- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal MAME LUA Script Version: 6.6.1
--- Last Modified Date (YYYY.MM.DD): 2026.05.12
+-- Universal MAME LUA Script Version: 6.7.0
+-- Last Modified Date (YYYY.MM.DD): 2026.05.14
 -- Created by DJ GLiTCH, with additional testing by Muggins
 -- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
@@ -443,13 +443,20 @@ _G.MameOutputActiveInstance = _ScriptInstance
 
 if not CFG.CREDITS then _HasCoinedUp = true end
 
-emu.add_machine_stop_notifier(function() 
+local function on_machine_stop()
     _IsShuttingDown = true 
     for k, tap in pairs(_Taps) do
         pcall(function() tap:remove() end)
     end
     _Taps = {}
-end)
+end
+
+-- Use the new API for recent MAME versions, fallback to the old API for older MAME versions
+if emu.add_machine_stop_notifier then
+    emu.add_machine_stop_notifier(on_machine_stop)
+elseif emu.register_stop then
+    emu.register_stop(on_machine_stop)
+end
 
 ------------------------------------------------------
 -- 2. SETUP & PRE-CALCULATION                        --
