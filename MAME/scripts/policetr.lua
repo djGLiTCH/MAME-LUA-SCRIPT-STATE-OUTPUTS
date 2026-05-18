@@ -1,10 +1,11 @@
 ------------------------------------------------------
--- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
--- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal MAME LUA Script Version: 6.7.0
--- Last Modified Date (YYYY.MM.DD): 2026.05.14
+-- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS
+-- Script Template Version: 6.8.3
+-- Last Modified Date (YYYY.MM.DD): 2026.05.18
+-- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
+-- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Created by DJ GLiTCH, with additional testing by Muggins
--- License: GNU GENERAL PUBLIC LICENSE 3.0
+-- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 ------------------------------------------------------
 
 local CFG = {
@@ -19,11 +20,21 @@ local CFG = {
     -- Lua Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
     -- Lua ROM is the MAME ROM filename that is associated with this Lua script
     -- Lua GAME is the official game name for the rom
-    LUA_VERSION = 670,
-    LUA_DATE    = 20260514,
+    LUA_VERSION = 683,
+    LUA_DATE    = 20260518,
     LUA_ROM     = "policetr",
     LUA_GAME    = "Police Trainer",
     LUA_ROM_ID  = 64,
+    
+    -- External Script Hooks (for future projects I'm working on)
+    OFFSCREEN_RELOAD = false,
+    LIGHTGUN_PATCH   = false,
+    
+    -- Screen Flash Removal (for hit detection when shooting; typically associated with games based on CRT technology; screen flash value should be the value when screen flash is disabled / turned off)
+    SCREEN_FLASH                = false,
+    SCREEN_FLASH_MEMORY_ADDRESS = false,
+    SCREEN_FLASH_DISABLE_VALUE  = false,
+    SCREEN_FLASH_RESTORE_VALUE  = false,
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -111,13 +122,14 @@ local CFG = {
     --                 If set to "output", the script will NOT read memory addresses
     --                 Instead, it will read the value of a native MAME output string that you define in the player tables below
     DATA_WIDTHS = {
+        SCREEN_FLASH          = 8,
         GLOBAL_ATTRACT_STATUS = 8,
         GLOBAL_CREDITS        = 8,
         GLOBAL_GAME_STATUS    = 8,
         CREDITS               = 16,
         STATUS                = 8,
         STATUS_ALT            = 8,
-        AMMO                  = 16,
+        AMMO                  = 8,
         AMMO_ALT              = 8,
         LIFE                  = 8,
         LIFE_ALT              = 8,
@@ -236,7 +248,7 @@ local CFG = {
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' if you want to rely on Priority 1 (Player Status) or Priority 3 (Fallback)
     -- If set to 'false', the script will calculate GameStatus = 1 if ANY player is active
-    GAME_STATUS    = false,
+    GAME_STATUS    = 0x00019A33,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay for STATUS blocks
@@ -257,11 +269,11 @@ local CFG = {
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active
         -- If a memory address is provided for player status, it overrides Global Status and Fallback logic for this specific player
-        STATUS                  = 0x00017D1B,
-        STATUS_ACTIVE_VALUE     = false,
+        STATUS                  = 0x00019A33,
+        STATUS_ACTIVE_VALUE     = {1, 3},
         STATUS_ALT              = false,
         STATUS_ALT_ACTIVE_VALUE = false,
-        AMMO                    = 0x00018D96,
+        AMMO                    = 0x00018D97,
         AMMO_ALT                = false,
         LIFE                    = 0x00017D4B,
         LIFE_ALT                = false,
@@ -290,13 +302,13 @@ local CFG = {
     P2 = {
         -- Setting AMMO and LIFE to auto inherits P1's addresses for Shared Engine Turn-Based play
         CREDITS                 = "auto",
-        STATUS                  = "auto",
-        STATUS_ACTIVE_VALUE     = "auto",
+        STATUS                  = 0x00019A33,
+        STATUS_ACTIVE_VALUE     = {2, 3},
         STATUS_ALT              = "auto",
         STATUS_ALT_ACTIVE_VALUE = "auto",
-        AMMO                    = 0x00018DA6,
+        AMMO                    = 0x00018DA7,
         AMMO_ALT                = "auto",
-        LIFE                    = "auto",
+        LIFE                    = 0x00017D57,
         LIFE_ALT                = "auto",
         RECOIL                  = "auto",
         RELOAD                  = "auto",
@@ -445,13 +457,36 @@ if not CFG.CREDITS then _HasCoinedUp = true end
 
 local function on_machine_stop()
     _IsShuttingDown = true 
+    
+    -- Restore screen flash to original state
+    if CFG and CFG.SCREEN_FLASH and type(CFG.SCREEN_FLASH_MEMORY_ADDRESS) == "number" and type(CFG.SCREEN_FLASH_RESTORE_VALUE) == "number" then
+        if manager and manager.machine then
+            local target_cpu = CFG.CPU_TAG or ":maincpu"
+            local cpu = manager.machine.devices[target_cpu]
+            if cpu then
+                local target_space = CFG.MEMORY_SPACE or "program"
+                local mem = cpu.spaces[target_space]
+                if mem then
+                    local flash_width = CFG.DATA_WIDTHS.SCREEN_FLASH or 8
+                    if flash_width == 16 then
+                        mem:write_u16(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                    elseif flash_width == 32 then
+                        mem:write_u32(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                    else
+                        mem:write_u8(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                    end
+                end
+            end
+        end
+    end
+
     for k, tap in pairs(_Taps) do
         pcall(function() tap:remove() end)
     end
     _Taps = {}
 end
 
--- Use the new API for recent MAME versions, fallback to the old API for older MAME versions
+-- Use the new API for newer MAME versions, fallback to the old API for older MAME versions (requires MAME 0.200 or greater)
 if emu.add_machine_stop_notifier then
     emu.add_machine_stop_notifier(on_machine_stop)
 elseif emu.register_stop then
@@ -787,13 +822,28 @@ function Compute_Outputs()
                 Install_Taps_Safe(mem)
             end
         end
-
+        
         local divisor = CFG.COINS_PER_CREDIT or 1
         if divisor < 1 then divisor = 1 end
         
         local warmup_ok = Is_Warmup_Complete()
+        
+        -- ==============================================
+        -- SCREEN FLASH REMOVAL (applied every frame if set to true)
+        -- ==============================================
+        if warmup_ok and CFG.SCREEN_FLASH and type(CFG.SCREEN_FLASH_MEMORY_ADDRESS) == "number" and type(CFG.SCREEN_FLASH_DISABLE_VALUE) == "number" then
+            local flash_width = CFG.DATA_WIDTHS.SCREEN_FLASH or 8
+            if flash_width == 16 then
+                mem:write_u16(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_DISABLE_VALUE)
+            elseif flash_width == 32 then
+                mem:write_u32(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_DISABLE_VALUE)
+            else
+                mem:write_u8(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_DISABLE_VALUE)
+            end
+        end
+        -- ==============================================
 
-        if CFG.CREDITS then 
+        if CFG.CREDITS and type(CFG.CREDITS) == "number" then 
             local raw = Read_Data_Safe(mem, CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS)
             local credit_val = math.floor(raw / divisor)
             
@@ -823,7 +873,7 @@ function Compute_Outputs()
         local global_exists = false
         local is_game_active = false
         
-        if CFG.GAME_STATUS then 
+        if CFG.GAME_STATUS and type(CFG.GAME_STATUS) == "number" then 
             global_exists = true
             if not is_attract_mode then
                 global_val = Read_Data_Safe(mem, CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)

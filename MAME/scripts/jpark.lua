@@ -1,10 +1,11 @@
 ------------------------------------------------------
--- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
--- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal MAME LUA Script Version: 6.7.0
--- Last Modified Date (YYYY.MM.DD): 2026.05.14
+-- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS
+-- Script Template Version: 6.8.3
+-- Last Modified Date (YYYY.MM.DD): 2026.05.18
+-- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
+-- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Created by DJ GLiTCH, with additional testing by Muggins
--- License: GNU GENERAL PUBLIC LICENSE 3.0
+-- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 ------------------------------------------------------
 
 local CFG = {
@@ -19,11 +20,21 @@ local CFG = {
     -- Lua Date can only be integer numbers (e.g. 20260405 = 2026.04.05)
     -- Lua ROM is the MAME ROM filename that is associated with this Lua script
     -- Lua GAME is the official game name for the rom
-    LUA_VERSION = 670,
-    LUA_DATE    = 20260514,
+    LUA_VERSION = 683,
+    LUA_DATE    = 20260518,
     LUA_ROM     = "jpark",
     LUA_GAME    = "Jurassic Park",
     LUA_ROM_ID  = 42,
+    
+    -- External Script Hooks (for future projects I'm working on)
+    OFFSCREEN_RELOAD = false,
+    LIGHTGUN_PATCH   = false,
+    
+    -- Screen Flash Removal (for hit detection when shooting; typically associated with games based on CRT technology; screen flash value should be the value when screen flash is disabled / turned off)
+    SCREEN_FLASH                = false,
+    SCREEN_FLASH_MEMORY_ADDRESS = false,
+    SCREEN_FLASH_DISABLE_VALUE  = false,
+    SCREEN_FLASH_RESTORE_VALUE  = false,
     
     --------------------------------------------------
     -- SYSTEM SETTINGS                              --
@@ -111,6 +122,7 @@ local CFG = {
     --                 If set to "output", the script will NOT read memory addresses
     --                 Instead, it will read the value of a native MAME output string that you define in the player tables below
     DATA_WIDTHS = {
+        SCREEN_FLASH          = 8,
         GLOBAL_ATTRACT_STATUS = 8,
         GLOBAL_CREDITS        = 8,
         GLOBAL_GAME_STATUS    = 8,
@@ -179,12 +191,12 @@ local CFG = {
     -- If the game fires faster than this, the script ignores the extra shots to allow the solenoid to physically return and "kick" again
     -- Recommended: 80ms - 100ms for Machine Guns (approx 10-12 rounds/sec)
     -- Set to 0 to disable (fires as fast as possible, may cause "humming")
-    MIN_RECOIL_INTERVAL_MS = 80, -- Should be 66 for jpark but restricted to 80 to prevent light gun solenoid from overheating -- Minimum time gap between each signal pulse for recoil outputs (prevents burning out solenoids)
+    MIN_RECOIL_INTERVAL_MS = 100, -- Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating -- Minimum time gap between each signal pulse for recoil outputs (prevents burning out solenoids)
     
     -- RECOIL_HOLD_MS: Interval (in ms) between recoil pulses when RECOIL_METHOD = "hold" and recoil memory address is provided
     -- If set to false, it will fall back to the MIN_RECOIL_INTERVAL_MS value
     -- Useful if a game's "hold" rate should be different from its "pulse" rate limit
-    RECOIL_HOLD_MS         = 80, -- Should be 66 for jpark but restricted to 80 to prevent light gun solenoid from overheating -- Minimum time gap between each signal pulse for recoil outputs when using recoil memory address and holding trigger (useful if recoil memory address >= 1 when holding trigger)
+    RECOIL_HOLD_MS         = 100, -- Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating -- Minimum time gap between each signal pulse for recoil outputs when using recoil memory address and holding trigger (useful if recoil memory address >= 1 when holding trigger)
     
     DAMAGE_DURATION_MS     = 250, -- Signal pulse duration for damage (useful if light gun supports rumble feedback)
     
@@ -261,13 +273,13 @@ local CFG = {
         STATUS_ACTIVE_VALUE     = {1, 3},
         STATUS_ALT              = false,
         STATUS_ALT_ACTIVE_VALUE = false,
-        AMMO                    = 0x00201B46, -- P1 Ammo = 0x00201B46
+        AMMO                    = false, -- P1 Ammo (not fully tested) = 0x00201B46
         AMMO_ALT                = false,
         LIFE                    = 0x00201B40,
         LIFE_ALT                = false,
         
         -- Recoil, Reload, and Damage are hardware force feedback values, with Recoil being related to a player shooting their weapon, Reload when changing their weapon magazine/clip, and Damage when a player is damaged in-game and/or loses a life (used for "rumble")
-        RECOIL                  = 0x0020F01A, -- P1 Recoil = 0x0020F01A
+        RECOIL                  = 0x0020F01A, -- P1 Trigger Press = 0x0020F01A
         RELOAD                  = "auto",
         DAMAGE                  = "auto",
         
@@ -294,11 +306,11 @@ local CFG = {
         STATUS_ACTIVE_VALUE     = {2, 3},
         STATUS_ALT              = "auto",
         STATUS_ALT_ACTIVE_VALUE = "auto",
-        AMMO                    = 0x002018C6, -- P2 Ammo = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore
+        AMMO                    = "auto", -- P2 Ammo (not fully tested) = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore
         AMMO_ALT                = "auto",
         LIFE                    = 0x002018C0, -- P2 Life = 0x002018C0; Also found at some point that P2 Life = 0x00201840 but this does not appear to be the case anymore
         LIFE_ALT                = "auto",
-        RECOIL                  = 0x0020F01B, -- P2 Recoil = 0x0020F01B
+        RECOIL                  = 0x0020F01B, -- P2 Trigger Press = 0x0020F01B
         RELOAD                  = "auto",
         DAMAGE                  = "auto",
         LAMP_START              = "Right_lamp",
@@ -354,7 +366,7 @@ local CFG = {
     -- "decrease" = Counts down (6->5->4) - standard for most games
     -- "increase" = Counts up (0->1->2)
     -- "change"   = Triggers on any change, including when values wrap back to 0 (useful for machine gun games with infinite ammo)
-    AMMO_DIRECTION     = "change",
+    AMMO_DIRECTION     = "decrease",
     AMMO_ALT_DIRECTION = "decrease",
     
     -- LIFE_DIRECTION: How the game counts life (Used for "auto" logic)
@@ -386,7 +398,7 @@ local CFG = {
     -- RECOIL_PRIORITY: Trigger to control the physical solenoid
     -- "ammo"   = ammo drops trigger recoil. The recoil memory address is ignored UNLESS Ammo = 0.
     -- "recoil" = the recoil memory address ALWAYS triggers recoil. Ammo drops are completely ignored for physical feedback.
-    RECOIL_PRIORITY = "ammo",
+    RECOIL_PRIORITY = "recoil",
     
     -- RECOIL_MEM_ADD_VALUE: Defines a specific required value for the recoil memory address to trigger
     -- If set to false, any value greater than 0 is assumed to be a recoil event based on the RECOIL_METHOD
@@ -445,13 +457,36 @@ if not CFG.CREDITS then _HasCoinedUp = true end
 
 local function on_machine_stop()
     _IsShuttingDown = true 
+    
+    -- Restore screen flash to original state
+    if CFG and CFG.SCREEN_FLASH and type(CFG.SCREEN_FLASH_MEMORY_ADDRESS) == "number" and type(CFG.SCREEN_FLASH_RESTORE_VALUE) == "number" then
+        if manager and manager.machine then
+            local target_cpu = CFG.CPU_TAG or ":maincpu"
+            local cpu = manager.machine.devices[target_cpu]
+            if cpu then
+                local target_space = CFG.MEMORY_SPACE or "program"
+                local mem = cpu.spaces[target_space]
+                if mem then
+                    local flash_width = CFG.DATA_WIDTHS.SCREEN_FLASH or 8
+                    if flash_width == 16 then
+                        mem:write_u16(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                    elseif flash_width == 32 then
+                        mem:write_u32(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                    else
+                        mem:write_u8(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                    end
+                end
+            end
+        end
+    end
+
     for k, tap in pairs(_Taps) do
         pcall(function() tap:remove() end)
     end
     _Taps = {}
 end
 
--- Use the new API for recent MAME versions, fallback to the old API for older MAME versions
+-- Use the new API for newer MAME versions, fallback to the old API for older MAME versions (requires MAME 0.200 or greater)
 if emu.add_machine_stop_notifier then
     emu.add_machine_stop_notifier(on_machine_stop)
 elseif emu.register_stop then
@@ -787,13 +822,28 @@ function Compute_Outputs()
                 Install_Taps_Safe(mem)
             end
         end
-
+        
         local divisor = CFG.COINS_PER_CREDIT or 1
         if divisor < 1 then divisor = 1 end
         
         local warmup_ok = Is_Warmup_Complete()
+        
+        -- ==============================================
+        -- SCREEN FLASH REMOVAL (applied every frame if set to true)
+        -- ==============================================
+        if warmup_ok and CFG.SCREEN_FLASH and type(CFG.SCREEN_FLASH_MEMORY_ADDRESS) == "number" and type(CFG.SCREEN_FLASH_DISABLE_VALUE) == "number" then
+            local flash_width = CFG.DATA_WIDTHS.SCREEN_FLASH or 8
+            if flash_width == 16 then
+                mem:write_u16(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_DISABLE_VALUE)
+            elseif flash_width == 32 then
+                mem:write_u32(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_DISABLE_VALUE)
+            else
+                mem:write_u8(CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.SCREEN_FLASH_DISABLE_VALUE)
+            end
+        end
+        -- ==============================================
 
-        if CFG.CREDITS then 
+        if CFG.CREDITS and type(CFG.CREDITS) == "number" then 
             local raw = Read_Data_Safe(mem, CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS)
             local credit_val = math.floor(raw / divisor)
             
@@ -823,7 +873,7 @@ function Compute_Outputs()
         local global_exists = false
         local is_game_active = false
         
-        if CFG.GAME_STATUS then 
+        if CFG.GAME_STATUS and type(CFG.GAME_STATUS) == "number" then 
             global_exists = true
             if not is_attract_mode then
                 global_val = Read_Data_Safe(mem, CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)

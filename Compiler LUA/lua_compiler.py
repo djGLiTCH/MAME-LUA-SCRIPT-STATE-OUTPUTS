@@ -1,10 +1,11 @@
 #
-# UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
-# GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
-# Universal Script Compiler Version: 1.5.1
-# Last Modified Date (YYYY.MM.DD): 2026.05.07
+# UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS
+# Script Compiler Version: 1.5.3
+# Last Modified Date (YYYY.MM.DD): 2026.05.18
+# Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
+# License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Created by DJ GLiTCH, with additional testing by Muggins
-# License: GNU GENERAL PUBLIC LICENSE 3.0
+# Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 #
 
 import json
@@ -86,7 +87,7 @@ def extract_version_metadata(template_content):
     date_num = None
     
     # Look for latest script version line, example: -- Universal MAME LUA Script Version: 6.6.0
-    v_match = re.search(r'-- Universal MAME LUA Script Version:\s*(\d+)\.(\d+)\.(\d+)', template_content, re.IGNORECASE)
+    v_match = re.search(r'-- Script Template Version:\s*(\d+)\.(\d+)\.(\d+)', template_content, re.IGNORECASE)
     if v_match:
         version_num = int(f"{v_match.group(1)}{v_match.group(2)}{v_match.group(3)}")
         

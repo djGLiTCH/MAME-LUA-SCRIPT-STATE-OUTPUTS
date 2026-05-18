@@ -1,9 +1,15 @@
 {
     "_default": {
-        "LUA_VERSION": 670,
-        "LUA_DATE": 20260514,
+        "LUA_VERSION": 683,
+        "LUA_DATE": 20260518,
         "LUA_GAME": "Default Universal MAME Lua Script Values",
         "LUA_ROM_ID": 0,
+        "OFFSCREEN_RELOAD": false,
+        "LIGHTGUN_PATCH": false,
+        "SCREEN_FLASH": false,
+        "SCREEN_FLASH_MEMORY_ADDRESS": false,
+        "SCREEN_FLASH_DISABLE_VALUE": false,
+        "SCREEN_FLASH_RESTORE_VALUE": false,
         "CPU_TAG": ":maincpu",
         "MEMORY_SPACE": "program",
         "STARTUP_DELAY_MS": 5000,
@@ -35,6 +41,7 @@
             "LIFE_LOST": "LifeLost"
         },
         "DATA_WIDTHS": {
+            "SCREEN_FLASH": 8,
             "GLOBAL_ATTRACT_STATUS": 8,
             "GLOBAL_CREDITS": 8,
             "GLOBAL_GAME_STATUS": 8,
@@ -197,6 +204,7 @@
     "area51": {
         "LUA_GAME": "Area 51",
         "LUA_ROM_ID": 2,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 4000,
         "COINS_PER_CREDIT": 2,
         "PLAYER_MEMORY_OFFSET": "0xA8",
@@ -210,6 +218,7 @@
     "area51mx": {
         "LUA_GAME": "Area 51 / Maximum Force Duo",
         "LUA_ROM_ID": 3,
+        "OFFSCREEN_RELOAD": true,
         "COINS_PER_CREDIT": 2,
         "RECOIL_ALT_DURATION_MS": 40,
         "CREDITS": "0x00A0073F",
@@ -248,22 +257,27 @@
         "LUA_ROM_ID": 6,
         "STARTUP_DELAY_MS": 8000,
         "DATA_WIDTHS": {
-            "LIFE": 16,
-            "RECOIL": 16
+            "LIFE": 16
         },
         "PLAYER_MEMORY_OFFSET": "0x60",
         "PLAYER_CREDIT_MEMORY_OFFSET": "0x2",
+        "RECOIL_HOLD_MS": 100,
+        "ATTRACT_STATUS": "0x001843CA",
+        "ATTRACT_STATUS_comment": "Attract Status for bbust2 could be either 0x001843CA or 0x0018457F (they appear simultaneously under the exact same test conditions)",
         "GAME_STATUS": "0x001844F3",
         "P1": {
             "CREDITS": "0x00184589",
             "STATUS": "auto",
             "AMMO": "0x0019B75F",
-            "LIFE": "0x0019B74C",
-            "RECOIL": "0x0019B792"
+            "LIFE": "0x0019B74D",
+            "RECOIL": "0x0019B793",
+            "RECOIL_comment": "P1 Recoil for bbust2 is 0x0019B793 but noting that 0x001824B4 is P1 gun trigger press"
         },
         "P2": {
             "CREDITS": "0x0018458B"
-        }
+        },
+        "RECOIL_METHOD": "hold",
+        "RECOIL_PRIORITY": "ammo"
     },
     "bel": {
         "LUA_GAME": "Behind Enemy Lines",
@@ -320,12 +334,22 @@
     "cryptklr": {
         "LUA_GAME": "Crypt Killer",
         "LUA_ROM_ID": 22,
+        "SCREEN_FLASH": true,
+        "SCREEN_FLASH_MEMORY_ADDRESS": "0x8001512A",
+        "SCREEN_FLASH_DISABLE_VALUE": "0x1400",
+        "SCREEN_FLASH_RESTORE_VALUE": "0x0C03",
         "STARTUP_DELAY_MS": 70000,
         "MAX_PLAYERS": 3,
+        "DATA_WIDTHS": {
+            "SCREEN_FLASH": 16
+        },
         "PLAYER_MEMORY_OFFSET": "0x58",
+        "ATTRACT_STATUS": "0x001EFDD3",
+        "ATTRACT_STATUS_comment": "12 memory addresses identified for cryptklr attract status (unable to determine which is purely dedicated to attract mode, but all show up during same test conditions): 0x001EFDD3; 0x001EFDFB; 0x001EFE13; 0x001EFE23; 0x001EFE3B; 0x001EFE63; 0x001EFE7B; 0x001EFE8B; 0x001EFEA3; 0x001EFECB; 0x001EFEE3; 0x001EFEF3",
         "CREDITS": "0x002189C1",
         "P1": {
             "STATUS": "0x002377C8",
+            "STATUS_comment": "P1 Status = 0x002377C8 (1 = Player Active, whether Alive or Dead); P1 Game Status (1 = Alive, 3 = Dead) = 0x002377C9",
             "AMMO": "0x002377D3",
             "LIFE": "0x002377CC"
         }
@@ -382,6 +406,7 @@
     "hotd": {
         "LUA_GAME": "The House of the Dead",
         "LUA_ROM_ID": 38,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 14000,
         "COINS_PER_CREDIT": 1,
         "COINS_PER_CREDIT_comment": "2 Credits required to start a game for either player, but only 1 Credit required to continue the game once started",
@@ -408,6 +433,7 @@
     "invasnab": {
         "LUA_GAME": "Invasion: The Abductors",
         "LUA_ROM_ID": 40,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 7000,
         "COINS_PER_CREDIT": 2,
         "DATA_WIDTHS": {
@@ -440,6 +466,7 @@
     "jdredd": {
         "LUA_GAME": "Judge Dredd",
         "LUA_ROM_ID": 41,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 18000,
         "PLAYER_MEMORY_OFFSET": "0x48",
         "RECOIL_ALT_DURATION_MS": 20,
@@ -463,10 +490,10 @@
             "LAMP_START": "output"
         },
         "LIFE_MAX": 104,
-        "MIN_RECOIL_INTERVAL_MS": 80,
-        "MIN_RECOIL_INTERVAL_MS_comment": "Should be 66 for jpark but restricted to 80 to prevent light gun solenoid from overheating",
-        "RECOIL_HOLD_MS": 80,
-        "RECOIL_HOLD_MS_comment": "Should be 66 for jpark but restricted to 80 to prevent light gun solenoid from overheating",
+        "MIN_RECOIL_INTERVAL_MS": 100,
+        "MIN_RECOIL_INTERVAL_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
+        "RECOIL_HOLD_MS": 100,
+        "RECOIL_HOLD_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
         "CREDITS": "0x0020F1E2",
         "GAME_STATUS": "0x0020F5AC",
         "P1": {
@@ -475,11 +502,10 @@
                 1,
                 3
             ],
-            "AMMO": "0x00201B46",
-            "AMMO_comment": "P1 Ammo = 0x00201B46",
+            "AMMO_comment": "P1 Ammo (not fully tested) = 0x00201B46",
             "LIFE": "0x00201B40",
             "RECOIL": "0x0020F01A",
-            "RECOIL_comment": "P1 Recoil = 0x0020F01A",
+            "RECOIL_comment": "P1 Trigger Press = 0x0020F01A",
             "LAMP_START": "Left_lamp"
         },
         "P2": {
@@ -488,25 +514,25 @@
                 2,
                 3
             ],
-            "AMMO": "0x002018C6",
-            "AMMO_comment": "P2 Ammo = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore",
+            "AMMO_comment": "P2 Ammo (not fully tested) = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore",
             "LIFE": "0x002018C0",
             "LIFE_comment": "P2 Life = 0x002018C0; Also found at some point that P2 Life = 0x00201840 but this does not appear to be the case anymore",
             "RECOIL": "0x0020F01B",
-            "RECOIL_comment": "P2 Recoil = 0x0020F01B",
+            "RECOIL_comment": "P2 Trigger Press = 0x0020F01B",
             "LAMP_START": "Right_lamp"
         },
-        "AMMO_DIRECTION": "change",
         "RECOIL_METHOD": "hold",
-        "RECOIL_PRIORITY": "ammo",
+        "RECOIL_PRIORITY": "recoil",
         "ENABLE_RELOAD_AMMO": false
     },
     "le2": {
         "LUA_GAME": "Lethal Enforcers II: Gun Fighters",
         "LUA_ROM_ID": 46,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 14000,
         "PLAYER_MEMORY_OFFSET": "0x40",
         "CREDITS": "0x00C012AD",
+        "GAME_STATUS": "0x00C00000",
         "P1": {
             "STATUS": "0x00C012F0",
             "AMMO": "0x00C01316",
@@ -516,6 +542,7 @@
     "lethalen": {
         "LUA_GAME": "Lethal Enforcers",
         "LUA_ROM_ID": 45,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 7000,
         "COINS_PER_CREDIT": 2,
         "PLAYER_MEMORY_OFFSET": "0x40",
@@ -533,6 +560,7 @@
     "lethalj": {
         "LUA_GAME": "Lethal Justice",
         "LUA_ROM_ID": 47,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 8000,
         "COINS_PER_CREDIT": 16,
         "CREDITS": "0x00300220",
@@ -550,6 +578,7 @@
     "maxforce": {
         "LUA_GAME": "Maximum Force",
         "LUA_ROM_ID": 51,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 3000,
         "COINS_PER_CREDIT": 2,
         "PLAYER_MEMORY_OFFSET": "0x8C",
@@ -569,18 +598,28 @@
         "LUA_ROM_ID": 64,
         "STARTUP_DELAY_MS": 3000,
         "DATA_WIDTHS": {
-            "CREDITS": 16,
-            "AMMO": 16
+            "CREDITS": 16
         },
         "PLAYER_MEMORY_OFFSET": "0xC",
         "CREDITS": "0x00017D66",
+        "GAME_STATUS": "0x00019A33",
         "P1": {
-            "STATUS": "0x00017D1B",
-            "AMMO": "0x00018D96",
+            "STATUS": "0x00019A33",
+            "STATUS_ACTIVE_VALUE": [
+                1,
+                3
+            ],
+            "AMMO": "0x00018D97",
             "LIFE": "0x00017D4B"
         },
         "P2": {
-            "AMMO": "0x00018DA6"
+            "STATUS": "0x00019A33",
+            "STATUS_ACTIVE_VALUE": [
+                2,
+                3
+            ],
+            "AMMO": "0x00018DA7",
+            "LIFE": "0x00017D57"
         }
     },
     "ptblank": {
@@ -609,14 +648,16 @@
             "AMMO": 16
         },
         "PLAYER_MEMORY_OFFSET": "0x2",
-        "GAME_STATUS": "0x00100373",
+        "GAME_STATUS": "0x001002E7",
         "P1": {
             "CREDITS": "0x00100121",
             "STATUS": "auto",
             "AMMO": "0x00100324",
+            "AMMO_ALT": "0x00100321",
             "LIFE": "0x00100125"
         },
-        "AMMO_DIRECTION": "increase"
+        "AMMO_DIRECTION": "increase",
+        "ENABLE_RELOAD_AMMO": false
     },
     "sgunner2": {
         "LUA_GAME": "Steel Gunner 2",
@@ -670,6 +711,7 @@
     "vcop": {
         "LUA_GAME": "Virtua Cop",
         "LUA_ROM_ID": 87,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 15000,
         "DATA_WIDTHS": {
             "LAMP_START": "output"
@@ -689,6 +731,7 @@
     "vcop2": {
         "LUA_GAME": "Virtua Cop 2",
         "LUA_ROM_ID": 88,
+        "OFFSCREEN_RELOAD": true,
         "STARTUP_DELAY_MS": 13000,
         "DATA_WIDTHS": {
             "LAMP_START": "output"
