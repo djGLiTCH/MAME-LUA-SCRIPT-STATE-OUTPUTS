@@ -1,10 +1,11 @@
 ------------------------------------------------------
--- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS (DESIGNED FOR LIGHT GUNS)
--- GitHub: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
--- Universal Script Version: 6.6.1
--- Last Modified Date (YYYY.MM.DD): 2026.05.07
+-- MAME STATE OUTPUT LUA SCRIPT
+-- Script Template Version: 6.8.4
+-- Last Modified Date (YYYY.MM.DD): 2026.05.19
+-- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
+-- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
+-- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 -- Created by DJ GLiTCH, with additional testing by Muggins
--- License: GNU GENERAL PUBLIC LICENSE 3.0
 ------------------------------------------------------
 
 Basic install instructions are available below (to update to the latest release, just repeat these steps and overwrite all files when prompted):
@@ -92,7 +93,7 @@ Side Objective: None
 ROM: jpark
 Game: Jurassic Park
 Status: Working / Complete
-Issues: If issues are experienced with P2, please try the latest MAME build and romset, as different memory addresses were identified for P2 depending on MAME version
+Issues: Ammo is not reliable for either player, so recoil triggers are being used instead
 Side Objective: None
 
 ROM: le2

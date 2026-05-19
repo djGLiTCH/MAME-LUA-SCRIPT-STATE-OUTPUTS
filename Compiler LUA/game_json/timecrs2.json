@@ -1,0 +1,19 @@
+{
+    "LUA_GAME": "Time Crisis II",
+    "LUA_ROM_ID": 82,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 17000,
+    "COINS_PER_CREDIT": 4,
+    "MAX_PLAYERS": 1,
+    "SIMULTANEOUS_PLAY": false,
+    "CREDITS": "0x002CE7B7",
+    "GAME_STATUS": "0x002CE8AF",
+    "P1": {
+        "STATUS": "auto",
+        "AMMO": "0x002F43FF",
+        "LIFE": "0x002F4401"
+    }
+}

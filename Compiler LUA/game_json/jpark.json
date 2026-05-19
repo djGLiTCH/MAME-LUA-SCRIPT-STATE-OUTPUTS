@@ -1,0 +1,45 @@
+{
+    "LUA_GAME": "Jurassic Park",
+    "LUA_ROM_ID": 42,
+    "LIGHTGUN_PATCH": true,
+    "CPU_TAG": ":mainpcb:maincpu",
+    "STARTUP_DELAY_MS": 1000,
+    "DATA_WIDTHS": {
+        "LAMP_START": "output"
+    },
+    "LIFE_MAX": 104,
+    "MIN_RECOIL_INTERVAL_MS": 100,
+    "MIN_RECOIL_INTERVAL_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
+    "RECOIL_HOLD_MS": 100,
+    "RECOIL_HOLD_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
+    "CREDITS": "0x0020F1E2",
+    "GAME_STATUS": "0x0020F5AC",
+    "P1": {
+        "STATUS": "0x0020F00A",
+        "STATUS_ACTIVE_VALUE": [
+            1,
+            3
+        ],
+        "AMMO_comment": "P1 Ammo (not fully tested) = 0x00201B46",
+        "LIFE": "0x00201B40",
+        "RECOIL": "0x0020F01A",
+        "RECOIL_comment": "P1 Trigger Press = 0x0020F01A",
+        "LAMP_START": "Left_lamp"
+    },
+    "P2": {
+        "STATUS": "0x0020F00A",
+        "STATUS_ACTIVE_VALUE": [
+            2,
+            3
+        ],
+        "AMMO_comment": "P2 Ammo (not fully tested) = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore",
+        "LIFE": "0x002018C0",
+        "LIFE_comment": "P2 Life = 0x002018C0; Also found at some point that P2 Life = 0x00201840 but this does not appear to be the case anymore",
+        "RECOIL": "0x0020F01B",
+        "RECOIL_comment": "P2 Trigger Press = 0x0020F01B",
+        "LAMP_START": "Right_lamp"
+    },
+    "RECOIL_METHOD": "hold",
+    "RECOIL_PRIORITY": "recoil",
+    "ENABLE_RELOAD_AMMO": false
+}

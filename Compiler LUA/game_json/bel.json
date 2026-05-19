@@ -1,0 +1,34 @@
+{
+    "LUA_GAME": "Behind Enemy Lines",
+    "LUA_ROM_ID": 7,
+    "LIGHTGUN_PATCH": true,
+    "STARTUP_DELAY_MS": 7000,
+    "DATA_WIDTHS": {
+        "LAMP_START": "output"
+    },
+    "RECOIL_HOLD_MS": 400,
+    "RECOIL_HOLD_MS_comment": "When ammo = 0, burst fire shot speed changes. First burst fire shot > small gap > second burst fire shot > large gap > restart from first burst fire shot.",
+    "CREDITS": "0x005A87F0",
+    "GAME_STATUS": "0x00506BD2",
+    "P1": {
+        "STATUS": "auto",
+        "AMMO": "0x005B494C",
+        "LIFE": "0x005B4997",
+        "RECOIL": "0x005A87B0",
+        "RECOIL_comment": "Alternative recoil triggers can include: 0x005A87B0 > 0 for trigger press in-game for P1; 0x005B494B > 0 for a shot countdown",
+        "DAMAGE": "0x005A8138",
+        "DAMAGE_comment": "0x005A8138 > 0 when the red DAMAGE text appears on-screen for both players",
+        "LAMP_START": "lamp0"
+    },
+    "P2": {
+        "AMMO": "0x005B49D0",
+        "LIFE": "0x005B4A1B",
+        "RECOIL": "0x005A87B1",
+        "RECOIL_comment": "Alternative recoil triggers can include: 0x005A87B1 > 0 for trigger press in-game for P2; 0x005B49CF > 0 for a shot countdown",
+        "DAMAGE": "0x005A8138",
+        "DAMAGE_comment": "0x005A8138 > 0 when the red DAMAGE text appears on-screen for both players",
+        "LAMP_START": "lamp1"
+    },
+    "FORCE_FEEDBACK_ENABLER": "gamestatus",
+    "RECOIL_METHOD": "hold"
+}

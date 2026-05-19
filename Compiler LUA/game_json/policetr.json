@@ -1,0 +1,33 @@
+{
+    "LUA_GAME": "Police Trainer",
+    "LUA_ROM_ID": 64,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 3000,
+    "DATA_WIDTHS": {
+        "CREDITS": 16
+    },
+    "PLAYER_MEMORY_OFFSET": "0xC",
+    "CREDITS": "0x00017D66",
+    "GAME_STATUS": "0x00019A33",
+    "P1": {
+        "STATUS": "0x00019A33",
+        "STATUS_ACTIVE_VALUE": [
+            1,
+            3
+        ],
+        "AMMO": "0x00018D97",
+        "LIFE": "0x00017D4B"
+    },
+    "P2": {
+        "STATUS": "0x00019A33",
+        "STATUS_ACTIVE_VALUE": [
+            2,
+            3
+        ],
+        "AMMO": "0x00018DA7",
+        "LIFE": "0x00017D57"
+    }
+}

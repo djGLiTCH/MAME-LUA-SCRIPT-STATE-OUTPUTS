@@ -1,0 +1,18 @@
+{
+    "LUA_GAME": "Lethal Enforcers II: Gun Fighters",
+    "LUA_ROM_ID": 46,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 14000,
+    "PLAYER_MEMORY_OFFSET": "0x40",
+    "CREDITS": "0x00C012AD",
+    "GAME_STATUS": "0x00C00000",
+    "P1": {
+        "STATUS": "0x00C012F0",
+        "AMMO": "0x00C01316",
+        "LIFE": "0x00C012F4"
+    }
+}

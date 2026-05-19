@@ -1,0 +1,19 @@
+{
+    "LUA_GAME": "Steel Gunner",
+    "LUA_ROM_ID": 77,
+    "STARTUP_DELAY_MS": 4000,
+    "DATA_WIDTHS": {
+        "AMMO": 16
+    },
+    "PLAYER_MEMORY_OFFSET": "0x2",
+    "GAME_STATUS": "0x001002E7",
+    "P1": {
+        "CREDITS": "0x00100121",
+        "STATUS": "auto",
+        "AMMO": "0x00100324",
+        "AMMO_ALT": "0x00100321",
+        "LIFE": "0x00100125"
+    },
+    "AMMO_DIRECTION": "increase",
+    "ENABLE_RELOAD_AMMO": false
+}

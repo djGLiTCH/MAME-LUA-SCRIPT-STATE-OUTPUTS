@@ -1,0 +1,22 @@
+{
+    "LUA_GAME": "Lethal Enforcers",
+    "LUA_ROM_ID": 45,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 7000,
+    "COINS_PER_CREDIT": 2,
+    "PLAYER_MEMORY_OFFSET": "0x40",
+    "CREDITS": "0x00002030",
+    "GAME_STATUS": "0x00002000",
+    "P1": {
+        "STATUS": "0x0000219C",
+        "AMMO": "0x00002193",
+        "LIFE": "0x00002191"
+    },
+    "P2": {
+        "STATUS": "0x000021DC"
+    }
+}

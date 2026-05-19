@@ -1,11 +1,11 @@
 ------------------------------------------------------
--- UNIVERSAL MAME LUA SCRIPT FOR STATE OUTPUTS
--- Script Template Version: 6.8.3
--- Last Modified Date (YYYY.MM.DD): 2026.05.18
+-- MAME STATE OUTPUT LUA SCRIPT
+-- Script Template Version: 6.8.4
+-- Last Modified Date (YYYY.MM.DD): 2026.05.19
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
--- Created by DJ GLiTCH, with additional testing by Muggins
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
+-- Created by DJ GLiTCH, with additional testing by Muggins
 ------------------------------------------------------
 
 local CFG = {

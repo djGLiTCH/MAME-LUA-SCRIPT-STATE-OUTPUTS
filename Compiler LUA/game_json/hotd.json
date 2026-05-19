@@ -1,0 +1,31 @@
+{
+    "LUA_GAME": "The House of the Dead",
+    "LUA_ROM_ID": 38,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 14000,
+    "COINS_PER_CREDIT": 1,
+    "COINS_PER_CREDIT_comment": "2 Credits required to start a game for either player, but only 1 Credit required to continue the game once started",
+    "DATA_WIDTHS": {
+        "LAMP_START": "output"
+    },
+    "ATTRACT_STATUS": "0x0051F5E8",
+    "CREDITS": "0x0051E868",
+    "CREDITS_comment": "Alternatives might include: 0x0051E868, 0x0051E888, 0x0051F4B8, 0X01D0000A, 0X01D0005E",
+    "GAME_STATUS": "0x0051F4A0",
+    "GAME_STATUS_comment": "Alternatives might include: 0x0051F4A0, 0x0051F4A2; If either = 1 then 1 player is active (can be either P1 or P2), if either = 2 then both 2 players are active",
+    "P1": {
+        "STATUS": "auto",
+        "AMMO": "0x0051F2C1",
+        "LIFE": "0x0051F290",
+        "LAMP_START": "lamp0"
+    },
+    "P2": {
+        "AMMO": "0x0051F38D",
+        "LIFE": "0x0051F35C",
+        "LAMP_START": "lamp1"
+    }
+}

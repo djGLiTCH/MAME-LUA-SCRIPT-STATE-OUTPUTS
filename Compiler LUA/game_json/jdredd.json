@@ -1,0 +1,22 @@
+{
+    "LUA_GAME": "Judge Dredd",
+    "LUA_ROM_ID": 41,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 18000,
+    "PLAYER_MEMORY_OFFSET": "0x48",
+    "RECOIL_ALT_DURATION_MS": 20,
+    "CREDITS": "0x003E6CAE",
+    "GAME_STATUS": "0x003E6E8A",
+    "P1": {
+        "STATUS": "auto",
+        "AMMO": "0x0010ED5D",
+        "AMMO_ALT": "0x0010ED48",
+        "AMMO_ALT_comment": "Machine Gun = 0x0010ED48 and Grenade = 0x0010ED5F in Judge Dredd (preference is to use Machine Gun for alt weapon)",
+        "LIFE": "0x0010ED5C",
+        "SHOTS_FIRED_ALT": "auto"
+    }
+}

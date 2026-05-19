@@ -1,0 +1,23 @@
+{
+    "LUA_GAME": "Crypt Killer",
+    "LUA_ROM_ID": 22,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": "0x8001512A",
+    "SCREEN_FLASH_DISABLE_VALUE": "0x1400",
+    "SCREEN_FLASH_RESTORE_VALUE": "0x0C03",
+    "STARTUP_DELAY_MS": 70000,
+    "MAX_PLAYERS": 3,
+    "DATA_WIDTHS": {
+        "SCREEN_FLASH": 16
+    },
+    "PLAYER_MEMORY_OFFSET": "0x58",
+    "ATTRACT_STATUS": "0x001EFDD3",
+    "ATTRACT_STATUS_comment": "12 memory addresses identified for cryptklr attract status (unable to determine which is purely dedicated to attract mode, but all show up during same test conditions): 0x001EFDD3; 0x001EFDFB; 0x001EFE13; 0x001EFE23; 0x001EFE3B; 0x001EFE63; 0x001EFE7B; 0x001EFE8B; 0x001EFEA3; 0x001EFECB; 0x001EFEE3; 0x001EFEF3",
+    "CREDITS": "0x002189C1",
+    "P1": {
+        "STATUS": "0x002377C8",
+        "STATUS_comment": "P1 Status = 0x002377C8 (1 = Player Active, whether Alive or Dead); P1 Game Status (1 = Alive, 3 = Dead) = 0x002377C9",
+        "AMMO": "0x002377D3",
+        "LIFE": "0x002377CC"
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "LUA_GAME": "Area 51",
+    "LUA_ROM_ID": 2,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 4000,
+    "COINS_PER_CREDIT": 2,
+    "PLAYER_MEMORY_OFFSET": "0xA8",
+    "CREDITS": "0x100003A5",
+    "P1": {
+        "STATUS": "0x10008733",
+        "AMMO": "0x1000876F",
+        "LIFE": "0x1000879B"
+    }
+}

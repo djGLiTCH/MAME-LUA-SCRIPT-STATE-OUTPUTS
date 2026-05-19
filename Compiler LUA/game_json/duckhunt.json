@@ -1,0 +1,24 @@
+{
+    "LUA_GAME": "Duck Hunt",
+    "LUA_ROM_ID": 27,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 1000,
+    "SIMULTANEOUS_PLAY": false,
+    "PLAYER_MEMORY_OFFSET": 0,
+    "AMMO_MAX": 3,
+    "LIFE_OFFSET": 1,
+    "LIFE_MAX": 5,
+    "CREDITS": "0x00000635",
+    "GAME_STATUS": "0x000000EF",
+    "P1": {
+        "STATUS": "0x0000067C",
+        "AMMO": "0x000000BA",
+        "LIFE": "0x000000C5"
+    },
+    "P2": {
+        "STATUS": "0x00000602"
+    }
+}

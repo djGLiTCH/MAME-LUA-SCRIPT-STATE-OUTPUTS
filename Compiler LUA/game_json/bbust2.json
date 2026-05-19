@@ -1,0 +1,27 @@
+{
+    "LUA_GAME": "Beast Busters: Second Nightmare",
+    "LUA_ROM_ID": 6,
+    "STARTUP_DELAY_MS": 8000,
+    "DATA_WIDTHS": {
+        "LIFE": 16
+    },
+    "PLAYER_MEMORY_OFFSET": "0x60",
+    "PLAYER_CREDIT_MEMORY_OFFSET": "0x2",
+    "RECOIL_HOLD_MS": 100,
+    "ATTRACT_STATUS": "0x001843CA",
+    "ATTRACT_STATUS_comment": "Attract Status for bbust2 could be either 0x001843CA or 0x0018457F (they appear simultaneously under the exact same test conditions)",
+    "GAME_STATUS": "0x001844F3",
+    "P1": {
+        "CREDITS": "0x00184589",
+        "STATUS": "auto",
+        "AMMO": "0x0019B75F",
+        "LIFE": "0x0019B74D",
+        "RECOIL": "0x0019B793",
+        "RECOIL_comment": "P1 Recoil for bbust2 is 0x0019B793 but noting that 0x001824B4 is P1 gun trigger press"
+    },
+    "P2": {
+        "CREDITS": "0x0018458B"
+    },
+    "RECOIL_METHOD": "hold",
+    "RECOIL_PRIORITY": "ammo"
+}

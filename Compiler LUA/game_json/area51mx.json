@@ -1,0 +1,41 @@
+{
+    "LUA_GAME": "Area 51 / Maximum Force Duo",
+    "LUA_ROM_ID": 3,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "COINS_PER_CREDIT": 2,
+    "RECOIL_ALT_DURATION_MS": 40,
+    "CREDITS": "0x00A0073F",
+    "P1": {
+        "STATUS": "0x00A19979",
+        "STATUS_comment": "P1 STATUS for Area 51",
+        "STATUS_ALT": "0x00A09001",
+        "STATUS_ALT_comment": "P1 STATUS for Maximum Force",
+        "AMMO": "0x00A199B5",
+        "AMMO_comment": "P1 AMMO for Area 51",
+        "AMMO_ALT": "0x00A19479",
+        "AMMO_ALT_comment": "P1 AMMO for Maximum Force",
+        "LIFE": "0x00A199E1",
+        "LIFE_comment": "P1 LIFE for Area 51",
+        "LIFE_ALT": "0x00A19425",
+        "LIFE_ALT_comment": "P1 LIFE for Maximum Force",
+        "SHOTS_FIRED_ALT": "auto"
+    },
+    "P2": {
+        "STATUS": "0x00A19A59",
+        "STATUS_comment": "P2 STATUS for Area 51",
+        "STATUS_ALT": "0x00A09005",
+        "STATUS_ALT_comment": "P2 STATUS for Maximum Force",
+        "AMMO": "0x00A19A5D",
+        "AMMO_comment": "P2 AMMO for Area 51",
+        "AMMO_ALT": "0x00A19505",
+        "AMMO_ALT_comment": "P2 AMMO for Maximum Force",
+        "LIFE": "0x00A19A89",
+        "LIFE_comment": "P2 LIFE for Area 51",
+        "LIFE_ALT": "0x00A194B1",
+        "LIFE_ALT_comment": "P2 LIFE for Maximum Force"
+    }
+}

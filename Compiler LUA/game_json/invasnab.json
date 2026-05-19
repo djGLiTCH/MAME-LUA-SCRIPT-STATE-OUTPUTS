@@ -1,0 +1,33 @@
+{
+    "LUA_GAME": "Invasion: The Abductors",
+    "LUA_ROM_ID": 40,
+    "OFFSCREEN_RELOAD": true,
+    "STARTUP_DELAY_MS": 7000,
+    "COINS_PER_CREDIT": 2,
+    "DATA_WIDTHS": {
+        "GLOBAL_CREDITS": 16,
+        "STATUS": 16,
+        "AMMO_ALT": 16,
+        "LIFE": 32
+    },
+    "PLAYER_MEMORY_OFFSET": "0x36",
+    "AMMO_MAX": 9,
+    "CREDITS": "0x0000AF08",
+    "P1": {
+        "STATUS": "0x0000A011",
+        "AMMO": "0x0000C07C",
+        "AMMO_ALT": "0x0000A034",
+        "AMMO_ALT_comment": "P1 Rockets = 0x0000A034",
+        "LIFE": "0x0000A01D",
+        "SHOTS_FIRED_ALT": "auto"
+    },
+    "P2": {
+        "STATUS": "0x0000A047",
+        "AMMO": "0x0000C07E",
+        "AMMO_ALT": "0x0000A068",
+        "AMMO_ALT_comment": "P2 Rockets = 0x0000A068",
+        "LIFE": "0x0000A053"
+    },
+    "AMMO_ALT_DIRECTION": "increase",
+    "LIFE_DIRECTION": "increase"
+}

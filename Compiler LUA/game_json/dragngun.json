@@ -1,0 +1,29 @@
+{
+    "LUA_GAME": "Dragon Gun",
+    "LUA_ROM_ID": 26,
+    "STARTUP_DELAY_MS": 4000,
+    "MIN_RECOIL_INTERVAL_MS": 80,
+    "MIN_RECOIL_INTERVAL_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+    "RECOIL_HOLD_MS": 80,
+    "RECOIL_HOLD_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+    "CREDITS": "0x0011F220",
+    "GAME_STATUS": "0x0011F1BC",
+    "P1": {
+        "STATUS": "0x0011F1DC",
+        "STATUS_comment": "P1 Status = 0x0011F1DC; P1 Status alternative memory address = 0x00100082",
+        "AMMO": false,
+        "AMMO_ALT": "0x0010008A",
+        "LIFE": "0x00100008",
+        "RECOIL": "0x0011F1B6"
+    },
+    "P2": {
+        "STATUS": "0x0011F1DD",
+        "STATUS_comment": "P2 Status = 0x0011F1DD; P2 Status alternative memory address = 0x00100182",
+        "AMMO": false,
+        "AMMO_ALT": "0x0010018A",
+        "LIFE": "0x00100108",
+        "RECOIL": "0x0011F1B7"
+    },
+    "RECOIL_METHOD": "hold",
+    "RECOIL_PRIORITY": "ammo"
+}
