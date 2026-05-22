@@ -78,6 +78,7 @@ The latest source code and release includes support for the following MAME ROMs 
 
 | ROM | Game |
 | :--- | :--- |
+| `alien3` | Alien3: The Gun |
 | `area51` | Area 51 |
 | `area51mx` | Area 51 / Maximum Force Duo |
 | `bbust2` | Beast Busters: Second Nightmare |
