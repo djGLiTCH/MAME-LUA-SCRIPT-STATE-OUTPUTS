@@ -1,7 +1,7 @@
 ------------------------------------------------------
 -- MAME STATE OUTPUT LUA SCRIPT
--- Script Template Version: 6.8.4
--- Last Modified Date (YYYY.MM.DD): 2026.05.19
+-- Script Template Version: 7.5.1
+-- Last Modified Date (YYYY.MM.DD): 2026.05.22
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -23,6 +23,12 @@ Basic install instructions are available below (to update to the latest release,
 Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename, then this should take priority over a file with the same filename in "HookOfTheReaper\defaultLG\MAME_LUA", but to prevent issues it is advised you delete the "HookOfTheReaper\defaultLG\MAME_LUA" folder altogether when using my Lua scripts.
 
 ---
+
+ROM: alien3
+Game: Alien3: The Gun
+Status: Working / Complete
+Issues: None known
+Side Objective: None
 
 ROM: area51
 Game: Area 51

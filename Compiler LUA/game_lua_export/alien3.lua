@@ -16,17 +16,17 @@ local CFG = {
     -- Lua Version represents the version of the universal MAME Lua script used as the baseline code
     LUA_VERSION = 751,
     LUA_DATE    = 20260522,
-    LUA_ROM     = "vcop2",
-    LUA_GAME    = "Virtua Cop 2",
-    LUA_ROM_ID  = 88,
+    LUA_ROM     = "alien3",
+    LUA_GAME    = "Alien3: The Gun",
+    LUA_ROM_ID  = 1,
     
     -- External Script Hooks (for future projects)
-    OFFSCREEN_RELOAD = true,
+    OFFSCREEN_RELOAD = false,
     LIGHTGUN_PATCH   = false,
     
     -- SCREEN FLASH REMOVAL
     -- Disables the bright white flashes used for optical CRT light guns to prevent eye strain/seizures.
-    SCREEN_FLASH                = true,
+    SCREEN_FLASH                = false,
     SCREEN_FLASH_MEMORY_ADDRESS = false,
     SCREEN_FLASH_DISABLE_VALUE  = false,
     SCREEN_FLASH_RESTORE_VALUE  = false,
@@ -35,7 +35,7 @@ local CFG = {
     -- SYSTEM SETTINGS                              --
     --------------------------------------------------
     -- CPU_TAG: Defines the global CPU to read memory from. Default should be ":maincpu"
-    CPU_TAG = ":maincpu",
+    CPU_TAG = ":mainpcb:maincpu",
     
     -- MEMORY_SPACE: Defines the global memory space to read from. Default should be "program"
     MEMORY_SPACE = "program",
@@ -48,7 +48,7 @@ local CFG = {
         GLOBAL_ATTRACT_STATUS   = false,
         GLOBAL_CREDITS          = false,
         GLOBAL_GAME_STATUS      = false,
-        CREDITS                 = false,
+        CREDITS                 = ":mainpcb:soundcpu",
         STATUS                  = false,
         STATUS_ALT              = false,
         AMMO                    = false,
@@ -98,7 +98,7 @@ local CFG = {
     
     -- STARTUP_DELAY_MS: Time to wait before tracking stats (in ms).
     -- Prevents false "shots fired" events and blocks "Dirty RAM" while the arcade board boots up.
-    STARTUP_DELAY_MS = 13000,
+    STARTUP_DELAY_MS = 2000,
     
     -- STATUS_DEBOUNCE_MS: Time (in ms) to wait before validating an "Active" state.
     -- Prevents 1-frame flashes if a game momentarily drops player status during cutscenes.
@@ -195,13 +195,13 @@ local CFG = {
         AMMO                    = 8,
         AMMO_ALT                = 8,
         AMMO_GRENADE            = 8,
-        LIFE                    = 8,
+        LIFE                    = 16,
         LIFE_ALT                = 8,
         RECOIL                  = 8,
         RELOAD                  = 8,
         DAMAGE                  = 8,
         RUMBLE                  = 8,
-        LAMP_START              = "output",
+        LAMP_START              = 8,
         SHOTS_FIRED             = 16,
         SHOTS_FIRED_PRIMARY     = 16,
         SHOTS_FIRED_ALT         = 16,
@@ -233,7 +233,7 @@ local CFG = {
     --
     -- SHARED MEMORY / TURN BASED:
     -- Set to 0 or false. This forces P2 to read the same address as P1 (Offset 0).
-    PLAYER_MEMORY_OFFSET = 4,
+    PLAYER_MEMORY_OFFSET = 0x100,
     
     -- PLAYER_CREDIT_MEMORY_OFFSET: Specific offset for Credits only.
     -- Use this if Credits are stored in a different memory array than Ammo/Life.
@@ -258,7 +258,7 @@ local CFG = {
     -- RECOIL_HOLD_MS: 
     -- Interval between pulses when RECOIL_METHOD = "hold" and the recoil trigger is held down.
     -- Used to create a slower "empty-click" fire rate when primary ammo hits 0.
-    RECOIL_HOLD_MS             = 100, 
+    RECOIL_HOLD_MS             = 400, -- When ammo = 0, shots slow in fire rate 
     
     DAMAGE_DURATION_MS         = 250, 
     RUMBLE_DURATION_MS         = 250, 
@@ -275,7 +275,7 @@ local CFG = {
     -- AMMO_MAX: Hard Clamps. Any value ABOVE this number is forcefully rewritten to 0.
     -- Extremely important if the game sets ammo to 255 (0xFF) or 99 during reloading/infinity states.
     -- Prevents massive jumps in the "Shots Fired" counter and stops infinite recoil loops.
-    AMMO_MAX            = false,
+    AMMO_MAX            = 255,
     AMMO_ALT_MAX        = false,
     AMMO_GRENADE_MAX    = false,
 
@@ -297,7 +297,7 @@ local CFG = {
     -- LIFE_MAX: Any value ABOVE this number is clamped to 0.
     -- Crucial for games that use 16-bit unsigned integers. If life drops below 0, it wraps to 65535 (Integer Underflow).
     -- Setting a MAX clamps that underflow back down to 0 so LifeLost calculations remain accurate.
-    LIFE_MAX        = false,
+    LIFE_MAX        = 640,
     LIFE_ALT_MAX    = false,
     
     --------------------------------------------------
@@ -310,12 +310,12 @@ local CFG = {
     
     -- GLOBAL CREDITS: 
     -- Set to 'false' if game uses Per-Player only or if you want to bypass "Wait for Credits" safety checks.
-    CREDITS        = 0x005D05C0,
+    CREDITS        = false,
     
     -- GLOBAL GAME STATUS: 
     -- Set to 'false' to rely on individual Player Status (Priority 1) or Life/Credits (Fallback).
     -- If 'false', the script calculates GameStatus = 1 if ANY player is currently active.
-    GAME_STATUS    = 0x00500035,
+    GAME_STATUS    = false,
     
     -- ACTIVE VALUES:
     -- Defines the exact numerical value that indicates active gameplay.
@@ -327,29 +327,29 @@ local CFG = {
     STATUS_ALT_ACTIVE_VALUE     = false,
     
     P1 = {
-        CREDITS                 = false,
+        CREDITS                 = 0x0000FF25,
         
         -- PLAYER STATUS (Priority 1):
         -- If player status is set, this value strictly determines if this player is active.
         -- Overrides Global Status and Fallback logic for this specific player.
-        STATUS                  = 0x0050A2E8,
+        STATUS                  = 0x002005F1,
         STATUS_ACTIVE_VALUE     = false,
         STATUS_ALT              = false,
         STATUS_ALT_ACTIVE_VALUE = false,
         
-        AMMO                    = 0x00507260,
-        AMMO_ALT                = false,
-        AMMO_GRENADE            = false,
-        LIFE                    = 0x00502090,
+        AMMO                    = 0x00200698,
+        AMMO_ALT                = 0x0020069C,
+        AMMO_GRENADE            = 0x00200697,
+        LIFE                    = 0x002006A2,
         LIFE_ALT                = false,
         
         -- HARDWARE FEEDBACK:
         -- Recoil = Weapon Shooting | Reload = Changing Magazine | Damage = Player Hit | Rumble = Environmental FFB
-        RECOIL                  = "auto",
+        RECOIL                  = 0x00200690,
         RELOAD                  = "auto",
         DAMAGE                  = "auto",
         RUMBLE                  = false,
-        LAMP_START              = "lamp0",
+        LAMP_START              = false,
         
         -- CALCULATED STATS:
         -- "auto" = Calculate internally based on Ammo/Life changes. 
@@ -363,7 +363,7 @@ local CFG = {
     },
     
     P2 = {
-        CREDITS                 = "auto",
+        CREDITS                 = 0x0000FF24,
         STATUS                  = "auto",
         STATUS_ACTIVE_VALUE     = "auto",
         STATUS_ALT              = "auto",
@@ -377,7 +377,7 @@ local CFG = {
         RELOAD                  = "auto",
         DAMAGE                  = "auto",
         RUMBLE                  = "auto",
-        LAMP_START              = "lamp1",
+        LAMP_START              = "auto",
         SHOTS_FIRED             = "auto",
         SHOTS_FIRED_PRIMARY     = "auto",
         SHOTS_FIRED_ALT         = "auto",
@@ -467,7 +467,7 @@ local CFG = {
     -- "hold"   = Triggers continuously while the value is > 0 (Best for machine guns).
     -- "change" = Triggers whenever the value changes, as long as the new value is > 0.
     -- "latch"  = Triggers once when the value becomes > 0, and won't trigger again until it returns to 0.
-    RECOIL_METHOD          = "pulse",
+    RECOIL_METHOD          = "hold",
     
     -- RECOIL_PRIORITY: The Master Hardware Trigger
     -- "ammo"   = Ammo drops trigger recoil. The recoil memory address is ignored UNLESS Ammo = 0.
