@@ -1,7 +1,7 @@
 {
     "_default": {
-        "LUA_VERSION": 684,
-        "LUA_DATE": 20260519,
+        "LUA_VERSION": 751,
+        "LUA_DATE": 20260523,
         "LUA_GAME": "Default Universal MAME State Output Lua Script Values",
         "LUA_ROM_ID": 0,
         "OFFSCREEN_RELOAD": false,
@@ -136,7 +136,7 @@
         "MIN_RECOIL_INTERVAL_MS": 100,
         "RECOIL_HOLD_MS": 100,
         "DAMAGE_DURATION_MS": 250,
-        "RUMBLE_DURATION_MS":250,
+        "RUMBLE_DURATION_MS": 250,
         "AMMO_OFFSET": false,
         "AMMO_ALT_OFFSET": false,
         "AMMO_GRENADE_OFFSET": false,
@@ -312,16 +312,19 @@
         "AMMO_MAX": 255,
         "LIFE_MAX": 640,
         "RECOIL_HOLD_MS": 400,
-        "RECOIL_HOLD_MS_comment": "When ammo = 0, shots slow in fire rate",
+        "RECOIL_HOLD_MS_comment": "When ammo = 0, fire rate slows down for primary weapon until reloaded (by releasing the gun trigger)",
         "P1": {
             "CREDITS": "0x0000FF25",
             "STATUS": "0x002005F1",
             "AMMO": "0x00200698",
+            "AMMO_comment": "Ammo = Primary Machine Gun",
             "AMMO_ALT": "0x0020069C",
+            "AMMO_ALT_comment": "AmmoAlt = Flamethrower",
             "AMMO_GRENADE": "0x00200697",
+            "AMMO_GRENADE_comment": "AmmoGrenade = Grenade / Bomb",
             "LIFE": "0x002006A2",
             "RECOIL": "0x00200690",
-            "RECOIL_comment": "P1 Recoil Trigger Press = 0x00200690"
+            "RECOIL_comment": "Recoil = Trigger Press (hold, not pulse)"
         },
         "P2": {
             "CREDITS": "0x0000FF24"
@@ -370,8 +373,7 @@
             "LIFE": "0x00A199E1",
             "LIFE_comment": "P1 LIFE for Area 51",
             "LIFE_ALT": "0x00A19425",
-            "LIFE_ALT_comment": "P1 LIFE for Maximum Force",
-            "SHOTS_FIRED_ALT": "auto"
+            "LIFE_ALT_comment": "P1 LIFE for Maximum Force"
         },
         "P2": {
             "STATUS": "0x00A19A59",
@@ -505,9 +507,11 @@
             "STATUS": "0x0011F1DC",
             "STATUS_comment": "P1 Status = 0x0011F1DC; P1 Status alternative memory address = 0x00100082",
             "AMMO": false,
-            "AMMO_ALT": "0x0010008A",
+            "AMMO_GRENADE": "0x0010008A",
+            "AMMO_GRENADE_comment": "AmmoGrenade = Grenade / Bomb",
             "LIFE": "0x00100008",
-            "RECOIL": "0x0011F1B6"
+            "RECOIL": "0x0011F1B6",
+            "RECOIL_comment": "Recoil = Trigger Press (hold, not pulse)"
         },
         "P2": {
             "STATUS": "0x0011F1DD",
@@ -593,14 +597,15 @@
         "P1": {
             "STATUS": "0x0000A011",
             "AMMO": "0x0000C07C",
+            "AMMO_comment": "P1 Primary Weapon = 0x0000C07C",
             "AMMO_ALT": "0x0000A034",
             "AMMO_ALT_comment": "P1 Rockets = 0x0000A034",
-            "LIFE": "0x0000A01D",
-            "SHOTS_FIRED_ALT": "auto"
+            "LIFE": "0x0000A01D"
         },
         "P2": {
             "STATUS": "0x0000A047",
             "AMMO": "0x0000C07E",
+            "AMMO_comment": "P2 Primary Weapon = 0x0000C07E",
             "AMMO_ALT": "0x0000A068",
             "AMMO_ALT_comment": "P2 Rockets = 0x0000A068",
             "LIFE": "0x0000A053"
@@ -624,10 +629,12 @@
         "P1": {
             "STATUS": "auto",
             "AMMO": "0x0010ED5D",
+            "AMMO_comment": "P1 Primary Weapon = 0x0010ED5D",
             "AMMO_ALT": "0x0010ED48",
-            "AMMO_ALT_comment": "Machine Gun = 0x0010ED48 and Grenade = 0x0010ED5F in Judge Dredd (preference is to use Machine Gun for alt weapon)",
-            "LIFE": "0x0010ED5C",
-            "SHOTS_FIRED_ALT": "auto"
+            "AMMO_ALT_comment": "P1 Alt Machine Gun = 0x0010ED48",
+            "AMMO_GRENADE": "0x0010ED5F",
+            "AMMO_GRENADE_comment": "P1 Grenade = 0x0010ED5F",
+            "LIFE": "0x0010ED5C"
         }
     },
     "jpark": {
@@ -652,10 +659,10 @@
                 1,
                 3
             ],
-            "AMMO_comment": "P1 Ammo (not fully tested) = 0x00201B46",
+            "AMMO_comment": "P1 Ammo (seems to change between levels / stages) = 0x00201B46",
             "LIFE": "0x00201B40",
             "RECOIL": "0x0020F01A",
-            "RECOIL_comment": "P1 Trigger Press = 0x0020F01A",
+            "RECOIL_comment": "P1 Trigger Press (hold, not pulse) = 0x0020F01A",
             "LAMP_START": "Left_lamp"
         },
         "P2": {
@@ -664,11 +671,11 @@
                 2,
                 3
             ],
-            "AMMO_comment": "P2 Ammo (not fully tested) = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore",
+            "AMMO_comment": "P2 Ammo (seems to change between levels / stages) = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore",
             "LIFE": "0x002018C0",
             "LIFE_comment": "P2 Life = 0x002018C0; Also found at some point that P2 Life = 0x00201840 but this does not appear to be the case anymore",
             "RECOIL": "0x0020F01B",
-            "RECOIL_comment": "P2 Trigger Press = 0x0020F01B",
+            "RECOIL_comment": "P2 Trigger Press (hold, not pulse) = 0x0020F01B",
             "LAMP_START": "Right_lamp"
         },
         "RECOIL_METHOD": "hold",
@@ -827,7 +834,9 @@
             "CREDITS": "0x00100121",
             "STATUS": "auto",
             "AMMO": "0x00100324",
-            "AMMO_ALT": "0x00100321",
+            "AMMO_comment": "Primary Machine Gun",
+            "AMMO_GRENADE": "0x00100321",
+            "AMMO_GRENADE_comment": "Missiles",
             "LIFE": "0x00100125"
         },
         "AMMO_DIRECTION": "increase",
@@ -843,7 +852,9 @@
             "CREDITS": "0x00108C11",
             "STATUS": "0x00108AED",
             "AMMO": "0x00108D43",
-            "AMMO_ALT": "0x00108D3F",
+            "AMMO_comment": "Primary Machine Gun",
+            "AMMO_GRENADE": "0x00108D3F",
+            "AMMO_GRENADE_comment": "Missiles",
             "LIFE": "0x00108C25"
         },
         "P2": {

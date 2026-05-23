@@ -8,7 +8,9 @@
         "CREDITS": "0x00108C11",
         "STATUS": "0x00108AED",
         "AMMO": "0x00108D43",
-        "AMMO_ALT": "0x00108D3F",
+        "AMMO_comment": "Primary Machine Gun",
+        "AMMO_GRENADE": "0x00108D3F",
+        "AMMO_GRENADE_comment": "Missiles",
         "LIFE": "0x00108C25"
     },
     "P2": {

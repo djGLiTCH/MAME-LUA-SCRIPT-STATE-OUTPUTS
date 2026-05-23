@@ -14,9 +14,11 @@
     "P1": {
         "STATUS": "auto",
         "AMMO": "0x0010ED5D",
+        "AMMO_comment": "P1 Primary Weapon = 0x0010ED5D",
         "AMMO_ALT": "0x0010ED48",
-        "AMMO_ALT_comment": "Machine Gun = 0x0010ED48 and Grenade = 0x0010ED5F in Judge Dredd (preference is to use Machine Gun for alt weapon)",
-        "LIFE": "0x0010ED5C",
-        "SHOTS_FIRED_ALT": "auto"
+        "AMMO_ALT_comment": "P1 Alt Machine Gun = 0x0010ED48",
+        "AMMO_GRENADE": "0x0010ED5F",
+        "AMMO_GRENADE_comment": "P1 Grenade = 0x0010ED5F",
+        "LIFE": "0x0010ED5C"
     }
 }

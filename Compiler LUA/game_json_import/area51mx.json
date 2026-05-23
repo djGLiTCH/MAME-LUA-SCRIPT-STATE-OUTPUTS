@@ -21,8 +21,7 @@
         "LIFE": "0x00A199E1",
         "LIFE_comment": "P1 LIFE for Area 51",
         "LIFE_ALT": "0x00A19425",
-        "LIFE_ALT_comment": "P1 LIFE for Maximum Force",
-        "SHOTS_FIRED_ALT": "auto"
+        "LIFE_ALT_comment": "P1 LIFE for Maximum Force"
     },
     "P2": {
         "STATUS": "0x00A19A59",

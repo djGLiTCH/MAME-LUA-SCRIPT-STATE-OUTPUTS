@@ -1,7 +1,7 @@
 #
 # MAME State Output Lua Script Compiler
-# Script Compiler Version: 2.0.8
-# Last Modified Date (YYYY.MM.DD): 2026.05.23
+# Script Compiler Version: 2.0.6
+# Last Modified Date (YYYY.MM.DD): 2026.05.19
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -11,13 +11,11 @@ import json
 import os
 import copy
 import re
-from datetime import datetime
 
 # --- FOLDER CONFIGURATION ---
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-DATABASE_DIR = os.path.join(BASE_PATH, "game_json_import")
+DATABASE_DIR = os.path.join(BASE_PATH, "game_json")
 TEMPLATE_FILE = os.path.join(BASE_PATH, "lua_script.lua")
-LUA_DB_FILE = os.path.join(BASE_PATH, "lua_database.json")
 
 if not os.path.exists(TEMPLATE_FILE) and os.path.exists(TEMPLATE_FILE + ".txt"):
     TEMPLATE_FILE = TEMPLATE_FILE + ".txt"
@@ -90,34 +88,6 @@ def compile_scripts():
         print(f"Error: Could not find template file '{TEMPLATE_FILE}' in current directory.")
         return
 
-    # --- AUTO-UPDATE TEMPLATE DATE ---
-    today = datetime.now()
-    date_str = today.strftime("%Y.%m.%d")
-    date_int = int(today.strftime("%Y%m%d"))
-    
-    # Update Last Modified Date comment via Regex
-    new_template_content = re.sub(
-        r'(?m)^(-- Last Modified Date \(YYYY\.MM\.DD\):\s*)\d{4}\.\d{2}\.\d{2}',
-        rf'\g<1>{date_str}',
-        template_content
-    )
-    # Update LUA_DATE variable via Regex (targets the isolated assignment line)
-    new_template_content = re.sub(
-        r'(?m)^(\s*LUA_DATE\s*=\s*)\d+,',
-        rf'\g<1>{date_int},',
-        new_template_content
-    )
-    
-    # If the date changed, write it back to lua_script.lua immediately
-    if new_template_content != template_content:
-        try:
-            with open(TEMPLATE_FILE, 'w', encoding='utf-8') as f:
-                f.write(new_template_content)
-            print(f" [INFO]    {os.path.basename(TEMPLATE_FILE)} updated with today's date ({date_str}).")
-            template_content = new_template_content
-        except Exception as e:
-            print(f" [WARNING] Could not write updated date to {TEMPLATE_FILE}: {e}")
-
     # Initialize compilation logs
     rom_results = {}
     default_status = "OK"
@@ -157,12 +127,11 @@ def compile_scripts():
         default_status = "MISSING"
         print(" [WARNING] No '_default.json' found or loaded in game_json folder.\n")
 
-    # --- PULL METADATA FROM TEMPLATE HEADER AND UPDATE JSONS ---
+    # --- PULL METADATA FROM TEMPLATE HEADER AND UPDATE _DEFAULT.JSON ---
     lua_version, lua_date = extract_version_metadata(template_content)
+    db_updated = False
     
-    # 1. Update _default.json
     if default_status == "OK":
-        db_updated = False
         if lua_version is not None and default_config.get("LUA_VERSION") != lua_version:
             default_config["LUA_VERSION"] = lua_version
             db_updated = True
@@ -174,31 +143,7 @@ def compile_scripts():
         if db_updated and "_default" in filepaths:
             with open(filepaths["_default"], 'w', encoding='utf-8') as f:
                 json.dump(default_config, f, indent=4)
-            print(" [INFO]    _default.json successfully updated with new metadata from template.")
-
-    # 2. Update lua_database.json (Safely injects into _default, NOT root)
-    if os.path.exists(LUA_DB_FILE):
-        try:
-            with open(LUA_DB_FILE, 'r', encoding='utf-8') as f:
-                lua_db = json.load(f)
-            
-            db_changed = False
-            if "_default" in lua_db:
-                if lua_version is not None and lua_db["_default"].get("LUA_VERSION") != lua_version:
-                    lua_db["_default"]["LUA_VERSION"] = lua_version
-                    db_changed = True
-                if lua_date is not None and lua_db["_default"].get("LUA_DATE") != lua_date:
-                    lua_db["_default"]["LUA_DATE"] = lua_date
-                    db_changed = True
-                    
-            if db_changed:
-                with open(LUA_DB_FILE, 'w', encoding='utf-8') as f:
-                    json.dump(lua_db, f, indent=4)
-                print(" [INFO]    lua_database.json successfully updated with new metadata from template.")
-        except Exception as e:
-            print(f" [WARNING] Failed to update lua_database.json: {e}")
-            
-    print() # Add a newline for clean terminal formatting
+            print(" [INFO]    _default.json successfully updated with new metadata from template header.\n")
 
     # --- AUTOMATIC SEQUENTIAL LUA_ROM_ID GENERATOR ---
     # Include _default in the valid ROMs list so it doesn't get skipped

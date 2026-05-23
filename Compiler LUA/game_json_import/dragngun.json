@@ -12,9 +12,11 @@
         "STATUS": "0x0011F1DC",
         "STATUS_comment": "P1 Status = 0x0011F1DC; P1 Status alternative memory address = 0x00100082",
         "AMMO": false,
-        "AMMO_ALT": "0x0010008A",
+        "AMMO_GRENADE": "0x0010008A",
+        "AMMO_GRENADE_comment": "AmmoGrenade = Grenade / Bomb",
         "LIFE": "0x00100008",
-        "RECOIL": "0x0011F1B6"
+        "RECOIL": "0x0011F1B6",
+        "RECOIL_comment": "Recoil = Trigger Press (hold, not pulse)"
     },
     "P2": {
         "STATUS": "0x0011F1DD",

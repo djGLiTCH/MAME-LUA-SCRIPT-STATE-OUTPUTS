@@ -1,6 +1,6 @@
 #
 # MAME State Output Lua Script Compiler
-# Script Compiler Version: 2.0.8
+# Script Compiler Version: 2.0.7
 # Last Modified Date (YYYY.MM.DD): 2026.05.23
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
@@ -15,7 +15,7 @@ from datetime import datetime
 
 # --- FOLDER CONFIGURATION ---
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-DATABASE_DIR = os.path.join(BASE_PATH, "game_json_import")
+DATABASE_DIR = os.path.join(BASE_PATH, "game_json")
 TEMPLATE_FILE = os.path.join(BASE_PATH, "lua_script.lua")
 LUA_DB_FILE = os.path.join(BASE_PATH, "lua_database.json")
 
@@ -176,21 +176,20 @@ def compile_scripts():
                 json.dump(default_config, f, indent=4)
             print(" [INFO]    _default.json successfully updated with new metadata from template.")
 
-    # 2. Update lua_database.json (Safely injects into _default, NOT root)
+    # 2. Update lua_database.json
     if os.path.exists(LUA_DB_FILE):
         try:
             with open(LUA_DB_FILE, 'r', encoding='utf-8') as f:
                 lua_db = json.load(f)
             
             db_changed = False
-            if "_default" in lua_db:
-                if lua_version is not None and lua_db["_default"].get("LUA_VERSION") != lua_version:
-                    lua_db["_default"]["LUA_VERSION"] = lua_version
-                    db_changed = True
-                if lua_date is not None and lua_db["_default"].get("LUA_DATE") != lua_date:
-                    lua_db["_default"]["LUA_DATE"] = lua_date
-                    db_changed = True
-                    
+            if lua_version is not None and lua_db.get("LUA_VERSION") != lua_version:
+                lua_db["LUA_VERSION"] = lua_version
+                db_changed = True
+            if lua_date is not None and lua_db.get("LUA_DATE") != lua_date:
+                lua_db["LUA_DATE"] = lua_date
+                db_changed = True
+                
             if db_changed:
                 with open(LUA_DB_FILE, 'w', encoding='utf-8') as f:
                     json.dump(lua_db, f, indent=4)

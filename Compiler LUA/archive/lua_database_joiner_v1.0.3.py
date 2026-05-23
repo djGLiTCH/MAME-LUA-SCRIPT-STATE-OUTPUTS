@@ -1,7 +1,7 @@
 #
 # JSON DATABASE JOINER
-# Version: 1.0.4
-# Last Modified Date (YYYY.MM.DD): 2026.05.23
+# Version: 1.0.3
+# Last Modified Date (YYYY.MM.DD): 2026.05.21
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -11,7 +11,7 @@ import json
 import os
 
 # Configuration
-INPUT_DIR = "game_json_import"
+INPUT_DIR = "game_json"
 OUTPUT_FILE = "lua_database.json"
 
 def join_database():

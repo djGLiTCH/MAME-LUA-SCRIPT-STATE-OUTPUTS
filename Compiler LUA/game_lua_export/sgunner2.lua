@@ -1,7 +1,7 @@
 ------------------------------------------------------
 -- MAME STATE OUTPUT LUA SCRIPT
 -- Script Template Version: 7.5.1
--- Last Modified Date (YYYY.MM.DD): 2026.05.22
+-- Last Modified Date (YYYY.MM.DD): 2026.05.23
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,7 +15,7 @@ local CFG = {
     -- MAME state outputs only support integers (no decimals or text strings)
     -- Lua Version represents the version of the universal MAME Lua script used as the baseline code
     LUA_VERSION = 751,
-    LUA_DATE    = 20260522,
+    LUA_DATE    = 20260523,
     LUA_ROM     = "sgunner2",
     LUA_GAME    = "Steel Gunner 2",
     LUA_ROM_ID  = 78,
@@ -338,8 +338,8 @@ local CFG = {
         STATUS_ALT_ACTIVE_VALUE = false,
         
         AMMO                    = 0x00108D43,
-        AMMO_ALT                = 0x00108D3F,
-        AMMO_GRENADE            = false,
+        AMMO_ALT                = false,
+        AMMO_GRENADE            = 0x00108D3F,
         LIFE                    = 0x00108C25,
         LIFE_ALT                = false,
         

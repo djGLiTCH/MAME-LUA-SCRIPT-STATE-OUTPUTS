@@ -1,7 +1,7 @@
 ------------------------------------------------------
 -- MAME STATE OUTPUT LUA SCRIPT
 -- Script Template Version: 7.5.1
--- Last Modified Date (YYYY.MM.DD): 2026.05.22
+-- Last Modified Date (YYYY.MM.DD): 2026.05.23
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -27,8 +27,8 @@ Note: If a file exists within "HookOfTheReaper\defaultLG" with the same filename
 ROM: alien3
 Game: Alien3: The Gun
 Status: Working / Complete
-Issues: None known
-Side Objective: None
+Issues: Native state output for recoil is broken in MAME, but this Lua script state output for recoil works as expected
+Comments: Ammo = Primary Machine Gun, Ammo_Alt = Flamethrower, Ammo_Grenade = Grenades / Bombs
 
 ROM: area51
 Game: Area 51
@@ -39,7 +39,7 @@ Side Objective: None
 ROM: area51mx
 Game: Area 51 / Maximum Force Duo
 Status: Working / Complete
-Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised Lua script (requires v5.2.1 or higher); Ammo and Life cannot be shown correctly in HOTR, as HOTR only expects 1 value for ammo and life respectively, but area51mx has 2 for each (1 for area51 and 1 for maxforce)
+Issues: P1_Status is not always correct in game due to being a multi-game, but all functions are working as expected due to revised Lua script (requires v5.2.1 or higher); Ammo and Life cannot be shown correctly in "hooker" programs, as they only expect 1 value for ammo and life respectively, but area51mx has 2 for each (1 for area51 and 1 for maxforce)
 Side Objective: None
 
 ROM: bbust2
@@ -51,7 +51,7 @@ Side Objective: None
 ROM: bel
 Game: Behind Enemy Lines
 Status: Working / In-Progress
-Issues: Recoil may go in and out of sync when ammo is "empty" and trigger is continuously held (currently set to 400ms recoil intervals until the correct interval can be determined)
+Issues: Recoil may go in and out of sync when ammo is "empty" and trigger is continuously held (currently set to 400ms recoil intervals until the correct interval can be determined or advised by the community)
 Side Objective: None
 
 ROM: carnevil
@@ -99,7 +99,7 @@ Side Objective: None
 ROM: jpark
 Game: Jurassic Park
 Status: Working / Complete
-Issues: Ammo is not reliable for either player, so recoil triggers are being used instead
+Issues: Ammo is not reliable for either player (the memory address seems to shift between levels/stages), so recoil triggers are being used instead
 Side Objective: None
 
 ROM: le2

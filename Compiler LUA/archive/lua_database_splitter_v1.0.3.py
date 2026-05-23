@@ -1,7 +1,7 @@
 #
 # JSON DATABASE SPLITTER
-# Version: 1.0.4
-# Last Modified Date (YYYY.MM.DD): 2026.05.23
+# Version: 1.0.3
+# Last Modified Date (YYYY.MM.DD): 2026.05.21
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -12,7 +12,7 @@ import os
 
 # Configuration
 INPUT_FILE = "lua_database.json"
-OUTPUT_DIR = "game_json_import"
+OUTPUT_DIR = "game_json"
 
 def split_database():
     print("Starting the JSON Database Splitter...\n")

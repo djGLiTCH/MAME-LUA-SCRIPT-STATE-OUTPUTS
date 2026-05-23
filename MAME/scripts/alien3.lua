@@ -1,7 +1,7 @@
 ------------------------------------------------------
 -- MAME STATE OUTPUT LUA SCRIPT
 -- Script Template Version: 7.5.1
--- Last Modified Date (YYYY.MM.DD): 2026.05.22
+-- Last Modified Date (YYYY.MM.DD): 2026.05.23
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,7 +15,7 @@ local CFG = {
     -- MAME state outputs only support integers (no decimals or text strings)
     -- Lua Version represents the version of the universal MAME Lua script used as the baseline code
     LUA_VERSION = 751,
-    LUA_DATE    = 20260522,
+    LUA_DATE    = 20260523,
     LUA_ROM     = "alien3",
     LUA_GAME    = "Alien3: The Gun",
     LUA_ROM_ID  = 1,
@@ -258,7 +258,7 @@ local CFG = {
     -- RECOIL_HOLD_MS: 
     -- Interval between pulses when RECOIL_METHOD = "hold" and the recoil trigger is held down.
     -- Used to create a slower "empty-click" fire rate when primary ammo hits 0.
-    RECOIL_HOLD_MS             = 400, -- When ammo = 0, shots slow in fire rate 
+    RECOIL_HOLD_MS             = 400, -- When ammo = 0, fire rate slows down for primary weapon until reloaded (by releasing the gun trigger) 
     
     DAMAGE_DURATION_MS         = 250, 
     RUMBLE_DURATION_MS         = 250, 
