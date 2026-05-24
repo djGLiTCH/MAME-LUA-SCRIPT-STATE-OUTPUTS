@@ -31,7 +31,7 @@ local stateoutput = exports
 -- =========================================================================
 -- USER SETTINGS
 -- =========================================================================
-local ENABLE_DEBUG_LOGS = true -- Toggles "[StateOutput]" console/OSD messages
+local ENABLE_DEBUG_LOGS = false -- Toggles "[StateOutput]" console/OSD messages
 
 -- =========================================================================
 -- CORE PLUGIN ENGINE

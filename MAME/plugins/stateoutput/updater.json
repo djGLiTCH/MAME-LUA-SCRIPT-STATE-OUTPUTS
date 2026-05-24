@@ -1,8 +1,0 @@
-{
-  "Version": "0.4.0",
-  "ReleaseDate": "2026.05.24",
-  "FolderUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/Updater/",
-  "FileName": "MAME-STATE-OUTPUT-UPDATER",
-  "FileAppend": "-v",
-  "FileType": "zip"
-}
