@@ -1,0 +1,11 @@
+{
+    "plugin": {
+        "name": "stateoutput",
+        "description": "Universal Hardware State Output",
+        "version": "8.1.2",
+        "author": "Jacob Simpson (DJ GLiTCH)",
+        "type": "plugin",
+        "start": "false",
+        "date": "2026.05.24"
+    }
+}
