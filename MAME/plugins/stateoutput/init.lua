@@ -1,6 +1,6 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PLUGIN CORE (Instructional Edition)
--- Version: 8.1.2
+-- Version: 8.1.3
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -13,8 +13,8 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.1.2",
-    description = "Universal Hardware State Output",
+    version = "8.1.3",
+    description = "State Output (for 'Hooker' Output Programs)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
     

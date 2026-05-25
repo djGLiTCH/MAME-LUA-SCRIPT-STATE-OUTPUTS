@@ -1,11 +1,11 @@
 {
     "plugin": {
         "name": "stateoutput",
-        "description": "Universal Hardware State Output",
-        "version": "8.1.2",
+        "description": "State Output (for 'Hooker' Output Programs)",
+        "version": "8.1.3",
         "author": "Jacob Simpson (DJ GLiTCH)",
         "type": "plugin",
         "start": "false",
-        "date": "2026.05.24"
+        "date": "2026.05.25"
     }
 }
