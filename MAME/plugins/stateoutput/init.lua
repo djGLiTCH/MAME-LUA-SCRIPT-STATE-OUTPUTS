@@ -1,6 +1,6 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PLUGIN CORE (Instructional Edition)
--- Version: 8.1.3
+-- Version: 8.1.4
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -13,7 +13,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.1.3",
+    version = "8.1.4",
     description = "State Output (for 'Hooker' Output Programs)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -44,7 +44,7 @@ function stateoutput.startplugin()
     -- database.lua file is missing or has a syntax error, pcall prevents 
     -- MAME from crashing and instead gracefully handles the failure.
     -- -------------------------------------------------------------------------
-    local success, db = pcall(require, "stateoutput/database") -- Only database.lua is used during plugin runtime
+    local success, db = pcall(require, "stateoutput/database")
     if not success then
         success, db = pcall(require, "database") -- Fallback for flat directories
         if not success then db = {} end 
@@ -599,10 +599,8 @@ function stateoutput.startplugin()
                       elseif curr_ammo_grenade > p.LastAmmoGrenade then trigger = 3 end
                   end
                   
-                  local trigger_source = cfg.DAMAGE or cfg.RECOIL 
-                  
                   -- Fire Recoil based on Ammo Math
-                  if trigger > 0 and (trigger_source == "auto" or (type(trigger_source) == "number" and CFG.RECOIL_PRIORITY == "ammo")) then
+                  if trigger > 0 and (cfg.RECOIL == "auto" or (type(cfg.RECOIL) == "number" and CFG.RECOIL_PRIORITY == "ammo")) then
                       if current_time - p.RecoilTick > _MinRecoilInterval then
                           if trigger == 1 then p.CurrentRecoilDuration = _RecoilDuration
                           elseif trigger == 2 then p.CurrentRecoilDuration = _RecoilAltDuration
@@ -632,24 +630,32 @@ function stateoutput.startplugin()
                   end
                   
                   -- Fire Recoil manually (based on Memory Address polling)
-                  if not auto_recoil_triggered_this_frame and type(trigger_source) == "number" then
-                      local val = Read_Data_Safe(_MemHandles["RECOIL"], trigger_source, CFG.DATA_WIDTHS.RECOIL)
-                      if (CFG.RECOIL_PRIORITY ~= "ammo" or curr_ammo == 0) then
-                          local manual_trigger = (CFG.RECOIL_METHOD == "hold") and (val > 0) or (val > p.LastRecoilVal)
-                          local active_interval = (CFG.RECOIL_METHOD == "hold") and _RecoilHoldInterval or _MinRecoilInterval
-                          if manual_trigger and (current_time - p.RecoilTick > active_interval) then
-                              p.CurrentRecoilDuration = _RecoilDuration; Set_Output(i, "RECOIL", 1)
-                              if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "CtmRecoil", 1) end
-                              
-                              if CFG.ENABLE_SHOT_COUNT and warmup_ok then
-                                  p.ShotCountPrimary = p.ShotCountPrimary + 1
-                                  Set_Output(i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
+                  if not auto_recoil_triggered_this_frame then
+                      if cfg.RECOIL and type(cfg.RECOIL) == "number" then
+                          local val = Read_Data_Safe(_MemHandles["RECOIL"], cfg.RECOIL, CFG.DATA_WIDTHS.RECOIL)
+                          if (CFG.RECOIL_PRIORITY ~= "ammo" or curr_ammo == 0) then
+                              local manual_trigger = false
+                              if type(CFG.RECOIL_MEM_ADD_VALUE) == "number" then
+                                  if CFG.RECOIL_METHOD == "hold" then manual_trigger = (val == CFG.RECOIL_MEM_ADD_VALUE) else manual_trigger = (val == CFG.RECOIL_MEM_ADD_VALUE and p.LastRecoilVal ~= CFG.RECOIL_MEM_ADD_VALUE) end
+                              else
+                                  manual_trigger = (CFG.RECOIL_METHOD == "hold") and (val > 0) or (CFG.RECOIL_METHOD == "change") and (val ~= p.LastRecoilVal and val > 0) or (CFG.RECOIL_METHOD == "latch") and (val > 0 and p.LastRecoilVal == 0) or (val > p.LastRecoilVal)
                               end
-                              p.RecoilTick = current_time; p.IsRecoilActive = true
-                              if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true end
+                              
+                              local active_interval = (CFG.RECOIL_METHOD == "hold") and _RecoilHoldInterval or _MinRecoilInterval
+                              if manual_trigger and (current_time - p.RecoilTick > active_interval) then
+                                  p.CurrentRecoilDuration = _RecoilDuration; Set_Output(i, "RECOIL", 1)
+                                  if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "CtmRecoil", 1) end
+                                  
+                                  if CFG.ENABLE_SHOT_COUNT and warmup_ok then
+                                      p.ShotCountPrimary = p.ShotCountPrimary + 1
+                                      Set_Output(i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
+                                  end
+                                  p.RecoilTick = current_time; p.IsRecoilActive = true
+                                  if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true end
+                              end
                           end
+                          p.LastRecoilVal = val
                       end
-                      p.LastRecoilVal = val
                   end
             end
 
