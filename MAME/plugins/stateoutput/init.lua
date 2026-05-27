@@ -1,6 +1,6 @@
 -- =========================================================================================
--- MAME STATE OUTPUT PLUGIN CORE (Instructional Edition)
--- Version: 8.1.4
+-- MAME STATE OUTPUT PLUGIN CORE
+-- Version: 8.1.6
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -13,7 +13,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.1.4",
+    version = "8.1.6",
     description = "State Output (for 'Hooker' Output Programs)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -96,7 +96,8 @@ function stateoutput.startplugin()
         if ENABLE_DEBUG_LOGS then print("[StateOutput] " .. tostring(msg)) end
     end
     local function dbg_osd(msg)
-        if ENABLE_DEBUG_LOGS and manager and manager.machine then manager.machine:popmessage(tostring(msg)) end
+        local use_osd = ENABLE_DEBUG_LOGS or (CFG and CFG.ENABLE_OSD)
+        if use_osd and manager and manager.machine then manager.machine:popmessage(tostring(msg)) end
     end
 
     -- -------------------------------------------------------------------------
@@ -296,6 +297,20 @@ function stateoutput.startplugin()
         if width == 16 then return mem_handle:read_u16(source) end
         if width == 32 then return mem_handle:read_u32(source) end
         return mem_handle:read_u8(source)
+    end
+    
+    -- -------------------------------------------------------------------------
+    -- Write_Data_Safe(mem_handle, source, width, value)
+    -- @description: Active memory patching adapter. Injects values into RAM.
+    -- @purpose: Used primarily to disable visual hazards (like white flashes)
+    --           by hard-locking memory addresses to a specific value.
+    -- -------------------------------------------------------------------------
+    local function Write_Data_Safe(mem_handle, source, width, value)
+        if not source or not mem_handle or not value then return end
+        if type(width) == "string" then return end -- Outputs/Floats not supported for memory patching
+        if width == 16 then mem_handle:write_u16(source, value)
+        elseif width == 32 then mem_handle:write_u32(source, value)
+        else mem_handle:write_u8(source, value) end
     end
 
     -- -------------------------------------------------------------------------
@@ -828,6 +843,14 @@ function stateoutput.startplugin()
         else
             _GameInactiveTick = _ZeroTime
         end
+
+        -- ----------------------------------------------
+        -- PHASE 5: MEMORY PATCHING (Anti-Seizure)
+        -- Actively overwrites MAME memory to disable blinding flashes.
+        -- ----------------------------------------------
+        if warmup_ok and CFG.SCREEN_FLASH and CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_DISABLE_VALUE then
+            Write_Data_Safe(_MemHandles["SCREEN_FLASH"], CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_DISABLE_VALUE)
+        end
     end
 
     -- -------------------------------------------------------------------------
@@ -850,6 +873,18 @@ function stateoutput.startplugin()
     -- -------------------------------------------------------------------------
     local function on_machine_stop()
         _IsShuttingDown = true
+        
+        -- Safely restore modified memory values before shutting down
+        if CFG and CFG.SCREEN_FLASH and CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_RESTORE_VALUE then
+            local conf = _MemConfig["SCREEN_FLASH"]
+            if conf and manager and manager.machine and manager.machine.devices[conf.tag] then
+                local dev = manager.machine.devices[conf.tag]
+                if dev.spaces[conf.space] then
+                    Write_Data_Safe(dev.spaces[conf.space], CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                end
+            end
+        end
+
         if exports.subscriptions.frame then
             exports.subscriptions.frame = nil -- Forces GC cleanup of the hook
         elseif emu.remove_machine_frame_notifier then
