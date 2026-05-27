@@ -6,7 +6,7 @@ on:
     paths:
       - 'MAME/**'
       - 'Hook Of The Reaper/**'
-      - 'MAME Hooker/**'
+      - 'MAMEhooker/**'
     branches:
       - main
 
@@ -22,7 +22,7 @@ jobs:
 
     - name: Create ZIP archive
       run: |
-        zip -r MAME-STATE-OUTPUT-PLUGIN-LATEST.zip MAME "Hook Of The Reaper" "MAME Hooker"
+        zip -r MAME-STATE-OUTPUT-PLUGIN-LATEST.zip MAME "Hook Of The Reaper" "MAMEhooker"
 
     - name: Move ZIP to Updater folder
       run: |
