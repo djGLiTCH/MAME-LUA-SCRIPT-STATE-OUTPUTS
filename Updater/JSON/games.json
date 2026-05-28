@@ -354,7 +354,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": true,
-      "SupportedVersion": 814,
+      "SupportedVersion": "8.1.6",
       "ROMID": 81
     },
     {
