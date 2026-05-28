@@ -14,7 +14,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": true,
-      "SupportedVersion": 813,
+      "SupportedVersion": "8.1.6",
       "ROMID": 1
     },
     {
@@ -31,7 +31,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 2
     },
     {
@@ -48,7 +48,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 3
     },
     {
@@ -65,7 +65,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 6
     },
     {
@@ -82,7 +82,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 7
     },
     {
@@ -99,7 +99,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 13
     },
     {
@@ -116,7 +116,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": true,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 22
     },
     {
@@ -133,7 +133,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 26
     },
     {
@@ -150,7 +150,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 38
     },
     {
@@ -167,7 +167,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 40
     },
     {
@@ -184,7 +184,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 41
     },
     {
@@ -201,7 +201,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 42
     },
     {
@@ -218,7 +218,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 45
     },
     {
@@ -235,7 +235,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 46
     },
     {
@@ -252,7 +252,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 47
     },
     {
@@ -269,7 +269,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 51
     },
     {
@@ -286,7 +286,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 61
     },
     {
@@ -303,7 +303,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 64
     },
     {
@@ -320,7 +320,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 77
     },
     {
@@ -337,7 +337,7 @@
       "ScreenFlash": false,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 78
     },
     {
@@ -371,7 +371,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 82
     },
     {
@@ -388,7 +388,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 87
     },
     {
@@ -405,7 +405,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 88
     },
     {
@@ -422,7 +422,7 @@
       "ScreenFlash": true,
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
-      "SupportedVersion": 816,
+      "SupportedVersion": "8.1.6",
       "ROMID": 89
     }
   ]
