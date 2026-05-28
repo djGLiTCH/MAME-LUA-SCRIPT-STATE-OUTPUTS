@@ -3,13 +3,14 @@
     {
       "Version": "0.7.0",
       "ReleaseDate": "2026.05.28",
-      "PackageLocation": "Updater/Configurator",
-      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-v0.7.0",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.7.0",
       "PackageType": ".zip",
       "FileName": "configurator.exe",
       "Changes": [
         "App Renamed: Officially rebranded from 'Updater' to 'MAME State Output Plugin Configurator' to better reflect its comprehensive feature set.",
 		"Architecture Overhaul: Migrated the background update engine to use a centralized master changelog.json, separating deployment metadata from UI data.",
+		"Bug Fix: Patched a routing trap where selecting a deep RetroBat subfolder manually would cause the engine to double-append the mame path",
 		"UI Expansion: Added a dedicated 'About' tab featuring version tracking, clickable GitHub repository links, and comprehensive community credits.",
 		"Memory Optimization: Replaced localized HTTP clients with a global static instance, permanently sealing network socket memory leaks.",
 		"Logic Refinement: Rebuilt the local MAME plugin scanner to use a highly optimized JSON Document reader, bypassing bloated data models."
@@ -18,21 +19,20 @@
     {
       "Version": "0.6.0",
       "ReleaseDate": "2026.05.27",
-      "PackageLocation": "Updater/Configurator",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.6.0",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.6.0",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
         "Bug Fix: Fixed a major XAML/C# race condition where saving custom directory paths via the 'Browse Folder' button would fail due to file-locking conflicts.",
-		"Bug Fix: Patched a routing trap where selecting a deep RetroBat subfolder manually would cause the engine to double-append the mame path",
 		"UI Polish: Increased the width of the directory configuration grid columns to prevent 'Browse Folder...' text from being cut off."
       ]
     },
     {
       "Version": "0.5.2",
       "ReleaseDate": "2026.05.25",
-      "PackageLocation": "Updater/Configurator",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.5.2",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.5.2",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -43,8 +43,8 @@
 	{
       "Version": "0.5.0",
       "ReleaseDate": "2026.05.22",
-      "PackageLocation": "Updater/Configurator",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.5.0",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.5.0",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -56,8 +56,8 @@
 	{
       "Version": "0.4.1",
       "ReleaseDate": "2026.05.18",
-      "PackageLocation": "Updater/Configurator",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.4.1",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.4.1",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -68,15 +68,15 @@
 	{
       "Version": "0.4.0",
       "ReleaseDate": "2026.05.10",
-      "PackageLocation": "Updater/Configurator",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.4.0",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.4.0",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
         "Feature Added: Introduced the Multi-Instance MAME configuration framework, allowing users to route and manage multiple distinct MAME installations simultaneously.",
 		"UI Overhaul: Replaced basic text fields with the dynamic, color-coded Validation Table (Green/Orange/Red) to give users instant visual feedback on their configuration status.",
 		"Feature Added: Added real-time GitHub version checking to compare local installations against the online repository.",
-		"Versions prior to this were early alpha and so changelog details are not recorded."
+		"Versions prior to this were early alpha so changelog details were not recorded."
       ]
     }
   ],
@@ -84,8 +84,8 @@
     {
       "Version": "8.1.6",
       "ReleaseDate": "2026.05.27",
-      "PackageLocation": "Updater/Plugin",
-      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-v8.1.6-2026.05.27",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.6-2026.05.27",
       "PackageType": ".zip",
       "Changes": [
         "1. Placeholder text that will be updated later.",
@@ -96,9 +96,9 @@
     {
       "Version": "8.1.5",
       "ReleaseDate": "2026.05.26",
-      "PackageLocation": "Updater/Plugin",
-      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-v8.1.5-2026.05.26",
-      "PackageType": ".zip",
+      "PackageLocation": "",
+      "PackageName": "",
+      "PackageType": "",
       "Changes": [
         "1. Placeholder text that will be updated later.",
         "2. Placeholder text that will be updated later.",
@@ -108,9 +108,9 @@
     {
       "Version": "8.1.4",
       "ReleaseDate": "2026.05.26",
-      "PackageLocation": "Updater/Plugin",
-      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-v8.1.4-2026.05.26",
-      "PackageType": ".zip",
+      "PackageLocation": "",
+      "PackageName": "",
+      "PackageType": "",
       "Changes": [
         "1. Placeholder text that will be updated later.",
         "2. Placeholder text that will be updated later.",
