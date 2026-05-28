@@ -10,7 +10,9 @@
       "Changes": [
 		"Bug Fix: Renamed a few old instances of 'Updater' and replaced with 'Configurator'.",
         "UI Expansion: Added a dedicated 'Changelog' tab featuring release notes for each MAME State Output Plugin and Configurator App. This also includes manual downloads for each release, where applicable.",
-		"UI Expansion: Added a dedicated 'Games' tab featuring a list of supported games / ROMs based on the currently installed MAME State Output Plugin."
+		"UI Expansion: Added a dedicated 'Games' tab featuring a list of supported games / ROMs based on the currently installed MAME State Output Plugin.",
+		"UI Polish: Fixed scrollbar theme to suit dark mode better.",
+		"UI Polish: Configurator app starts wider to better fit text within the app window."
       ]
     },
     {
