@@ -1,9 +1,9 @@
 {
-  "Version": "0.6.0",
-  "ReleaseDate": "2026.05.27",
-  "FolderUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/Updater/",
-  "FileName": "MAME-STATE-OUTPUT-UPDATER",
+  "Version": "0.7.0",
+  "ReleaseDate": "2026.05.28",
+  "FolderUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/Updater/Configurator/",
+  "FileName": "MAME-STATE-OUTPUT-CONFIGURATOR",
   "FileAppend": "-v",
   "FileType": "zip",
-  "UpdaterExe": "updater.exe"
+  "UpdaterExe": "configurator.exe"
 }

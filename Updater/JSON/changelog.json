@@ -1,0 +1,121 @@
+{
+  "Updater": [
+    {
+      "Version": "0.7.0",
+      "ReleaseDate": "2026.05.28",
+      "PackageLocation": "Updater/Configurator",
+      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-v0.7.0",
+      "PackageType": ".zip",
+      "FileName": "configurator.exe",
+      "Changes": [
+        "App Renamed: Officially rebranded from 'Updater' to 'MAME State Output Plugin Configurator' to better reflect its comprehensive feature set.",
+		"Architecture Overhaul: Migrated the background update engine to use a centralized master changelog.json, separating deployment metadata from UI data.",
+		"UI Expansion: Added a dedicated 'About' tab featuring version tracking, clickable GitHub repository links, and comprehensive community credits.",
+		"Memory Optimization: Replaced localized HTTP clients with a global static instance, permanently sealing network socket memory leaks.",
+		"Logic Refinement: Rebuilt the local MAME plugin scanner to use a highly optimized JSON Document reader, bypassing bloated data models."
+      ]
+    },
+    {
+      "Version": "0.6.0",
+      "ReleaseDate": "2026.05.27",
+      "PackageLocation": "Updater/Configurator",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.6.0",
+      "PackageType": ".zip",
+      "FileName": "updater.exe",
+      "Changes": [
+        "Bug Fix: Fixed a major XAML/C# race condition where saving custom directory paths via the 'Browse Folder' button would fail due to file-locking conflicts.",
+		"Bug Fix: Patched a routing trap where selecting a deep RetroBat subfolder manually would cause the engine to double-append the mame path",
+		"UI Polish: Increased the width of the directory configuration grid columns to prevent 'Browse Folder...' text from being cut off."
+      ]
+    },
+    {
+      "Version": "0.5.2",
+      "ReleaseDate": "2026.05.25",
+      "PackageLocation": "Updater/Configurator",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.5.2",
+      "PackageType": ".zip",
+      "FileName": "updater.exe",
+      "Changes": [
+        "Bug Fix: Enforced strict unchecking and graying out of the Output Mode (Network/Windows) radio buttons if the local MAME version is missing or explicitly unsupported (pre-v0.200).",
+		"Validation Failsafe: Added logic to ensure all Off-Screen Reload toggles are forcefully disabled if mame.exe cannot be read or verified."
+      ]
+    },
+	{
+      "Version": "0.5.0",
+      "ReleaseDate": "2026.05.22",
+      "PackageLocation": "Updater/Configurator",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.5.0",
+      "PackageType": ".zip",
+      "FileName": "updater.exe",
+      "Changes": [
+        "Feature Added: Implemented the automatic INI Sync Engine. The app now seamlessly reads and modifies mame.ini and plugin.ini to ensure output configurations match the user's UI selections.",
+		"Feature Added: Introduced the Self-Updating engine with real-time UI overlay, progress bars, batch-script executable swapping, and extraction loops.",
+		"Feature Added: Added version detection logic to intelligently disable 'Plugin Helper' off-screen reloads for any MAME version older than v0.285."
+      ]
+    },
+	{
+      "Version": "0.4.1",
+      "ReleaseDate": "2026.05.18",
+      "PackageLocation": "Updater/Configurator",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.4.1",
+      "PackageType": ".zip",
+      "FileName": "updater.exe",
+      "Changes": [
+        "Feature Added: Implemented the 'Legacy Architecture' conflict detector. The app now actively scans for old LUA scripts and prompts users to upgrade and migrate to the new plugin architecture.",
+		"UX Improvement: Added dynamic instructional text to the Root Directory textbox that changes based on the selected directory structure."
+      ]
+    },
+	{
+      "Version": "0.4.0",
+      "ReleaseDate": "2026.05.10",
+      "PackageLocation": "Updater/Configurator",
+      "PackageName": "MAME-STATE-OUTPUT-UPDATER-v0.4.0",
+      "PackageType": ".zip",
+      "FileName": "updater.exe",
+      "Changes": [
+        "Feature Added: Introduced the Multi-Instance MAME configuration framework, allowing users to route and manage multiple distinct MAME installations simultaneously.",
+		"UI Overhaul: Replaced basic text fields with the dynamic, color-coded Validation Table (Green/Orange/Red) to give users instant visual feedback on their configuration status.",
+		"Feature Added: Added real-time GitHub version checking to compare local installations against the online repository.",
+		"Versions prior to this were early alpha and so changelog details are not recorded."
+      ]
+    }
+  ],
+  "Plugin": [
+    {
+      "Version": "8.1.6",
+      "ReleaseDate": "2026.05.27",
+      "PackageLocation": "Updater/Plugin",
+      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-v8.1.6-2026.05.27",
+      "PackageType": ".zip",
+      "Changes": [
+        "1. Placeholder text that will be updated later.",
+        "2. Placeholder text that will be updated later.",
+        "3. Placeholder text that will be updated later."
+      ]
+    },
+    {
+      "Version": "8.1.5",
+      "ReleaseDate": "2026.05.26",
+      "PackageLocation": "Updater/Plugin",
+      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-v8.1.5-2026.05.26",
+      "PackageType": ".zip",
+      "Changes": [
+        "1. Placeholder text that will be updated later.",
+        "2. Placeholder text that will be updated later.",
+        "3. Placeholder text that will be updated later."
+      ]
+    },
+    {
+      "Version": "8.1.4",
+      "ReleaseDate": "2026.05.26",
+      "PackageLocation": "Updater/Plugin",
+      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-v8.1.4-2026.05.26",
+      "PackageType": ".zip",
+      "Changes": [
+        "1. Placeholder text that will be updated later.",
+        "2. Placeholder text that will be updated later.",
+        "3. Placeholder text that will be updated later."
+      ]
+    }
+  ]
+}
