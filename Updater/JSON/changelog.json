@@ -1,6 +1,20 @@
 {
   "Updater": [
     {
+      "Version": "0.8.0",
+      "ReleaseDate": "2026.05.29",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.8.0",
+      "PackageType": ".zip",
+      "FileName": "configurator.exe",
+      "Changes": [
+        "Bug Fix: Miscellaneous bug fixes and logic improvements.",
+        "UI Expansion: Added a dedicated 'Diagnostics' tab featuring a complete state output monitoring suite that can be used to check if your MAME State Output Plugin is working correctly (turned off by default to save on system resources). This is also useful for checking state outputs from other MAME games too, with the ability to export the log for use with other software and tools.",
+        "UI Polish: Relocated the dark mode toggle into the footer, which improves the user interface when adjusting the app window size.",
+        "UI Polish: Split Changelog release notes into two separate sub tabs (plugin and configurator)."
+      ]
+    },
+    {
       "Version": "0.7.1",
       "ReleaseDate": "2026.05.28",
       "PackageLocation": "Updater/Configurator/Archive",
@@ -8,11 +22,11 @@
       "PackageType": ".zip",
       "FileName": "configurator.exe",
       "Changes": [
-		"Bug Fix: Renamed a few old instances of 'Updater' and replaced with 'Configurator'.",
+        "Bug Fix: Renamed a few old instances of 'Updater' and replaced with 'Configurator'.",
         "UI Expansion: Added a dedicated 'Changelog' tab featuring release notes for each MAME State Output Plugin and Configurator App. This also includes manual downloads for each release, where applicable.",
-		"UI Expansion: Added a dedicated 'Games' tab featuring a list of supported games / ROMs based on the currently installed MAME State Output Plugin.",
-		"UI Polish: Fixed scrollbar theme to suit dark mode better.",
-		"UI Polish: Configurator app starts wider to better fit text within the app window."
+        "UI Expansion: Added a dedicated 'Games' tab featuring a list of supported games / ROMs based on the currently installed MAME State Output Plugin.",
+        "UI Polish: Fixed scrollbar theme to suit dark mode better.",
+        "UI Polish: Configurator app starts wider to better fit text within the app window."
       ]
     },
     {
@@ -103,6 +117,7 @@
       "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.6-2026.05.27",
       "PackageType": ".zip",
       "Changes": [
+        "Note: Damage is not working as intended in the current version, this will be fixed soon.",
         "1. Placeholder text that will be updated later.",
         "2. Placeholder text that will be updated later.",
         "3. Placeholder text that will be updated later."
