@@ -165,6 +165,7 @@
       "Changes": [
         "Versions older than v8.1.6 have not yet been migrated into a format that works with this changelog. This may be revisited in the future if time permits.",
         "v7 and below utilised the MAME Lua Script architecture, whereas now v8 and above use the MAME Plugin architecture."
+      ]
     }
   ]
 }
