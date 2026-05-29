@@ -4,8 +4,8 @@ MAME State Output Project
 
 PROJECT DETAILS
 --------------------------------------------------------------------------------
-Version:      8.1.6
-Date:         2026.05.27
+Version:      8.1.8
+Date:         2026.05.29
 Author:       Jacob Simpson (DJ GLiTCH)
 Contributors: Muggins (testing), Hexxed (brainstorming), Bandicoot (testing), 
               Argon (inspiring)
@@ -20,10 +20,6 @@ arcade emulation experience. It provides real-time state outputs (derived from
 in-game state events or created in real-time based on logic that adapts various 
 in-game state events), enabling advanced features like force feedback, light 
 gun hardware support, and dynamic arcade cabinet lighting.
-
-By tapping into MAME’s internal memory addresses, this script bridges the gap 
-between digital game states and physical arcade hardware, allowing for a 
-truly immersive and tactile experience.
 
 HOW IT WORKS
 --------------------------------------------------------------------------------
@@ -60,19 +56,26 @@ At this time, Hook of the Reaper (HOTR) is recommended, unless you understand
 how to create your own ini state output to command files that the other "hooker" 
 software expects.
 
-In the future, once the Updater Tool has been updated to support the automatic 
+In the future, once the Configurator app has been updated to support the automatic 
 creation of ini state output to command files, I will swap my recommendation to 
 OutputHooker as it has more options for hardware and software experiences.
 
 UPDATES & MAINTENANCE
 --------------------------------------------------------------------------------
 To ensure your arcade setup remains compatible with the latest game ROMs and 
-MAME core updates, please run the included Updater Tool regularly.
+MAME core updates, please run the included Configurator app regularly.
 
-Using the updater ensures you have the latest memory address mappings, bug 
+Using the Configurator ensures you have the latest memory address mappings, bug 
 fixes, and feature enhancements. It is recommended to check for updates every 
 time you add new hardware or perform significant maintenance on your arcade 
 cabinet, or perhaps want to check if support has been added for a new game ROM.
+
+COMMUNITY CONTRIBUTIONS
+--------------------------------------------------------------------------------
+If you would like to contribute to the project, such as improving the plugin 
+(optimisations and/or feature enhancements), adding support for new games, or
+revising existing games to fix bugs and/or add new features, please visit the
+official GitHub repository linked above.
 
 TECHNICAL SUPPORT
 --------------------------------------------------------------------------------
@@ -81,9 +84,8 @@ have identified a bug or encountered an issue that is directly related to this
 plugin, then please raise an issue in the official GitHub repository linked 
 above.
 
-COMMUNITY CONTRIBUTIONS
+DISCLAIMER
 --------------------------------------------------------------------------------
-If you would like to contribute to the project, such as improving the plugin 
-lua (optimisations and/or feature enhancements), adding support for new games, 
-or revising existing games to fix bugs and/or add new features, please visit 
-the official GitHub repository linked above.
+This software is provided "as is", without warranty of any kind. This application
+and its associated plugin are not officially affiliated with or endorsed by the
+MAME development team or any specific arcade hardware manufacturer.

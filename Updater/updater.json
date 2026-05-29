@@ -1,7 +1,7 @@
 {
-  "Version": "0.8.0",
+  "Version": "0.8.1",
   "ReleaseDate": "2026.05.29",
-  "FolderUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/Updater/Configurator/Archive/",
+  "FolderUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/Updater/Configurator/",
   "FileName": "MAME-STATE-OUTPUT-CONFIGURATOR",
   "FileAppend": "-v",
   "FileType": "zip",

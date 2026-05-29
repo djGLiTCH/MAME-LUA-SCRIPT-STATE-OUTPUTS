@@ -1,6 +1,6 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PLUGIN CORE
--- Version: 8.1.6
+-- Version: 8.1.8
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -13,7 +13,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.1.6",
+    version = "8.1.8",
     description = "State Output (for 'Hooker' Output Programs)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -232,10 +232,24 @@ function stateoutput.startplugin()
             if string.match(key, "^GLOBAL_") then _GlobalOutputs[key] = tostring(suffix) end
         end
 
+        -- Process "auto" variables
         local all_players = { CFG.P1, CFG.P2, CFG.P3, CFG.P4 }
         for _, p_cfg in ipairs(all_players) do
             for k, val in pairs(p_cfg) do
                 if type(val) == "string" and string.lower(val) == "auto" then p_cfg[k] = "auto" end
+            end
+        end
+
+        -- Ensure hardware "auto" states gracefully disable if they have no underlying Ammo/Life data to track
+        local p1_hardware = { "RECOIL", "RELOAD", "DAMAGE", "RUMBLE", "LAMPSTART", "STATUS", "STATUS_ALT" }
+        for _, key in ipairs(p1_hardware) do
+            if CFG.P1[key] == "auto" then
+                if key == "STATUS" or key == "STATUS_ALT" then -- leave as auto
+                elseif key == "RECOIL" and (CFG.P1.AMMO or CFG.P1.AMMO_ALT or CFG.P1.AMMO_GRENADE) then
+                elseif key == "RELOAD" and (CFG.P1.AMMO or CFG.P1.AMMO_ALT or CFG.P1.AMMO_GRENADE) then
+                elseif key == "DAMAGE" and (CFG.P1.LIFE or CFG.P1.LIFE_ALT) then
+                elseif key == "LAMPSTART" then
+                else CFG.P1[key] = false end
             end
         end
 
@@ -344,9 +358,17 @@ function stateoutput.startplugin()
             for _, k in ipairs(keys) do
                 if p_cfg[k] and _OutputNames[i][k] then 
                     out_handle:set_value(_OutputNames[i][k], 0) 
-                    if k == "DAMAGE" and CFG.DEMULSHOOTER_COMPATIBILITY then out_handle:set_value(_OutputNames[i]["CtmRecoil"], 0) end
-                    if k == "DAMAGE" and CFG.DEMULSHOOTER_COMPATIBILITY then out_handle:set_value(_OutputNames[i]["Damaged"], 0) end
                 end
+            end
+            
+            -- Move DemulShooter overrides outside the loop to guarantee MAME registers them
+            if CFG.DEMULSHOOTER_COMPATIBILITY then 
+                out_handle:set_value(_OutputNames[i]["CtmRecoil"], 0)
+                out_handle:set_value(_OutputNames[i]["Damaged"], 0)
+                
+                -- CRITICAL FIX: Sync the local spam-filter cache with the boot state
+                _Player[i].LastOutputs["CtmRecoil"] = 0
+                _Player[i].LastOutputs["Damaged"] = 0
             end
             if CFG.ENABLE_DAMAGE_COUNT and p_cfg.DAMAGE_TAKEN then out_handle:set_value(_OutputNames[i]["DAMAGE_TAKEN"], 0) end
             if CFG.ENABLE_SHOT_COUNT and p_cfg.SHOTS_FIRED then out_handle:set_value(_OutputNames[i]["SHOTS_FIRED"], 0) end
@@ -513,6 +535,18 @@ function stateoutput.startplugin()
                     p.LastCredits = p_credits
                 elseif cfg.CREDITS == "auto" and CFG.CREDITS then 
                     p_credits = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS) 
+                    p_credits_known = true
+                    Set_Output(i, "CREDITS", warmup_ok and p_credits or 0)
+                    
+                    if warmup_ok then
+                        if p_credits > p.LastCredits then
+                            p.CreditsInserted = p.CreditsInserted + (p_credits - p.LastCredits)
+                            if CFG.ENABLE_CREDIT_COUNT then Set_Output(i, "CREDITS_INSERTED", p.CreditsInserted) end
+                        elseif p_credits < p.LastCredits then
+                            p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - p_credits)
+                        end
+                    end
+                    p.LastCredits = p_credits
                 end
             end
             
@@ -540,7 +574,6 @@ function stateoutput.startplugin()
             local out_status_alt_val = 0
 
             -- Priority Evaluation Hierarchy
-            -- Dictates what allows a player's outputs to become active.
             if not is_attract_mode then
                 if (cfg.STATUS and cfg.STATUS ~= "auto") or (cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto") then
                     local p_stat_active = false
@@ -642,6 +675,24 @@ function stateoutput.startplugin()
                       if (CFG.AMMO_GRENADE_DIRECTION == "decrease" and curr_ammo_grenade > p.LastAmmoGrenade) or (CFG.AMMO_GRENADE_DIRECTION == "increase" and curr_ammo_grenade < p.LastAmmoGrenade) then
                           if cfg.RELOAD then Set_Output(i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
                       end
+                  end
+                  
+                  -- Fire Reload manually (based on Memory Address polling)
+                  if cfg.RELOAD and type(cfg.RELOAD) == "number" then
+                      local val = Read_Data_Safe(_MemHandles["RELOAD"], cfg.RELOAD, CFG.DATA_WIDTHS.RELOAD)
+                      local manual_trigger = false
+                      if type(CFG.RELOAD_MEM_ADD_VALUE) == "number" then
+                          manual_trigger = (val == CFG.RELOAD_MEM_ADD_VALUE and p.LastReloadVal ~= CFG.RELOAD_MEM_ADD_VALUE)
+                      else
+                          manual_trigger = (val > p.LastReloadVal)
+                      end
+                      
+                      if manual_trigger then
+                          Set_Output(i, "RELOAD", 1)
+                          p.ReloadTick = current_time; p.IsReloadActive = true
+                          if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end
+                      end
+                      p.LastReloadVal = val
                   end
                   
                   -- Fire Recoil manually (based on Memory Address polling)
@@ -750,19 +801,27 @@ function stateoutput.startplugin()
 
             -- Hit Damage, Environmental Rumble, and Life Lost processing
             if is_player_active or just_died then
+                local hit_triggered = false
+                
+                -- Calculate Damage Taken
                 if type(cfg.DAMAGE_TAKEN) == "number" then
                     local val = Read_Data_Safe(_MemHandles["DAMAGE_TAKEN"], cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
                     if val > p.LastDmgMem and warmup_ok then
                         if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(i, "DAMAGE_TAKEN", p.DamageCount) end
+                        hit_triggered = true
                     end
                     p.LastDmgMem = val
                 elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and p.WasActive then
                     local hit = (cfg.LIFE and ((CFG.LIFE_DIRECTION == "decrease" and curr_life < p.LastLife) or (curr_life > p.LastLife))) or (cfg.LIFE_ALT and ((CFG.LIFE_ALT_DIRECTION == "decrease" and curr_life_alt < p.LastLifeAlt) or (curr_life_alt > p.LastLifeAlt)))
-                    if hit and warmup_ok and CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(i, "DAMAGE_TAKEN", p.DamageCount) end
+                    if hit and warmup_ok then 
+                        if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(i, "DAMAGE_TAKEN", p.DamageCount) end
+                        hit_triggered = true
+                    end
                 end
 
                 local ffb_now = p.IsFFBAllowed or (just_died and p.WasFFBAllowed)
                 
+                -- Trigger Damage (Hit) FFB
                 if cfg.DAMAGE and ffb_now then
                     if type(cfg.DAMAGE) == "number" then
                         local val = Read_Data_Safe(_MemHandles["DAMAGE"], cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
@@ -772,9 +831,14 @@ function stateoutput.startplugin()
                             if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].DamageTick = current_time; _Player[1].IsDamageActive = true end
                         end
                         p.LastDamageVal = val
+                    elseif cfg.DAMAGE == "auto" and hit_triggered then
+                        Set_Output(i, "DAMAGE", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "Damaged", 1) end
+                        p.DamageTick = current_time; p.IsDamageActive = true
+                        if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].DamageTick = current_time; _Player[1].IsDamageActive = true end
                     end
                 end
                 
+                -- Trigger Environmental Rumble FFB
                 if cfg.RUMBLE and ffb_now then
                     if type(cfg.RUMBLE) == "number" then
                         local val = Read_Data_Safe(_MemHandles["RUMBLE"], cfg.RUMBLE, CFG.DATA_WIDTHS.RUMBLE)
@@ -787,6 +851,7 @@ function stateoutput.startplugin()
                     end
                 end
                 
+                -- Calculate "Lives Lost" (Difference in life bar drops across the whole play session)
                 if CFG.ENABLE_LIFE_LOST then
                     if cfg.LIFE_LOST == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and warmup_ok and p.WasActive then
                          local lost = false
@@ -951,7 +1016,7 @@ function stateoutput.startplugin()
             -- Reset all multi-player arrays (prevents "dirty RAM" carrying over from past games)
             for i = 1, 4 do
                 _Player[i] = { 
-                    LastOutputs={}, LastAmmo=0, LastAmmoAlt=0, LastAmmoGrenade=0, LastLife=0, LastLifeAlt=0, LastDmgMem=0, LastCredits=0,
+                    LastOutputs={}, LastAmmo=0, LastAmmoAlt=0, LastAmmoGrenade=0, LastLife=0, LastLifeAlt=0, LastDmgMem=0, LastCredits=0, LastReloadVal=0,
                     RecoilTick=_ZeroTime, ReloadTick=_ZeroTime, DamageTick=_ZeroTime, RumbleTick=_ZeroTime,
                     CurrentRecoilDuration=_RecoilDuration, LastRecoilVal=0, LastDamageVal=0, LastRumbleEventVal=0,
                     ShotCountPrimary=0, ShotCountAlt=0, ShotCountGrenade=0, DamageCount=0, LifeLostCount=0, CreditsInserted=0, CreditsConsumed=0, PendingCreditDrops=0,

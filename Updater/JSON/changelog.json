@@ -1,6 +1,29 @@
 {
   "Updater": [
     {
+      "Version": "0.8.2",
+      "ReleaseDate": "2026.05.29",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.8.2",
+      "PackageType": ".zip",
+      "FileName": "MAME-STATE-OUTPUT-CONFIGURATOR.exe",
+      "Changes": [
+        "Bug Fix: Improved network protocol to prevent dropped/missed state output event changes when using 'Diagnostics' sniffer."
+      ]
+    },
+    {
+      "Version": "0.8.1",
+      "ReleaseDate": "2026.05.29",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.8.1",
+      "PackageType": ".zip",
+      "FileName": "MAME-STATE-OUTPUT-CONFIGURATOR.exe",
+      "Changes": [
+        "Bug Fix: RetroBat now works correctly for installing MAME State Output Plugin and configuring all relevant files based on MAME instance selections.",
+        "UI Polish: Added 'RELOAD' to the individual player state output triggers."
+      ]
+    },
+    {
       "Version": "0.8.0",
       "ReleaseDate": "2026.05.29",
       "PackageLocation": "Updater/Configurator/Archive",
@@ -111,41 +134,37 @@
   ],
   "Plugin": [
     {
+      "Version": "8.1.8",
+      "ReleaseDate": "2026.05.29",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.8-2026.05.29",
+      "PackageType": ".zip",
+      "Changes": [
+        "Bug Fix: Fixed 'PX_Recoil' fallback logic if PX_Ammo is not known for the active ROM.",
+		"Bug Fix: Fixed 'PX_Recoil' logic for manual memory address polling (this was missed in the migration from the old Lua script architecture to the new plugin architecture).",
+		"Bug Fix: Fixed 'PX_Recoil' logic so that it doesn't freeze with a value of 1 (clashed with ammo math tracker, and would not reset back to 0 until another action reset the loop).",
+        "Bug Fix: Fixed logic for Demulshooter compatibility toggle (adds PX_Recoil and PX_Damaged state outputs with that specific naming convention)."
+      ]
+    },
+    {
+      "Version": "8.1.7",
+      "ReleaseDate": "2026.05.29",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.7-2026.05.29",
+      "PackageType": ".zip",
+      "Changes": [
+        "Bug Fix: Fixed 'PX_Damage' not being triggered in logic when processing life lost state events."
+      ]
+    },
+    {
       "Version": "8.1.6",
       "ReleaseDate": "2026.05.27",
       "PackageLocation": "Updater/Plugin/Archive",
       "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.6-2026.05.27",
       "PackageType": ".zip",
       "Changes": [
-        "Note: Damage is not working as intended in the current version, this will be fixed soon.",
-        "1. Placeholder text that will be updated later.",
-        "2. Placeholder text that will be updated later.",
-        "3. Placeholder text that will be updated later."
-      ]
-    },
-    {
-      "Version": "8.1.5",
-      "ReleaseDate": "2026.05.26",
-      "PackageLocation": "",
-      "PackageName": "",
-      "PackageType": "",
-      "Changes": [
-        "1. Placeholder text that will be updated later.",
-        "2. Placeholder text that will be updated later.",
-        "3. Placeholder text that will be updated later."
-      ]
-    },
-    {
-      "Version": "8.1.4",
-      "ReleaseDate": "2026.05.26",
-      "PackageLocation": "",
-      "PackageName": "",
-      "PackageType": "",
-      "Changes": [
-        "1. Placeholder text that will be updated later.",
-        "2. Placeholder text that will be updated later.",
-        "3. Placeholder text that will be updated later."
-      ]
+        "Versions older than v8.1.6 have not yet been migrated into a format that works with this changelog. This may be revisited in the future if time permits.",
+        "v7 and below utilised the MAME Lua Script architecture, whereas now v8 and above use the MAME Plugin architecture."
     }
   ]
 }
