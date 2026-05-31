@@ -4,8 +4,8 @@ MAME State Output Project
 
 PROJECT DETAILS
 --------------------------------------------------------------------------------
-Version:      8.1.8
-Date:         2026.05.29
+Version:      8.2.0
+Date:         2026.05.31
 Author:       Jacob Simpson (DJ GLiTCH)
 Contributors: Muggins (testing), Hexxed (brainstorming), Bandicoot (testing), 
               Argon (inspiring)

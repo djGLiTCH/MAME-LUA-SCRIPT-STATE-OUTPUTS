@@ -2,10 +2,10 @@
     "plugin": {
         "name": "stateoutput",
         "description": "State Output (for 'Hooker' Output Programs)",
-        "version": "8.1.8",
+        "version": "8.2.0",
         "author": "Jacob Simpson (DJ GLiTCH)",
         "type": "plugin",
         "start": "false",
-        "date": "2026.05.29"
+        "date": "2026.05.31"
     }
 }

@@ -1,6 +1,6 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PLUGIN CORE
--- Version: 8.1.8
+-- Version: 8.2.0
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -13,7 +13,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.1.8",
+    version = "8.2.0",
     description = "State Output (for 'Hooker' Output Programs)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -31,7 +31,7 @@ local stateoutput = exports
 -- =========================================================================
 -- USER SETTINGS
 -- =========================================================================
-local ENABLE_DEBUG_LOGS = true -- Toggles "[StateOutput]" console/OSD messages
+local ENABLE_DEBUG_LOGS = false -- Toggles "[StateOutput]" console/OSD messages
 
 -- =========================================================================
 -- CORE PLUGIN ENGINE
@@ -480,11 +480,13 @@ function stateoutput.startplugin()
         
         if is_game_active then gamestatus = 1 end
 
-        -- ----------------------------------------------
+-- ----------------------------------------------
         -- PHASE 2: CORE PLAYER ITERATION
         -- Loops through P1, P2, P3, P4 sequentially.
         -- ----------------------------------------------
         local any_player_active = false
+        local aggregated_credits = 0
+        local using_individual_credits = false
         for i = 1, CFG.MAX_PLAYERS do
             local cfg = _PlayerCFG[i]
             local p = _Player[i]
@@ -524,6 +526,11 @@ function stateoutput.startplugin()
                     p_credits = math.floor(raw / divisor)
                     p_credits_known = true
                     Set_Output(i, "CREDITS", warmup_ok and p_credits or 0)
+                    
+                    -- Aggregate individual credits for global override
+                    aggregated_credits = aggregated_credits + p_credits
+                    using_individual_credits = true
+                    
                     if warmup_ok then
                         if p_credits > p.LastCredits then
                             p.CreditsInserted = p.CreditsInserted + (p_credits - p.LastCredits)
@@ -712,7 +719,8 @@ function stateoutput.startplugin()
                                   p.CurrentRecoilDuration = _RecoilDuration; Set_Output(i, "RECOIL", 1)
                                   if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "CtmRecoil", 1) end
                                   
-                                  if CFG.ENABLE_SHOT_COUNT and warmup_ok then
+                                  -- Only use hardware fallback for primary shots if AMMO is unmapped
+                                  if CFG.ENABLE_SHOT_COUNT and warmup_ok and not cfg.AMMO then
                                       p.ShotCountPrimary = p.ShotCountPrimary + 1
                                       Set_Output(i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
                                   end
@@ -894,6 +902,21 @@ function stateoutput.startplugin()
             end
         end
         
+        -- Override Global Credits if individual credits are actively mapped
+        if using_individual_credits then
+            Set_Global_Output("GLOBAL_CREDITS", warmup_ok and aggregated_credits or 0)
+            if warmup_ok then
+                if aggregated_credits > _LastGlobalCredits then
+                    _GlobalCreditsInserted = _GlobalCreditsInserted + (aggregated_credits - _LastGlobalCredits)
+                    if CFG.ENABLE_CREDIT_COUNT then Set_Global_Output("GLOBAL_CREDITS_INSERTED", _GlobalCreditsInserted) end
+                elseif aggregated_credits < _LastGlobalCredits then
+                    _PendingGlobalCreditDrops = _PendingGlobalCreditDrops + (_LastGlobalCredits - aggregated_credits)
+                end
+            end
+            _LastGlobalCredits = aggregated_credits
+            if aggregated_credits > 0 and warmup_ok then _HasCoinedUp = true end
+        end
+        
         local final_game_active = ((global_exists and is_game_active) or (not global_exists and any_player_active))
         Set_Global_Output("GLOBAL_GAME_STATUS", warmup_ok and final_game_active and 1 or 0)
         
@@ -1004,6 +1027,9 @@ function stateoutput.startplugin()
             _RecoilGrenadeDuration = emu.attotime.from_msec(CFG.RECOIL_GRENADE_DURATION_MS or 150)
             _MinRecoilInterval = emu.attotime.from_msec(CFG.MIN_RECOIL_INTERVAL_MS or 0)
             _RecoilHoldInterval = CFG.RECOIL_HOLD_MS and emu.attotime.from_msec(CFG.RECOIL_HOLD_MS) or _MinRecoilInterval
+			-- SAFETY CLAMP: Prevent machine-gun freeze by forcing interval > duration
+			if _MinRecoilInterval <= _RecoilDuration then _MinRecoilInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
+			if _RecoilHoldInterval <= _RecoilDuration then _RecoilHoldInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
             _ReloadDuration = emu.attotime.from_msec(CFG.RELOAD_DURATION_MS or 40)
             _DamageDuration = emu.attotime.from_msec(CFG.DAMAGE_DURATION_MS or 250)
             _RumbleDuration = emu.attotime.from_msec(CFG.RUMBLE_DURATION_MS or CFG.DAMAGE_DURATION_MS or 250)

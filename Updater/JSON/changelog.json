@@ -1,6 +1,21 @@
 {
   "Updater": [
     {
+      "Version": "0.9.0",
+      "ReleaseDate": "2026.05.31",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.9.0",
+      "PackageType": ".zip",
+      "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+      "Changes": [
+        "Architecture Overhaul: Renamed the folder in AppData/Roaming from 'MameStateOutputUpdater' to 'MameStateOutputConfigurator'",
+        "Bug Fix: Fixed typo in logic for individual player state output values relating to 'Shots Fired Primary'. This was previously referencing the total 'Shots Fired' value, but it should have been referencing shots fired by the primary weapon only.",
+        "Bug Fix: Improved network protocol to only automatically reveal individual player state output summary tables if the active ROM is in the list of supported games.",
+        "Bug Fix: RetroBat specific changes to ensure this is correctly configured for the MAME State Output Plugin and enabled in EmulationStation UI.",
+		"Featured Added: When the app is started, it will download a local copy of changelog.json and games.json from GitHub, but if GitHub can't be reached then the last local copy that was downloaded will be used instead. If no local json files exist, then the app will load empty UI lists instead of getting stuck."
+      ]
+    },
+    {
       "Version": "0.8.2",
       "ReleaseDate": "2026.05.29",
       "PackageLocation": "Updater/Configurator/Archive",
@@ -15,7 +30,7 @@
       "Version": "0.8.1",
       "ReleaseDate": "2026.05.29",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.8.1",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.8.1",
       "PackageType": ".zip",
       "FileName": "MAME-STATE-OUTPUT-CONFIGURATOR.exe",
       "Changes": [
@@ -27,7 +42,7 @@
       "Version": "0.8.0",
       "ReleaseDate": "2026.05.29",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.8.0",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.8.0",
       "PackageType": ".zip",
       "FileName": "configurator.exe",
       "Changes": [
@@ -41,7 +56,7 @@
       "Version": "0.7.1",
       "ReleaseDate": "2026.05.28",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.7.1",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.7.1",
       "PackageType": ".zip",
       "FileName": "configurator.exe",
       "Changes": [
@@ -56,7 +71,7 @@
       "Version": "0.7.0",
       "ReleaseDate": "2026.05.28",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-CONFIGURATOR-V0.7.0",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.7.0",
       "PackageType": ".zip",
       "FileName": "configurator.exe",
       "Changes": [
@@ -72,7 +87,7 @@
       "Version": "0.6.0",
       "ReleaseDate": "2026.05.27",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.6.0",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.6.0",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -84,7 +99,7 @@
       "Version": "0.5.2",
       "ReleaseDate": "2026.05.25",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.5.2",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.5.2",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -96,7 +111,7 @@
       "Version": "0.5.0",
       "ReleaseDate": "2026.05.22",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.5.0",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.5.0",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -109,7 +124,7 @@
       "Version": "0.4.1",
       "ReleaseDate": "2026.05.18",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.4.1",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.4.1",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -121,7 +136,7 @@
       "Version": "0.4.0",
       "ReleaseDate": "2026.05.10",
       "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-UPDATER-V0.4.0",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.4.0",
       "PackageType": ".zip",
       "FileName": "updater.exe",
       "Changes": [
@@ -134,10 +149,23 @@
   ],
   "Plugin": [
     {
+      "Version": "8.2.0",
+      "ReleaseDate": "2026.05.31",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.2.0-2026.05.31",
+      "PackageType": ".zip",
+      "Changes": [
+        "Bug Fix: Added safety clamp to check for recoil interval and hold interval being less than or equal to recoil duration.",
+        "Bug Fix: Fixed the counter for ShotsFiredPrimary so that it only counts shots fired based on 'Ammo' changes if Ammo is known, otherwise it will default to a simpler logic that will +1 for every recoil state event.",
+        "Bug Fix: If individual player credits are utilised for a game rather than global credits, then global credits will now equal the total combined number of individual player credits.",
+        "UX Improvement: Disabled debug OSD mode by default, which removes the text during ROM launch that states whether the active ROM is supported by the State Output Plugin (Not Supported = Dormant, Supported = Active)."
+      ]
+    },
+    {
       "Version": "8.1.8",
       "ReleaseDate": "2026.05.29",
       "PackageLocation": "Updater/Plugin/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.8-2026.05.29",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.1.8-2026.05.29",
       "PackageType": ".zip",
       "Changes": [
         "Bug Fix: Fixed 'PX_Recoil' fallback logic if PX_Ammo is not known for the active ROM.",
@@ -150,7 +178,7 @@
       "Version": "8.1.7",
       "ReleaseDate": "2026.05.29",
       "PackageLocation": "Updater/Plugin/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.7-2026.05.29",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.1.7-2026.05.29",
       "PackageType": ".zip",
       "Changes": [
         "Bug Fix: Fixed 'PX_Damage' not being triggered in logic when processing life lost state events."
@@ -160,7 +188,7 @@
       "Version": "8.1.6",
       "ReleaseDate": "2026.05.27",
       "PackageLocation": "Updater/Plugin/Archive",
-      "PackageName": "MAME-STATE-OUTPUT-PLUGIN-V8.1.6-2026.05.27",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.1.6-2026.05.27",
       "PackageType": ".zip",
       "Changes": [
         "Versions older than v8.1.6 have not yet been migrated into a format that works with this changelog. This may be revisited in the future if time permits.",
