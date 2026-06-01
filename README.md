@@ -11,14 +11,15 @@
 
 ---
 
-## 📖 Historical Context: From Script to Plugin
+## 📖 Historical Context: From Lua Script to MAME Plugin
 
-Previously, this project was known as the "Universal MAME Lua Script for State Outputs." It relied on standalone Lua scripts for each game / ROM to monitor memory addresses and output states. While effective, as the list of supported games grew, we needed a more robust and integrated solution.
+Previously, this project was known as the "Universal MAME Lua Script for State Outputs". It relied on standalone Lua scripts for each game / ROM to monitor memory addresses and output states. While effective, as the list of supported games grew, we needed a more robust and integrated solution.
 
 We have since migrated to a **native MAME Plugin architecture** to establish a centralized state output framework. This transition allows us to:
 * Optimize background performance and reduce overhead.
 * Seamlessly integrate with MAME's built-in plugin ecosystem.
 * Automate the generation of configuration files.
+* Easily add support for new games / ROMs by updating a single file (database.lua).
 * Provide a more stable foundation for future community contributions.
 
 ---
