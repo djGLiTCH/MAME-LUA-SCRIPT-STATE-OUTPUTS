@@ -5,7 +5,7 @@ MAME State Output Project
 PROJECT DETAILS
 --------------------------------------------------------------------------------
 Version:      8.2.0
-Date:         2026.05.31
+Date:         2026.06.02
 Author:       Jacob Simpson (DJ GLiTCH)
 Contributors: Muggins (testing), Hexxed (brainstorming), Bandicoot (testing), 
               Argon (inspiring)
@@ -47,10 +47,10 @@ This plugin is designed to interface with third-party "hooker" software to
 translate state outputs into physical hardware actions (force feedback, LEDs, 
 etc.). Compatible software known to work with these outputs includes:
 
-* Hook of the Reaper: https://github.com/6Bolt/Hook-Of-The-Reaper
-* MAME Hooker: https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker
-* OutputHooker: https://github.com/PolybiusExtreme/OutputHooker
-* QMamehook: https://github.com/SeongGino/QMamehook
+* Hook of the Reaper (by 6Bolt): https://github.com/6Bolt/Hook-Of-The-Reaper
+* MAMEhooker (by Howard Casto): https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker
+* OutputHooker (by PolybiusExtreme): https://github.com/PolybiusExtreme/OutputHooker
+* QMamehook (by SeongGino): https://github.com/SeongGino/QMamehook
 
 At this time, Hook of the Reaper (HOTR) is recommended, unless you understand 
 how to create your own ini state output to command files that the other "hooker" 
