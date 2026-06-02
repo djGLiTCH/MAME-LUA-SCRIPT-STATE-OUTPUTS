@@ -523,13 +523,13 @@
   ],
     "PluginBeta": [
     {
-      "Version": "8.1.9",
-      "ReleaseDate": "2026.05.31",
+      "Version": "8.2.0",
+      "ReleaseDate": "2026.06.02",
       "PackageLocation": "Updater/Plugin/Archive/Beta",
       "PackageName": "",
       "PackageType": "",
       "Changes": [
-        "Initial test for plugin beta channel having a lower version than stable channel."
+        "Initial placeholder for plugin beta release channel. Currently the beta is the same as the stable."
       ]
     }
   ],
