@@ -26,13 +26,13 @@ jobs:
         mkdir -p Updater
         
         # Remove any existing zip to guarantee a clean package
-        rm -f Updater/MAME-STATE-OUTPUT-PLUGIN-LATEST.zip
+        rm -f Updater/MAME-STATE-OUTPUT-PLUGIN-STABLE.zip
         
         # Zip the folders directly into the Updater directory
-        zip -r Updater/MAME-STATE-OUTPUT-PLUGIN-LATEST.zip MAME "Hook Of The Reaper" "MAMEhooker"
+        zip -r Updater/MAME-STATE-OUTPUT-PLUGIN-STABLE.zip MAME "Hook Of The Reaper" "MAMEhooker"
 
     - name: Commit and push the new ZIP
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "Auto-package latest plugin files into zip file"
-        file_pattern: 'Updater/MAME-STATE-OUTPUT-PLUGIN-LATEST.zip'
+        file_pattern: 'Updater/MAME-STATE-OUTPUT-PLUGIN-STABLE.zip'

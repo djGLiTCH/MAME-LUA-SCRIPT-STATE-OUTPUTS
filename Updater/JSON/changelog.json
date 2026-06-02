@@ -22,6 +22,7 @@
       "PackageType": ".zip",
       "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
       "Changes": [
+        "Note: This release (v0.9.2) is broken, and breaks the auto-update feature for the Configurator app. Please do not use this version, as you will need to manually update to a newer version later.",
         "Bug Fix: Prevented pop-up prompts from appearing while the Configurator app is updating to a newer version."
       ]
     },
@@ -222,6 +223,7 @@
       "PackageType": ".zip",
       "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
       "Changes": [
+        "Note: This release (v0.9.2) is broken, and breaks the auto-update feature for the Configurator app. Please do not use this version, as you will need to manually update to a newer version later.",
         "Bug Fix: Prevented pop-up prompts from appearing while the Configurator app is updating to a newer version."
       ]
     },
@@ -399,6 +401,76 @@
       ]
     }
   ],
+  "PluginStable": [
+    {
+      "Version": "8.2.0",
+      "ReleaseDate": "2026.05.31",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.2.0-2026.05.31",
+      "PackageType": ".zip",
+      "Changes": [
+        "Bug Fix: Added safety clamp to check for recoil interval and hold interval being less than or equal to recoil duration.",
+        "Bug Fix: Fixed the counter for ShotsFiredPrimary so that it only counts shots fired based on 'Ammo' changes if Ammo is known, otherwise it will default to a simpler logic that will +1 for every recoil state event.",
+        "Bug Fix: If individual player credits are utilised for a game rather than global credits, then global credits will now equal the total combined number of individual player credits.",
+        "UX Improvement: Disabled debug OSD mode by default, which removes the text during ROM launch that states whether the active ROM is supported by the State Output Plugin (Not Supported = Dormant, Supported = Active)."
+      ]
+    },
+    {
+      "Version": "8.1.8",
+      "ReleaseDate": "2026.05.29",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.1.8-2026.05.29",
+      "PackageType": ".zip",
+      "Changes": [
+        "Bug Fix: Fixed 'PX_Recoil' fallback logic if PX_Ammo is not known for the active ROM.",
+		"Bug Fix: Fixed 'PX_Recoil' logic for manual memory address polling (this was missed in the migration from the old Lua script architecture to the new plugin architecture).",
+		"Bug Fix: Fixed 'PX_Recoil' logic so that it doesn't freeze with a value of 1 (clashed with ammo math tracker, and would not reset back to 0 until another action reset the loop).",
+        "Bug Fix: Fixed logic for Demulshooter compatibility toggle (adds PX_Recoil and PX_Damaged state outputs with that specific naming convention)."
+      ]
+    },
+    {
+      "Version": "8.1.7",
+      "ReleaseDate": "2026.05.29",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.1.7-2026.05.29",
+      "PackageType": ".zip",
+      "Changes": [
+        "Bug Fix: Fixed 'PX_Damage' not being triggered in logic when processing life lost state events."
+      ]
+    },
+    {
+      "Version": "8.1.6",
+      "ReleaseDate": "2026.05.27",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.1.6-2026.05.27",
+      "PackageType": ".zip",
+      "Changes": [
+        "Initial beta for testing state outputs using MAME plugin architecture."
+      ]
+    },
+	{
+      "Version": "7.5.1",
+      "ReleaseDate": "2026.05.23",
+      "PackageLocation": "Updater/Plugin/Archive/OldLuaScriptArchitecture(v7-)",
+      "PackageName": "MAME_STATE_OUTPUT_LUA_SCRIPTS_v7.5.1_2026.05.23",
+      "PackageType": ".zip",
+      "Changes": [
+        "v7 and below are incompatible with the Configurator app as they utilised the older MAME Lua Script architecture. This version is being included only for archival purposes, as it was the last Lua script based release for this project."
+      ]
+    }
+  ],
+  "PluginBeta": [
+    {
+      "Version": "8.2.1",
+      "ReleaseDate": "2026.06.02",
+      "PackageLocation": "Updater/Plugin/Archive/Beta",
+      "PackageName": "",
+      "PackageType": "",
+      "Changes": [
+        "Initial test for plugin beta channel."
+      ]
+    }
+  ]
   "Plugin": [
     {
       "Version": "8.2.0",
