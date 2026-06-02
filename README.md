@@ -26,7 +26,7 @@ We have since migrated to a **native MAME Plugin architecture** to establish a c
 
 ## ⚙️ What Does This Do?
 
-Many classic MAME arcade games do not natively output "state" data. Without this data, external tools like [**Hook of The Reaper (HOTR)**](https://hotr.6bolt.com/), [**MAME Hooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker), [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and/or [**QMameHook**](https://github.com/SeongGino/QMamehook) have no way of knowing when you fire your weapon or take damage. This means your light gun's physical recoil, rumble, lights, display, etc. won't work.
+Many classic MAME arcade games do not natively output "state" data. Without this data, external tools like [**Hook of The Reaper (HOTR)**](https://hotr.6bolt.com/), [**MAMEhooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker), [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and/or [**QMameHook**](https://github.com/SeongGino/QMamehook) have no way of knowing when you fire your weapon or take damage. This means your light gun's physical recoil, rumble, lights, display, etc. won't work.
 
 This plugin fixes that. It quietly monitors the game in the background and sends a standardised signal to your hardware whenever an action state event happens, ensuring your hardware physically aligns to what is happening in-game and on-screen.
 
@@ -67,6 +67,17 @@ There are many state output 'hooker' programs that exist, however, support has b
 2. **Copy New Files:** Copy the files from the `defaultLG` folder from the latest release into your `HookOfTheReaper\defaultLG\` directory. Overwrite any files when prompted.
 
 *(Note: Refer to documentation for MAME Hooker, OutputHooker, and QMameHook setup, which will be expanded later once the Configurator App can handle automatic ini generation).*
+
+---
+
+## 📡 Release Channels (Stable vs Beta)
+
+The Configurator now supports dual release channels, allowing you to choose between maximum stability or cutting-edge features. You can toggle between these channels at any time using the radio buttons on the home screen.
+
+* **Stable Channel (Recommended):** The default track. These releases are thoroughly tested and guaranteed to provide a reliable experience for your arcade cabinet.
+* **Beta Channel:** Contains experimental features, bug fixes, and early support for newly added games or ROMs that are currently in active testing. 
+* **Smart Syncing:** The Configurator intelligently monitors both channels. If a Beta cycle ends and the Stable channel surpasses your installed Beta version, the app will automatically prompt you to jump back to the Stable track so you never miss an update.
+* **Offline Caching:** The app silently caches the latest release files for both channels in the background upon launch, ensuring you can still install or reinstall plugins even if your cabinet goes offline.
 
 ---
 
@@ -139,12 +150,37 @@ By funneling all game events through this standardised logic flow, external tool
 
 ---
 
+## 🤖 Command Line Automation (Headless Mode)
+
+For arcade owners and frontend users (RetroBat, LaunchBox, etc.) who want a true "set and forget" experience, the Configurator app fully supports headless command-line execution. 
+
+You can map these arguments to batch scripts that run on system boot or game launch. The application will execute completely invisibly in the background, download the required files, update your configurations, and close itself without ever drawing a UI or interrupting your arcade immersion.
+
+**Available Commands:**
+* `-update`
+  * **The Recommended Command** | This checks for a Configurator app update first. If found, it silently updates the Configurator, restarts itself, and seamlessly chains into updating your MAME State Output Plugin and Hooker configurations both silently and automatically. 
+* `-updateplugin`
+  * Bypasses Configurator app update checks and exclusively updates your MAME State Output Plugin files and Hooker configurations to match your currently selected release channel.
+* `-updateapp` *(or: `-updateconfigurator`)*
+  * Exclusively checks for and installs updates to the Configurator app itself. 
+
+**Headless Safety Features:**
+* **Mutex Locking:** If a background script triggers while you are manually using the Configurator UI, the script will safely abort to prevent overwriting files you are actively modifying.
+* **Silent Error Logging:** If an update fails in the background (e.g., your internet connection drops), the app will not throw an error popup on your arcade screen. Instead, it fails silently and writes the crash details to `%AppData%\MameStateOutputConfigurator\silent_update_error.txt` for your review.
+
+---
+
 ## 🤝 Contributing & Credits
 
 This is a community-driven project. If you find a game that isn't supported, please build this out in the latest `database.lua` file to map the memory addresses and submit a Pull Request!
 
 **Special Thanks:**
-* Muggins, for all of his help and support. Without his tireless efforts in testing each release and suggesting quality of live improvements, it would not be what it is today.
-* Bandicoot, for all of his helpin testing newly supported games for this project.
-* Hexxed, for all of his help in testing new design ideas, suggestions for improvements, and general architecture discussions for this project.
-* Argon, for the initial Lua script concept that sparked the idea for this project.
+* **Muggins**, for all of his help and support. Without his tireless efforts in testing each release and suggesting quality of live improvements, it would not be what it is today.
+* **Bandicoot**, for all of his helpin testing newly supported games for this project.
+* **Hexxed**, for all of his help in testing new design ideas, suggestions for improvements, and general architecture discussions for this project.
+* **Argon**, for the initial Lua script concept that sparked the idea for this project.
+* **PolybiusExtreme**, for [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and general testing and feedback for this project.
+* **Howard Casto**, for [**MAMEhooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker).
+* **SeongGino**, for [**QMameHook**](https://github.com/SeongGino/QMamehook).
+* **6Bolt**, for [**Hook Of The Reaper**](https://github.com/6Bolt/Hook-Of-The-Reaper).
+* The [**MAME Development Team**](https://www.mamedev.org), for building and maintaining such an amazing emulation project.
