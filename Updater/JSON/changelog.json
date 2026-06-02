@@ -1,6 +1,30 @@
 {
   "Configurator": [
     {
+      "Version": "0.9.4",
+      "ReleaseDate": "2026.06.02",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.9.4",
+      "PackageType": ".zip",
+      "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+      "Changes": [
+        "Architecture Overhaul: Added command line support into the Configurator app. Three options currently exist, 1. -update which will update the configurator app (if appropriate) and then update the plugin (or reinstall if no update is available), 2. -updateconfigurator or -updateapp which will update the configurator app (if appropriate), 3. -updateplugin which will update the plugin (or reinstall if no update is available).",
+        "Architecture Overhaul: Reworked the framework for downloading the latest version of MAME State Output Plugin. This has changed from the single previous 'LATEST' zip folder and is now split into two separate zip folders, 'STABLE' and 'BETA'.",
+        "Feature Added: Toggle for Stable Plugin or Beta Plugin has been added to the bottom of the Home page. This will allow community testers to quickly and easily install new beta versions of the MAME State Output Plugin and check for any bugs in upcoming games-ROMs and new logic or features that have been added to the underlying plugin framework.",
+        "Feature Added: Detailed debug pop-up prompts will now appear for invalid JSON files and/or corrupted ZIP folders. These files will now be checked after being downloaded from GitHub, and if an issue exists it will flag it in the UI before failing to process them.",
+        "Optimisation: Added check to prevent multiple instances of the Configurator app from being run simultaneously. Only one instance of the Configurator app can be open at once.",
+        "Optimisation: Added fallback logic for downloading latest versions of files from GitHub and prioritising GitHub over local cached files, however, if no internet connection is available or GitHub is offline then local cached files will be used.",
+        "Optimisation: Added fallback logic and pop-up prompt for occassions where Beta Plugin is toggled on but no Beta Plugin zip folder exists for download.",
+        "Optimisation: Added fallback logic and pop-up prompt for when a Beta release has an older version than the current Stable release. This prompt will advise the user to switch back to the Stable release instead.",
+        "Optimisation: Added fallback logic for supported games list so that if no plugin is installed then the supported games list will show all supported games in the latest version rather than show an empty list.",
+        "UI Expansion: Added 'Open Directory' button next to each folder location so that a user can quickly open a folder in their native OS file explorer.",
+        "UI Expansion: Added Plugin BETA sub-tab to the Changelog page when Beta Plugin is toggled on thee Home page.",
+        "UI Polish: Adjusted colour logic for Stable Plugin (green) or Beta Plugin (orange) toggle.",
+        "UI Polish: Adjusted colour logic for 'Browse' and 'Open' buttons in MAME page.",
+        "UI Polish: Refined transparent background to be consistently transparent during Configurator app update and refreshing of local cached files."
+      ]
+    },
+    {
       "Version": "0.9.3",
       "ReleaseDate": "2026.06.01",
       "PackageLocation": "Updater/Configurator/Archive",
@@ -201,6 +225,30 @@
     }
   ],
   "Updater": [
+    {
+      "Version": "0.9.4",
+      "ReleaseDate": "2026.06.02",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.9.4",
+      "PackageType": ".zip",
+      "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+      "Changes": [
+        "Architecture Overhaul: Added command line support into the Configurator app. Three options currently exist, 1. -update which will update the configurator app (if appropriate) and then update the plugin (or reinstall if no update is available), 2. -updateconfigurator or -updateapp which will update the configurator app (if appropriate), 3. -updateplugin which will update the plugin (or reinstall if no update is available).",
+        "Architecture Overhaul: Reworked the framework for downloading the latest version of MAME State Output Plugin. This has changed from the single previous 'LATEST' zip folder and is now split into two separate zip folders, 'STABLE' and 'BETA'.",
+        "Feature Added: Toggle for Stable Plugin or Beta Plugin has been added to the bottom of the Home page. This will allow community testers to quickly and easily install new beta versions of the MAME State Output Plugin and check for any bugs in upcoming games-ROMs and new logic or features that have been added to the underlying plugin framework.",
+        "Feature Added: Detailed debug pop-up prompts will now appear for invalid JSON files and/or corrupted ZIP folders. These files will now be checked after being downloaded from GitHub, and if an issue exists it will flag it in the UI before failing to process them.",
+        "Optimisation: Added check to prevent multiple instances of the Configurator app from being run simultaneously. Only one instance of the Configurator app can be open at once.",
+        "Optimisation: Added fallback logic for downloading latest versions of files from GitHub and prioritising GitHub over local cached files, however, if no internet connection is available or GitHub is offline then local cached files will be used.",
+        "Optimisation: Added fallback logic and pop-up prompt for occassions where Beta Plugin is toggled on but no Beta Plugin zip folder exists for download.",
+        "Optimisation: Added fallback logic and pop-up prompt for when a Beta release has an older version than the current Stable release. This prompt will advise the user to switch back to the Stable release instead.",
+        "Optimisation: Added fallback logic for supported games list so that if no plugin is installed then the supported games list will show all supported games in the latest version rather than show an empty list.",
+        "UI Expansion: Added 'Open Directory' button next to each folder location so that a user can quickly open a folder in their native OS file explorer.",
+        "UI Expansion: Added Plugin BETA sub-tab to the Changelog page when Beta Plugin is toggled on thee Home page.",
+        "UI Polish: Adjusted colour logic for Stable Plugin (green) or Beta Plugin (orange) toggle.",
+        "UI Polish: Adjusted colour logic for 'Browse' and 'Open' buttons in MAME page.",
+        "UI Polish: Refined transparent background to be consistently transparent during Configurator app update and refreshing of local cached files."
+      ]
+    },
     {
       "Version": "0.9.3",
       "ReleaseDate": "2026.06.01",
@@ -456,18 +504,6 @@
       "PackageType": ".zip",
       "Changes": [
         "v7 and below are incompatible with the Configurator app as they utilised the older MAME Lua Script architecture. This version is being included only for archival purposes, as it was the last Lua script based release for this project."
-      ]
-    }
-  ],
-  "PluginBeta": [
-    {
-      "Version": "8.2.1-beta",
-      "ReleaseDate": "2026.06.02",
-      "PackageLocation": "Updater/Plugin/Archive/Beta",
-      "PackageName": "",
-      "PackageType": "",
-      "Changes": [
-        "Initial test for plugin beta channel."
       ]
     }
   ],
