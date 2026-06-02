@@ -1,18 +1,6 @@
 {
   "Configurator": [
     {
-      "Version": "0.9.5",
-      "ReleaseDate": "2026.06.02",
-      "PackageLocation": "Updater/Configurator/Archive",
-      "PackageName": "MAME_STATE_OUTPUT_CONFIGURATOR_v0.9.5",
-      "PackageType": ".zip",
-      "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
-      "Changes": [
-        "Bug Fix: Popup prompt for plugin stable release being newer than beta would appear at app startup, but this should have only appeared after the local cached files had been refreshed.",
-		"UI Polish: Rename 'Plugin Release Date' to be 'Database Release Date' which is more appropriate. The same Plugin version may be used for multiple Database Release Dates, and this makes it clearer to the user. The database is used to add support for each game in the Plugin.",
-      ]
-    },
-    {
       "Version": "0.9.4",
       "ReleaseDate": "2026.06.02",
       "PackageLocation": "Updater/Configurator/Archive",
