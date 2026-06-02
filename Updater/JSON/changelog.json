@@ -452,6 +452,20 @@
   "PluginStable": [
     {
       "Version": "8.2.0",
+      "ReleaseDate": "2026.06.02",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.2.0-2026.05.31",
+      "PackageType": ".zip",
+      "Changes": [
+        "Readme file updated in plugin.",
+        "Bug Fix: Added safety clamp to check for recoil interval and hold interval being less than or equal to recoil duration.",
+        "Bug Fix: Fixed the counter for ShotsFiredPrimary so that it only counts shots fired based on 'Ammo' changes if Ammo is known, otherwise it will default to a simpler logic that will +1 for every recoil state event.",
+        "Bug Fix: If individual player credits are utilised for a game rather than global credits, then global credits will now equal the total combined number of individual player credits.",
+        "UX Improvement: Disabled debug OSD mode by default, which removes the text during ROM launch that states whether the active ROM is supported by the State Output Plugin (Not Supported = Dormant, Supported = Active)."
+      ]
+    },
+    {
+      "Version": "8.2.0",
       "ReleaseDate": "2026.05.31",
       "PackageLocation": "Updater/Plugin/Archive",
       "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.2.0-2026.05.31",
@@ -520,6 +534,20 @@
     }
   ],
   "Plugin": [
+    {
+      "Version": "8.2.0",
+      "ReleaseDate": "2026.06.02",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MAME_STATE_OUTPUT_PLUGIN_v8.2.0-2026.05.31",
+      "PackageType": ".zip",
+      "Changes": [
+        "Readme file updated in plugin.",
+        "Bug Fix: Added safety clamp to check for recoil interval and hold interval being less than or equal to recoil duration.",
+        "Bug Fix: Fixed the counter for ShotsFiredPrimary so that it only counts shots fired based on 'Ammo' changes if Ammo is known, otherwise it will default to a simpler logic that will +1 for every recoil state event.",
+        "Bug Fix: If individual player credits are utilised for a game rather than global credits, then global credits will now equal the total combined number of individual player credits.",
+        "UX Improvement: Disabled debug OSD mode by default, which removes the text during ROM launch that states whether the active ROM is supported by the State Output Plugin (Not Supported = Dormant, Supported = Active)."
+      ]
+    },
     {
       "Version": "8.2.0",
       "ReleaseDate": "2026.05.31",
