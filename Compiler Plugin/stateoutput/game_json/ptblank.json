@@ -1,0 +1,22 @@
+{
+    "LUA_GAME": "Point Blank",
+    "LUA_ROM_ID": 62,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 2000,
+    "PLAYER_MEMORY_OFFSET": "0x02",
+    "CREDITS": "0x001C004D",
+    "GAME_STATUS": "0x00210081",
+    "P1": {
+        "STATUS": "0x00210427",
+        "AMMO": "0x00210011",
+        "LIFE": "0x001C00B7",
+        "DAMAGE": "0x001C00B3"
+    },
+    "P2": {
+        "STATUS": "0x002105C5"
+    },
+    "AMMO_DIRECTION": "increase"
+}

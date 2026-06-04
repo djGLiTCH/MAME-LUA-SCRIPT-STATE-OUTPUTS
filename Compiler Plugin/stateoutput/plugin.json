@@ -1,0 +1,13 @@
+{
+    "plugin": {
+        "name": "stateoutput",
+        "description": "MAME State Output Project (MSOP)",
+        "version": "8.2.1",
+        "author": "Jacob Simpson (DJ GLiTCH)",
+        "type": "plugin",
+        "start": "false",
+        "dateplugin": "2026.06.04",
+        "datedatabase": "2026.06.04",
+        "channel": "stable"
+    }
+}

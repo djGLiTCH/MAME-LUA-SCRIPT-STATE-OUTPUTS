@@ -1,0 +1,24 @@
+{
+    "LUA_GAME": "Virtua Cop",
+    "LUA_ROM_ID": 87,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 15000,
+    "DATA_WIDTHS": {
+        "LAMP_START": "output"
+    },
+    "PLAYER_MEMORY_OFFSET": 4,
+    "CREDITS": "0x00559270",
+    "P1": {
+        "STATUS": "0x0050EE30",
+        "AMMO": "0x0050EE38",
+        "LIFE": "0x0050EE70",
+        "LAMP_START": "lamp0"
+    },
+    "P2": {
+        "LAMP_START": "lamp1"
+    }
+}

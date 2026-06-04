@@ -1,0 +1,19 @@
+{
+    "LUA_GAME": "CarnEvil",
+    "LUA_ROM_ID": 13,
+    "STARTUP_DELAY_MS": 23000,
+    "COINS_PER_CREDIT": 2,
+    "DATA_WIDTHS": {
+        "GLOBAL_CREDITS": 32,
+        "STATUS": 32,
+        "AMMO": 32,
+        "LIFE": "float32"
+    },
+    "PLAYER_MEMORY_OFFSET": "0x120",
+    "CREDITS": "0x001DE8D8",
+    "P1": {
+        "STATUS": "0x001E0F64",
+        "AMMO": "0x001E0FFC",
+        "LIFE": "0x001E0F84"
+    }
+}
