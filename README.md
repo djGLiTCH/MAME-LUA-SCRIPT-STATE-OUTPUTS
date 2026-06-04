@@ -32,55 +32,6 @@ This plugin fixes that. It quietly monitors the game in the background and sends
 
 ---
 
-## 🛠️ Installation & Setup
-
-> [!IMPORTANT]  
-> **Backup your files.** This installation replaces existing scripts/plugins to prevent conflicts. It is recommended that you backup your configured 'Hooker' Program folder prior to installation.
-
-### Option 1: Automatic Installation (Recommended)
-We provide a custom Configurator app to streamline the installation and ensure all files are placed in the correct directories automatically. This will automatically update both MAME and your relevant Output Program(s). We highly recommend this app be used to install and configure your build.
-
-1. Download the latest version of the **Configurator App**, extract the executable, and run it.
-2. Follow the on-screen prompts. The tool will automatically clean out old conflicting scripts and copy the latest plugin framework files directly into your MAME and relevant Output Program(s) directories.
-
-### Option 2: Manual Installation & Migration
-If you prefer to manage the file structure yourself, please follow these manual steps:
-
-#### Step 1: Clean Up Old Architecture (Crucial for Upgrading)
-To prevent conflicts between the old standalone scripts and the new plugin, you must remove the old files first:
-1. **Remove Old Scripts:** Navigate to your `MAME\scripts` directory and delete any `.lua` files or folders associated with the previous State Output project (v7 and below).
-2. **Remove Old INIs:** Navigate to your `MAME\ini` folder and delete any `.ini` configuration files or folders associated with the previous State Output project (v7 and below).
-
-#### Step 2: Install the New Plugin
-1. **MAME INI:** Copy the new `.ini` files from the latest release to your `MAME\ini` folder. *(Use the version that matches your "off-screen reload plugin" preference).*
-2. **MAME Plugins:** Copy the extracted plugin folders from the latest release into your `MAME\plugins` directory. 
-3. **Enable Output:** Open your `mame.ini` file in the MAME root directory and ensure the output is set to network:
-`output network`
-4. **Enable Plugin:** Ensure the plugin is enabled in your `plugin.ini` file.
-
-#### Step 3: Output Programs ('Hooker' Programs)
-There are many state output 'hooker' programs that exist, however, support has been provided for the following tools:
-
-**Hook of the Reaper (HOTR) (Recommended)**
-[**GitHub**](https://github.com/6Bolt/Hook-Of-The-Reaper) | [**Website**](https://hotr.6bolt.com/)
-1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`.
-2. **Copy New Files:** Copy the files from the `defaultLG` folder from the latest release into your `HookOfTheReaper\defaultLG\` directory. Overwrite any files when prompted.
-
-*(Note: Refer to documentation for MAME Hooker, OutputHooker, and QMameHook setup, which will be expanded later once the Configurator App can handle automatic ini generation).*
-
----
-
-## 📡 Release Channels (Stable vs Beta)
-
-The Configurator now supports dual release channels, allowing you to choose between maximum stability or cutting-edge features. You can toggle between these channels at any time using the radio buttons on the home screen.
-
-* **Stable Channel (Recommended):** The default track. These releases are thoroughly tested and guaranteed to provide a reliable experience for your arcade cabinet.
-* **Beta Channel:** Contains experimental features, bug fixes, and early support for newly added games or ROMs that are currently in active testing. 
-* **Smart Syncing:** The Configurator intelligently monitors both channels. If a Beta cycle ends and the Stable channel surpasses your installed Beta version, the app will automatically prompt you to jump back to the Stable track so you never miss an update.
-* **Offline Caching:** The app silently caches the latest release files for both channels in the background upon launch, ensuring you can still install or reinstall plugins even if your cabinet goes offline.
-
----
-
 ## 🔫 Light Gun Compatibility
 
 This plugin handles the logic, while your external Output Program handles the communication to your light gun or physical hardware. Verified supported hardware includes:
@@ -131,6 +82,65 @@ If you encounter a new issue that isn't documented, please create a new issue on
 
 ---
 
+## 🛠️ Installation & Setup
+
+> [!IMPORTANT]  
+> **Backup your files.** This installation replaces existing scripts/plugins to prevent conflicts. It is recommended that you backup your configured 'Hooker' Program folder prior to installation.
+
+> [!WARNING]  
+> **Standalone MAME Only:** This plugin exclusively supports standalone MAME. RetroArch (and its MAME cores) are NOT supported due to differences in how cores are handled.
+
+### Option 1: Automatic Installation (Recommended)
+We provide a custom Configurator app to streamline the installation and ensure all files are placed in the correct directories automatically. This will automatically update both MAME and your relevant Output Program(s). We highly recommend this app be used to install and configure your build.
+
+1. Download the latest version of the **Configurator App**, extract the executable, and run it.
+2. Follow the on-screen prompts. The tool will automatically clean out old conflicting scripts and copy the latest plugin framework files directly into your MAME and relevant Output Program(s) directories.
+
+#### MSOP Configurator App Workflow:
+* **Initial Setup:** Launch the Configurator app. You will be prompted to select your standalone MAME directory.
+* **Output Selection:** Choose your preferred "hooker" program from the available options so the app can correctly map the output integrations.
+* **Channel Selection:** Choose between the "Stable" or "Beta" release channels ('Stable' is highly recommended).
+* **Install/Update:** Run the update process to automatically download the latest database mappings, copy the necessary plugin files directly into your MAME folder, and update your "hooker" program with command mappings if supported.
+
+### Option 2: Manual Installation & Migration
+If you prefer to manage the file structure yourself, please follow these manual steps:
+
+#### Step 1: Clean Up Old Architecture (Crucial for Upgrading)
+To prevent conflicts between the old standalone scripts and the new plugin, you must remove the old files first:
+1. **Remove Old Lua Scripts:** Navigate to your `MAME\scripts` directory and delete any `.lua` files or folders associated with the previous State Output project (v7 and below).
+2. **Remove Old INI Files:** Navigate to your `MAME\ini` folder and delete any `.ini` configuration files or folders associated with the previous State Output project (v7 and below).
+
+#### Step 2: Install the New Plugin
+1. **MAME INI:** Copy the new `.ini` files from the latest release to your `MAME\ini` folder. *This step is completely optional, and only needed if you want the "classic" version of the offscreen reload feature in MAME.*
+2. **MAME Plugins:** Copy the extracted plugin folders from the latest release into your `MAME\plugins` directory. 
+3. **Enable Output:** Open your `mame.ini` file in the MAME root directory and ensure the output is set to network:
+`output network`
+4. **Enable Plugins:** Ensure the plugins is enabled in your `plugin.ini` file:
+`plugins 1`
+
+#### Step 3: Output Programs ('Hooker' Programs)
+There are many state output 'hooker' programs that exist, however, support has been provided for the following tools:
+
+**Hook of the Reaper (HOTR) (Recommended)**
+[**GitHub**](https://github.com/6Bolt/Hook-Of-The-Reaper) | [**Website**](https://hotr.6bolt.com/)
+1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`.
+2. **Copy New Files:** Copy the files from the `defaultLG` folder from the latest release into your `HookOfTheReaper\defaultLG\` directory. Overwrite any files when prompted.
+
+*(Note: Refer to documentation for MAME Hooker, OutputHooker, and QMameHook setup, which will be expanded later once the Configurator App can handle automatic ini generation).*
+
+---
+
+## 📡 Release Channels (Stable vs Beta)
+
+The Configurator now supports dual release channels, allowing you to choose between maximum stability or cutting-edge features. You can toggle between these channels at any time using the radio buttons on the home screen.
+
+* **Stable Channel (Recommended):** The default track. These releases are thoroughly tested and guaranteed to provide a reliable experience for your arcade cabinet.
+* **Beta Channel:** Contains experimental features, bug fixes, and early support for newly added games or ROMs that are currently in active testing. 
+* **Smart Syncing:** The Configurator intelligently monitors both channels. If a Beta cycle ends and the Stable channel surpasses your installed Beta version, the app will automatically prompt you to jump back to the Stable track so you never miss an update.
+* **Offline Caching:** The app silently caches the latest release files for both channels in the background upon launch, ensuring you can still install or reinstall plugins even if your cabinet goes offline.
+
+---
+
 ## 🔧 Under the Hood (Technical Details)
 
 This section is for developers or community members looking to adapt the plugin for new games or troubleshoot logic.
@@ -161,7 +171,7 @@ You can map these arguments to batch scripts that run on system boot or game lau
   * **The Recommended Command** | This checks for a Configurator app update first. If found, it silently updates the Configurator, restarts itself, and seamlessly chains into updating your MAME State Output Plugin and Hooker configurations both silently and automatically. 
 * `-updateplugin`
   * Bypasses Configurator app update checks and exclusively updates your MAME State Output Plugin files and Hooker configurations to match your currently selected release channel.
-* `-updateapp` *(or: `-updateconfigurator`)*
+* `-updateapp` (or `-updateconfigurator`)
   * Exclusively checks for and installs updates to the Configurator app itself. 
 
 **Headless Safety Features:**
