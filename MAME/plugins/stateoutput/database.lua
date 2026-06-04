@@ -1,7 +1,7 @@
 --
--- MAME STATE OUTPUT DATABASE
--- Compiled from stateoutput\game_json folder
--- Last Modified Date (YYYY.MM.DD): 2026.06.02
+-- MAME STATE OUTPUT PROJECT
+-- MSOP DATABASE LUA
+-- Database Release Date: 2026.06.04
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -9,8 +9,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 820,
-        ["LUA_DATE"] = 20260602,
+        ["LUA_VERSION"] = 821,
+        ["LUA_DATE"] = 20260604,
         ["LUA_GAME"] = "Default Universal MAME State Output Lua Script Values",
         ["LUA_ROM_ID"] = 0,
         ["OFFSCREEN_RELOAD"] = false,
@@ -296,6 +296,7 @@ local database = {
         },
         ["PLAYER_MEMORY_OFFSET"] = "0x100",
         ["AMMO_MAX"] = 255,
+        ["AMMO_ALT_MAX"] = 255,
         ["LIFE_MAX"] = 640,
         ["AMMO_THRESHOLD"] = 255,
         ["AMMO_ALT_THRESHOLD"] = 255,

@@ -1,6 +1,8 @@
 -- =========================================================================================
--- MAME STATE OUTPUT PLUGIN CORE
--- Version: 8.2.0
+-- MAME STATE OUTPUT PROJECT
+-- MSOP PLUGIN
+-- Plugin Version: 8.2.1
+-- Plugin Date: 2026.06.04
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -13,8 +15,8 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.2.0",
-    description = "State Output (for 'Hooker' Output Programs)",
+    version = "8.2.1",
+    description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
     
