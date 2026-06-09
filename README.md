@@ -4,7 +4,7 @@
 [![MAME](https://img.shields.io/badge/MAME-Compatible-green.svg)](https://mamedev.org/)
 
 <p align="center">
-  <img src="Images/MAME_State_Output_Project.png" alt="MAME State Output Project Logo" width="256">
+  <img src="Images/MAME_State_Output_Project_Transparent_Square_1_1024.png" alt="MAME State Output Project (MSOP) Logo" width="256">
 </p>
 
 **A universal state output plugin framework for MAME designed to enable force feedback (recoil, reload, rumble, lights, display, etc.) for games that lack native state outputs or require additional state output triggers. Currently aimed at light gun games, but other genres can be easily supported as well by the community.**
