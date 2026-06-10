@@ -143,7 +143,7 @@ The Configurator now supports dual release channels, allowing you to choose betw
 
 ## 🔧 Under the Hood (Technical Details)
 
-This section is for developers or community members looking to adapt the plugin for new games or troubleshoot logic.
+This section is for developers or community members looking to adapt the plugin for new games or troubleshoot logic. More technical details can be found in [GUIDE](GUIDE.md).
 
 ### The Translation Layer
 In-game actions trigger changes in memory addresses, but these vary wildly between games. For example, one game might count ammo down (10 to 0), while another counts total shots fired infinitely upward.
