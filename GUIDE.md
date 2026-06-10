@@ -214,7 +214,7 @@ Whenever you create a new game JSON or edit an existing one, you must recompile 
 
 1. Open your terminal or command prompt.
 2. Navigate to the directory containing the compiler script.
-3. Run the by opening it with a batch script or by manually running the script:
+3. Run the script:
    ```bash
    python msop_database_compiler.py
    ```
