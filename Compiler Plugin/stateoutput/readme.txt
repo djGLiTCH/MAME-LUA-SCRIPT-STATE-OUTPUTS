@@ -4,9 +4,9 @@ MAME State Output Project (MSOP)
 
 PROJECT DETAILS
 --------------------------------------------------------------------------------
-Plugin Version: 8.2.1
-Plugin Date:    2026.06.04
-Database Date:  2026.06.04
+Plugin Version: 8.2.2
+Plugin Date:    2026.06.10
+Database Date:  2026.06.10
 Contributors:   Muggins (tester), Hexxed (ideas), Bandicoot (tester), 
                 PolybiusExtreme (feedback), Argon (inspiration)
 License:        GNU General Public License GPL-v3.0
@@ -14,30 +14,30 @@ Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 
 OVERVIEW
 --------------------------------------------------------------------------------
-The MAME State Output project (previously known as the Universal MAME Lua 
-Script for State Outputs) is a robust plugin designed to enhance the MAME 
-arcade emulation experience. It provides real-time state outputs (derived from 
-in-game state events or created in real-time based on logic that adapts various 
-in-game state events), enabling advanced features like force feedback, light 
-gun hardware support, and dynamic arcade cabinet lighting.
+The MAME State Output Project or MSOP for short (previously known as the
+Universal MAME Lua Script for State Outputs) is a robust solution designed to
+enhance the MAME arcade emulation experience. It provides real-time state
+outputs (derived from in-game state events or created in real-time based on
+logic that adapts various in-game state events), enabling advanced features
+like force feedback, light gun hardware support, dynamic lighting, and more.
 
 HOW IT WORKS
 --------------------------------------------------------------------------------
-The script operates by monitoring specific memory address values within MAME 
+The plugin operates by monitoring specific memory address values within MAME 
 to track game states and applies various logic to derive accurate state outputs.
 
-* Logic Priority: The script utilises a sophisticated priority hierarchy to 
+* Logic Priority: The plugin utilises a sophisticated priority hierarchy to 
   ensure accurate hardware behaviour. It evaluates Player Specific Status 
   first, followed by Global Game Status, and finally applies fallback logic 
   to ensure the hardware never enters an undefined state.
 
-* Data Handling: It converts internal MAME memory values into actionable 
-  signals. Specifically, it tracks key events—such as ammo changes (recoil 
-  and/or reload), life changes (damage), lamp states (such as player start),
-  and many more, to trigger external hardware response (e.g. force feedback,
-  lighting, display counters, etc.).
+* Data Handling: The plugin converts internal MAME memory values into
+  actionable signals. Specifically, it tracks key events—such as ammo changes
+  (recoil and/or reload), life changes (damage), lamp states (such as player
+  start), and many more, to trigger external hardware response (e.g. force
+  feedback, lighting, display counters, etc.).
 
-* Variable Management: To maintain stability, the script employs dedicated 
+* Variable Management: To maintain stability, the plugin employs dedicated 
   variables for distinct game states, ensuring that inputs from one player do 
   not interfere with the feedback of another.
 
@@ -110,18 +110,22 @@ Exclusively checks for and installs updates to the Configurator app itself.
 UPDATES & MAINTENANCE
 --------------------------------------------------------------------------------
 To ensure your arcade setup remains compatible with the latest game ROMs and 
-MAME updates, please run the included Configurator app regularly.
+MAME updates, please run the MSOP Configurator app regularly.
 
 Updating the Plugin:
 Using the Configurator ensures you have the latest memory address mappings, bug 
 fixes, and feature enhancements. It is recommended to check for updates every 
 time you add new hardware or perform significant maintenance on your arcade 
 cabinet, or perhaps want to check if support has been added for a new game ROM.
+You can install, update, or uninstall the MSOP Plugin using the buttons on the
+Home page of the MSOP Configurator app.
 
 Updating the Configurator App:
-When a new version of the Configurator app itself is released (such as GUI updates 
-or new features), you will need to download the latest release executable directly 
-from the official GitHub repository.
+When a new version of the Configurator app itself is released (such as UI updates 
+or new features), you will be prompted to download the update automatically
+when you next open the Configurator app and are connected to the internet.
+It is worth checking the project GitHub to make sure no automatic update
+changes were made that broke previous methods used to automatically update.
 
 COMMUNITY CONTRIBUTIONS
 --------------------------------------------------------------------------------

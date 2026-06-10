@@ -1,7 +1,7 @@
 --
 -- MAME STATE OUTPUT PROJECT
 -- MSOP DATABASE LUA
--- Database Release Date: 2026.06.04
+-- Database Release Date: 2026.06.10
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -9,9 +9,9 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 821,
-        ["LUA_DATE"] = 20260604,
-        ["LUA_GAME"] = "Default Universal MAME State Output Lua Script Values",
+        ["LUA_VERSION"] = 822,
+        ["LUA_DATE"] = 20260610,
+        ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["LUA_ROM_ID"] = 0,
         ["OFFSCREEN_RELOAD"] = false,
         ["LIGHTGUN_PATCH"] = false,
@@ -648,8 +648,8 @@ local database = {
                 1,
                 3
             },
-            ["AMMO_comment"] = "P1 Ammo (seems to change between levels / stages) = 0x00201B46",
-            ["LIFE"] = "0x00201B40",
+            ["AMMO_comment"] = "P1 Ammo = 0x00201B46 if P1 starts first, but eventually this will 'roll' out of sync as the life memory address shifts with each new life",
+            ["LIFE_comment"] = "P1 Life = 0x00201B40 if P1 starts first, but eventually this will 'roll' out of sync as the life memory address shifts with each new life",
             ["RECOIL"] = "0x0020F01A",
             ["RECOIL_comment"] = "P1 Trigger Press (hold, not pulse) = 0x0020F01A",
             ["LAMP_START"] = "Left_lamp"
@@ -660,9 +660,8 @@ local database = {
                 2,
                 3
             },
-            ["AMMO_comment"] = "P2 Ammo (seems to change between levels / stages) = 0x002018C6; Also found at some point that P2 Ammo = 0x00201846 but this does not appear to be the case anymore",
-            ["LIFE"] = "0x002018C0",
-            ["LIFE_comment"] = "P2 Life = 0x002018C0; Also found at some point that P2 Life = 0x00201840 but this does not appear to be the case anymore",
+            ["AMMO_comment"] = "P2 Ammo = 0x002018C6 if P1 starts first and P2 starts second, but eventually this will 'roll' out of sync as the life memory address shifts with each new life",
+            ["LIFE_comment"] = "P2 Life = 0x002018C0 if P1 starts first and P2 starts second, but eventually this will 'roll' out of sync as the life memory address shifts with each new life",
             ["RECOIL"] = "0x0020F01B",
             ["RECOIL_comment"] = "P2 Trigger Press (hold, not pulse) = 0x0020F01B",
             ["LAMP_START"] = "Right_lamp"

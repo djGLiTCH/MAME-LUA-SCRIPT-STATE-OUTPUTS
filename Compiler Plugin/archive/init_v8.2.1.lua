@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT
 -- MSOP PLUGIN
--- Plugin Version: 8.2.2
--- Plugin Date: 2026.06.10
+-- Plugin Version: 8.2.1
+-- Plugin Date: 2026.06.04
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,7 +15,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.2.2",
+    version = "8.2.1",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -87,8 +87,8 @@ function stateoutput.startplugin()
     
     local _Player = {}
     local _GlobalLastOutputs = {}
-    local _WarmupFlushed = false
-    local gamestatus = 0
+    local _InitTimer = 60
+    local gamestatus = 0 
 
     -- -------------------------------------------------------------------------
     -- LOGGING HELPERS
@@ -331,78 +331,53 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
-    -- @description: Flushes outputs to zero at boot and synchronizes local caches.
+    -- @description: Flushes outputs to zero at boot.
     -- @purpose: Prevents external hardware (like DemulShooter or lighting apps) 
     --           from sticking 'ON' if a previous game crashed or ended abruptly.
-    --           Forces a true 0-state broadcast over the MAME TCP socket and 
-    --           aligns the local Lua spam-filter to guarantee accurate tracking.
     -- -------------------------------------------------------------------------
     local function Register_Outputs_Safe(out_handle)
         if not out_handle then return end
-        
-        local function Sync_Global(key, value)
-            if _GlobalOutputs[key] then
-                out_handle:set_value(_GlobalOutputs[key], value)
-                _GlobalLastOutputs[key] = value
-            end
-        end
-        
-        Sync_Global("GLOBAL_GAME_STATUS", 0)
-        if CFG.ATTRACT_STATUS then Sync_Global("GLOBAL_ATTRACT_STATUS", 0) end
-        Sync_Global("GLOBAL_LUA_VERSION", CFG.LUA_VERSION)
-        Sync_Global("GLOBAL_LUA_DATE", CFG.LUA_DATE)
-        Sync_Global("GLOBAL_LUA_ROM_ID", CFG.LUA_ROM_ID)
-        
+        out_handle:set_value(_GlobalOutputs["GLOBAL_GAME_STATUS"], 0)
+        if CFG.ATTRACT_STATUS then out_handle:set_value(_GlobalOutputs["GLOBAL_ATTRACT_STATUS"], 0) end
+        out_handle:set_value(_GlobalOutputs["GLOBAL_LUA_VERSION"], CFG.LUA_VERSION)
+        out_handle:set_value(_GlobalOutputs["GLOBAL_LUA_DATE"], CFG.LUA_DATE)
+        out_handle:set_value(_GlobalOutputs["GLOBAL_LUA_ROM_ID"], CFG.LUA_ROM_ID)
         if CFG.CREDITS then 
-            Sync_Global("GLOBAL_CREDITS", 0)
-            Sync_Global("GLOBAL_CREDITS_INSERTED", 0)
+            out_handle:set_value(_GlobalOutputs["GLOBAL_CREDITS"], 0)
+            out_handle:set_value(_GlobalOutputs["GLOBAL_CREDITS_INSERTED"], 0)
         end
         
         for i = 1, CFG.MAX_PLAYERS do
             local p_cfg = _PlayerCFG[i] 
-            
-            local function Sync_Output(cfg_key, out_key)
-                if p_cfg[cfg_key] and _OutputNames[i][out_key] then
-                    out_handle:set_value(_OutputNames[i][out_key], 0)
-                    _Player[i].LastOutputs[out_key] = 0
-                end
-            end
-            
-            local function Sync_Force(out_key)
-                if _OutputNames[i][out_key] then
-                    out_handle:set_value(_OutputNames[i][out_key], 0)
-                    _Player[i].LastOutputs[out_key] = 0
-                end
-            end
-            
-            Sync_Output("STATUS", "STATUS")
-            Sync_Output("STATUS_ALT", "STATUS_ALT")
-            
+            if p_cfg.STATUS then out_handle:set_value(_OutputNames[i]["STATUS"], 0) end
+            if p_cfg.STATUS_ALT then out_handle:set_value(_OutputNames[i]["STATUS_ALT"], 0) end
             if p_cfg.CREDITS then 
-                Sync_Output("CREDITS", "CREDITS")
-                Sync_Output("CREDITS", "CREDITS_INSERTED")
-                Sync_Output("CREDITS", "CREDITS_CONSUMED")
+                out_handle:set_value(_OutputNames[i]["CREDITS"], 0) 
+                out_handle:set_value(_OutputNames[i]["CREDITS_INSERTED"], 0)
+                out_handle:set_value(_OutputNames[i]["CREDITS_CONSUMED"], 0)
             end
-            
             local keys = {"AMMO", "AMMO_ALT", "AMMO_GRENADE", "LIFE", "LIFE_ALT", "DAMAGE", "RECOIL", "RELOAD", "RUMBLE", "LAMPSTART"}
             for _, k in ipairs(keys) do
-                Sync_Output(k, k)
+                if p_cfg[k] and _OutputNames[i][k] then 
+                    out_handle:set_value(_OutputNames[i][k], 0) 
+                end
             end
             
             -- Move DemulShooter overrides outside the loop to guarantee MAME registers them
             if CFG.DEMULSHOOTER_COMPATIBILITY then 
-                Sync_Force("CtmRecoil")
-                Sync_Force("Damaged")
+                out_handle:set_value(_OutputNames[i]["CtmRecoil"], 0)
+                out_handle:set_value(_OutputNames[i]["Damaged"], 0)
+                
+                -- CRITICAL FIX: Sync the local spam-filter cache with the boot state
+                _Player[i].LastOutputs["CtmRecoil"] = 0
+                _Player[i].LastOutputs["Damaged"] = 0
             end
-            
-            if CFG.ENABLE_DAMAGE_COUNT and p_cfg.DAMAGE_TAKEN then Sync_Output("DAMAGE_TAKEN", "DAMAGE_TAKEN") end
-            if CFG.ENABLE_SHOT_COUNT then 
-                Sync_Force("SHOTS_FIRED")
-                if p_cfg.SHOTS_FIRED_PRIMARY then Sync_Output("SHOTS_FIRED_PRIMARY", "SHOTS_FIRED_PRIMARY") end
-                if p_cfg.SHOTS_FIRED_ALT then Sync_Output("SHOTS_FIRED_ALT", "SHOTS_FIRED_ALT") end
-                if p_cfg.SHOTS_FIRED_GRENADE then Sync_Output("SHOTS_FIRED_GRENADE", "SHOTS_FIRED_GRENADE") end
-            end
-            if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then Sync_Output("LIFE_LOST", "LIFE_LOST") end
+            if CFG.ENABLE_DAMAGE_COUNT and p_cfg.DAMAGE_TAKEN then out_handle:set_value(_OutputNames[i]["DAMAGE_TAKEN"], 0) end
+            if CFG.ENABLE_SHOT_COUNT and p_cfg.SHOTS_FIRED then out_handle:set_value(_OutputNames[i]["SHOTS_FIRED"], 0) end
+            if CFG.ENABLE_SHOT_COUNT and p_cfg.SHOTS_FIRED_PRIMARY then out_handle:set_value(_OutputNames[i]["SHOTS_FIRED_PRIMARY"], 0) end
+            if CFG.ENABLE_SHOT_COUNT and p_cfg.SHOTS_FIRED_ALT then out_handle:set_value(_OutputNames[i]["SHOTS_FIRED_ALT"], 0) end
+            if CFG.ENABLE_SHOT_COUNT and p_cfg.SHOTS_FIRED_GRENADE then out_handle:set_value(_OutputNames[i]["SHOTS_FIRED_GRENADE"], 0) end
+            if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then out_handle:set_value(_OutputNames[i]["LIFE_LOST"], 0) end
         end
     end
 
@@ -448,20 +423,12 @@ function stateoutput.startplugin()
             end
         end
         
-        -- ----------------------------------------------
-        -- PHASE 0: WARMUP & INITIALIZATION FLUSH
-        -- Ensures outputs are held silently during startup and perfectly
-        -- synced the exact frame the boot delay expires.
-        -- ----------------------------------------------
-        local warmup_ok = Is_Warmup_Complete()
-        
-        -- Trigger initialization exactly when warmup completes
-        if warmup_ok and not _WarmupFlushed then
-            Register_Outputs_Safe(out)
-            _WarmupFlushed = true
-            return -- Skip the rest of this frame so MAME actually broadcasts the '0' states!
+        if _InitTimer > 0 then
+            _InitTimer = _InitTimer - 1
+            if _InitTimer == 0 then Register_Outputs_Safe(out) end
         end
         
+        local warmup_ok = Is_Warmup_Complete()
         local divisor = CFG.COINS_PER_CREDIT or 1
         if divisor < 1 then divisor = 1 end
 
@@ -515,7 +482,7 @@ function stateoutput.startplugin()
         
         if is_game_active then gamestatus = 1 end
 
-        -- ----------------------------------------------
+-- ----------------------------------------------
         -- PHASE 2: CORE PLAYER ITERATION
         -- Loops through P1, P2, P3, P4 sequentially.
         -- ----------------------------------------------
@@ -754,8 +721,8 @@ function stateoutput.startplugin()
                                   p.CurrentRecoilDuration = _RecoilDuration; Set_Output(i, "RECOIL", 1)
                                   if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "CtmRecoil", 1) end
                                   
-                                  -- Use hardware fallback for primary shots if ammo is unmapped, OR if primary ammo is empty
-                                  if CFG.ENABLE_SHOT_COUNT and warmup_ok and (not cfg.AMMO or curr_ammo == 0) then
+                                  -- Only use hardware fallback for primary shots if AMMO is unmapped
+                                  if CFG.ENABLE_SHOT_COUNT and warmup_ok and not cfg.AMMO then
                                       p.ShotCountPrimary = p.ShotCountPrimary + 1
                                       Set_Output(i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
                                   end
@@ -855,7 +822,7 @@ function stateoutput.startplugin()
                     end
                     p.LastDmgMem = val
                 elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and p.WasActive then
-                    local hit = (cfg.LIFE and ((CFG.LIFE_DIRECTION == "decrease" and curr_life < p.LastLife) or (CFG.LIFE_DIRECTION == "increase" and curr_life > p.LastLife))) or (cfg.LIFE_ALT and ((CFG.LIFE_ALT_DIRECTION == "decrease" and curr_life_alt < p.LastLifeAlt) or (CFG.LIFE_ALT_DIRECTION == "increase" and curr_life_alt > p.LastLifeAlt)))
+                    local hit = (cfg.LIFE and ((CFG.LIFE_DIRECTION == "decrease" and curr_life < p.LastLife) or (curr_life > p.LastLife))) or (cfg.LIFE_ALT and ((CFG.LIFE_ALT_DIRECTION == "decrease" and curr_life_alt < p.LastLifeAlt) or (curr_life_alt > p.LastLifeAlt)))
                     if hit and warmup_ok then 
                         if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(i, "DAMAGE_TAKEN", p.DamageCount) end
                         hit_triggered = true
@@ -1073,7 +1040,6 @@ function stateoutput.startplugin()
             
             _GameActiveTick = _ZeroTime
             _GameInactiveTick = _ZeroTime
-            _WarmupFlushed = false -- Resets the warmup state for consecutive ROM loads
             
             -- Reset all multi-player arrays (prevents "dirty RAM" carrying over from past games)
             for i = 1, 4 do

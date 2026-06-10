@@ -1,7 +1,7 @@
 {
-    "LUA_VERSION": 821,
-    "LUA_DATE": 20260604,
-    "LUA_GAME": "Default Universal MAME State Output Lua Script Values",
+    "LUA_VERSION": 822,
+    "LUA_DATE": 20260610,
+    "LUA_GAME": "Default MSOP Plugin Values",
     "LUA_ROM_ID": 0,
     "OFFSCREEN_RELOAD": false,
     "LIGHTGUN_PATCH": false,
