@@ -280,7 +280,7 @@
       "ReleaseDatePlugin": "2026.06.04",
       "ReleaseDateDatabase": "2026.06.04",
       "PackageLocation": "Updater/Plugin/Archive",
-      "PackageName": "MSOP_PLUGIN_v8.2.0_2026.06.02",
+      "PackageName": "MSOP_PLUGIN_v8.2.1_2026.06.04",
       "PackageType": ".zip",
       "ChangesPlugin": [
         "init.lua: Minor tweaks to header text, plugin name, project information, and file purpose.",
@@ -318,7 +318,9 @@
         "Bug Fix: If individual player credits are utilised for a game rather than global credits, then global credits will now equal the total combined number of individual player credits.",
         "UX Improvement: Disabled debug OSD mode by default, which removes the text during ROM launch that states whether the active ROM is supported by the State Output Plugin (Not Supported = Dormant, Supported = Active)."
       ],
-      "ChangesDatabase": []
+      "ChangesDatabase": [
+        "No changes to underlying memory addresses or plugin settings used with supported games."
+      ]
     },
     {
       "Version": "8.1.8",
@@ -333,7 +335,9 @@
 		"Bug Fix: Fixed 'PX_Recoil' logic so that it doesn't freeze with a value of 1 (clashed with ammo math tracker, and would not reset back to 0 until another action reset the loop).",
         "Bug Fix: Fixed logic for Demulshooter compatibility toggle (adds PX_Recoil and PX_Damaged state outputs with that specific naming convention)."
       ],
-      "ChangesDatabase": []
+      "ChangesDatabase": [
+        "No changes to underlying memory addresses or plugin settings used with supported games."
+      ]
     },
     {
       "Version": "8.1.7",
@@ -345,7 +349,9 @@
       "ChangesPlugin": [
         "Bug Fix: Fixed 'PX_Damage' not being triggered in logic when processing life lost state events."
       ],
-      "ChangesDatabase": []
+      "ChangesDatabase": [
+        "No changes to underlying memory addresses or plugin settings used with supported games."
+      ]
     },
     {
       "Version": "8.1.6",
@@ -357,7 +363,9 @@
       "ChangesPlugin": [
         "Initial beta for testing state outputs using MAME plugin architecture."
       ],
-      "ChangesDatabase": []
+      "ChangesDatabase": [
+        "No changes to underlying memory addresses or plugin settings used with supported games."
+      ]
     },
 	{
       "Version": "7.5.1",
@@ -369,8 +377,28 @@
       "ChangesPlugin": [
         "v7 and below are incompatible with the Configurator app as they utilised the older MAME Lua Script architecture. This version is being included only for archival purposes, as it was the last Lua script based release for this project."
       ],
-      "ChangesDatabase": []
+      "ChangesDatabase": [
+        "No changes to underlying memory addresses or plugin settings used with supported games."
+      ]
     }
   ],
-    "PluginBeta": []
+    "PluginBeta": [
+    {
+      "Version": "8.2.2",
+      "ReleaseDatePlugin": "2026.06.10",
+      "ReleaseDateDatabase": "2026.06.10",
+      "PackageLocation": "Updater/Plugin/Archive/Beta",
+      "PackageName": "MSOP_PLUGIN_v8.2.2_2026.06.10",
+      "PackageType": ".zip",
+      "ChangesPlugin": [
+        "init.lua: Fixed Damage and DamageTaken from triggering in certain edge cases when a player's life increases despite logic dictacting that an increase in life does not relate to a damage state event.",
+        "init.lua: Fixed flushing of warmup values when opening consecutive ROMs without fully exiting MAME between each ROM launch. This will ensure force feedback is disabled until a player is active in the game.",
+        "init.lua: Fixed ShotsFired and ShotsFiredPrimary so that in games where ammo may equal 0 but shots can still be fired at half rate, the counters will still continue to increase as appropriate."
+      ],
+      "ChangesDatabase": [
+        "_default: Adjusted name, version, and date to suit latest plugin release.",
+        "jpark: Removed life for P1 and P2 as this value shifts in memory address with every new player start, which eventually causes a misalignment in game logic. Recoil still works fine, only life has been removed which will affect rumble or vibration force feedback."
+	  ]
+    }
+    ]
 }
