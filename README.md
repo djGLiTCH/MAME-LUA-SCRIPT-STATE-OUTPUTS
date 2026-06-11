@@ -48,35 +48,43 @@ This plugin handles the logic, while your external Output Program handles the co
 
 ## 🕹️ Supported MAME ROMs / Games
 
+While there are no guarantees that support will be added for every MAME ROM / game (as this takes a lot of my personal time without community contributions and technical hurdles may prevent some games from being supported), the Google Sheets spreadsheet below is used by MSOP for tracking the current status of known MAME ROMs / games.
+
+[MSOP - Supported Games](https://docs.google.com/spreadsheets/d/17VVvfFBOEA-wKUkgWtro3O3fWqo9LeqYRcmX1Q6i5V4/edit?usp=sharing)
+
+If you would like edit access in the spreadsheet to fill in missing information, incorrect details, and/or add to the list of MAME ROMs / games, please raise a GitHub issue or DM me on Discord so I can share edit permissions with your Google account.
+
+As a reminder, the focus at this stage has been on light gun games, but this can be extended to other game genres if the community is interested and willing to step in and help out. :)
+
 The latest source code and release includes support for the following MAME ROMs / games:
 
-| ROM | Game |
-| :--- | :--- |
-| `alien3` | Alien3: The Gun |
-| `area51` | Area 51 |
-| `area51mx` | Area 51 / Maximum Force Duo |
-| `bbust2` | Beast Busters: Second Nightmare |
-| `bel` | Behind Enemy Lines |
-| `carnevil` | CarnEvil |
-| `cryptklr` | Crypt Killer |
-| `dragngun` | Dragon Gun |
-| `duckhunt` | Vs. Duck Hunt |
-| `hotd` | The House of the Dead |
-| `invasnab` | Invasion: The Abductors |
-| `jdredd` | Judge Dredd |
-| `jpark` | Jurassic Park |
-| `le2` | Lethal Enforcers II: Gun Fighters |
-| `lethalen` | Lethal Enforcers |
-| `lethalj` | Lethal Justice |
-| `maxforce` | Maximum Force |
-| `policetr` | Police Trainer |
-| `ptblank` | Point Blank |
-| `sgunner` | Steel Gunner |
-| `sgunner2` | Steel Gunner 2 |
-| `timecris` | Time Crisis |
-| `timecrs2` | Time Crisis II |
-| `vcop` | Virtua Cop |
-| `vcop2` | Virtua Cop 2 |
+| ROM | Game | Comments |
+| :--- | :--- | :--- |
+| `alien3` | Alien3: The Gun | Working |
+| `area51` | Area 51 | Working |
+| `area51mx` | Area 51 / Maximum Force Duo | Working<br>Counters (e.g. ShotsFired, LifeLost, etc.) are disabled due to 2-in-1 game. |
+| `bbust2` | Beast Busters: Second Nightmare | Working |
+| `bel` | Behind Enemy Lines | Working<br>Slowed fire rate when Ammo = 0 may require further timing adjustments. |
+| `carnevil` | CarnEvil | Working |
+| `cryptklr` | Crypt Killer | Working |
+| `dragngun` | Dragon Gun | Working |
+| `duckhunt` | Vs. Duck Hunt | Working |
+| `hotd` | The House of the Dead | Working |
+| `invasnab` | Invasion: The Abductors | Working |
+| `jdredd` | Judge Dredd | Working |
+| `jpark` | Jurassic Park | Working<br>Life and Ammo are disabled due to memory addresses shifting with new player life.<br>Recoil, Status, and Lamp Start are enabled. |
+| `le2` | Lethal Enforcers II: Gun Fighters | Working |
+| `lethalen` | Lethal Enforcers | Working |
+| `lethalj` | Lethal Justice | Working |
+| `maxforce` | Maximum Force | Working |
+| `policetr` | Police Trainer | Working |
+| `ptblank` | Point Blank | Working |
+| `sgunner` | Steel Gunner | Working |
+| `sgunner2` | Steel Gunner 2 | Working |
+| `timecris` | Time Crisis | Working |
+| `timecrs2` | Time Crisis II | Working |
+| `vcop` | Virtua Cop | Working |
+| `vcop2` | Virtua Cop 2 | Working |
 
 If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 
