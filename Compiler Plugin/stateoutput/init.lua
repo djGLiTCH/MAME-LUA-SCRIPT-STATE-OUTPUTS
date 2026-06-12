@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT
 -- MSOP PLUGIN
--- Plugin Version: 8.2.2
--- Plugin Date: 2026.06.10
+-- Plugin Version: 8.2.3
+-- Plugin Date: 2026.06.12
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,7 +15,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.2.2",
+    version = "8.2.3",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -208,7 +208,20 @@ function stateoutput.startplugin()
             return tostring(val)
         end
 
-        -- Map CPU paths
+        -- -------------------------------------------------------------------------
+        -- MAP CPU TAGS AND MEMORY SPACES
+        -- By default, MSOP targets the ":maincpu" and its "program" address space.
+        --
+        -- ADVANCED FEATURE: The "region" Memory Space
+        -- If a specific variable's MEMORY_SPACE is set to "region" in the game's JSON,
+        -- the plugin will bypass the CPU's logical address map and interface directly 
+        -- with MAME's raw physical memory regions (manager.machine.memory.regions).
+        -- 
+        -- WHEN TO USE "region": 
+        -- Use this exclusively when you need to write/patch instructions into Read-Only 
+        -- Memory (ROM), such as applying a 'Screen Flash Disable' patch. MAME natively 
+        -- blocks write attempts to ROM if routed through standard CPU spaces ("program").
+        -- -------------------------------------------------------------------------
         for _, key in ipairs(data_types) do
             local t = Resolve_Mem_Path(CFG.CPU_TAGS and CFG.CPU_TAGS[key], CFG.CPU_TAG or ":maincpu")
             local s = Resolve_Mem_Path(CFG.MEMORY_SPACES and CFG.MEMORY_SPACES[key], CFG.MEMORY_SPACE or "program")
@@ -312,6 +325,7 @@ function stateoutput.startplugin()
         if not mem_handle then return 0 end
         if width == 16 then return mem_handle:read_u16(source) end
         if width == 32 then return mem_handle:read_u32(source) end
+        if width == 64 then return mem_handle:read_u64(source) end
         return mem_handle:read_u8(source)
     end
     
@@ -326,6 +340,7 @@ function stateoutput.startplugin()
         if type(width) == "string" then return end -- Outputs/Floats not supported for memory patching
         if width == 16 then mem_handle:write_u16(source, value)
         elseif width == 32 then mem_handle:write_u32(source, value)
+        elseif width == 64 then mem_handle:write_u64(source, value)
         else mem_handle:write_u8(source, value) end
     end
 
@@ -420,12 +435,21 @@ function stateoutput.startplugin()
         local current_time = machine.time
         if not out then return end
         
+        -- -------------------------------------------------------------------------
         -- PERFORMANCE OPTIMIZATION: One-Time Bus Binding Cache
-        -- Finds the specific MAME CPU context only on frame 1, storing it locally.
+        -- Finds the specific MAME context only on frame 1, storing it locally.
+        -- If the user configured a memory space as "region", we hook directly into the
+        -- physical ROM memory region instead of the CPU address space to allow safe patching.
+        -- -------------------------------------------------------------------------
         if not _HardwareBound then
             for key, conf in pairs(_MemConfig) do
-                local dev = machine.devices[conf.tag]
-                if dev and dev.spaces[conf.space] then _MemHandles[key] = dev.spaces[conf.space] end
+                if string.lower(conf.space) == "region" then
+                    local reg = machine.memory.regions[conf.tag]
+                    if reg then _MemHandles[key] = reg end
+                else
+                    local dev = machine.devices[conf.tag]
+                    if dev and dev.spaces[conf.space] then _MemHandles[key] = dev.spaces[conf.space] end
+                end
             end
             _HardwareBound = true
         end
@@ -488,8 +512,8 @@ function stateoutput.startplugin()
                 elseif current_credits < _LastGlobalCredits then
                     _PendingGlobalCreditDrops = _PendingGlobalCreditDrops + (_LastGlobalCredits - current_credits)
                 end
+                _LastGlobalCredits = current_credits
             end
-            _LastGlobalCredits = current_credits
             if current_credits > 0 and warmup_ok then _HasCoinedUp = true end
         end
 
@@ -573,8 +597,8 @@ function stateoutput.startplugin()
                         elseif p_credits < p.LastCredits then
                             p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - p_credits)
                         end
+                        p.LastCredits = p_credits
                     end
-                    p.LastCredits = p_credits
                 elseif cfg.CREDITS == "auto" and CFG.CREDITS then 
                     p_credits = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS) 
                     p_credits_known = true
@@ -587,24 +611,7 @@ function stateoutput.startplugin()
                         elseif p_credits < p.LastCredits then
                             p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - p_credits)
                         end
-                    end
-                    p.LastCredits = p_credits
-                end
-            end
-            
-            if CFG.ENABLE_CREDIT_COUNT and warmup_ok then
-                local spawned = false
-                if cfg.LIFE then
-                    if CFG.LIFE_DIRECTION == "decrease" and curr_life > p.LastLife and p.LastLife == 0 then spawned = true
-                    elseif CFG.LIFE_DIRECTION == "increase" and curr_life < p.LastLife and curr_life == 0 then spawned = true end
-                end
-                if spawned then
-                    if p.PendingCreditDrops > 0 then
-                        p.CreditsConsumed = p.CreditsConsumed + 1; p.PendingCreditDrops = p.PendingCreditDrops - 1
-                        Set_Output(i, "CREDITS_CONSUMED", p.CreditsConsumed)
-                    elseif _PendingGlobalCreditDrops > 0 then
-                        p.CreditsConsumed = p.CreditsConsumed + 1; _PendingGlobalCreditDrops = _PendingGlobalCreditDrops - 1
-                        Set_Output(i, "CREDITS_CONSUMED", p.CreditsConsumed)
+                        p.LastCredits = p_credits
                     end
                 end
             end
@@ -658,6 +665,36 @@ function stateoutput.startplugin()
             
             if cfg.STATUS then Set_Output(i, "STATUS", out_status_val) end
             if cfg.STATUS_ALT then Set_Output(i, "STATUS_ALT", out_status_alt_val) end
+
+            if CFG.ENABLE_CREDIT_COUNT and warmup_ok then
+                local spawned = false
+                
+                -- Check 1: Did Player Status just change from inactive to active
+                if is_player_active and not p.WasActive then
+                    spawned = true
+                    
+                -- Check 2: Did life reset while Player Status remained active (for player continues)
+                elseif cfg.LIFE then
+                    if CFG.LIFE_DIRECTION == "decrease" and curr_life > p.LastLife and p.LastLife == 0 then spawned = true
+                    elseif CFG.LIFE_DIRECTION == "increase" and curr_life < p.LastLife and curr_life == 0 then spawned = true end
+                end
+                
+                if spawned then p.SpawnsAwaitingCredit = p.SpawnsAwaitingCredit + 1 end
+                
+                if p.SpawnsAwaitingCredit > 0 then
+                    if p.PendingCreditDrops > 0 then
+                        p.CreditsConsumed = p.CreditsConsumed + 1
+                        p.PendingCreditDrops = p.PendingCreditDrops - 1
+                        p.SpawnsAwaitingCredit = p.SpawnsAwaitingCredit - 1
+                        Set_Output(i, "CREDITS_CONSUMED", p.CreditsConsumed)
+                    elseif _PendingGlobalCreditDrops > 0 then
+                        p.CreditsConsumed = p.CreditsConsumed + 1
+                        _PendingGlobalCreditDrops = _PendingGlobalCreditDrops - 1
+                        p.SpawnsAwaitingCredit = p.SpawnsAwaitingCredit - 1
+                        Set_Output(i, "CREDITS_CONSUMED", p.CreditsConsumed)
+                    end
+                end
+            end
 
             local just_died = (not is_player_active and p.WasActive)
             local primary_active = (out_status_val == 1)
@@ -947,8 +984,8 @@ function stateoutput.startplugin()
                 elseif aggregated_credits < _LastGlobalCredits then
                     _PendingGlobalCreditDrops = _PendingGlobalCreditDrops + (_LastGlobalCredits - aggregated_credits)
                 end
+                _LastGlobalCredits = aggregated_credits
             end
-            _LastGlobalCredits = aggregated_credits
             if aggregated_credits > 0 and warmup_ok then _HasCoinedUp = true end
         end
         
@@ -961,7 +998,10 @@ function stateoutput.startplugin()
                 _GameInactiveTick = current_time 
             elseif CFG.CREDITS_CLEAR_TIMEOUT_SEC and (current_time - _GameInactiveTick > emu.attotime.from_seconds(CFG.CREDITS_CLEAR_TIMEOUT_SEC)) then
                 _PendingGlobalCreditDrops = 0
-                for i = 1, CFG.MAX_PLAYERS do _Player[i].PendingCreditDrops = 0 end
+                for i = 1, CFG.MAX_PLAYERS do 
+                    _Player[i].PendingCreditDrops = 0 
+                    _Player[i].SpawnsAwaitingCredit = 0
+                end
             end
         else
             _GameInactiveTick = _ZeroTime
@@ -971,8 +1011,19 @@ function stateoutput.startplugin()
         -- PHASE 5: MEMORY PATCHING (Anti-Seizure)
         -- Actively overwrites MAME memory to disable blinding flashes.
         -- ----------------------------------------------
-        if warmup_ok and CFG.SCREEN_FLASH and CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_DISABLE_VALUE then
-            Write_Data_Safe(_MemHandles["SCREEN_FLASH"], CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_DISABLE_VALUE)
+        if warmup_ok and CFG.SCREEN_FLASH then
+            -- 1. Process Global Patch (If configured)
+            if CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_DISABLE_VALUE then
+                Write_Data_Safe(_MemHandles["SCREEN_FLASH"], CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_DISABLE_VALUE)
+            end
+            
+            -- 2. Process Per-Player Patches
+            for i = 1, CFG.MAX_PLAYERS do
+                local p_cfg = _PlayerCFG[i]
+                if p_cfg.SCREEN_FLASH_MEMORY_ADDRESS and p_cfg.SCREEN_FLASH_DISABLE_VALUE then
+                    Write_Data_Safe(_MemHandles["SCREEN_FLASH"], p_cfg.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, p_cfg.SCREEN_FLASH_DISABLE_VALUE)
+                end
+            end
         end
     end
 
@@ -998,12 +1049,34 @@ function stateoutput.startplugin()
         _IsShuttingDown = true
         
         -- Safely restore modified memory values before shutting down
-        if CFG and CFG.SCREEN_FLASH and CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_RESTORE_VALUE then
+        if CFG and CFG.SCREEN_FLASH then
             local conf = _MemConfig["SCREEN_FLASH"]
-            if conf and manager and manager.machine and manager.machine.devices[conf.tag] then
-                local dev = manager.machine.devices[conf.tag]
-                if dev.spaces[conf.space] then
-                    Write_Data_Safe(dev.spaces[conf.space], CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_RESTORE_VALUE)
+            if conf and manager and manager.machine then
+                
+                -- Determine the exact memory space hook
+                local mem_handle = nil
+                if string.lower(conf.space) == "region" then
+                    mem_handle = manager.machine.memory.regions[conf.tag]
+                elseif manager.machine.devices[conf.tag] then
+                    local dev = manager.machine.devices[conf.tag]
+                    if dev.spaces[conf.space] then
+                        mem_handle = dev.spaces[conf.space]
+                    end
+                end
+                
+                if mem_handle then
+                    -- 1. Restore Global Patch
+                    if CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_RESTORE_VALUE then
+                        Write_Data_Safe(mem_handle, CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_RESTORE_VALUE)
+                    end
+                    
+                    -- 2. Restore Per-Player Patches
+                    for i = 1, CFG.MAX_PLAYERS do
+                        local p_cfg = _PlayerCFG[i]
+                        if p_cfg and p_cfg.SCREEN_FLASH_MEMORY_ADDRESS and p_cfg.SCREEN_FLASH_RESTORE_VALUE then
+                            Write_Data_Safe(mem_handle, p_cfg.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, p_cfg.SCREEN_FLASH_RESTORE_VALUE)
+                        end
+                    end
                 end
             end
         end
@@ -1081,7 +1154,7 @@ function stateoutput.startplugin()
                     LastOutputs={}, LastAmmo=0, LastAmmoAlt=0, LastAmmoGrenade=0, LastLife=0, LastLifeAlt=0, LastDmgMem=0, LastCredits=0, LastReloadVal=0,
                     RecoilTick=_ZeroTime, ReloadTick=_ZeroTime, DamageTick=_ZeroTime, RumbleTick=_ZeroTime,
                     CurrentRecoilDuration=_RecoilDuration, LastRecoilVal=0, LastDamageVal=0, LastRumbleEventVal=0,
-                    ShotCountPrimary=0, ShotCountAlt=0, ShotCountGrenade=0, DamageCount=0, LifeLostCount=0, CreditsInserted=0, CreditsConsumed=0, PendingCreditDrops=0,
+                    ShotCountPrimary=0, ShotCountAlt=0, ShotCountGrenade=0, DamageCount=0, LifeLostCount=0, CreditsInserted=0, CreditsConsumed=0, PendingCreditDrops=0, SpawnsAwaitingCredit=0,
                     IsActive=false, WasActive=false, ActiveTick=_ZeroTime,
                     IsRecoilActive=false, IsReloadActive=false, IsDamageActive=false, IsRumbleActive=false,
                     IsFFBAllowed=false, WasFFBAllowed=false
