@@ -148,7 +148,7 @@
       "OffscreenReload": true,
       "LightGunPatch": false,
       "ScreenFlash": true,
-      "ScreenFlashFix": false,
+      "ScreenFlashFix": true,
       "NativeStateOutput": false,
       "SupportedVersion": "8.1.6",
       "ROMID": 38
@@ -233,7 +233,7 @@
       "OffscreenReload": true,
       "LightGunPatch": false,
       "ScreenFlash": true,
-      "ScreenFlashFix": false,
+      "ScreenFlashFix": true,
       "NativeStateOutput": false,
       "SupportedVersion": "8.1.6",
       "ROMID": 46
@@ -273,6 +273,23 @@
       "ROMID": 51
     },
     {
+      "ROM": "opwolf",
+      "Name": "Operation Wolf",
+      "ReleaseYear": "1987",
+      "DeveloperPublisher": "Taito Corporation Japan",
+      "Category": "Rail Shooter",
+      "ArcadeHardware": "Taito Custom",
+      "CHD": false,
+      "MAMECompatibility": "Working",
+      "OffscreenReload": false,
+      "LightGunPatch": false,
+      "ScreenFlash": true,
+      "ScreenFlashFix": true,
+      "NativeStateOutput": true,
+      "SupportedVersion": "8.1.6",
+      "ROMID": 61
+    },
+    {
       "ROM": "ptblank",
       "Name": "Point Blank",
       "ReleaseYear": "1994",
@@ -284,7 +301,7 @@
       "OffscreenReload": false,
       "LightGunPatch": false,
       "ScreenFlash": true,
-      "ScreenFlashFix": false,
+      "ScreenFlashFix": true,
       "NativeStateOutput": false,
       "SupportedVersion": "8.1.6",
       "ROMID": 61
@@ -352,7 +369,7 @@
       "OffscreenReload": false,
       "LightGunPatch": false,
       "ScreenFlash": true,
-      "ScreenFlashFix": false,
+      "ScreenFlashFix": true,
       "NativeStateOutput": true,
       "SupportedVersion": "8.1.6",
       "ROMID": 81
@@ -369,7 +386,7 @@
       "OffscreenReload": false,
       "LightGunPatch": false,
       "ScreenFlash": true,
-      "ScreenFlashFix": false,
+      "ScreenFlashFix": true,
       "NativeStateOutput": false,
       "SupportedVersion": "8.1.6",
       "ROMID": 82
