@@ -3,13 +3,18 @@
     "LUA_ROM_ID": 38,
     "OFFSCREEN_RELOAD": true,
     "SCREEN_FLASH": true,
-    "SCREEN_FLASH_MEMORY_ADDRESS": false,
-    "SCREEN_FLASH_DISABLE_VALUE": false,
-    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "SCREEN_FLASH_MEMORY_ADDRESS": "0x00018610",
+    "SCREEN_FLASH_DISABLE_VALUE": "0x0A000000",
+    "SCREEN_FLASH_DISABLE_VALUE_comment": "Special thanks to Pugsy for finding this value",
+    "SCREEN_FLASH_RESTORE_VALUE": "0x001EA05C",
+    "MEMORY_SPACES": {
+        "SCREEN_FLASH": "region"
+    },
     "STARTUP_DELAY_MS": 14000,
     "COINS_PER_CREDIT": 1,
     "COINS_PER_CREDIT_comment": "2 Credits required to start a game for either player, but only 1 Credit required to continue the game once started",
     "DATA_WIDTHS": {
+        "SCREEN_FLASH": 32,
         "LAMP_START": "output"
     },
     "ATTRACT_STATUS": "0x0051F5E8",

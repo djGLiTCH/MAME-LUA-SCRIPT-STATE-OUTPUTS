@@ -1,6 +1,6 @@
 {
-    "LUA_VERSION": 822,
-    "LUA_DATE": 20260610,
+    "LUA_VERSION": 823,
+    "LUA_DATE": 20260612,
     "LUA_GAME": "Default MSOP Plugin Values",
     "LUA_ROM_ID": 0,
     "OFFSCREEN_RELOAD": false,

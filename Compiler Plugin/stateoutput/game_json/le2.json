@@ -3,10 +3,17 @@
     "LUA_ROM_ID": 46,
     "OFFSCREEN_RELOAD": true,
     "SCREEN_FLASH": true,
-    "SCREEN_FLASH_MEMORY_ADDRESS": false,
-    "SCREEN_FLASH_DISABLE_VALUE": false,
-    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "SCREEN_FLASH_MEMORY_ADDRESS": "0x002017A4",
+    "SCREEN_FLASH_DISABLE_VALUE": "0x6004",
+    "SCREEN_FLASH_DISABLE_VALUE_comment": "Special thanks to WunderEnrique for finding this value",
+    "SCREEN_FLASH_RESTORE_VALUE": "0x4239",
+        "MEMORY_SPACES": {
+        "SCREEN_FLASH": "region"
+    },
     "STARTUP_DELAY_MS": 14000,
+    "DATA_WIDTHS": {
+        "SCREEN_FLASH": 16
+    },
     "PLAYER_MEMORY_OFFSET": "0x40",
     "CREDITS": "0x00C012AD",
     "GAME_STATUS": "0x00C00000",

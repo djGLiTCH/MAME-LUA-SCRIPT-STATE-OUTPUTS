@@ -4,6 +4,7 @@
     "SCREEN_FLASH": true,
     "SCREEN_FLASH_MEMORY_ADDRESS": "0x8001512A",
     "SCREEN_FLASH_DISABLE_VALUE": "0x1400",
+    "SCREEN_FLASH_DISABLE_VALUE_comment": "Special thanks to Pugsy for finding this value",
     "SCREEN_FLASH_RESTORE_VALUE": "0x0C03",
     "STARTUP_DELAY_MS": 70000,
     "MAX_PLAYERS": 3,

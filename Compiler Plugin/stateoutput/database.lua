@@ -1,7 +1,7 @@
 --
 -- MAME STATE OUTPUT PROJECT
 -- MSOP DATABASE LUA
--- Database Release Date: 2026.06.10
+-- Database Release Date: 2026.06.12
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -9,8 +9,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 822,
-        ["LUA_DATE"] = 20260610,
+        ["LUA_VERSION"] = 823,
+        ["LUA_DATE"] = 20260612,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["LUA_ROM_ID"] = 0,
         ["OFFSCREEN_RELOAD"] = false,
@@ -465,6 +465,7 @@ local database = {
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x8001512A",
         ["SCREEN_FLASH_DISABLE_VALUE"] = "0x1400",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
         ["SCREEN_FLASH_RESTORE_VALUE"] = "0x0C03",
         ["STARTUP_DELAY_MS"] = 70000,
         ["MAX_PLAYERS"] = 3,
@@ -542,13 +543,18 @@ local database = {
         ["LUA_ROM_ID"] = 38,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00018610",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x0A000000",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x001EA05C",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 14000,
         ["COINS_PER_CREDIT"] = 1,
         ["COINS_PER_CREDIT_comment"] = "2 Credits required to start a game for either player, but only 1 Credit required to continue the game once started",
         ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 32,
             ["LAMP_START"] = "output"
         },
         ["ATTRACT_STATUS"] = "0x0051F5E8",
@@ -675,10 +681,17 @@ local database = {
         ["LUA_ROM_ID"] = 46,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x002017A4",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6004",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x4239",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 14000,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["PLAYER_MEMORY_OFFSET"] = "0x40",
         ["CREDITS"] = "0x00C012AD",
         ["GAME_STATUS"] = "0x00C00000",
@@ -698,6 +711,9 @@ local database = {
         ["SCREEN_FLASH_RESTORE_VALUE"] = false,
         ["STARTUP_DELAY_MS"] = 7000,
         ["COINS_PER_CREDIT"] = 2,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["PLAYER_MEMORY_OFFSET"] = "0x40",
         ["CREDITS"] = "0x00002030",
         ["GAME_STATUS"] = "0x00002000",
@@ -754,6 +770,30 @@ local database = {
             ["STATUS"] = "0x1000A547"
         }
     },
+    ["opwolf"] = {
+        ["LUA_GAME"] = "Operation Wolf",
+        ["LUA_ROM_ID"] = 59,
+        ["SCREEN_FLASH"] = true,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00001131",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x02",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x01",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
+        ["STARTUP_DELAY_MS"] = 4000,
+        ["MAX_PLAYERS"] = 1,
+        ["CREDITS"] = "0x00100D77",
+        ["GAME_STATUS"] = "auto",
+        ["STATUS_ACTIVE_VALUE"] = 1,
+        ["P1"] = {
+            ["STATUS"] = "0x0010008A",
+            ["AMMO"] = "0x00100B1F",
+            ["AMMO_GRENADE"] = "0x00100B23",
+            ["LIFE"] = "0x00100C59"
+        },
+        ["LIFE_DIRECTION"] = "increase"
+    },
     ["policetr"] = {
         ["LUA_GAME"] = "Police Trainer",
         ["LUA_ROM_ID"] = 64,
@@ -791,10 +831,13 @@ local database = {
         ["LUA_GAME"] = "Point Blank",
         ["LUA_ROM_ID"] = 62,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 2000,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["PLAYER_MEMORY_OFFSET"] = "0x02",
         ["CREDITS"] = "0x001C004D",
         ["GAME_STATUS"] = "0x00210081",
@@ -802,10 +845,18 @@ local database = {
             ["STATUS"] = "0x00210427",
             ["AMMO"] = "0x00210011",
             ["LIFE"] = "0x001C00B7",
-            ["DAMAGE"] = "0x001C00B3"
+            ["DAMAGE"] = "0x001C00B3",
+            ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x0000987C",
+            ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6004",
+            ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+            ["SCREEN_FLASH_RESTORE_VALUE"] = "0x026E"
         },
         ["P2"] = {
-            ["STATUS"] = "0x002105C5"
+            ["STATUS"] = "0x002105C5",
+            ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00009902",
+            ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6004",
+            ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+            ["SCREEN_FLASH_RESTORE_VALUE"] = "0x026E"
         },
         ["AMMO_DIRECTION"] = "increase"
     },
@@ -855,13 +906,20 @@ local database = {
         ["LUA_GAME"] = "Time Crisis",
         ["LUA_ROM_ID"] = 81,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x0000923C",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6006",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x13FC",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 3000,
         ["COINS_PER_CREDIT"] = 3,
         ["MAX_PLAYERS"] = 1,
         ["SIMULTANEOUS_PLAY"] = false,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["CREDITS"] = "0x00E0D2A1",
         ["GAME_STATUS"] = "0x00E01772",
         ["P1"] = {
@@ -874,13 +932,17 @@ local database = {
         ["LUA_GAME"] = "Time Crisis II",
         ["LUA_ROM_ID"] = 82,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x8009192C",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x03E0000800000000",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
         ["SCREEN_FLASH_RESTORE_VALUE"] = false,
         ["STARTUP_DELAY_MS"] = 17000,
         ["COINS_PER_CREDIT"] = 4,
         ["MAX_PLAYERS"] = 1,
         ["SIMULTANEOUS_PLAY"] = false,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 64
+        },
         ["CREDITS"] = "0x002CE7B7",
         ["GAME_STATUS"] = "0x002CE8AF",
         ["P1"] = {
