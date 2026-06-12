@@ -1,6 +1,20 @@
 {
   "Configurator": [
     {
+      "Version": "0.9.9",
+      "ReleaseDate": "2026.06.12",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MSOP_CONFIGURATOR_v0.9.9_2026.06.12",
+      "PackageType": ".zip",
+      "FileName": "MSOP_CONFIGURATOR.exe",
+      "Changes": [
+        "Bug Fix: When using 'Portable' Storage Mode, this could sometimes mistakenly show up with the incorrect toggle value during app startup, which would result in the local folder being mistakenly deleted when the user toggles from 'Standard' back to 'Portable' storage mode. This issue has now been fixed.",
+        "UI Polish: Allowed users to manually toggle on the Player State Output Summary tables for games that aren't supported (options 1, 2, 3, 4) in the Diagnostics page. If set to 'Auto', this will automatically reveal active players for supported games, but if the game is not supported then no active players will be revealed. If set to 'Off', no Player State Output Summary tables will be shown for any player regardless of whether they are supported or not supported.",
+        "UI Polish: Fixed the MAME State Output Log in the Diagnostics page so that it doesn't continue moving your scroll position if you scroll down to read old events. This was only half working before, but has now been fully fixed.",
+        "UI Polish: If an active ROM is supported by MSOP, it will be coloured green in the Diagnostics page. If an active ROM is not supported by MSOP, it will be coloured red in the Diagnostics page."
+      ]
+    },
+    {
       "Version": "0.9.8",
       "ReleaseDate": "2026.06.10",
       "PackageLocation": "Updater/Configurator/Archive",
@@ -423,6 +437,30 @@
     }
   ],
     "PluginBeta": [
+    {
+      "Version": "8.2.3",
+      "ReleaseDatePlugin": "2026.06.12",
+      "ReleaseDateDatabase": "2026.06.12",
+      "PackageLocation": "Updater/Plugin/Archive/Beta",
+      "PackageName": "MSOP_PLUGIN_v8.2.3_2026.06.12",
+      "PackageType": ".zip",
+      "ChangesPlugin": [
+        "init.lua: Added new feature that enables access to memory space as a 'region', which will hook directly into the physical ROM memory region instead of the CPU address space to allow safe patching (required in some instances for functions like Screen Flash removal).",
+        "init.lua: Added new feature that enables per player screen flash removal for games where each player can trigger a screen flash independently of each other.",
+        "init.lua: Added new feature that enables 64-bit data width for reading and writing memory address values.",
+        "init.lua: Fixed the PX_CreditsConsumed logic so that it correctly works for games where LIFE_DIRECTION = 'increase' (previously it was only working in games where LIFE_DIRECTION = 'decrease').",
+        "init.lua: Revised the PX_CreditsConsumed logic to account for instances where Player Status may change faster than the Credit counter can decrease. This will need to be checked against each game to check for logic edge cases."
+      ],
+      "ChangesDatabase": [
+        "cryptklr: Minor change to screen flash disable (functionally identical to previous revisions). Special thanks to Pugsy for the Screen Flash Disable value.",
+        "hotd: Screen flash has been successfully disabled. Special thanks to Pugsy for the Screen Flash Disable value.",
+        "le2: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
+        "opwolf: Added new supported game. Includes recoil, damage, ammo (machine gun), ammo_grenade (bombs), life, player status, and screen flash disable. Special thanks to Pugsy for Screen Flash disable value.",
+        "ptblank: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
+        "timecris: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
+        "timecrs2: Screen flash has been successfully disabled. Special thanks to Pugsy for the Screen Flash Disable value."
+	  ]
+    },
     {
       "Version": "8.2.2",
       "ReleaseDatePlugin": "2026.06.10",
