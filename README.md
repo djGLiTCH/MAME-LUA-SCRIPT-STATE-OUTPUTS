@@ -68,6 +68,7 @@ The latest source code and release includes support for the following MAME ROMs 
 | `carnevil` | CarnEvil | Working |
 | `cryptklr` | Crypt Killer | Working |
 | `dragngun` | Dragon Gun | Working |
+| `dragngunj` | Dragon Gun (Japan) | Working |
 | `duckhunt` | Vs. Duck Hunt | Working |
 | `hotd` | The House of the Dead | Working |
 | `invasnab` | Invasion: The Abductors | Working |
@@ -81,7 +82,9 @@ The latest source code and release includes support for the following MAME ROMs 
 | `policetr` | Police Trainer | Working |
 | `ptblank` | Point Blank | Working |
 | `sgunner` | Steel Gunner | Working |
+| `sgunnerj` | Steel Gunner (Japan) | Working |
 | `sgunner2` | Steel Gunner 2 | Working |
+| `sgunner2j` | Steel Gunner 2 (Japan) | Working |
 | `timecris` | Time Crisis | Working |
 | `timecrs2` | Time Crisis II | Working |
 | `vcop` | Virtua Cop | Working |
