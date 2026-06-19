@@ -1,5 +1,6 @@
 {
     "LUA_GAME": "Invasion: The Abductors",
+    "ENABLE_ROM": true,
     "LUA_ROM_ID": 40,
     "OFFSCREEN_RELOAD": true,
     "STARTUP_DELAY_MS": 7000,

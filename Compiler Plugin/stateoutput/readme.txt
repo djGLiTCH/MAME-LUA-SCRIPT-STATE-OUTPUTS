@@ -4,9 +4,9 @@ MAME State Output Project (MSOP)
 
 PROJECT DETAILS
 --------------------------------------------------------------------------------
-Plugin Version: 8.2.3
-Plugin Date:    2026.06.12
-Database Date:  2026.06.12
+Plugin Version: 8.2.4
+Plugin Date:    2026.06.19
+Database Date:  2026.06.19
 Contributors:   Muggins (tester), Hexxed (ideas), Bandicoot (tester), 
                 PolybiusExtreme (feedback), Argon (inspiration)
 License:        GNU General Public License GPL-v3.0

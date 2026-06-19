@@ -7,9 +7,9 @@
         "AMMO": 16
     },
     "PLAYER_MEMORY_OFFSET": "0x2",
-    "GAME_STATUS": "0x001002E7",
+    "CREDITS": "0x00108C11",
+    "GAME_STATUS": "0x00100121",
     "P1": {
-        "CREDITS": "0x00100121",
         "STATUS": "auto",
         "AMMO": "0x00100324",
         "AMMO_comment": "Primary Machine Gun",

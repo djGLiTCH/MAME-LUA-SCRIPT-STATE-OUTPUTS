@@ -1,7 +1,8 @@
 {
-    "LUA_VERSION": 823,
-    "LUA_DATE": 20260612,
+    "LUA_VERSION": 824,
+    "LUA_DATE": 20260619,
     "LUA_GAME": "Default MSOP Plugin Values",
+    "ENABLE_ROM": false,
     "LUA_ROM_ID": 0,
     "OFFSCREEN_RELOAD": false,
     "LIGHTGUN_PATCH": false,

@@ -1,5 +1,6 @@
 {
     "LUA_GAME": "Area 51",
+    "ENABLE_ROM": true,
     "LUA_ROM_ID": 2,
     "OFFSCREEN_RELOAD": true,
     "SCREEN_FLASH": true,

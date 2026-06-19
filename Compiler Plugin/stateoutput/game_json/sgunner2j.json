@@ -4,9 +4,9 @@
     "LUA_ROM_ID": 78,
     "STARTUP_DELAY_MS": 4000,
     "PLAYER_MEMORY_OFFSET": "0x2",
+    "CREDITS": "0x00108C11",
     "GAME_STATUS": "0x00100944",
     "P1": {
-        "CREDITS": "0x00108C11",
         "STATUS": "0x00108AED",
         "AMMO": "0x00108D43",
         "AMMO_comment": "Primary Machine Gun",

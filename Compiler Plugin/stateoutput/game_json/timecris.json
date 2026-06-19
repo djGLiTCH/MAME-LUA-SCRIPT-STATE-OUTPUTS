@@ -1,5 +1,6 @@
 {
     "LUA_GAME": "Time Crisis",
+    "ENABLE_ROM": true,
     "LUA_ROM_ID": 81,
     "SCREEN_FLASH": true,
     "SCREEN_FLASH_MEMORY_ADDRESS": "0x0000923C",

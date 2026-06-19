@@ -1,5 +1,6 @@
 {
     "LUA_GAME": "Point Blank",
+    "ENABLE_ROM": true,
     "LUA_ROM_ID": 62,
     "SCREEN_FLASH": true,
     "MEMORY_SPACES": {
