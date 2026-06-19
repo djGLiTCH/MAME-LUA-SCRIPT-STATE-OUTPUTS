@@ -1,6 +1,20 @@
 {
   "Configurator": [
     {
+      "Version": "1.0.0",
+      "ReleaseDate": "2026.06.19",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MSOP_CONFIGURATOR_v1.0.0_2026.06.19",
+      "PackageType": ".zip",
+      "FileName": "MSOP_CONFIGURATOR.exe",
+      "Changes": [
+        "Architectural Overhaul: When an update is performed or the MSOP Configurator app is opened, all MAME instances will be instantaneously updated to ensure alignment with the 'enable' toggle in the Supported Games page.",
+        "Bug Fix: Checkbox options in the MAME page were not being saved correctly in config.json after interactions. This affected the 'MAME Output Mode' and 'MAME Off-Screen Reload Compatibility' options, but these have now been fixed and work as expected.",
+        "Feature Added: Added new 'enable' toggle in the Supported Games page so users can manually enable or disable supported games within the MSOP Plugin. This is only intended for use if you are using your own custom script or build that causes a conflict with the MSOP Plugin for a specific game / ROM, and so there should be no other reason you need to use this, but it's always nice to have options.",
+        "Feature Added: Replaced old 'legacy' file detection for ini files and Lua scripts, and replaced it with more advanced logic that allows the user to keep detected ini files and Lua scripts if they opt out of the file removal, but if file removal is denied then no support can be provided for the MSOP Plugin as there is the potential for conflicts with those existing ini files and / or Lua scripts being kept."
+      ]
+    },
+    {
       "Version": "0.9.9",
       "ReleaseDate": "2026.06.12",
       "PackageLocation": "Updater/Configurator/Archive",
@@ -313,6 +327,47 @@
   ],
   "PluginStable": [
     {
+      "Version": "8.2.4",
+      "ReleaseDatePlugin": "2026.06.19",
+      "ReleaseDateDatabase": "2026.06.19",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MSOP_PLUGIN_v8.2.4_2026.06.19",
+      "PackageType": ".zip",
+      "ChangesPlugin": [
+        "init.lua: Added new feature to support enabling or disabling individual supported game ROMs with MSOP Plugin (in case MSOP causes clashes with custom scripts some users have for specific games)."
+      ],
+      "ChangesDatabase": [
+        "_default: Added new function 'ENABLE_ROM' that can be set to true or false, but is set to true by default for all ROMs."
+        "dragngunj: Added new supported game. Clone of dragngun. Same as dragngun memory addresses.",
+        "sgunnerj: Added new supported game. Clone of sgunner. Different Credits memory address.",
+        "sgunner2j: Added new supported game. Clone of sgunner2. Different Credits memory address."
+      ]
+    },
+    {
+      "Version": "8.2.3",
+      "ReleaseDatePlugin": "2026.06.12",
+      "ReleaseDateDatabase": "2026.06.12",
+      "PackageLocation": "Updater/Plugin/Archive",
+      "PackageName": "MSOP_PLUGIN_v8.2.3_2026.06.12",
+      "PackageType": ".zip",
+      "ChangesPlugin": [
+        "init.lua: Added new feature that enables access to memory space as a 'region', which will hook directly into the physical ROM memory region instead of the CPU address space to allow safe patching (required in some instances for functions like Screen Flash removal).",
+        "init.lua: Added new feature that enables per player screen flash removal for games where each player can trigger a screen flash independently of each other.",
+        "init.lua: Added new feature that enables 64-bit data width for reading and writing memory address values.",
+        "init.lua: Fixed the PX_CreditsConsumed logic so that it correctly works for games where LIFE_DIRECTION = 'increase' (previously it was only working in games where LIFE_DIRECTION = 'decrease').",
+        "init.lua: Revised the PX_CreditsConsumed logic to account for instances where Player Status may change faster than the Credit counter can decrease. This will need to be checked against each game to check for logic edge cases."
+      ],
+      "ChangesDatabase": [
+        "cryptklr: Minor change to screen flash disable (functionally identical to previous revisions). Special thanks to Pugsy for the Screen Flash Disable value.",
+        "hotd: Screen flash has been successfully disabled. Special thanks to Pugsy for the Screen Flash Disable value.",
+        "le2: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
+        "opwolf: Added new supported game. Includes recoil, damage, ammo (machine gun), ammo_grenade (bombs), life, player status, and screen flash disable. Special thanks to Pugsy for Screen Flash disable value.",
+        "ptblank: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
+        "timecris: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
+        "timecrs2: Screen flash has been successfully disabled. Special thanks to Pugsy for the Screen Flash Disable value."
+      ]
+    },
+    {
       "Version": "8.2.2",
       "ReleaseDatePlugin": "2026.06.10",
       "ReleaseDateDatabase": "2026.06.10",
@@ -438,6 +493,23 @@
   ],
     "PluginBeta": [
     {
+      "Version": "8.2.4",
+      "ReleaseDatePlugin": "2026.06.19",
+      "ReleaseDateDatabase": "2026.06.19",
+      "PackageLocation": "Updater/Plugin/Archive/Beta",
+      "PackageName": "MSOP_PLUGIN_v8.2.4_2026.06.19",
+      "PackageType": ".zip",
+      "ChangesPlugin": [
+        "init.lua: Added new feature to support enabling or disabling individual supported game ROMs with MSOP Plugin (in case MSOP causes clashees with custom scripts some users have for specific games)."
+      ],
+      "ChangesDatabase": [
+        "_default: Added new function 'ENABLE_ROM' that can be set to true or false, but is set to true by default for all ROMs."
+        "dragngunj: Added new supported game. Clone of dragngun. Same as dragngun memory addresses.",
+        "sgunnerj: Added new supported game. Clone of sgunner. Different Credits memory address.",
+        "sgunner2j: Added new supported game. Clone of sgunner2. Different Credits memory address."
+      ]
+    },
+    {
       "Version": "8.2.3",
       "ReleaseDatePlugin": "2026.06.12",
       "ReleaseDateDatabase": "2026.06.12",
@@ -459,7 +531,7 @@
         "ptblank: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
         "timecris: Screen flash has been successfully disabled. Special thanks to WunderEnrique for the Screen Flash Disable value.",
         "timecrs2: Screen flash has been successfully disabled. Special thanks to Pugsy for the Screen Flash Disable value."
-	  ]
+      ]
     },
     {
       "Version": "8.2.2",

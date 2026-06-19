@@ -137,6 +137,23 @@
       "ROMID": 26
     },
     {
+      "ROM": "dragngunj",
+      "Name": "Dragon Gun",
+      "ReleaseYear": "1993",
+      "DeveloperPublisher": "Data East Corporation",
+      "Category": "Rail Shooter",
+      "ArcadeHardware": "Data East 32-bit",
+      "CHD": false,
+      "MAMECompatibility": "Good",
+      "OffscreenReload": false,
+      "LightGunPatch": false,
+      "ScreenFlash": false,
+      "ScreenFlashFix": false,
+      "NativeStateOutput": false,
+      "SupportedVersion": "8.2.4",
+      "ROMID": 26
+    },
+    {
       "ROM": "hotd",
       "Name": "House of The Dead, The",
       "ReleaseYear": "1997",
@@ -341,6 +358,23 @@
       "ROMID": 77
     },
     {
+      "ROM": "sgunnerj",
+      "Name": "Steel Gunner",
+      "ReleaseYear": "1990",
+      "DeveloperPublisher": "Namco",
+      "Category": "Rail Shooter",
+      "ArcadeHardware": "Namco System 2",
+      "CHD": false,
+      "MAMECompatibility": "Good",
+      "OffscreenReload": false,
+      "LightGunPatch": false,
+      "ScreenFlash": false,
+      "ScreenFlashFix": false,
+      "NativeStateOutput": false,
+      "SupportedVersion": "8.2.4",
+      "ROMID": 77
+    },
+    {
       "ROM": "sgunner2",
       "Name": "Steel Gunner 2",
       "ReleaseYear": "1991",
@@ -355,6 +389,23 @@
       "ScreenFlashFix": false,
       "NativeStateOutput": false,
       "SupportedVersion": "8.1.6",
+      "ROMID": 78
+    },
+    {
+      "ROM": "sgunner2j",
+      "Name": "Steel Gunner 2",
+      "ReleaseYear": "1991",
+      "DeveloperPublisher": "Namco",
+      "Category": "Rail Shooter",
+      "ArcadeHardware": "Namco System 2",
+      "CHD": false,
+      "MAMECompatibility": "Good",
+      "OffscreenReload": false,
+      "LightGunPatch": false,
+      "ScreenFlash": false,
+      "ScreenFlashFix": false,
+      "NativeStateOutput": false,
+      "SupportedVersion": "8.2.4",
       "ROMID": 78
     },
     {
