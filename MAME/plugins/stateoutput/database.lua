@@ -1,7 +1,7 @@
 --
 -- MAME STATE OUTPUT PROJECT
 -- MSOP DATABASE LUA
--- Database Release Date: 2026.06.10
+-- Database Release Date: 2026.06.19
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -9,9 +9,10 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 822,
-        ["LUA_DATE"] = 20260610,
+        ["LUA_VERSION"] = 824,
+        ["LUA_DATE"] = 20260619,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
+        ["ENABLE_ROM"] = false,
         ["LUA_ROM_ID"] = 0,
         ["OFFSCREEN_RELOAD"] = false,
         ["LIGHTGUN_PATCH"] = false,
@@ -285,6 +286,7 @@ local database = {
     },
     ["alien3"] = {
         ["LUA_GAME"] = "Alien3: The Gun",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 1,
         ["CPU_TAG"] = ":mainpcb:maincpu",
         ["CPU_TAGS"] = {
@@ -323,6 +325,7 @@ local database = {
     },
     ["area51"] = {
         ["LUA_GAME"] = "Area 51",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 2,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
@@ -341,6 +344,7 @@ local database = {
     },
     ["area51mx"] = {
         ["LUA_GAME"] = "Area 51 / Maximum Force Duo",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 3,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
@@ -381,6 +385,7 @@ local database = {
     },
     ["bbust2"] = {
         ["LUA_GAME"] = "Beast Busters: Second Nightmare",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 6,
         ["STARTUP_DELAY_MS"] = 8000,
         ["DATA_WIDTHS"] = {
@@ -408,6 +413,7 @@ local database = {
     },
     ["bel"] = {
         ["LUA_GAME"] = "Behind Enemy Lines",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 7,
         ["LIGHTGUN_PATCH"] = true,
         ["STARTUP_DELAY_MS"] = 7000,
@@ -442,6 +448,7 @@ local database = {
     },
     ["carnevil"] = {
         ["LUA_GAME"] = "CarnEvil",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 13,
         ["STARTUP_DELAY_MS"] = 23000,
         ["COINS_PER_CREDIT"] = 2,
@@ -461,10 +468,12 @@ local database = {
     },
     ["cryptklr"] = {
         ["LUA_GAME"] = "Crypt Killer",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 22,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x8001512A",
         ["SCREEN_FLASH_DISABLE_VALUE"] = "0x1400",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
         ["SCREEN_FLASH_RESTORE_VALUE"] = "0x0C03",
         ["STARTUP_DELAY_MS"] = 70000,
         ["MAX_PLAYERS"] = 3,
@@ -484,11 +493,44 @@ local database = {
     },
     ["dragngun"] = {
         ["LUA_GAME"] = "Dragon Gun",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 26,
         ["STARTUP_DELAY_MS"] = 4000,
-        ["MIN_RECOIL_INTERVAL_MS"] = 80,
+        ["MIN_RECOIL_INTERVAL_MS"] = 100,
         ["MIN_RECOIL_INTERVAL_MS_comment"] = "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
-        ["RECOIL_HOLD_MS"] = 80,
+        ["RECOIL_HOLD_MS"] = 100,
+        ["RECOIL_HOLD_MS_comment"] = "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+        ["CREDITS"] = "0x0011F220",
+        ["GAME_STATUS"] = "0x0011F1BC",
+        ["P1"] = {
+            ["STATUS"] = "0x0011F1DC",
+            ["STATUS_comment"] = "P1 Status = 0x0011F1DC; P1 Status alternative memory address = 0x00100082",
+            ["AMMO"] = false,
+            ["AMMO_GRENADE"] = "0x0010008A",
+            ["AMMO_GRENADE_comment"] = "AmmoGrenade = Grenade / Bomb",
+            ["LIFE"] = "0x00100008",
+            ["RECOIL"] = "0x0011F1B6",
+            ["RECOIL_comment"] = "Recoil = Trigger Press (hold, not pulse)"
+        },
+        ["P2"] = {
+            ["STATUS"] = "0x0011F1DD",
+            ["STATUS_comment"] = "P2 Status = 0x0011F1DD; P2 Status alternative memory address = 0x00100182",
+            ["AMMO"] = false,
+            ["AMMO_ALT"] = "0x0010018A",
+            ["LIFE"] = "0x00100108",
+            ["RECOIL"] = "0x0011F1B7"
+        },
+        ["RECOIL_METHOD"] = "hold",
+        ["RECOIL_PRIORITY"] = "ammo"
+    },
+    ["dragngunj"] = {
+        ["LUA_GAME"] = "Dragon Gun",
+        ["ENABLE_ROM"] = true,
+        ["LUA_ROM_ID"] = 26,
+        ["STARTUP_DELAY_MS"] = 4000,
+        ["MIN_RECOIL_INTERVAL_MS"] = 100,
+        ["MIN_RECOIL_INTERVAL_MS_comment"] = "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+        ["RECOIL_HOLD_MS"] = 100,
         ["RECOIL_HOLD_MS_comment"] = "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
         ["CREDITS"] = "0x0011F220",
         ["GAME_STATUS"] = "0x0011F1BC",
@@ -515,6 +557,7 @@ local database = {
     },
     ["duckhunt"] = {
         ["LUA_GAME"] = "Duck Hunt",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 27,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -539,16 +582,22 @@ local database = {
     },
     ["hotd"] = {
         ["LUA_GAME"] = "The House of the Dead",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 38,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00018610",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x0A000000",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x001EA05C",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 14000,
         ["COINS_PER_CREDIT"] = 1,
         ["COINS_PER_CREDIT_comment"] = "2 Credits required to start a game for either player, but only 1 Credit required to continue the game once started",
         ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 32,
             ["LAMP_START"] = "output"
         },
         ["ATTRACT_STATUS"] = "0x0051F5E8",
@@ -570,6 +619,7 @@ local database = {
     },
     ["invasnab"] = {
         ["LUA_GAME"] = "Invasion: The Abductors",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 40,
         ["OFFSCREEN_RELOAD"] = true,
         ["STARTUP_DELAY_MS"] = 7000,
@@ -604,6 +654,7 @@ local database = {
     },
     ["jdredd"] = {
         ["LUA_GAME"] = "Judge Dredd",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 41,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
@@ -628,6 +679,7 @@ local database = {
     },
     ["jpark"] = {
         ["LUA_GAME"] = "Jurassic Park",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 42,
         ["LIGHTGUN_PATCH"] = true,
         ["CPU_TAG"] = ":mainpcb:maincpu",
@@ -672,13 +724,21 @@ local database = {
     },
     ["le2"] = {
         ["LUA_GAME"] = "Lethal Enforcers II: Gun Fighters",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 46,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x002017A4",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6004",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x4239",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 14000,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["PLAYER_MEMORY_OFFSET"] = "0x40",
         ["CREDITS"] = "0x00C012AD",
         ["GAME_STATUS"] = "0x00C00000",
@@ -690,6 +750,7 @@ local database = {
     },
     ["lethalen"] = {
         ["LUA_GAME"] = "Lethal Enforcers",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 45,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
@@ -698,6 +759,9 @@ local database = {
         ["SCREEN_FLASH_RESTORE_VALUE"] = false,
         ["STARTUP_DELAY_MS"] = 7000,
         ["COINS_PER_CREDIT"] = 2,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["PLAYER_MEMORY_OFFSET"] = "0x40",
         ["CREDITS"] = "0x00002030",
         ["GAME_STATUS"] = "0x00002000",
@@ -712,6 +776,7 @@ local database = {
     },
     ["lethalj"] = {
         ["LUA_GAME"] = "Lethal Justice",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 47,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
@@ -734,6 +799,7 @@ local database = {
     },
     ["maxforce"] = {
         ["LUA_GAME"] = "Maximum Force",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 51,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
@@ -754,8 +820,34 @@ local database = {
             ["STATUS"] = "0x1000A547"
         }
     },
+    ["opwolf"] = {
+        ["LUA_GAME"] = "Operation Wolf",
+        ["ENABLE_ROM"] = true,
+        ["LUA_ROM_ID"] = 59,
+        ["SCREEN_FLASH"] = true,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00001131",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x02",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x01",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
+        ["STARTUP_DELAY_MS"] = 4000,
+        ["MAX_PLAYERS"] = 1,
+        ["CREDITS"] = "0x00100D77",
+        ["GAME_STATUS"] = "auto",
+        ["STATUS_ACTIVE_VALUE"] = 1,
+        ["P1"] = {
+            ["STATUS"] = "0x0010008A",
+            ["AMMO"] = "0x00100B1F",
+            ["AMMO_GRENADE"] = "0x00100B23",
+            ["LIFE"] = "0x00100C59"
+        },
+        ["LIFE_DIRECTION"] = "increase"
+    },
     ["policetr"] = {
         ["LUA_GAME"] = "Police Trainer",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 64,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -789,12 +881,16 @@ local database = {
     },
     ["ptblank"] = {
         ["LUA_GAME"] = "Point Blank",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 62,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 2000,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["PLAYER_MEMORY_OFFSET"] = "0x02",
         ["CREDITS"] = "0x001C004D",
         ["GAME_STATUS"] = "0x00210081",
@@ -802,15 +898,24 @@ local database = {
             ["STATUS"] = "0x00210427",
             ["AMMO"] = "0x00210011",
             ["LIFE"] = "0x001C00B7",
-            ["DAMAGE"] = "0x001C00B3"
+            ["DAMAGE"] = "0x001C00B3",
+            ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x0000987C",
+            ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6004",
+            ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+            ["SCREEN_FLASH_RESTORE_VALUE"] = "0x026E"
         },
         ["P2"] = {
-            ["STATUS"] = "0x002105C5"
+            ["STATUS"] = "0x002105C5",
+            ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00009902",
+            ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6004",
+            ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+            ["SCREEN_FLASH_RESTORE_VALUE"] = "0x026E"
         },
         ["AMMO_DIRECTION"] = "increase"
     },
     ["sgunner"] = {
         ["LUA_GAME"] = "Steel Gunner",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 77,
         ["STARTUP_DELAY_MS"] = 4000,
         ["DATA_WIDTHS"] = {
@@ -832,6 +937,7 @@ local database = {
     },
     ["sgunner2"] = {
         ["LUA_GAME"] = "Steel Gunner 2",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 78,
         ["STARTUP_DELAY_MS"] = 4000,
         ["PLAYER_MEMORY_OFFSET"] = "0x2",
@@ -851,17 +957,69 @@ local database = {
         ["AMMO_DIRECTION"] = "increase",
         ["ENABLE_RELOAD_AMMO"] = false
     },
+    ["sgunner2j"] = {
+        ["LUA_GAME"] = "Steel Gunner 2",
+        ["ENABLE_ROM"] = true,
+        ["LUA_ROM_ID"] = 78,
+        ["STARTUP_DELAY_MS"] = 4000,
+        ["PLAYER_MEMORY_OFFSET"] = "0x2",
+        ["CREDITS"] = "0x00108C11",
+        ["GAME_STATUS"] = "0x00100944",
+        ["P1"] = {
+            ["STATUS"] = "0x00108AED",
+            ["AMMO"] = "0x00108D43",
+            ["AMMO_comment"] = "Primary Machine Gun",
+            ["AMMO_GRENADE"] = "0x00108D3F",
+            ["AMMO_GRENADE_comment"] = "Missiles",
+            ["LIFE"] = "0x00108C25"
+        },
+        ["P2"] = {
+            ["STATUS"] = "0x00108B79"
+        },
+        ["AMMO_DIRECTION"] = "increase",
+        ["ENABLE_RELOAD_AMMO"] = false
+    },
+    ["sgunnerj"] = {
+        ["LUA_GAME"] = "Steel Gunner",
+        ["ENABLE_ROM"] = true,
+        ["LUA_ROM_ID"] = 77,
+        ["STARTUP_DELAY_MS"] = 4000,
+        ["DATA_WIDTHS"] = {
+            ["AMMO"] = 16
+        },
+        ["PLAYER_MEMORY_OFFSET"] = "0x2",
+        ["CREDITS"] = "0x00108C11",
+        ["GAME_STATUS"] = "0x00100121",
+        ["P1"] = {
+            ["STATUS"] = "auto",
+            ["AMMO"] = "0x00100324",
+            ["AMMO_comment"] = "Primary Machine Gun",
+            ["AMMO_GRENADE"] = "0x00100321",
+            ["AMMO_GRENADE_comment"] = "Missiles",
+            ["LIFE"] = "0x00100125"
+        },
+        ["AMMO_DIRECTION"] = "increase",
+        ["ENABLE_RELOAD_AMMO"] = false
+    },
     ["timecris"] = {
         ["LUA_GAME"] = "Time Crisis",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 81,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
-        ["SCREEN_FLASH_RESTORE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x0000923C",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6006",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to WunderEnrique for finding this value",
+        ["SCREEN_FLASH_RESTORE_VALUE"] = "0x13FC",
+        ["MEMORY_SPACES"] = {
+            ["SCREEN_FLASH"] = "region"
+        },
         ["STARTUP_DELAY_MS"] = 3000,
         ["COINS_PER_CREDIT"] = 3,
         ["MAX_PLAYERS"] = 1,
         ["SIMULTANEOUS_PLAY"] = false,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 16
+        },
         ["CREDITS"] = "0x00E0D2A1",
         ["GAME_STATUS"] = "0x00E01772",
         ["P1"] = {
@@ -872,15 +1030,20 @@ local database = {
     },
     ["timecrs2"] = {
         ["LUA_GAME"] = "Time Crisis II",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 82,
         ["SCREEN_FLASH"] = true,
-        ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
-        ["SCREEN_FLASH_DISABLE_VALUE"] = false,
+        ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x8009192C",
+        ["SCREEN_FLASH_DISABLE_VALUE"] = "0x03E0000800000000",
+        ["SCREEN_FLASH_DISABLE_VALUE_comment"] = "Special thanks to Pugsy for finding this value",
         ["SCREEN_FLASH_RESTORE_VALUE"] = false,
         ["STARTUP_DELAY_MS"] = 17000,
         ["COINS_PER_CREDIT"] = 4,
         ["MAX_PLAYERS"] = 1,
         ["SIMULTANEOUS_PLAY"] = false,
+        ["DATA_WIDTHS"] = {
+            ["SCREEN_FLASH"] = 64
+        },
         ["CREDITS"] = "0x002CE7B7",
         ["GAME_STATUS"] = "0x002CE8AF",
         ["P1"] = {
@@ -891,6 +1054,7 @@ local database = {
     },
     ["vcop"] = {
         ["LUA_GAME"] = "Virtua Cop",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 87,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
@@ -915,6 +1079,7 @@ local database = {
     },
     ["vcop2"] = {
         ["LUA_GAME"] = "Virtua Cop 2",
+        ["ENABLE_ROM"] = true,
         ["LUA_ROM_ID"] = 88,
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
