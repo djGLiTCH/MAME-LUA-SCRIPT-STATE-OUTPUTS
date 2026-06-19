@@ -337,7 +337,7 @@
         "init.lua: Added new feature to support enabling or disabling individual supported game ROMs with MSOP Plugin (in case MSOP causes clashes with custom scripts some users have for specific games)."
       ],
       "ChangesDatabase": [
-        "_default: Added new function 'ENABLE_ROM' that can be set to true or false, but is set to true by default for all ROMs."
+        "_default: Added new function 'ENABLE_ROM' that can be set to true or false, but is set to true by default for all ROMs.",
         "dragngunj: Added new supported game. Clone of dragngun. Same as dragngun memory addresses.",
         "sgunnerj: Added new supported game. Clone of sgunner. Different Credits memory address.",
         "sgunner2j: Added new supported game. Clone of sgunner2. Different Credits memory address."
@@ -503,7 +503,7 @@
         "init.lua: Added new feature to support enabling or disabling individual supported game ROMs with MSOP Plugin (in case MSOP causes clashees with custom scripts some users have for specific games)."
       ],
       "ChangesDatabase": [
-        "_default: Added new function 'ENABLE_ROM' that can be set to true or false, but is set to true by default for all ROMs."
+        "_default: Added new function 'ENABLE_ROM' that can be set to true or false, but is set to true by default for all ROMs.",
         "dragngunj: Added new supported game. Clone of dragngun. Same as dragngun memory addresses.",
         "sgunnerj: Added new supported game. Clone of sgunner. Different Credits memory address.",
         "sgunner2j: Added new supported game. Clone of sgunner2. Different Credits memory address."
