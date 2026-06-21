@@ -1,6 +1,17 @@
 {
   "Configurator": [
     {
+      "Version": "1.0.1",
+      "ReleaseDate": "2026.06.21",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MSOP_CONFIGURATOR_v1.0.1_2026.06.21",
+      "PackageType": ".zip",
+      "FileName": "MSOP_CONFIGURATOR.exe",
+      "Changes": [
+        "Bug Fix: Resolved multiple Portable storage mode reliability issues by implementing accurate path resolution, adding smart directory wiping to protect nested configurations (like when storing MSOP_CONFIGURATOR.exe inside MAME > plugins > stateoutput), and introducing fail-safe rollbacks for interrupted storage migrations."
+      ]
+    },
+    {
       "Version": "1.0.0",
       "ReleaseDate": "2026.06.19",
       "PackageLocation": "Updater/Configurator/Archive",
