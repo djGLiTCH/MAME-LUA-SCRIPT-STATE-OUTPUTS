@@ -1,6 +1,30 @@
 {
   "Configurator": [
     {
+      "Version": "1.0.2",
+      "ReleaseDate": "2026.06.23",
+      "PackageLocation": "Updater/Configurator/Archive",
+      "PackageName": "MSOP_CONFIGURATOR_v1.0.2_2026.06.23",
+      "PackageType": ".zip",
+      "FileName": "MSOP_CONFIGURATOR.exe",
+      "Changes": [
+        "Architectural Overhaul: Reworked the code for Offline Mode support, which now correctly reverts to the local cached files so MSOP Configurator can install and manage MSOP even when offline.",
+        "Feature Added: Added new enable and disable buttons in the Supported Games page.",
+        "Feature Added: Added new filter dropdown options in Supported Games page.",
+        "Feature Added: Added new ROM Folder path in the MAME page.",
+        "Feature Added: Added new ROM Launch options and buttons in the Supported Games page.",
+        "UI Polish: Added tooltips to hyperlinks as appropriate, so the user can see where the hyperlink will take them before clicking.",
+        "UI Polish: Fixed issues with the MSOP Plugin Beta previous versions showing up in the Changelog page.",
+        "UI Polish: Improved the search function in the Supported Games page.",
+        "UI Polish: Migrated MSOP Configurator app setting toggles out of the footer and into a dedicated Settings page.",
+        "UI Polish: Remade all buttons in the user interface so that they are consistent and easily identifiable as buttons (previously they appeared more like hyperlinks).",
+        "UI Polish: Renamed the 'About' tab to be 'Help'.",
+        "UI Polish: Renamed the 'Configurator App' sub-tab in the Changelog page to be 'MSOP Configurator'.",
+        "UI Polish: Reworded the paragraphs in the 'More Information' section of the MAME page.",
+        "UI Polish: Reworded the wording in the 'Off-Screen Reload' section of the MAME page."
+      ]
+    },
+    {
       "Version": "1.0.1",
       "ReleaseDate": "2026.06.21",
       "PackageLocation": "Updater/Configurator/Archive",
@@ -512,7 +536,7 @@
       "PackageName": "MSOP_PLUGIN_v8.2.4_2026.06.19",
       "PackageType": ".zip",
       "ChangesPlugin": [
-        "init.lua: Added new feature to support enabling or disabling individual supported game ROMs with MSOP Plugin (in case MSOP causes clashees with custom scripts some users have for specific games)."
+        "init.lua: Added new feature to support enabling or disabling individual supported game ROMs with MSOP Plugin (in case MSOP causes clashes with custom scripts some users have for specific games)."
       ],
       "ChangesDatabase": [
         "_default: Added new function 'ENABLE_ROM' that can be set to true or false, but is set to true by default for all ROMs.",
