@@ -206,3 +206,7 @@ This is a community-driven project. If you find a game that isn't supported, ple
 * **SeongGino**, for [**QMameHook**](https://github.com/SeongGino/QMamehook).
 * **6Bolt**, for [**Hook Of The Reaper**](https://github.com/6Bolt/Hook-Of-The-Reaper).
 * The [**MAME Development Team**](https://www.mamedev.org), for building and maintaining such an amazing emulation project.
+
+---
+
+Copyright © 2026 by Jacob Simpson (DJ GLiTCH)
