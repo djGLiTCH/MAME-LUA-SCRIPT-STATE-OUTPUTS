@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT
 -- MSOP PLUGIN
--- Plugin Version: 8.2.4
--- Plugin Date: 2026.06.19
+-- Plugin Version: 8.2.5
+-- Plugin Date: 2026.06.24
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,7 +15,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.2.4",
+    version = "8.2.5",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -104,9 +104,9 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- deep_merge(default_cfg, game_cfg)
-    -- @description: Layers a specific ROM's values over the '_default' template.
-    -- @purpose: Ensures that `CFG` always contains every required key, preventing 
-    --           "nil value" crashes during the frame loop if a ROM JSON was sparse.
+    -- Layers a specific ROM's values over the '_default' template.
+    -- Ensures that `CFG` always contains every required key, preventing
+	-- "nil value" crashes during the frame loop if a ROM JSON was sparse.
     -- -------------------------------------------------------------------------
     local function deep_merge(default_cfg, game_cfg)
         local result = {}
@@ -122,25 +122,20 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- normalize_variables(config)
-    -- @description: Translates legacy variable names to modern internal names.
-    -- @purpose: Unifies LAMP_START and RECOIL into the standardized LAMPSTART and
-    --           DAMAGE structures across all sub-tables automatically.
+    -- Translates legacy variable names to modern internal names.
     -- -------------------------------------------------------------------------
     local function normalize_variables(config)
         for i = 1, config.MAX_PLAYERS do
             local p_cfg = config["P"..i]
             if p_cfg then
                 if p_cfg.LAMP_START ~= nil and p_cfg.LAMPSTART == nil then p_cfg.LAMPSTART = p_cfg.LAMP_START end
-                if p_cfg.RECOIL ~= nil and p_cfg.DAMAGE == nil then p_cfg.DAMAGE = p_cfg.RECOIL end
             end
         end
         if config.DATA_WIDTHS then
             if config.DATA_WIDTHS.LAMP_START ~= nil and config.DATA_WIDTHS.LAMPSTART == nil then config.DATA_WIDTHS.LAMPSTART = config.DATA_WIDTHS.LAMP_START end
-            if config.DATA_WIDTHS.RECOIL ~= nil and config.DATA_WIDTHS.DAMAGE == nil then config.DATA_WIDTHS.DAMAGE = config.DATA_WIDTHS.RECOIL end
         end
         if config.OUTPUT_SUFFIXES then
             if config.OUTPUT_SUFFIXES.LAMP_START ~= nil and config.OUTPUT_SUFFIXES.LAMPSTART == nil then config.OUTPUT_SUFFIXES.LAMPSTART = config.OUTPUT_SUFFIXES.LAMP_START end
-            if config.OUTPUT_SUFFIXES.RECOIL ~= nil and config.OUTPUT_SUFFIXES.DAMAGE == nil then config.OUTPUT_SUFFIXES.DAMAGE = config.OUTPUT_SUFFIXES.RECOIL end
         end
         if config.CPU_TAGS then
             if config.CPU_TAGS.LAMP_START ~= nil and config.CPU_TAGS.LAMPSTART == nil then config.CPU_TAGS.LAMPSTART = config.CPU_TAGS.LAMP_START end
@@ -366,7 +361,6 @@ function stateoutput.startplugin()
         if CFG.ATTRACT_STATUS then Sync_Global("GLOBAL_ATTRACT_STATUS", 0) end
         Sync_Global("GLOBAL_LUA_VERSION", CFG.LUA_VERSION)
         Sync_Global("GLOBAL_LUA_DATE", CFG.LUA_DATE)
-        Sync_Global("GLOBAL_LUA_ROM_ID", CFG.LUA_ROM_ID)
         
         if CFG.CREDITS then 
             Sync_Global("GLOBAL_CREDITS", 0)
@@ -423,9 +417,9 @@ function stateoutput.startplugin()
 
     -- =========================================================================
     -- THE FRAME LOOP ENGINE (Frame_Logic)
-    -- @description: This is the heartbeat of the plugin. It evaluates memory 
-    --               conditions 60 times a second. It is isolated from the `pcall` 
-    --               wrapper below to prevent closure memory allocation (GC Spikes).
+    -- This is the heartbeat of the plugin. It evaluates memory conditions 60 
+	-- times a second. It is isolated from the `pcall` wrapper below to prevent
+	-- closure memory allocation (GC Spikes).
     -- =========================================================================
     local function Frame_Logic()
         local machine = manager.machine
@@ -454,9 +448,11 @@ function stateoutput.startplugin()
             _HardwareBound = true
         end
         
+		-- ----------------------------------------------
         -- OUTPUT SPAM WRAPPERS:
         -- Only sends a command to MAME's output system if the value has actually changed.
         -- This drastically reduces TCP server load.
+		-- ----------------------------------------------
         local function Set_Output(p_idx, key, value)
             local p = _Player[p_idx]
             if p.LastOutputs[key] ~= value and _OutputNames[p_idx][key] then
@@ -496,7 +492,7 @@ function stateoutput.startplugin()
         if CFG.ATTRACT_STATUS and type(CFG.ATTRACT_STATUS) == "number" then
             local val = Read_Data_Safe(_MemHandles["GLOBAL_ATTRACT_STATUS"], CFG.ATTRACT_STATUS, CFG.DATA_WIDTHS.GLOBAL_ATTRACT_STATUS or 8)
             local active = CFG.ATTRACT_STATUS_ACTIVE_VALUE
-            is_attract_mode = (type(active) == "number") and (val == active) or (val > 0)
+            is_attract_mode = (type(active) == "table") and (function() for _,v in ipairs(active) do if val == v then return true end end return false end)() or ((type(active) == "number" and val == active) or (not active and val > 0))
             Set_Global_Output("GLOBAL_ATTRACT_STATUS", warmup_ok and (is_attract_mode and 1 or 0) or 0)
             if is_attract_mode then _PendingGlobalCreditDrops = 0 end
         end
@@ -526,7 +522,7 @@ function stateoutput.startplugin()
             if not is_attract_mode then
                 local val = Read_Data_Safe(_MemHandles["GLOBAL_GAME_STATUS"], CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
                 local active = CFG.GAME_STATUS_ACTIVE_VALUE
-                is_game_active = (type(active) == "number") and (val == active) or (val > 0)
+                is_game_active = (type(active) == "table") and (function() for _,v in ipairs(active) do if val == v then return true end end return false end)() or ((type(active) == "number" and val == active) or (not active and val > 0))
             end
         end
         
@@ -760,8 +756,27 @@ function stateoutput.startplugin()
                   if cfg.RELOAD and type(cfg.RELOAD) == "number" then
                       local val = Read_Data_Safe(_MemHandles["RELOAD"], cfg.RELOAD, CFG.DATA_WIDTHS.RELOAD)
                       local manual_trigger = false
-                      if type(CFG.RELOAD_MEM_ADD_VALUE) == "number" then
+                      
+                      if type(CFG.RELOAD_MEM_ADD_VALUE) == "table" then
+                          local found_match = false
+                          for _, v in ipairs(CFG.RELOAD_MEM_ADD_VALUE) do
+                              if val == v then found_match = true; break end
+                          end
+                          
+                          local last_was_match = false
+                          for _, v in ipairs(CFG.RELOAD_MEM_ADD_VALUE) do
+                              if p.LastReloadVal == v then last_was_match = true; break end
+                          end
+                          
+                          manual_trigger = (found_match and not last_was_match)
+                          
+                      elseif type(CFG.RELOAD_MEM_ADD_VALUE) == "number" then
                           manual_trigger = (val == CFG.RELOAD_MEM_ADD_VALUE and p.LastReloadVal ~= CFG.RELOAD_MEM_ADD_VALUE)
+                          
+                      elseif type(CFG.RELOAD_MEM_MIN_VALUE) == "number" then
+                          -- Trigger if value increased AND met the minimum threshold
+                          manual_trigger = (val > p.LastReloadVal and val >= CFG.RELOAD_MEM_MIN_VALUE)
+                          
                       else
                           manual_trigger = (val > p.LastReloadVal)
                       end
@@ -1029,11 +1044,11 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Compute_Outputs()
-    -- @description: Safe execution wrapper for the Frame_Logic engine.
-    -- @purpose: Runs `pcall(Frame_Logic)` instead of an anonymous function. 
-    --           This is a massive performance optimization that prevents Lua's 
-    --           Garbage Collector from allocating/destroying memory every single 
-    --           frame (which causes micro-stutters).
+    -- Safe execution wrapper for the Frame_Logic engine.
+    -- Runs `pcall(Frame_Logic)` instead of an anonymous function.
+	-- This is a massive performance optimization that prevents Lua's Garbage
+	-- Collector from allocating/destroying memory every single frame
+	-- (which causes micro-stutters).
     -- -------------------------------------------------------------------------
     local function Compute_Outputs()
         if _IsShuttingDown or not CFG then return end
@@ -1043,7 +1058,7 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- on_machine_stop()
-    -- @description: Cleanup hook. Halts processing and destroys subscriptions.
+    -- Cleanup hook. Halts processing and destroys subscriptions.
     -- -------------------------------------------------------------------------
     local function on_machine_stop()
         _IsShuttingDown = true

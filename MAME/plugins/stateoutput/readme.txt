@@ -1,28 +1,34 @@
 ================================================================================
 MAME State Output Project (MSOP)
+MSOP Plugin Readme
 ================================================================================
 
-PROJECT DETAILS
---------------------------------------------------------------------------------
 Plugin Version: 8.2.4
 Plugin Date:    2026.06.19
 Database Date:  2026.06.19
-Contributors:   Muggins (tester), Hexxed (ideas), Bandicoot (tester), 
-                PolybiusExtreme (feedback), Argon (inspiration)
+Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
+Contributors:   Muggins (tester), Hexxed (ideas), Bandicoot (tester), 
+                PolybiusExtreme (feedback), Argon (inspiration)
 
+--------------------------------------------------------------------------------
 OVERVIEW
 --------------------------------------------------------------------------------
+
 The MAME State Output Project or MSOP for short (previously known as the
 Universal MAME Lua Script for State Outputs) is a robust solution designed to
 enhance the MAME arcade emulation experience. It provides real-time state
 outputs (derived from in-game state events or created in real-time based on
 logic that adapts various in-game state events), enabling advanced features
 like force feedback, light gun hardware support, dynamic lighting, and more.
+It is highly recommended that you use the MSOP Configurator to manage the
+MSOP Plugin, as this allows automatic configuration and simplifies updates.
 
+--------------------------------------------------------------------------------
 HOW IT WORKS
 --------------------------------------------------------------------------------
+
 The plugin operates by monitoring specific memory address values within MAME 
 to track game states and applies various logic to derive accurate state outputs.
 
@@ -41,8 +47,10 @@ to track game states and applies various logic to derive accurate state outputs.
   variables for distinct game states, ensuring that inputs from one player do 
   not interfere with the feedback of another.
 
+--------------------------------------------------------------------------------
 REQUIREMENTS & COMPATIBILITY
 --------------------------------------------------------------------------------
+
 * IMPORTANT: This plugin exclusively supports standalone MAME. RetroArch (and 
   its MAME cores) are NOT supported due to differences in how cores are handled.
 
@@ -63,8 +71,10 @@ In the future, once the Configurator app has been updated to support the automat
 creation of ini state output to command files, I will swap my recommendation to 
 OutputHooker as it has more options for hardware and software experiences.
 
+--------------------------------------------------------------------------------
 MSOP CONFIGURATOR APP: TUTORIAL & USAGE
 --------------------------------------------------------------------------------
+
 The MSOP Configurator app is designed to streamline the installation and 
 maintenance of your plugin files and configuration database.
 
@@ -85,8 +95,10 @@ Beta vs. Stable Plugin Channels:
   experimental features, and recent bug fixes. Use this if you want to test 
   the newest additions or help the community identify bugs.
 
+--------------------------------------------------------------------------------
 COMMAND LINE USAGE
 --------------------------------------------------------------------------------
+
 For advanced users and arcade cabinet front-ends, the MSOP Configurator can be 
 executed silently via the command line. This is particularly useful for scripting 
 automated plugin updates before launching a game.
@@ -107,8 +119,10 @@ selected release channel.
 -updateapp (or: -updateconfigurator)
 Exclusively checks for and installs updates to the Configurator app itself.
 
+--------------------------------------------------------------------------------
 UPDATES & MAINTENANCE
 --------------------------------------------------------------------------------
+
 To ensure your arcade setup remains compatible with the latest game ROMs and 
 MAME updates, please run the MSOP Configurator app regularly.
 
@@ -127,22 +141,32 @@ when you next open the Configurator app and are connected to the internet.
 It is worth checking the project GitHub to make sure no automatic update
 changes were made that broke previous methods used to automatically update.
 
+--------------------------------------------------------------------------------
 COMMUNITY CONTRIBUTIONS
 --------------------------------------------------------------------------------
+
 If you would like to contribute to the project, such as improving the plugin 
 (optimisations and/or feature enhancements), adding support for new games, or
 revising existing games to fix bugs and/or add new features, please visit the
 official GitHub repository linked above.
 
+--------------------------------------------------------------------------------
 TECHNICAL SUPPORT
 --------------------------------------------------------------------------------
+
 No technical support is guaranteed to be provided, however, if you believe you 
 have identified a bug or encountered an issue that is directly related to this 
 plugin, then please raise an issue in the official GitHub repository linked 
 above.
 
+--------------------------------------------------------------------------------
 DISCLAIMER
 --------------------------------------------------------------------------------
+
 This software is provided "as is", without warranty of any kind. This application
 and its associated plugin are not officially affiliated with or endorsed by the
 MAME development team or any specific arcade hardware manufacturer.
+
+--------------------------------------------------------------------------------
+
+Copyright (c) 2026 by Jacob Simpson (DJ GLiTCH)
