@@ -8,13 +8,18 @@
             "PackageType": ".zip",
             "FileName": "MSOP_CONFIGURATOR.exe",
             "Changes": [
-                "Architectural Overhaul: Transitioned to a new relational JSON database structure for changelog.json to eliminate duplicate update notes across the app.",
+                "Architectural Overhaul: Transitioned to a new relational JSON database structure for changelog.json to eliminate duplicate update notes across the app. MSOP Configurator v1.0.3+ is now needed to view MSOP Plugin changelog release notes.",
+                "Bug Fix: Prevented race condition where MSOP Configurator app update check was not being performed first and the pop-up window could be hidden behind other messages.",
                 "Bug Fix: ROM Launch icon now appears correctly after opening MSOP Configurator (previously a dropdown selection change was required to reveal the launch icon).",
-                "Feature Added: Added new MSOP Compiler sub-tab to the Changelog tab. This will make it easier for the community to find the neccessary files to add support for new games that use the MSOP Plugin.",
+                "Feature Added: Added changelog for new MSOP Configurator app version in the pop-up window when notifying the user of a new version being available.",
+                "Feature Added: Added new MSOP Compiler sub-tab to the Changelog tab. This will make it easier for the community to find the necessary files to add support for new games that use the MSOP Plugin.",
+                "UI Polish: Added the ability to copy and paste directly from the MAME State Output Log in the Diagnostics page.",
                 "UI Polish: Created a general Settings tab that now stores MAME, Hooker Programs, and MSOP Configurator sub-tabs. This gives the app a much cleaner appearance.",
-                "UI Polish: Rearranged the tab order so that access is based on which tabs are most likely to be accessed after initial setup.",
+                "UI Polish: Rearranged the tab order so that tabs are ordered based on which tabs are most likely to be accessed and used.",
                 "UI Polish: Reformatted the layout of each Changelog sub-tab [Compiler, Configurator, Plugin (Stable), Plugin (Beta)] so that they are easier to read and the Manual Download button is more neatly aligned to the relevant release.",
-                "UI Polish: Revised the Hooker Programs page to be consistent with other pages in background colours."
+                "UI Polish: Revised the footer layout.",
+                "UI Polish: Revised the Hooker Programs page to be consistent with other pages in background colours.",
+                "UI Polish: Revised various pages in the Help tab so that text is clearer and information reads clearer to the user."
             ]
         },
         {
@@ -382,7 +387,9 @@
         {
             "ReleaseDateDatabase": "2026.06.24",
             "ChangesDatabase": [
-                "General: Removed ROM_ID from all games as this is no longer required."
+                "General: Removed ROM_ID from all games as this is no longer required.",
+                "opwolf3: Added new supported game, Operation Wolf 3.",
+                "othunder: Added new supported game, Operation Thunderbolt."
             ]
         },
         {
@@ -455,6 +462,10 @@
             "Version": "8.2.5",
             "ReleaseDatePlugin": "2026.06.24",
             "ChangesPlugin": [
+                "init.lua: Added new function RELOAD_MEM_MIN_VALUE so that if any number equal to or above this value is identified then this will trigger a reload (useful if games have multiple weapons that differ in ammo capacity, but you don't know the specific ammo available for each weapon).",
+                "init.lua: Expanded logic for GAME_STATUS_ACTIVE_VALUE so that an array can be used, which allows multiple values to be used (useful if the same memory address is shared between GAME_STATUS and ATTRACT_MODE_STATUS).",
+                "init.lua: Expanded logic for RELOAD_MEM_ADD_VALUE so that an array can be used, which allows multiple values to be used as triggers for reload (if they are known).",
+                "init.lua: Fixed logic used for ATTRACT_STATUS_ACTIVE_VALUE (this was incorrectly causing GAME_STATUS to override to 0 in some instances).",
                 "init.lua: Fixed code documentation so it reads more clearly to others.",
                 "init.lua: Removed accidental logic that in some cases would combine recoil and damage together.",
                 "readme.txt: Revised formatting and contents of readme file for MSOP Plugin."
@@ -626,6 +637,27 @@
         }
     ],
     "PluginBeta": [
+        {
+            "Version": "8.2.5",
+            "ReleaseDatePlugin": "2026.06.24",
+            "ChangesPlugin": [
+                "init.lua: Added new function RELOAD_MEM_MIN_VALUE so that if any number equal to or above this value is identified then this will trigger a reload (useful if games have multiple weapons that differ in ammo capacity, but you don't know the specific ammo available for each weapon).",
+                "init.lua: Expanded logic for GAME_STATUS_ACTIVE_VALUE so that an array can be used, which allows multiple values to be used (useful if the same memory address is shared between GAME_STATUS and ATTRACT_MODE_STATUS).",
+                "init.lua: Expanded logic for RELOAD_MEM_ADD_VALUE so that an array can be used, which allows multiple values to be used as triggers for reload (if they are known).",
+                "init.lua: Fixed logic used for ATTRACT_STATUS_ACTIVE_VALUE (this was incorrectly causing GAME_STATUS to override to 0 in some instances).",
+                "init.lua: Fixed code documentation so it reads more clearly to others.",
+                "init.lua: Removed accidental logic that in some cases would combine recoil and damage together.",
+                "readme.txt: Revised formatting and contents of readme file for MSOP Plugin."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.06.24",
+                    "PackageLocation": "Updater/Plugin/Archive/Beta",
+                    "PackageName": "MSOP_PLUGIN_v8.2.5_2026.06.24",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
         {
             "Version": "8.2.4",
             "ReleaseDatePlugin": "2026.06.19",

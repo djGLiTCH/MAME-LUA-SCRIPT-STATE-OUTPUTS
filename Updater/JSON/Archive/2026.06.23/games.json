@@ -289,38 +289,6 @@
             "SupportedVersion": "8.2.3"
         },
         {
-            "ROM": "opwolf3",
-            "Name": "Operation Wolf 3",
-            "ReleaseYear": "1994",
-            "DeveloperPublisher": "Taito Corporation Japan",
-            "Category": "Rail Shooter",
-            "ArcadeHardware": "Taito JC System",
-            "CHD": false,
-            "MAMECompatibility": "Working",
-            "OffscreenReload": false,
-            "LightGunPatch": true,
-            "ScreenFlash": false,
-            "ScreenFlashFix": false,
-            "NativeStateOutput": false,
-            "SupportedVersion": "8.2.5"
-        },
-        {
-            "ROM": "othunder",
-            "Name": "Operation Thunderbolt",
-            "ReleaseYear": "1988",
-            "DeveloperPublisher": "Taito Corporation Japan",
-            "Category": "Rail Shooter",
-            "ArcadeHardware": "Taito Z System",
-            "CHD": false,
-            "MAMECompatibility": "Working",
-            "OffscreenReload": false,
-            "LightGunPatch": false,
-            "ScreenFlash": false,
-            "ScreenFlashFix": false,
-            "NativeStateOutput": true,
-            "SupportedVersion": "8.2.5"
-        },
-        {
             "ROM": "ptblank",
             "Name": "Point Blank",
             "ReleaseYear": "1994",
