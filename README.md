@@ -79,6 +79,7 @@ The latest source code and release includes support for the following MAME ROMs 
 | `lethalj` | Lethal Justice | Working |
 | `maxforce` | Maximum Force | Working |
 | `opwolf` | Operation Wolf | Working |
+| `opwolf3` | Operation Wolf 3 | Working |
 | `othunder` | Operation Thunderbolt | Working |
 | `policetr` | Police Trainer | Working |
 | `ptblank` | Point Blank | Working |
