@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7 # Updated to the latest Node 24 compatible release
 
     - name: Prepare and Package ZIP
       run: |
@@ -32,7 +32,7 @@ jobs:
         zip -r Updater/MAME-STATE-OUTPUT-PLUGIN-STABLE.zip MAME "Hook Of The Reaper" "MAMEhooker"
 
     - name: Commit and push the new ZIP
-      uses: stefanzweifel/git-auto-commit-action@v5
+      uses: stefanzweifel/git-auto-commit-action@v7 # Updated to v7 for Node 24 support
       with:
         commit_message: "Auto-package latest plugin files into zip file"
         file_pattern: 'Updater/MAME-STATE-OUTPUT-PLUGIN-STABLE.zip'
