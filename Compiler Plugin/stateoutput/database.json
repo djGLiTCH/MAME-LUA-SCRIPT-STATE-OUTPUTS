@@ -1,7 +1,7 @@
 {
     "_default": {
-        "LUA_VERSION": 824,
-        "LUA_DATE": 20260619,
+        "LUA_VERSION": 825,
+        "LUA_DATE": 20260624,
         "LUA_GAME": "Default MSOP Plugin Values",
         "ENABLE_ROM": false,
         "LUA_ROM_ID": 0,
@@ -262,6 +262,7 @@
         "RECOIL_METHOD": "pulse",
         "RECOIL_PRIORITY": "ammo",
         "RECOIL_MEM_ADD_VALUE": false,
+        "RECOIL_MEM_MIN_VALUE": false,
         "ENABLE_CREDIT_COUNT": true,
         "ENABLE_RECOIL_AMMO": true,
         "ENABLE_RECOIL_AMMO_ALT": true,
@@ -835,6 +836,53 @@
             "LIFE": "0x00100C59"
         },
         "LIFE_DIRECTION": "increase"
+    },
+    "opwolf3": {
+        "LUA_GAME": "Operation Wolf 3",
+        "ENABLE_ROM": true,
+        "STARTUP_DELAY_MS": 8000,
+        "PLAYER_MEMORY_OFFSET": "0x30",
+        "ATTRACT_STATUS": "0x00500015",
+        "CREDITS": "0x005022AB",
+        "GAME_STATUS": "0x0050F22B",
+        "ATTRACT_STATUS_ACTIVE_VALUE": 5,
+        "GAME_STATUS_ACTIVE_VALUE": [
+            1,
+            2
+        ],
+        "P1": {
+            "STATUS": "0x0050F1C2",
+            "STATUS_ACTIVE_VALUE": 16,
+            "AMMO": "0x0050F1CD",
+            "AMMO_GRENADE": "0x0050F1EB",
+            "LIFE": "0x0050F1CB",
+            "RELOAD": "0x0050F1CD"
+        },
+        "P2": {
+            "STATUS_ACTIVE_VALUE": 32
+        },
+        "ENABLE_RELOAD_AMMO": false,
+        "RELOAD_MEM_MIN_VALUE": 2
+    },
+    "othunder": {
+        "LUA_GAME": "Operation Thunderbolt",
+        "ENABLE_ROM": true,
+        "STARTUP_DELAY_MS": 4000,
+        "PLAYER_MEMORY_OFFSET": "0x2",
+        "CREDITS": "0x000826F1",
+        "GAME_STATUS": "0x00080693",
+        "P1": {
+            "STATUS": "0x0008005D",
+            "AMMO": "0x000827C9",
+            "AMMO_GRENADE": "0x000827D1",
+            "LIFE": "0x000827C5"
+        },
+        "P2": {
+            "STATUS": "0x00080061",
+            "AMMO": "0x000827CB",
+            "AMMO_GRENADE": "0x000827D3",
+            "LIFE": "0x000827C7"
+        }
     },
     "policetr": {
         "LUA_GAME": "Police Trainer",

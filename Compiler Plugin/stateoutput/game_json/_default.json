@@ -1,6 +1,6 @@
 {
-    "LUA_VERSION": 824,
-    "LUA_DATE": 20260619,
+    "LUA_VERSION": 825,
+    "LUA_DATE": 20260624,
     "LUA_GAME": "Default MSOP Plugin Values",
     "ENABLE_ROM": false,
     "LUA_ROM_ID": 0,
@@ -261,6 +261,7 @@
     "RECOIL_METHOD": "pulse",
     "RECOIL_PRIORITY": "ammo",
     "RECOIL_MEM_ADD_VALUE": false,
+    "RECOIL_MEM_MIN_VALUE": false,
     "ENABLE_CREDIT_COUNT": true,
     "ENABLE_RECOIL_AMMO": true,
     "ENABLE_RECOIL_AMMO_ALT": true,

@@ -1,0 +1,20 @@
+{
+    "LUA_GAME": "Operation Thunderbolt",
+    "ENABLE_ROM": true,
+    "STARTUP_DELAY_MS": 4000,
+    "PLAYER_MEMORY_OFFSET": "0x2",
+    "CREDITS": "0x000826F1",
+    "GAME_STATUS": "0x00080693",
+    "P1": {
+        "STATUS": "0x0008005D",
+        "AMMO": "0x000827C9",
+        "AMMO_GRENADE": "0x000827D1",
+        "LIFE": "0x000827C5"
+    },
+    "P2": {
+        "STATUS": "0x00080061",
+        "AMMO": "0x000827CB",
+        "AMMO_GRENADE": "0x000827D3",
+        "LIFE": "0x000827C7"
+    }
+}
