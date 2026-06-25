@@ -1,6 +1,20 @@
 {
     "Configurator": [
         {
+            "Version": "1.0.4",
+            "ReleaseDate": "2026.06.25",
+            "PackageLocation": "Updater/Configurator/Archive",
+            "PackageName": "MSOP_CONFIGURATOR_v1.0.4_2026.06.25",
+            "PackageType": ".zip",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: Minor changes to the changelog.json structure for the MSOP Database Compiler.",
+                "Architectural Overhaul: Upgraded to the latest Avalonia UI release (v12.0.5).",
+                "UI Polish: Renamed the Compiler sub-tab in Changelog to be Database Compiler (as there may be additional compilers released in future updates).",
+                "UI Polish: Restructured and reformatted the Help tab, which now includes sub-tabs for About MSOP, Configurator, Database, Database Compiler, Plugin, Credits, and Disclaimer."
+            ]
+        },
+        {
             "Version": "1.0.3",
             "ReleaseDate": "2026.06.24",
             "PackageLocation": "Updater/Configurator/Archive",
@@ -710,11 +724,11 @@
             ]
         }
     ],
-    "Compiler": [
+    "DatabaseCompiler": [
         {
             "Version": "3.0.1",
-            "ReleaseDateCompiler": "2026.06.24",
-            "ChangesCompiler": [
+            "ReleaseDateDatabaseCompiler": "2026.06.24",
+            "ChangesDatabaseCompiler": [
                 "readme.txt: Created new readme file to explain how to use the MSOP Compiler and configure support for new games."
             ],
             "DatabaseReleases": [
@@ -730,8 +744,8 @@
         },
         {
             "Version": "3.0.0",
-            "ReleaseDateCompiler": "2026.06.04",
-            "ChangesCompiler": [
+            "ReleaseDateDatabaseCompiler": "2026.06.04",
+            "ChangesDatabaseCompiler": [
                 "database.lua: Minor tweaks to header text regarding project information and file purpose.",
                 "Initial public release of the MSOP Compiler used to generate the 'database.lua' file for use with MSOP Plugin.",
                 "msop_database_compiler.py: You will have the option to generate 'database.lua' from either individual game/ROM JSON files (Option 1) or a single database.json file (Option 2).",
