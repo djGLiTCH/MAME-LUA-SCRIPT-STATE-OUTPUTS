@@ -736,8 +736,8 @@
                     "IncludedPluginVersion": "8.2.5",
                     "IncludedPluginDate": "2026.06.24",
                     "IncludedDatabaseDate": "2026.06.24",
-                    "PackageLocation": "Updater/Compiler/Archive",
-                    "PackageName": "MSOP_COMPILER_v3.0.1_2026.06.19",
+                    "PackageLocation": "Updater/DatabaseCompiler/Archive",
+                    "PackageName": "MSOP_DATABASE_COMPILER_v3.0.1_2026.06.19",
                     "PackageType": ".zip"
                 }
             ]
@@ -756,32 +756,32 @@
                     "IncludedPluginVersion": "8.2.4",
                     "IncludedPluginDate": "2026.06.19",
                     "IncludedDatabaseDate": "2026.06.19",
-                    "PackageLocation": "Updater/Compiler/Archive",
-                    "PackageName": "MSOP_COMPILER_v3.0.0_2026.06.19",
+                    "PackageLocation": "Updater/DatabaseCompiler/Archive",
+                    "PackageName": "MSOP_DATABASE_COMPILER_v3.0.0_2026.06.19",
                     "PackageType": ".zip"
                 },
                 {
                     "IncludedPluginVersion": "8.2.3",
                     "IncludedPluginDate": "2026.06.12",
                     "IncludedDatabaseDate": "2026.06.12",
-                    "PackageLocation": "Updater/Compiler/Archive",
-                    "PackageName": "MSOP_COMPILER_v3.0.0_2026.06.12",
+                    "PackageLocation": "Updater/DatabaseCompiler/Archive",
+                    "PackageName": "MSOP_DATABASE_COMPILER_v3.0.0_2026.06.12",
                     "PackageType": ".zip"
                 },
                 {
                     "IncludedPluginVersion": "8.2.2",
                     "IncludedPluginDate": "2026.06.10",
                     "IncludedDatabaseDate": "2026.06.10",
-                    "PackageLocation": "Updater/Compiler/Archive",
-                    "PackageName": "MSOP_COMPILER_v3.0.0_2026.06.10",
+                    "PackageLocation": "Updater/DatabaseCompiler/Archive",
+                    "PackageName": "MSOP_DATABASE_COMPILER_v3.0.0_2026.06.10",
                     "PackageType": ".zip"
                 },
                 {
                     "IncludedPluginVersion": "8.2.1",
                     "IncludedPluginDate": "2026.06.04",
                     "IncludedDatabaseDate": "2026.06.04",
-                    "PackageLocation": "Updater/Compiler/Archive",
-                    "PackageName": "MSOP_COMPILER_v3.0.0_2026.06.04",
+                    "PackageLocation": "Updater/DatabaseCompiler/Archive",
+                    "PackageName": "MSOP_DATABASE_COMPILER_v3.0.0_2026.06.04",
                     "PackageType": ".zip"
                 }
             ]
