@@ -1,7 +1,6 @@
 {
     "LUA_GAME": "CarnEvil",
     "ENABLE_ROM": true,
-    "LUA_ROM_ID": 13,
     "STARTUP_DELAY_MS": 23000,
     "COINS_PER_CREDIT": 2,
     "DATA_WIDTHS": {

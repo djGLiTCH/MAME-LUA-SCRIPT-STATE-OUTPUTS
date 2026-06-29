@@ -1,7 +1,6 @@
 {
     "LUA_GAME": "Duck Hunt",
     "ENABLE_ROM": true,
-    "LUA_ROM_ID": 27,
     "SCREEN_FLASH": true,
     "SCREEN_FLASH_MEMORY_ADDRESS": false,
     "SCREEN_FLASH_DISABLE_VALUE": false,

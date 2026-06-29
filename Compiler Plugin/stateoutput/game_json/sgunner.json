@@ -1,7 +1,6 @@
 {
     "LUA_GAME": "Steel Gunner",
     "ENABLE_ROM": true,
-    "LUA_ROM_ID": 77,
     "STARTUP_DELAY_MS": 4000,
     "DATA_WIDTHS": {
         "AMMO": 16

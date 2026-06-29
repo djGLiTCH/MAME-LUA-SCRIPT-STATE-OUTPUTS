@@ -1,7 +1,6 @@
 {
     "LUA_GAME": "Operation Wolf",
     "ENABLE_ROM": true,
-    "LUA_ROM_ID": 59,
     "SCREEN_FLASH": true,
     "SCREEN_FLASH_MEMORY_ADDRESS": "0x00001131",
     "SCREEN_FLASH_DISABLE_VALUE": "0x02",

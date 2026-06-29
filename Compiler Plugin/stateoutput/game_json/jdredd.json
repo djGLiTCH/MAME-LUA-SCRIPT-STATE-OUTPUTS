@@ -1,7 +1,6 @@
 {
     "LUA_GAME": "Judge Dredd",
     "ENABLE_ROM": true,
-    "LUA_ROM_ID": 41,
     "OFFSCREEN_RELOAD": true,
     "SCREEN_FLASH": true,
     "SCREEN_FLASH_MEMORY_ADDRESS": false,

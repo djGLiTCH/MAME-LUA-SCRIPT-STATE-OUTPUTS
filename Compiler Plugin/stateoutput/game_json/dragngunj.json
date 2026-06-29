@@ -1,7 +1,6 @@
 {
     "LUA_GAME": "Dragon Gun",
     "ENABLE_ROM": true,
-    "LUA_ROM_ID": 26,
     "STARTUP_DELAY_MS": 4000,
     "MIN_RECOIL_INTERVAL_MS": 100,
     "MIN_RECOIL_INTERVAL_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
