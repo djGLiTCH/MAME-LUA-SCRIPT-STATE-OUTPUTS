@@ -66,6 +66,7 @@ The latest source code and release includes support for the following MAME ROMs 
 | `bbust2` | Beast Busters: Second Nightmare | Working |
 | `bel` | Behind Enemy Lines | Working<br>Slowed fire rate when Ammo = 0 may require further timing adjustments. |
 | `carnevil` | CarnEvil | Working |
+| `crszone` | Crisis Zone | Working |
 | `cryptklr` | Crypt Killer | Working |
 | `dragngun` | Dragon Gun | Working |
 | `dragngunj` | Dragon Gun (Japan) | Working |
