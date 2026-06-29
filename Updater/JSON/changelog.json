@@ -399,6 +399,13 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.06.29",
+            "ChangesDatabase": [
+                "General: Removed ROM_ID from all games as this is no longer required (some were previously missed).",
+                "crszone: Added new supported game, Crisis Zone."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.06.24",
             "ChangesDatabase": [
                 "General: Removed ROM_ID from all games as this is no longer required.",
@@ -485,6 +492,12 @@
                 "readme.txt: Revised formatting and contents of readme file for MSOP Plugin."
             ],
             "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.06.29",
+                    "PackageLocation": "Updater/Plugin/Archive",
+                    "PackageName": "MSOP_PLUGIN_v8.2.5_2026.06.29",
+                    "PackageType": ".zip"
+                },
                 {
                     "IncludedDatabaseDate": "2026.06.24",
                     "PackageLocation": "Updater/Plugin/Archive",
@@ -665,6 +678,12 @@
             ],
             "DatabaseReleases": [
                 {
+                    "IncludedDatabaseDate": "2026.06.29",
+                    "PackageLocation": "Updater/Plugin/Archive/Beta",
+                    "PackageName": "MSOP_PLUGIN_v8.2.5_2026.06.29",
+                    "PackageType": ".zip"
+                },
+                {
                     "IncludedDatabaseDate": "2026.06.24",
                     "PackageLocation": "Updater/Plugin/Archive/Beta",
                     "PackageName": "MSOP_PLUGIN_v8.2.5_2026.06.24",
@@ -726,6 +745,23 @@
     ],
     "DatabaseCompiler": [
         {
+            "Version": "3.0.2",
+            "ReleaseDateDatabaseCompiler": "2026.06.29",
+            "ChangesDatabaseCompiler": [
+                "msop_database_compiler.py: Added error detection support for duplicate fields within JSON game profiles."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedPluginVersion": "8.2.5",
+                    "IncludedPluginDate": "2026.06.24",
+                    "IncludedDatabaseDate": "2026.06.29",
+                    "PackageLocation": "Updater/DatabaseCompiler/Archive",
+                    "PackageName": "MSOP_DATABASE_COMPILER_v3.0.2_2026.06.29",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "3.0.1",
             "ReleaseDateDatabaseCompiler": "2026.06.24",
             "ChangesDatabaseCompiler": [
@@ -746,8 +782,8 @@
             "Version": "3.0.0",
             "ReleaseDateDatabaseCompiler": "2026.06.04",
             "ChangesDatabaseCompiler": [
-                "database.lua: Minor tweaks to header text regarding project information and file purpose.",
                 "Initial public release of the MSOP Compiler used to generate the 'database.lua' file for use with MSOP Plugin.",
+                "database.lua: Minor tweaks to header text regarding project information and file purpose.",
                 "msop_database_compiler.py: You will have the option to generate 'database.lua' from either individual game/ROM JSON files (Option 1) or a single database.json file (Option 2).",
                 "msop_database_compiler.py: If there are any errors or issues during compilation, you will be notified during the compilation process and in the summary results of the MSOP Compiler script window."
             ],
