@@ -148,10 +148,10 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- convert_hex_strings_to_numbers(t)
-    -- @description: Recursively converts JSON hex strings ("0x00FF") to integers.
-    -- @purpose: JSON files cannot store hexadecimal numbers. They must be saved 
-    --           as strings. But MAME's memory reader requires raw numbers. This 
-    --           function fixes that translation limitation automatically at boot.
+    -- Recursively converts JSON hex strings ("0x00FF") to integers.
+    -- JSON files cannot store hexadecimal numbers. They must be saved 
+    -- as strings. But MAME's memory reader requires raw numbers. This 
+    -- function fixes that translation limitation automatically at boot.
     -- -------------------------------------------------------------------------
     local function convert_hex_strings_to_numbers(t)
         for k, v in pairs(t) do
@@ -165,11 +165,11 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Resolve_Addresses_And_Strings()
-    -- @description: Pre-calculates heavy string/math operations before the game starts.
-    -- @purpose: String manipulation (e.g., string.lower) is very CPU intensive in Lua. 
-    --           By doing it once here, we save thousands of CPU cycles per second.
-    --           It also automatically generates P2/P3/P4 memory addresses based on 
-    --           P1's offset math.
+    -- Pre-calculates heavy string/math operations before the game starts.
+    -- String manipulation (e.g., string.lower) is very CPU intensive in Lua. 
+    -- By doing it once here, we save thousands of CPU cycles per second.
+    -- It also automatically generates P2/P3/P4 memory addresses based on 
+    -- P1's offset math.
     -- -------------------------------------------------------------------------
     local function Resolve_Addresses_And_Strings()
         -- Normalize logical evaluation strings
@@ -291,8 +291,7 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Read_Data_Safe(mem_handle, source, width)
-    -- @description: Universal memory polling adapter. 
-    -- @options:
+    -- Universal memory polling adapter
     --    8, 16, 32    -> Reads standard Unsigned Integers
     --    "float32"    -> Reads 32-bit Little Endian Floats (Modern 3D games)
     --    "float32be"  -> Reads 32-bit Big Endian Floats (Sega Model 2/3)
@@ -326,9 +325,9 @@ function stateoutput.startplugin()
     
     -- -------------------------------------------------------------------------
     -- Write_Data_Safe(mem_handle, source, width, value)
-    -- @description: Active memory patching adapter. Injects values into RAM.
-    -- @purpose: Used primarily to disable visual hazards (like white flashes)
-    --           by hard-locking memory addresses to a specific value.
+    -- Active memory patching adapter. Injects values into RAM.
+    -- Used primarily to disable visual hazards (like white flashes)
+    -- by hard-locking memory addresses to a specific value.
     -- -------------------------------------------------------------------------
     local function Write_Data_Safe(mem_handle, source, width, value)
         if not source or not mem_handle or not value then return end
@@ -341,11 +340,11 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
-    -- @description: Flushes outputs to zero at boot and synchronizes local caches.
-    -- @purpose: Prevents external hardware (like DemulShooter or lighting apps) 
-    --           from sticking 'ON' if a previous game crashed or ended abruptly.
-    --           Forces a true 0-state broadcast over the MAME TCP socket and 
-    --           aligns the local Lua spam-filter to guarantee accurate tracking.
+    -- Flushes outputs to zero at boot and synchronizes local caches.
+    -- Prevents external hardware (like DemulShooter or lighting apps) 
+    -- from sticking 'ON' if a previous game crashed or ended abruptly.
+    -- Forces a true 0-state broadcast over the MAME TCP socket and 
+    -- aligns the local Lua spam-filter to guarantee accurate tracking.
     -- -------------------------------------------------------------------------
     local function Register_Outputs_Safe(out_handle)
         if not out_handle then return end
@@ -448,11 +447,11 @@ function stateoutput.startplugin()
             _HardwareBound = true
         end
         
-		-- ----------------------------------------------
+		-- -------------------------------------------------------------------------
         -- OUTPUT SPAM WRAPPERS:
         -- Only sends a command to MAME's output system if the value has actually changed.
         -- This drastically reduces TCP server load.
-		-- ----------------------------------------------
+		-- -------------------------------------------------------------------------
         local function Set_Output(p_idx, key, value)
             local p = _Player[p_idx]
             if p.LastOutputs[key] ~= value and _OutputNames[p_idx][key] then
@@ -468,11 +467,11 @@ function stateoutput.startplugin()
             end
         end
         
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         -- PHASE 0: WARMUP & INITIALIZATION FLUSH
         -- Ensures outputs are held silently during startup and perfectly
         -- synced the exact frame the boot delay expires.
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         local warmup_ok = Is_Warmup_Complete()
         
         -- Trigger initialization exactly when warmup completes
@@ -485,9 +484,9 @@ function stateoutput.startplugin()
         local divisor = CFG.COINS_PER_CREDIT or 1
         if divisor < 1 then divisor = 1 end
 
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         -- PHASE 1: GLOBAL STATUS & ATTRACT MODE
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         local is_attract_mode = false
         if CFG.ATTRACT_STATUS and type(CFG.ATTRACT_STATUS) == "number" then
             local val = Read_Data_Safe(_MemHandles["GLOBAL_ATTRACT_STATUS"], CFG.ATTRACT_STATUS, CFG.DATA_WIDTHS.GLOBAL_ATTRACT_STATUS or 8)
@@ -535,10 +534,10 @@ function stateoutput.startplugin()
         
         if is_game_active then gamestatus = 1 end
 
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         -- PHASE 2: CORE PLAYER ITERATION
         -- Loops through P1, P2, P3, P4 sequentially.
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         local any_player_active = false
         local aggregated_credits = 0
         local using_individual_credits = false
@@ -696,9 +695,9 @@ function stateoutput.startplugin()
             local primary_active = (out_status_val == 1)
             local alternate_active = (cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto") and (out_status_alt_val == 1) or primary_active
 
-            -- ----------------------------------------------
+            -- -------------------------------------------------------------------------
             -- PHASE 3: HARDWARE TRIGGERS (Recoil & Reload)
-            -- ----------------------------------------------
+            -- -------------------------------------------------------------------------
             local auto_recoil_triggered_this_frame = false
             local t_ammo = CFG.AMMO_THRESHOLD or 254
             local t_alt = CFG.AMMO_ALT_THRESHOLD or 254
@@ -820,10 +819,10 @@ function stateoutput.startplugin()
                   end
             end
 
-            -- ----------------------------------------------
+            -- -------------------------------------------------------------------------
             -- PHASE 4: STATISTICAL BROADCASTS & HIT DAMAGE
             -- Pushes live Ammo/Life numbers to external apps.
-            -- ----------------------------------------------
+            -- -------------------------------------------------------------------------
             if is_player_active or just_died then
                 if primary_active then
                     if cfg.AMMO then Set_Output(i, "AMMO", warmup_ok and curr_ammo or 0) end
@@ -1022,10 +1021,10 @@ function stateoutput.startplugin()
             _GameInactiveTick = _ZeroTime
         end
 
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         -- PHASE 5: MEMORY PATCHING (Anti-Seizure)
         -- Actively overwrites MAME memory to disable blinding flashes.
-        -- ----------------------------------------------
+        -- -------------------------------------------------------------------------
         if warmup_ok and CFG.SCREEN_FLASH then
             -- 1. Process Global Patch (If configured)
             if CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_DISABLE_VALUE then
