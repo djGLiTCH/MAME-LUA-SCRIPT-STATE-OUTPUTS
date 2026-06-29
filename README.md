@@ -26,7 +26,7 @@ We have since migrated to a **native MAME Plugin architecture** to establish a c
 
 ## ⚙️ What Does This Do?
 
-Many classic MAME arcade games do not natively output "state" data. Without this data, external tools like [**Hook of The Reaper (HOTR)**](https://hotr.6bolt.com/), [**MAMEhooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker), [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and/or [**QMameHook**](https://github.com/SeongGino/QMamehook) have no way of knowing when you fire your weapon or take damage. This means your light gun's physical recoil, rumble, lights, display, etc. won't work.
+Many classic MAME arcade games do not natively output "state" data. Without this data, external tools like [**Hook of The Reaper (HOTR)**](https://hotr.6bolt.com/), [**MAMEhooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker), [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and/or [**QMamehook**](https://github.com/SeongGino/QMamehook) have no way of knowing when you fire your weapon or take damage. This means your light gun's physical recoil, rumble, lights, display, etc. won't work.
 
 This plugin fixes that. It quietly monitors the game in the background and sends a standardised signal to your hardware whenever an action state event happens, ensuring your hardware physically aligns to what is happening in-game and on-screen.
 
@@ -141,7 +141,7 @@ There are many state output 'hooker' programs that exist, however, support has b
 1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`.
 2. **Copy New Files:** Copy the files from the `defaultLG` folder from the latest release into your `HookOfTheReaper\defaultLG\` directory. Overwrite any files when prompted.
 
-*(Note: Refer to documentation for MAME Hooker, OutputHooker, and QMameHook setup, which will be expanded later once the Configurator App can handle automatic ini generation).*
+*(Note: Refer to documentation for MAME Hooker, OutputHooker, and QMamehook setup, which will be expanded later once the Configurator App can handle automatic ini generation).*
 
 ---
 
@@ -206,7 +206,7 @@ This is a community-driven project. If you find a game that isn't supported, ple
 * **Argon**, for the initial Lua script concept that sparked the idea for this project.
 * **PolybiusExtreme**, for [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and general testing and feedback for this project.
 * **Howard Casto**, for [**MAMEhooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker).
-* **SeongGino**, for [**QMameHook**](https://github.com/SeongGino/QMamehook).
+* **SeongGino**, for [**QMamehook**](https://github.com/SeongGino/QMamehook).
 * **6Bolt**, for [**Hook Of The Reaper**](https://github.com/6Bolt/Hook-Of-The-Reaper).
 * The [**MAME Development Team**](https://www.mamedev.org), for building and maintaining such an amazing emulation project.
 
