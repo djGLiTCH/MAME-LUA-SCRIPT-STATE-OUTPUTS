@@ -141,7 +141,31 @@ There are many state output 'hooker' programs that exist, however, support has b
 1. **Clean Old Scripts:** Navigate to `HookOfTheReaper\defaultLG\` and **delete** the folder named `MAME_LUA`.
 2. **Copy New Files:** Copy the files from the `defaultLG` folder from the latest release into your `HookOfTheReaper\defaultLG\` directory. Overwrite any files when prompted.
 
-*(Note: Refer to documentation for MAME Hooker, OutputHooker, and QMamehook setup, which will be expanded later once the Configurator App can handle automatic ini generation).*
+**MAMEhooker, OutputHooker, and QMamehook**
+
+For now, you can use the following Outputs in your per game ini file which will work across all supported games.
+
+```ini
+[Output]
+Credits=
+GameStatus=
+P1_LampStart=
+P1_Status=
+P1_Life=
+P1_Damaged=
+P1_CtmRecoil=
+P1_Reload=
+P2_LampStart=
+P2_Status=
+P2_Life=
+P2_Damaged=
+P2_CtmRecoil=
+P2_Reload=
+```
+
+Please note that not all outputs will be available for each supported game, but the main outputs will always be available (PX_CtmRecoil, PX_Reload, PX_Damaged).
+
+*Note: Refer to documentation for MAME Hooker, OutputHooker, and QMamehook setup, which will be expanded later once the Configurator App can handle automatic ini generation.*
 
 ---
 
