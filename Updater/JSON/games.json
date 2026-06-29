@@ -97,6 +97,22 @@
             "SupportedVersion": "8.1.6"
         },
         {
+            "ROM": "crszone",
+            "Name": "Crisis Zone",
+            "ReleaseYear": "1999",
+            "DeveloperPublisher": "Namco",
+            "Category": "Rail Shooter",
+            "ArcadeHardware": "Namco System Super 23",
+            "CHD": false,
+            "MAMECompatibility": "Imperfect",
+            "OffscreenReload": false,
+            "LightGunPatch": false,
+            "ScreenFlash": false,
+            "ScreenFlashFix": false,
+            "NativeStateOutput": false,
+            "SupportedVersion": "8.2.5"
+        },
+        {
             "ROM": "cryptklr",
             "Name": "Crypt Killer",
             "ReleaseYear": "1995",
