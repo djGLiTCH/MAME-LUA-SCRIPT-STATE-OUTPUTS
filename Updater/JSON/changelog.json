@@ -1,6 +1,25 @@
 {
     "Configurator": [
         {
+            "Version": "1.0.5",
+            "ReleaseDate": "2026.06.30",
+            "PackageLocation": "Updater/Configurator/Archive",
+            "PackageName": "MSOP_CONFIGURATOR_v1.0.5_2026.06.30",
+            "PackageType": ".zip",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: Renamed the latest zip files that are stored and downloaded from GitHub. Only MSOP Configurator v1.0.5+ will have access to MSOP Plugin v8.3.0+.",
+                "Feature Added: Added the ability to change the IP Address and Port in the Diagnostics page for the sniffer / hooker function. This means you can use MSOP Configurator to easily monitor other TCP Servers for debugging purposes (e.g. Sinden).",
+                "UI Polish: Changed Settings for MSOP Configurator to be radio buttons instead of a pill toggle. This should make things clearer to users since radio buttons are more appropriate for different options. Required rewrite of many functions to make this transition.",
+                "UI Polish: General tidy up of UI for consistency and neatness, such as resizing grids, adjusting corner radius, colours used for interactive elements, prevention of overflow when adjusting width, etc. There are many changes, and unfortunately too many to list out individually.",
+                "UI Polish: Enforced editable fields in the Diagnostics page (UI Refresh Rate, IP Address, and Port) to have validation checks performed. This prevents incorrect values entered by a user causing any potential issues.",
+                "UI Polish: Remade the Home page so that the layout is more condensed, informative, and optimised.",
+                "UI Polish: Renamed the toggle for Sniffer to Hooker in Diagnostics page since this is the term most users are familiar with.",
+                "UI Polish: Reordered the tabs and sub-tabs so that pages are easier to use and more predictable to locate.",
+                "UI Polish: Revised JSON syntax error notifications to make the issue clearer to the user so it can be easily identified and fixed."
+            ]
+        },
+        {
             "Version": "1.0.4",
             "ReleaseDate": "2026.06.25",
             "PackageLocation": "Updater/Configurator/Archive",
@@ -490,7 +509,7 @@
             "ReleaseDatePlugin": "2026.06.30",
             "ChangesPlugin": [
                 "init.lua: Implement 'Safe Setter' architecture. Centralises output management by abstracting Set_Output_Safe and Get_Output_Proxy, ensuring seamless compatibility between modern device-scoped MAME (0.289+) and legacy MAME releases.",
-		        "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
+                "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
                 "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations.",
                 "readme.txt: Added 'Output Mappings' section so it is clear what state outputs need to be mapped to commands in MAMEhooker, OutputHooker, and/or QMamehook."
             ],
@@ -693,7 +712,7 @@
             "ReleaseDatePlugin": "2026.06.30",
             "ChangesPlugin": [
                 "init.lua: Implement 'Safe Setter' architecture. Centralises output management by abstracting Set_Output_Safe and Get_Output_Proxy, ensuring seamless compatibility between modern device-scoped MAME (0.289+) and legacy MAME releases.",
-		        "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
+                "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
                 "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations.",
                 "readme.txt: Added 'Output Mappings' section so it is clear what state outputs need to be mapped to commands in MAMEhooker, OutputHooker, and/or QMamehook."
             ],
