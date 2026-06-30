@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 8.2.5
-Plugin Date:    2026.06.24
-Database Date:  2026.06.29
+Plugin Version: 8.3.0
+Plugin Date:    2026.06.30
+Database Date:  2026.06.30
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -72,6 +72,33 @@ creation of ini state output to command files, I will swap my recommendation to
 OutputHooker as it has more options for hardware and software experiences.
 
 --------------------------------------------------------------------------------
+OUTPUT MAPPINGS (MAMEhooker, OutputHooker, and QMamehook)
+--------------------------------------------------------------------------------
+
+For now, you can use the following Outputs in your per game ini file which will 
+work across all supported games.
+
+[Output]
+Credits=
+GameStatus=
+P1_LampStart=
+P1_Status=
+P1_Life=
+P1_Damaged=
+P1_CtmRecoil=
+P1_Reload=
+P2_LampStart=
+P2_Status=
+P2_Life=
+P2_Damaged=
+P2_CtmRecoil=
+P2_Reload=
+
+Please note that not all outputs will be available for each supported game, 
+but the main outputs will always be available (PX_CtmRecoil, PX_Reload, 
+PX_Damaged).
+
+--------------------------------------------------------------------------------
 MSOP CONFIGURATOR APP: TUTORIAL & USAGE
 --------------------------------------------------------------------------------
 
@@ -96,7 +123,7 @@ Beta vs. Stable Plugin Channels:
   the newest additions or help the community identify bugs.
 
 --------------------------------------------------------------------------------
-COMMAND LINE USAGE
+MSOP CONFIGURATOR APP: COMMAND LINE USAGE
 --------------------------------------------------------------------------------
 
 For advanced users and arcade cabinet front-ends, the MSOP Configurator can be 
