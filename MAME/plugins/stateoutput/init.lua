@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT
 -- MSOP PLUGIN
--- Plugin Version: 8.2.5
--- Plugin Date: 2026.06.24
+-- Plugin Version: 8.3.0
+-- Plugin Date: 2026.06.30
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,16 +15,18 @@
 
 local exports = {
     name = "stateoutput",
-    version = "8.2.5",
+    version = "8.3.0",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
-    
+
     -- [ CRITICAL MAME CONCEPT: Persistent Subscriptions ]
-    -- In MAME's modern API, event hooks (like add_machine_reset_notifier) return a 
-    -- "subscription object". If Lua's Garbage Collector deletes this object, MAME 
-    -- instantly stops triggering the hook. By storing them in this global `exports` 
-    -- table, we protect them from being deleted while MAME is running.
+    -- In MAME's Lua API, event hooks (such as add_machine_reset_notifier) return a 
+    -- "subscription object". If the Lua Garbage Collector clears these objects, MAME 
+    -- will cease triggering the associated callbacks. By storing them in this global 
+    -- `exports.subscriptions` table, we ensure they remain active for the duration 
+    -- of the MAME session.
+
     subscriptions = {} 
 }
 
@@ -223,7 +225,7 @@ function stateoutput.startplugin()
             _MemConfig[key] = { tag = t, space = s }
         end
 
-        -- Pre-compile the MAME output broadcast strings (e.g., "P1_Ammo")
+        -- Pre-compile the MAME output broadcast strings (e.g. "P1_Ammo")
         for i = 1, CFG.MAX_PLAYERS do
             _OutputNames[i] = {}
             for key, suffix in pairs(CFG.OUTPUT_SUFFIXES) do
@@ -337,7 +339,53 @@ function stateoutput.startplugin()
         elseif width == 64 then mem_handle:write_u64(source, value)
         else mem_handle:write_u8(source, value) end
     end
+    
+    -- -------------------------------------------------------------------------
+    -- OUTPUT PROXY CACHE & SAFE SETTER
+    -- Transparently handles MAME 0.289+ overloaded creators, standard proxies, 
+    -- and legacy set_value fallbacks without crashing.
+    -- -------------------------------------------------------------------------
+    local _ProxyCache = {}
 
+    local function Get_Output_Proxy(name, out_handle)
+        if _ProxyCache[name] ~= nil then return _ProxyCache[name] end
+
+        local proxy = false
+        local created_via_overload = false
+
+        if manager and manager.machine and manager.machine.devices then
+            local root_dev = manager.machine.devices[":"]
+            if root_dev and root_dev.output then
+                -- 1. Try the Overload method (available in MAME 0.289+ with PR #15618)
+                -- Wrap it in pcall. If this method isn't compatible, silently fail instead of crashing.
+                local success = pcall(function() root_dev:output(name, 0) end)
+                if success then created_via_overload = true end
+
+                -- 2. Fetch the modern fast-proxy object
+                local s2, p = pcall(function() return root_dev:output(name) end)
+                if s2 and p then proxy = p end
+            end
+        end
+
+        -- 3. Legacy Fallback (MAME 0.288 and lower, or MAME 0.289+ without PR #15618))
+        -- If the overload failed, use the deprecated set_value to prime the network broadcast.
+        if not created_via_overload and out_handle and out_handle.set_value then
+            out_handle:set_value(name, 0)
+        end
+
+        _ProxyCache[name] = proxy
+        return proxy
+    end
+
+    local function Set_Output_Safe(out_handle, name, value)
+        local proxy = Get_Output_Proxy(name, out_handle)
+        if proxy then
+            proxy:set(value) -- Modern 60Hz fast path
+        elseif out_handle and out_handle.set_value then
+            out_handle:set_value(name, value) -- Ultra-legacy fallback
+        end
+    end
+    
     -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
     -- Flushes outputs to zero at boot and synchronizes local caches.
@@ -351,7 +399,7 @@ function stateoutput.startplugin()
         
         local function Sync_Global(key, value)
             if _GlobalOutputs[key] then
-                out_handle:set_value(_GlobalOutputs[key], value)
+                Set_Output_Safe(out_handle, _GlobalOutputs[key], value)
                 _GlobalLastOutputs[key] = value
             end
         end
@@ -371,14 +419,14 @@ function stateoutput.startplugin()
             
             local function Sync_Output(cfg_key, out_key)
                 if p_cfg[cfg_key] and _OutputNames[i][out_key] then
-                    out_handle:set_value(_OutputNames[i][out_key], 0)
+                    Set_Output_Safe(out_handle, _OutputNames[i][out_key], 0)
                     _Player[i].LastOutputs[out_key] = 0
                 end
             end
             
             local function Sync_Force(out_key)
                 if _OutputNames[i][out_key] then
-                    out_handle:set_value(_OutputNames[i][out_key], 0)
+                    Set_Output_Safe(out_handle, _OutputNames[i][out_key], 0)
                     _Player[i].LastOutputs[out_key] = 0
                 end
             end
@@ -455,14 +503,14 @@ function stateoutput.startplugin()
         local function Set_Output(p_idx, key, value)
             local p = _Player[p_idx]
             if p.LastOutputs[key] ~= value and _OutputNames[p_idx][key] then
-                out:set_value(_OutputNames[p_idx][key], value)
+                Set_Output_Safe(out, _OutputNames[p_idx][key], value)
                 p.LastOutputs[key] = value
             end
         end
         
         local function Set_Global_Output(key, value)
             if _GlobalLastOutputs[key] ~= value then
-                out:set_value(_GlobalOutputs[key], value)
+                Set_Output_Safe(out, _GlobalOutputs[key], value)
                 _GlobalLastOutputs[key] = value
             end
         end
