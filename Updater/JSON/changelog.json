@@ -399,6 +399,12 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.06.30",
+            "ChangesDatabase": [
+                "crszone: Revised STARTUP_DELAY_MS from 28000 (28s) to 24000 (24s)."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.06.29",
             "ChangesDatabase": [
                 "General: Removed ROM_ID from all games as this is no longer required (some were previously missed).",
@@ -479,6 +485,23 @@
         }
     ],
     "PluginStable": [
+        {
+            "Version": "8.3.0",
+            "ReleaseDatePlugin": "2026.06.30",
+            "ChangesPlugin": [
+                "init.lua: Implement 'Safe Setter' architecture. Centralises output management by abstracting Set_Output_Safe and Get_Output_Proxy, ensuring seamless compatibility between modern device-scoped MAME (0.289+) and legacy MAME releases.",
+		        "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
+                "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.06.30",
+                    "PackageLocation": "Updater/Plugin/Archive",
+                    "PackageName": "MSOP_PLUGIN_v8.3.0_2026.06.30",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
         {
             "Version": "8.2.5",
             "ReleaseDatePlugin": "2026.06.24",
@@ -664,6 +687,23 @@
         }
     ],
     "PluginBeta": [
+        {
+            "Version": "8.3.0",
+            "ReleaseDatePlugin": "2026.06.30",
+            "ChangesPlugin": [
+                "init.lua: Implement 'Safe Setter' architecture. Centralises output management by abstracting Set_Output_Safe and Get_Output_Proxy, ensuring seamless compatibility between modern device-scoped MAME (0.289+) and legacy MAME releases.",
+		        "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
+                "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.06.30",
+                    "PackageLocation": "Updater/Plugin/Archive/Beta",
+                    "PackageName": "MSOP_PLUGIN_v8.3.0_2026.06.30",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
         {
             "Version": "8.2.5",
             "ReleaseDatePlugin": "2026.06.24",
