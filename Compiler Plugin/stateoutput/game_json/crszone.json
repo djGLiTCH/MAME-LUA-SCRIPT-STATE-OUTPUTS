@@ -1,7 +1,7 @@
 {
     "LUA_GAME": "Crisis Zone",
     "ENABLE_ROM": true,
-    "STARTUP_DELAY_MS": 28000,
+    "STARTUP_DELAY_MS": 24000,
     "COINS_PER_CREDIT": 1,
     "COINS_PER_CREDIT_comment": "First credit requires 2 coins, but only 1 credit required to continue playing",
     "MAX_PLAYERS": 1,
