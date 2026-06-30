@@ -694,7 +694,8 @@
             "ChangesPlugin": [
                 "init.lua: Implement 'Safe Setter' architecture. Centralises output management by abstracting Set_Output_Safe and Get_Output_Proxy, ensuring seamless compatibility between modern device-scoped MAME (0.289+) and legacy MAME releases.",
 		        "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
-                "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations."
+                "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations.",
+                "readme.txt: Added 'Output Mappings' section so it is clear what state outputs need to be mapped to commands in MAMEhooker, OutputHooker, and/or QMamehook."
             ],
             "DatabaseReleases": [
                 {
