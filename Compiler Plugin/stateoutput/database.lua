@@ -1,7 +1,7 @@
 --
 -- MAME STATE OUTPUT PROJECT
 -- MSOP DATABASE LUA
--- Database Release Date: 2026.06.29
+-- Database Release Date: 2026.06.30
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -9,8 +9,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 825,
-        ["LUA_DATE"] = 20260629,
+        ["LUA_VERSION"] = 830,
+        ["LUA_DATE"] = 20260630,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
         ["OFFSCREEN_RELOAD"] = false,
@@ -463,7 +463,7 @@ local database = {
     ["crszone"] = {
         ["LUA_GAME"] = "Crisis Zone",
         ["ENABLE_ROM"] = true,
-        ["STARTUP_DELAY_MS"] = 28000,
+        ["STARTUP_DELAY_MS"] = 24000,
         ["COINS_PER_CREDIT"] = 1,
         ["COINS_PER_CREDIT_comment"] = "First credit requires 2 coins, but only 1 credit required to continue playing",
         ["MAX_PLAYERS"] = 1,
