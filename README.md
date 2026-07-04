@@ -143,8 +143,11 @@ There are many state output 'hooker' programs that exist, however, support has b
 
 **MAMEhooker, OutputHooker, and QMamehook**
 
+Documentation is still being worked on for MAMEhooker, OutputHooker, and QMamehook setup, which will be expanded later once the Configurator App can handle automatic ini generation.
+
 For now, you can use the following Outputs in your per game ini file which will work across all supported games.
 
+**Condensed** _(force feedback / physical reaction triggers)_
 ```ini
 [Output]
 Credits=
@@ -163,9 +166,70 @@ P2_CtmRecoil=
 P2_Reload=
 ```
 
+**Complete** _(all outputs: triggers plus informational values)_
+```ini
+[Output]
+MSOP_Credits=
+MSOP_GameStatus=
+MSOP_AttractStatus=
+MSOP_GlobalCreditsInserted=
+MSOP_LuaVersion=
+MSOP_LuaDate=
+MSOP_LuaROMid=
+MSOP_P1_LampStart=
+MSOP_P1_CtmRecoil=
+MSOP_P1_Recoil=
+MSOP_P1_Reload=
+MSOP_P1_Rumble=
+MSOP_P1_Damaged=
+MSOP_P1_Damage=
+MSOP_P1_DamageTaken=
+MSOP_P1_Status=
+MSOP_P1_StatusAlt=
+MSOP_P1_Life=
+MSOP_P1_LifeAlt=
+MSOP_P1_LifeLost=
+MSOP_P1_Ammo=
+MSOP_P1_AmmoAlt=
+MSOP_P1_AmmoGrenade=
+MSOP_P1_ShotsFired=
+MSOP_P1_ShotsFiredPrimary=
+MSOP_P1_ShotsFiredAlt=
+MSOP_P1_ShotsFiredGrenade=
+MSOP_P1_CreditsInserted=
+MSOP_P1_CreditsConsumed=
+MSOP_P2_LampStart=
+MSOP_P2_CtmRecoil=
+MSOP_P2_Recoil=
+MSOP_P2_Reload=
+MSOP_P2_Rumble=
+MSOP_P2_Damaged=
+MSOP_P2_Damage=
+MSOP_P2_DamageTaken=
+MSOP_P2_Status=
+MSOP_P2_StatusAlt=
+MSOP_P2_Life=
+MSOP_P2_LifeAlt=
+MSOP_P2_LifeLost=
+MSOP_P2_Ammo=
+MSOP_P2_AmmoAlt=
+MSOP_P2_AmmoGrenade=
+MSOP_P2_ShotsFired=
+MSOP_P2_ShotsFiredPrimary=
+MSOP_P2_ShotsFiredAlt=
+MSOP_P2_ShotsFiredGrenade=
+MSOP_P2_CreditsInserted=
+MSOP_P2_CreditsConsumed=
+```
+
 Please note that not all outputs will be available for each supported game, but the main outputs will always be available (PX_CtmRecoil, PX_Reload, PX_Damaged).
 
-*Note: Refer to documentation for MAME Hooker, OutputHooker, and QMamehook setup, which will be expanded later once the Configurator App can handle automatic ini generation.*
+Every output above only appears once a supported ROM actually drives it away from its default value - this keeps your hooker software free of names that ROM never uses, and is consistent across every output MSOP produces, global or per-player.
+
+Note 1: PX = Player Number (e.g. P1 = Player 1)
+Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
+Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
+Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
 
 ---
 
