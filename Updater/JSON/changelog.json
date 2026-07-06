@@ -1,6 +1,19 @@
 {
     "Configurator": [
         {
+            "Version": "1.0.6",
+            "ReleaseDate": "2026.07.06",
+            "PackageLocation": "Updater/Configurator/Archive",
+            "PackageName": "MSOP_CONFIGURATOR_v1.0.6_2026.07.06",
+            "PackageType": ".zip",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "General: Please note that MSOP Configurator v1.0.6 and MSOP Plugin v8.4.0 and all versions of these below are only compatible with MAME 0.200 to MAME 0.288 (unless MAME PR #15639 is applied to a custom MAME build). The upcoming official MAME 0.289+ release requires a new version of MSOP to work, as there is a fundamental change being implemented by the MAME devs that will prevent custom state outputs from being registered with MAME moving forward (and no code that enables this function will be allowed back into MAME). A new version of MSOP will be released in the near future that works around this limitation without the need for a custom MAME fork or build, and a working prototype is already undergoing testing.",
+                "Feature Added: Added support for Diagnostics page to automatically identify MSOP Plugin state outputs both with and without 'MSOP_' prefix on state outputs from MAME. This is an early feature preview that will be required for the upcoming changes to MSOP in the next major release.",
+                "UI Polish: Renamed the toggle for Sniffer/Hooker to Diagnostics in Diagnostics page. This should make more sense to most users regardless of the terms they're familiar with."
+            ]
+        },
+        {
             "Version": "1.0.5",
             "ReleaseDate": "2026.06.30",
             "PackageLocation": "Updater/Configurator/Archive",
@@ -418,6 +431,12 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.07.03",
+            "ChangesDatabase": [
+                "General: No changes. Updated to suit last run date by MSOP Database Compiler."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.06.30",
             "ChangesDatabase": [
                 "crszone: Revised STARTUP_DELAY_MS from 28000 (28s) to 24000 (24s)."
@@ -504,6 +523,23 @@
         }
     ],
     "PluginStable": [
+        {
+            "Version": "8.4.0",
+            "ReleaseDatePlugin": "2026.07.03",
+            "ChangesPlugin": [
+                "Note: As of 2026.07.03, MAME PR #15639 (https://github.com/mamedev/mame/pull/15639) has been rejected, and so MSOP Plugin v8.4.0 and below are only compatible with MAME 0.200 to 0.288 unless MAME PR #15639 is applied to a custom MAME 0.289+ build. A future MSOP update will be released shortly that will work without a custom MAME build, and is expected in MSOP Configurator v2.0.0+ and MSOP Plugin v9.0.0+ (both will be required moving forward, not just MSOP Plugin).",
+                "init.lua: Reworked logic so that MSOP Plugin complies with the requirements of MAME 0.289+ if PR #15639 is applied. Removed the logic that was added in MSOP Plugin v8.3.0 since that applied to PR #15618 instead. Fallback logic that existed previously is still in place for official releases of MAME 0.200 to 0.288.",
+                "readme.txt: Expanded 'Output Mappings' section so it is clear what state outputs need to be mapped to commands in MAMEhooker, OutputHooker, and/or QMamehook."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.03",
+                    "PackageLocation": "Updater/Plugin/Archive",
+                    "PackageName": "MSOP_PLUGIN_v8.4.0_2026.07.03",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
         {
             "Version": "8.3.0",
             "ReleaseDatePlugin": "2026.06.30",
@@ -709,6 +745,23 @@
     ],
     "PluginBeta": [
         {
+            "Version": "8.4.0",
+            "ReleaseDatePlugin": "2026.07.03",
+            "ChangesPlugin": [
+                "Note: As of 2026.07.03, MAME PR #15639 (https://github.com/mamedev/mame/pull/15639) has been rejected, and so MSOP Plugin v8.4.0 and below are only compatible with MAME 0.200 to 0.288 unless MAME PR #15639 is applied to a custom MAME 0.289+ build. A future MSOP update will be released shortly that will work without a custom MAME build, and is expected in MSOP Configurator v2.0.0+ and MSOP Plugin v9.0.0+ (both will be required moving forward, not just MSOP Plugin).",
+                "init.lua: Reworked logic so that MSOP Plugin complies with the requirements of MAME 0.289+ if PR #15639 is applied. Removed the logic that was added in MSOP Plugin v8.3.0 since that applied to PR #15618 instead. Fallback logic that existed previously is still in place for official releases of MAME 0.200 to 0.288.",
+                "readme.txt: Expanded 'Output Mappings' section so it is clear what state outputs need to be mapped to commands in MAMEhooker, OutputHooker, and/or QMamehook."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.03",
+                    "PackageLocation": "Updater/Plugin/Archive/Beta",
+                    "PackageName": "MSOP_PLUGIN_v8.4.0_2026.07.03",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "8.3.0",
             "ReleaseDatePlugin": "2026.06.30",
             "ChangesPlugin": [
@@ -814,6 +867,14 @@
                 "msop_database_compiler.py: Fixed script for updating readme.txt version and date to locate the correct readme.txt file in the OUTPUT_DIR (stateoutput) folder."
             ],
             "DatabaseReleases": [
+                {
+                    "IncludedPluginVersion": "8.4.0",
+                    "IncludedPluginDate": "2026.07.03",
+                    "IncludedDatabaseDate": "2026.07.03",
+                    "PackageLocation": "Updater/DatabaseCompiler/Archive",
+                    "PackageName": "MSOP_DATABASE_COMPILER_v3.0.3_2026.07.03",
+                    "PackageType": ".zip"
+                },
                 {
                     "IncludedPluginVersion": "8.3.0",
                     "IncludedPluginDate": "2026.06.30",
