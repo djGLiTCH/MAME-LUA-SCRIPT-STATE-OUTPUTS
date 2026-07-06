@@ -1,7 +1,7 @@
 --
 -- MAME STATE OUTPUT PROJECT
 -- MSOP DATABASE LUA
--- Database Release Date: 2026.06.30
+-- Database Release Date: 2026.07.03
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -9,8 +9,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 830,
-        ["LUA_DATE"] = 20260630,
+        ["LUA_VERSION"] = 840,
+        ["LUA_DATE"] = 20260703,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
         ["OFFSCREEN_RELOAD"] = false,

@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 8.3.0
-Plugin Date:    2026.06.30
-Database Date:  2026.06.30
+Plugin Version: 8.4.0
+Plugin Date:    2026.07.03
+Database Date:  2026.07.03
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -76,27 +76,114 @@ OUTPUT MAPPINGS (MAMEhooker, OutputHooker, and QMamehook)
 --------------------------------------------------------------------------------
 
 For now, you can use the following Outputs in your per game ini file which will 
-work across all supported games.
+work across all supported games. Every output MSOP creates is prefixed with 
+"MSOP_" to keep it distinct from outputs the game's own driver or MAME's core 
+may already register under the same short name (e.g. a raw "Credits" or 
+"Status" output belonging to something else entirely) - make sure your hooker 
+software's mapping file uses the full prefixed name below, not the short name.
+
+Two tables are provided below depending on what you're building:
+
+- CONDENSED: outputs that trigger a physical reaction (recoil, reload, lamps,
+  rumble, the hit-detection pulse). Use this if you're wiring up force
+  feedback or lighting hardware and don't need the informational values.
+- COMPLETE: every output MSOP can produce, including the condensed set plus
+  informational values (ammo, life, credits, status flags, shot/damage
+  counters, plugin metadata) for building displays, logging, or scoring.
+
+Not every output in either table will be available for every supported game -
+each ROM's database entry determines which of these it actually drives. The 
+condensed set is the one most consistently supported across the ROM list.
+
+--------------------------------------------------------------------------------
+CONDENSED (force feedback / physical reaction triggers)
+--------------------------------------------------------------------------------
 
 [Output]
-Credits=
-GameStatus=
-P1_LampStart=
-P1_Status=
-P1_Life=
-P1_Damaged=
-P1_CtmRecoil=
-P1_Reload=
-P2_LampStart=
-P2_Status=
-P2_Life=
-P2_Damaged=
-P2_CtmRecoil=
-P2_Reload=
+MSOP_P1_LampStart=
+MSOP_P1_CtmRecoil=
+MSOP_P1_Recoil=
+MSOP_P1_Reload=
+MSOP_P1_Rumble=
+MSOP_P1_Damaged=
+MSOP_P2_LampStart=
+MSOP_P2_CtmRecoil=
+MSOP_P2_Recoil=
+MSOP_P2_Reload=
+MSOP_P2_Rumble=
+MSOP_P2_Damaged=
 
-Please note that not all outputs will be available for each supported game, 
-but the main outputs will always be available (PX_CtmRecoil, PX_Reload, 
-PX_Damaged).
+Note 1: PX = Player Number (e.g. P1 = Player 1)
+Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
+Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
+Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
+
+--------------------------------------------------------------------------------
+COMPLETE (all outputs: triggers plus informational values)
+--------------------------------------------------------------------------------
+
+[Output]
+MSOP_Credits=
+MSOP_GameStatus=
+MSOP_AttractStatus=
+MSOP_GlobalCreditsInserted=
+MSOP_LuaVersion=
+MSOP_LuaDate=
+MSOP_LuaROMid=
+MSOP_P1_LampStart=
+MSOP_P1_CtmRecoil=
+MSOP_P1_Recoil=
+MSOP_P1_Reload=
+MSOP_P1_Rumble=
+MSOP_P1_Damaged=
+MSOP_P1_Damage=
+MSOP_P1_DamageTaken=
+MSOP_P1_Status=
+MSOP_P1_StatusAlt=
+MSOP_P1_Life=
+MSOP_P1_LifeAlt=
+MSOP_P1_LifeLost=
+MSOP_P1_Ammo=
+MSOP_P1_AmmoAlt=
+MSOP_P1_AmmoGrenade=
+MSOP_P1_ShotsFired=
+MSOP_P1_ShotsFiredPrimary=
+MSOP_P1_ShotsFiredAlt=
+MSOP_P1_ShotsFiredGrenade=
+MSOP_P1_CreditsInserted=
+MSOP_P1_CreditsConsumed=
+MSOP_P2_LampStart=
+MSOP_P2_CtmRecoil=
+MSOP_P2_Recoil=
+MSOP_P2_Reload=
+MSOP_P2_Rumble=
+MSOP_P2_Damaged=
+MSOP_P2_Damage=
+MSOP_P2_DamageTaken=
+MSOP_P2_Status=
+MSOP_P2_StatusAlt=
+MSOP_P2_Life=
+MSOP_P2_LifeAlt=
+MSOP_P2_LifeLost=
+MSOP_P2_Ammo=
+MSOP_P2_AmmoAlt=
+MSOP_P2_AmmoGrenade=
+MSOP_P2_ShotsFired=
+MSOP_P2_ShotsFiredPrimary=
+MSOP_P2_ShotsFiredAlt=
+MSOP_P2_ShotsFiredGrenade=
+MSOP_P2_CreditsInserted=
+MSOP_P2_CreditsConsumed=
+
+Every output above only appears once a supported ROM actually drives it away 
+from its default value - this keeps your hooker software free of names that 
+ROM never uses, and is consistent across every output MSOP produces, global 
+or per-player.
+
+Note 1: PX = Player Number (e.g. P1 = Player 1)
+Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
+Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
+Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
 
 --------------------------------------------------------------------------------
 MSOP CONFIGURATOR APP: TUTORIAL & USAGE

@@ -1,21 +1,49 @@
 -- =========================================================================================
--- MAME STATE OUTPUT PROJECT
+-- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 8.3.0
--- Plugin Date: 2026.06.30
+-- Plugin Version: 8.4.0
+-- Plugin Date: 2026.07.03
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 -- =========================================================================================
+--
 -- ARCHITECTURE OVERVIEW:
 -- This script operates as a native MAME plugin. Unlike standalone Lua scripts, plugins 
 -- are loaded once when MAME starts. They run in the background and must actively "hook" 
 -- into MAME's event system (like when a game boots, or when a frame renders) to function.
+--
+-- This plugin subscribes to the following deliberately different hooks per machine
+-- session - do not merge them or change which one does what:
+--
+--   1. emu.add_machine_devices_started_notifier -> Register_Master_List()
+--      Fires once per session, after devices exist but BEFORE MAME fixes its
+--      output table for save states. This is the ONLY point where
+--      root:register_output() is safe to call. Requires a patched MAME core
+--      (see luaengine.cpp/machine.cpp in this project's companion patch) -
+--      falls back to emu.register_prestart on unpatched builds, which still
+--      works for live play but registers outputs too late for them to be
+--      captured in save states. The returned subscription is stored in
+--      exports.subscriptions like every other notifier this plugin uses.
+--
+--   2. emu.add_machine_reset_notifier -> on_start()
+--      Fires on every reset of the current machine (including in-game soft resets,
+--      not just the initial boot). Loads the ROM's JSON config, resolves memory
+--      addresses, and engages the per-frame loop. Must NOT attempt output
+--      registration - by the time this fires, the output table is always locked.
+--
+--   3. emu.add_machine_post_load_notifier -> on_post_load()
+--      Save-state alignment only. The patched core restores every MSOP output
+--      value with the state; this hook re-seeds the engine's Lua-side delta
+--      baselines, counters, and pulse timers to match, so the first frames
+--      after a load can't fire phantom recoils/reloads or overwrite freshly
+--      restored counters. Never registers outputs, never re-resolves config.
+--
 -- =========================================================================================
 
 local exports = {
     name = "stateoutput",
-    version = "8.3.0",
+    version = "8.4.0",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -33,9 +61,9 @@ local exports = {
 local stateoutput = exports
 
 -- =========================================================================
--- USER SETTINGS
+-- GENERAL USER SETTINGS
 -- =========================================================================
-local ENABLE_DEBUG_LOGS = false -- Toggles "[StateOutput]" console/OSD messages
+local ENABLE_OSD = false -- Toggles "[MSOP]" On-Screen Display (OSD) messages. Console messages are always captured via -verbose command.
 
 -- =========================================================================
 -- CORE PLUGIN ENGINE
@@ -56,6 +84,13 @@ function stateoutput.startplugin()
     
     -- The currently active game's configuration dictionary
     local CFG = nil
+
+    -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
+    -- KEEP IN SYNC with the header + exports.version above (840 == v8.4.0).
+    -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
+    -- CFG.LUA_DATE describe the DATABASE release, not this script.
+    local PLUGIN_VERSION_NUM = 840
+    local PLUGIN_DATE_NUM    = 20260703
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -69,6 +104,7 @@ function stateoutput.startplugin()
     local _LastGlobalCredits = 0
     local _GlobalCreditsInserted = 0
     local _PendingGlobalCreditDrops = 0
+    local _RomIdNum = 0 -- numeric ROM identity for MSOP_LuaROMid (see on_start)
     
     -- Hardware Caching Arrays (Performance Optimization)
     -- Instead of searching MAME's entire device tree 60 times a second, we 
@@ -94,14 +130,34 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- LOGGING HELPERS
-    -- Standardized functions to push text to the console or MAME's On-Screen Display.
     -- -------------------------------------------------------------------------
     local function dbg_print(msg)
-        if ENABLE_DEBUG_LOGS then print("[StateOutput] " .. tostring(msg)) end
+        -- Always prints to stdout (captured using MAME's -verbose log)
+        print("[MSOP] " .. tostring(msg))
     end
+    
     local function dbg_osd(msg)
-        local use_osd = ENABLE_DEBUG_LOGS or (CFG and CFG.ENABLE_OSD)
-        if use_osd and manager and manager.machine then manager.machine:popmessage(tostring(msg)) end
+        -- On-Screen Display (OSD) remains restricted to the ENABLE_OSD flag or your Config flag
+        local use_osd = ENABLE_OSD or (CFG and CFG.ENABLE_OSD)
+        if use_osd and manager and manager.machine then 
+            manager.machine:popmessage("[MSOP] " .. tostring(msg)) 
+        end
+    end
+
+    -- -------------------------------------------------------------------------
+    -- fnv1a_31(s)
+    -- Deterministic 31-bit FNV-1a hash of a string. Used to derive a stable,
+    -- positive s32 ROM id for the MSOP_LuaROMid output when the database
+    -- entry doesn't supply an explicit LUA_ROM_ID. Stable across plugin and
+    -- database updates because it depends only on the ROM's short name.
+    -- -------------------------------------------------------------------------
+    local function fnv1a_31(s)
+        local h = 2166136261
+        for idx = 1, #s do
+            h = h ~ string.byte(s, idx)
+            h = (h * 16777619) & 0xFFFFFFFF
+        end
+        return h & 0x7FFFFFFF
     end
 
     -- -------------------------------------------------------------------------
@@ -225,23 +281,28 @@ function stateoutput.startplugin()
             _MemConfig[key] = { tag = t, space = s }
         end
 
-        -- Pre-compile the MAME output broadcast strings (e.g. "P1_Ammo")
+        -- Pre-compile the MAME output broadcast strings (e.g. "MSOP_P1_Ammo")
         for i = 1, CFG.MAX_PLAYERS do
             _OutputNames[i] = {}
             for key, suffix in pairs(CFG.OUTPUT_SUFFIXES) do
                 if not string.match(key, "^GLOBAL_") then
                     local target_p = i
                     if not CFG.SIMULTANEOUS_PLAY and (key == "RECOIL" or key == "RELOAD" or key == "DAMAGE" or key == "RUMBLE" or key == "LAMPSTART") then target_p = 1 end
-                    _OutputNames[i][key] = "P" .. target_p .. "_" .. tostring(suffix)
+                    
+                    -- CRITICAL UPDATE: Add MSOP_ prefix
+                    _OutputNames[i][key] = "MSOP_P" .. target_p .. "_" .. tostring(suffix)
                 end
             end
             local target_p_ctm = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
-            _OutputNames[i]["CtmRecoil"] = "P" .. target_p_ctm .. "_CtmRecoil" 
-            _OutputNames[i]["Damaged"]   = "P" .. target_p_ctm .. "_Damaged"
+            
+            -- Add MSOP_ prefix to custom outputs
+            _OutputNames[i]["CtmRecoil"] = "MSOP_P" .. target_p_ctm .. "_CtmRecoil" 
+            _OutputNames[i]["Damaged"]   = "MSOP_P" .. target_p_ctm .. "_Damaged"
         end
         
         for key, suffix in pairs(CFG.OUTPUT_SUFFIXES) do
-            if string.match(key, "^GLOBAL_") then _GlobalOutputs[key] = tostring(suffix) end
+            -- Add MSOP_ prefix to global outputs
+            if string.match(key, "^GLOBAL_") then _GlobalOutputs[key] = "MSOP_" .. tostring(suffix) end
         end
 
         -- Process "auto" variables
@@ -292,6 +353,80 @@ function stateoutput.startplugin()
     local function Is_Warmup_Complete() return manager.machine.time > _StartupTime end
 
     -- -------------------------------------------------------------------------
+    -- Value_Is_Active(val, active_spec)
+    -- Tests a polled memory value against a configured "active" specification.
+    -- active_spec may be: a table of acceptable values, a single number, or
+    -- nil/false (meaning "any positive value counts as active").
+    --
+    -- PERFORMANCE NOTE: this replaces four near-identical inline checks that
+    -- were previously written as immediately-invoked anonymous functions
+    -- (e.g. `(function() for _,v in ipairs(t) do ... end end)()`). Each of
+    -- those allocated a brand new closure every time it ran - up to several
+    -- times per player, per frame, 60 times a second. Defining the check
+    -- once here means zero closure allocation in the hot path.
+    -- -------------------------------------------------------------------------
+    local function Value_Is_Active(val, active_spec)
+        if type(active_spec) == "table" then
+            for _, v in ipairs(active_spec) do
+                if val == v then return true end
+            end
+            return false
+        elseif type(active_spec) == "number" then
+            return val == active_spec
+        else
+            -- nil/false mean "any positive value counts as active"; any other
+            -- spec type (e.g. an unresolved "auto" string surviving config
+            -- resolution) is treated as never-active - this exactly matches
+            -- the original inline logic, which only fell through to val > 0
+            -- when the spec was falsy
+            return (not active_spec) and (val > 0)
+        end
+    end
+
+    -- -------------------------------------------------------------------------
+    -- OUTPUT PROXY CACHE & SAFE SETTER
+    -- Transparently handles modern fast-proxies (MAME 0.289+) and
+    -- legacy set_value fallbacks (MAME 0.288-) without crashing.
+    -- -------------------------------------------------------------------------
+    local _ProxyCache = {}
+
+    local function Get_Output_Proxy(name, out_handle)
+        if _ProxyCache[name] ~= nil then return _ProxyCache[name] end
+
+        local proxy = false
+
+        if manager and manager.machine and manager.machine.devices then
+            local root_dev = manager.machine.devices[":"]
+            if root_dev and root_dev.output then
+                local s2, p = pcall(function() return root_dev:output(name) end)
+                
+                -- Validate that the proxy actually connects to hardware
+                if s2 and p and p:exists() then 
+                    proxy = p 
+                else
+                    proxy = false
+                end
+            end
+        end
+
+        if not proxy and out_handle and out_handle.set_value then
+            out_handle:set_value(name, 0)
+        end
+
+        _ProxyCache[name] = proxy
+        return proxy
+    end
+
+    local function Set_Output_Safe(out_handle, name, value)
+        local proxy = Get_Output_Proxy(name, out_handle)
+        if proxy then
+            proxy:set(value) -- Modern 60Hz fast path
+        elseif out_handle and out_handle.set_value then
+            out_handle:set_value(name, value) -- Ultra-legacy fallback
+        end
+    end
+
+    -- -------------------------------------------------------------------------
     -- Read_Data_Safe(mem_handle, source, width)
     -- Universal memory polling adapter
     --    8, 16, 32    -> Reads standard Unsigned Integers
@@ -301,16 +436,26 @@ function stateoutput.startplugin()
     -- -------------------------------------------------------------------------
     local function Read_Data_Safe(mem_handle, source, width)
         if not source then return 0 end
+        
         if type(width) == "string" then
             if width == "output" then
-                if type(source) == "string" and manager.machine.output then
+                -- Reuse Get_Output_Proxy to get the memory-mapped pointer
+                local proxy = Get_Output_Proxy(source, nil)
+                
+                if proxy then
+                    -- Modern 0.289+ Fast Path: read directly from the proxy object
+                    return proxy:get()
+                elseif manager.machine.output and manager.machine.output.get_value then
+                    -- Legacy 0.288- Fallback: string lookup
                     local native_val = manager.machine.output:get_value(source)
                     return type(native_val) == "number" and native_val or (native_val and 1 or 0)
                 end
                 return 0
+                
             elseif width == "float32" and mem_handle then
                 local val = mem_handle:read_u32(source)
                 return string.unpack("f", string.pack("I4", val))
+                
             elseif width == "float32be" and mem_handle then
                 local val = mem_handle:read_u32(source)
                 val = ((val & 0xFF) << 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8) | ((val & 0xFF000000) >> 24)
@@ -318,6 +463,7 @@ function stateoutput.startplugin()
             end
             return 0
         end
+
         if not mem_handle then return 0 end
         if width == 16 then return mem_handle:read_u16(source) end
         if width == 32 then return mem_handle:read_u32(source) end
@@ -339,53 +485,7 @@ function stateoutput.startplugin()
         elseif width == 64 then mem_handle:write_u64(source, value)
         else mem_handle:write_u8(source, value) end
     end
-    
-    -- -------------------------------------------------------------------------
-    -- OUTPUT PROXY CACHE & SAFE SETTER
-    -- Transparently handles MAME 0.289+ overloaded creators, standard proxies, 
-    -- and legacy set_value fallbacks without crashing.
-    -- -------------------------------------------------------------------------
-    local _ProxyCache = {}
 
-    local function Get_Output_Proxy(name, out_handle)
-        if _ProxyCache[name] ~= nil then return _ProxyCache[name] end
-
-        local proxy = false
-        local created_via_overload = false
-
-        if manager and manager.machine and manager.machine.devices then
-            local root_dev = manager.machine.devices[":"]
-            if root_dev and root_dev.output then
-                -- 1. Try the Overload method (available in MAME 0.289+ with PR #15618)
-                -- Wrap it in pcall. If this method isn't compatible, silently fail instead of crashing.
-                local success = pcall(function() root_dev:output(name, 0) end)
-                if success then created_via_overload = true end
-
-                -- 2. Fetch the modern fast-proxy object
-                local s2, p = pcall(function() return root_dev:output(name) end)
-                if s2 and p then proxy = p end
-            end
-        end
-
-        -- 3. Legacy Fallback (MAME 0.288 and lower, or MAME 0.289+ without PR #15618))
-        -- If the overload failed, use the deprecated set_value to prime the network broadcast.
-        if not created_via_overload and out_handle and out_handle.set_value then
-            out_handle:set_value(name, 0)
-        end
-
-        _ProxyCache[name] = proxy
-        return proxy
-    end
-
-    local function Set_Output_Safe(out_handle, name, value)
-        local proxy = Get_Output_Proxy(name, out_handle)
-        if proxy then
-            proxy:set(value) -- Modern 60Hz fast path
-        elseif out_handle and out_handle.set_value then
-            out_handle:set_value(name, value) -- Ultra-legacy fallback
-        end
-    end
-    
     -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
     -- Flushes outputs to zero at boot and synchronizes local caches.
@@ -396,7 +496,7 @@ function stateoutput.startplugin()
     -- -------------------------------------------------------------------------
     local function Register_Outputs_Safe(out_handle)
         if not out_handle then return end
-        
+
         local function Sync_Global(key, value)
             if _GlobalOutputs[key] then
                 Set_Output_Safe(out_handle, _GlobalOutputs[key], value)
@@ -405,9 +505,14 @@ function stateoutput.startplugin()
         end
         
         Sync_Global("GLOBAL_GAME_STATUS", 0)
-        if CFG.ATTRACT_STATUS then Sync_Global("GLOBAL_ATTRACT_STATUS", 0) end
-        Sync_Global("GLOBAL_LUA_VERSION", CFG.LUA_VERSION)
-        Sync_Global("GLOBAL_LUA_DATE", CFG.LUA_DATE)
+        Sync_Global("GLOBAL_ATTRACT_STATUS", 0)
+        -- Plugin identity comes from THIS script's constants, not the
+        -- database: CFG.LUA_VERSION/LUA_DATE describe the database release
+        -- (8.3.3 published them as MSOP_LuaVersion/LuaDate, so a 2026.07.01
+        -- database reported 831/20260701 no matter which plugin was running).
+        Sync_Global("GLOBAL_LUA_VERSION", PLUGIN_VERSION_NUM)
+        Sync_Global("GLOBAL_LUA_DATE", PLUGIN_DATE_NUM)
+        Sync_Global("GLOBAL_LUA_ROM_ID", _RomIdNum)
         
         if CFG.CREDITS then 
             Sync_Global("GLOBAL_CREDITS", 0)
@@ -431,7 +536,7 @@ function stateoutput.startplugin()
                 end
             end
             
-            Sync_Output("STATUS", "STATUS")
+            Sync_Output("STATUS", "STATUS", true)
             Sync_Output("STATUS_ALT", "STATUS_ALT")
             
             if p_cfg.CREDITS then 
@@ -459,6 +564,107 @@ function stateoutput.startplugin()
                 if p_cfg.SHOTS_FIRED_GRENADE then Sync_Output("SHOTS_FIRED_GRENADE", "SHOTS_FIRED_GRENADE") end
             end
             if CFG.ENABLE_LIFE_LOST and p_cfg.LIFE_LOST then Sync_Output("LIFE_LOST", "LIFE_LOST") end
+        end
+    end
+
+    -- -------------------------------------------------------------------------
+    -- OUTPUT SPAM WRAPPERS:
+    -- Only sends a command to MAME's output system if the value has actually
+    -- changed. This drastically reduces TCP server load.
+    --
+    -- PERFORMANCE NOTE: these are defined once, here, at plugin-load scope -
+    -- not inside Frame_Logic. They used to be declared with `local function`
+    -- INSIDE Frame_Logic, which meant Lua allocated two brand new closures
+    -- every single frame (60/sec) purely to hold onto `out`. That's exactly
+    -- the kind of per-frame GC churn the Compute_Outputs/pcall restructuring
+    -- below was written to avoid - it just crept back in one level down.
+    -- `out` is now passed in explicitly instead of captured.
+    -- -------------------------------------------------------------------------
+    local function Set_Output(out, p_idx, key, value)
+        local p = _Player[p_idx]
+        if p.LastOutputs[key] ~= value and _OutputNames[p_idx][key] then
+            Set_Output_Safe(out, _OutputNames[p_idx][key], value)
+            p.LastOutputs[key] = value
+        end
+    end
+
+    local function Set_Global_Output(out, key, value)
+        if _GlobalLastOutputs[key] ~= value then
+            Set_Output_Safe(out, _GlobalOutputs[key], value)
+            _GlobalLastOutputs[key] = value
+        end
+    end
+
+    -- -------------------------------------------------------------------------
+    -- Seed_Frame_Baselines()
+    -- Primes every Last* delta baseline from LIVE values the moment warmup
+    -- completes, and again after a save state loads. Without this, every
+    -- baseline starts at 0, so pre-existing values are booked as fresh
+    -- deltas on the first tracked frame - on vcop2, 2 leftover NVRAM
+    -- credits became "MSOP_GlobalCreditsInserted = 2" before a single coin
+    -- was dropped. Reads mirror Frame_Logic's math exactly (divisor,
+    -- offsets, MAX clamps) so frame 1 of tracking sees zero false movement.
+    -- -------------------------------------------------------------------------
+    local function Seed_Frame_Baselines()
+        if not CFG then return end
+        local divisor = CFG.COINS_PER_CREDIT or 1
+        if divisor < 1 then divisor = 1 end
+
+        if CFG.CREDITS and type(CFG.CREDITS) == "number" then
+            local raw = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS)
+            _LastGlobalCredits = math.floor(raw / divisor)
+            if _LastGlobalCredits > 0 then _HasCoinedUp = true end
+        end
+
+        for i = 1, CFG.MAX_PLAYERS do
+            local cfg = _PlayerCFG[i]
+            local p = _Player[i]
+            if cfg then
+                if cfg.CREDITS and type(cfg.CREDITS) == "number" then
+                    local raw = Read_Data_Safe(_MemHandles["CREDITS"], cfg.CREDITS, CFG.DATA_WIDTHS.CREDITS)
+                    p.LastCredits = math.floor(raw / divisor)
+                end
+                if cfg.AMMO then
+                    local v = Read_Data_Safe(_MemHandles["AMMO"], cfg.AMMO, CFG.DATA_WIDTHS.AMMO) + (CFG.AMMO_OFFSET or 0)
+                    if CFG.AMMO_MAX and v > CFG.AMMO_MAX then v = 0 end
+                    p.LastAmmo = v
+                end
+                if cfg.AMMO_ALT then
+                    local v = Read_Data_Safe(_MemHandles["AMMO_ALT"], cfg.AMMO_ALT, CFG.DATA_WIDTHS.AMMO_ALT) + (CFG.AMMO_ALT_OFFSET or 0)
+                    if CFG.AMMO_ALT_MAX and v > CFG.AMMO_ALT_MAX then v = 0 end
+                    p.LastAmmoAlt = v
+                end
+                if cfg.AMMO_GRENADE then
+                    local v = Read_Data_Safe(_MemHandles["AMMO_GRENADE"], cfg.AMMO_GRENADE, CFG.DATA_WIDTHS.AMMO_GRENADE) + (CFG.AMMO_GRENADE_OFFSET or 0)
+                    if CFG.AMMO_GRENADE_MAX and v > CFG.AMMO_GRENADE_MAX then v = 0 end
+                    p.LastAmmoGrenade = v
+                end
+                if cfg.LIFE then
+                    local v = Read_Data_Safe(_MemHandles["LIFE"], cfg.LIFE, CFG.DATA_WIDTHS.LIFE) + (CFG.LIFE_OFFSET or 0)
+                    if CFG.LIFE_MAX and v > CFG.LIFE_MAX then v = 0 end
+                    p.LastLife = v
+                end
+                if cfg.LIFE_ALT then
+                    local v = Read_Data_Safe(_MemHandles["LIFE_ALT"], cfg.LIFE_ALT, CFG.DATA_WIDTHS.LIFE_ALT) + (CFG.LIFE_ALT_OFFSET or 0)
+                    if CFG.LIFE_ALT_MAX and v > CFG.LIFE_ALT_MAX then v = 0 end
+                    p.LastLifeAlt = v
+                end
+                if type(cfg.DAMAGE_TAKEN) == "number" then
+                    p.LastDmgMem = Read_Data_Safe(_MemHandles["DAMAGE_TAKEN"], cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
+                end
+                if cfg.DAMAGE and type(cfg.DAMAGE) == "number" then
+                    p.LastDamageVal = Read_Data_Safe(_MemHandles["DAMAGE"], cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
+                end
+                if cfg.RUMBLE and type(cfg.RUMBLE) == "number" then
+                    p.LastRumbleEventVal = Read_Data_Safe(_MemHandles["RUMBLE"], cfg.RUMBLE, CFG.DATA_WIDTHS.RUMBLE)
+                end
+                if cfg.RELOAD and type(cfg.RELOAD) == "number" then
+                    p.LastReloadVal = Read_Data_Safe(_MemHandles["RELOAD"], cfg.RELOAD, CFG.DATA_WIDTHS.RELOAD)
+                end
+                if cfg.RECOIL and type(cfg.RECOIL) == "number" then
+                    p.LastRecoilVal = Read_Data_Safe(_MemHandles["RECOIL"], cfg.RECOIL, CFG.DATA_WIDTHS.RECOIL)
+                end
+            end
         end
     end
 
@@ -495,26 +701,6 @@ function stateoutput.startplugin()
             _HardwareBound = true
         end
         
-		-- -------------------------------------------------------------------------
-        -- OUTPUT SPAM WRAPPERS:
-        -- Only sends a command to MAME's output system if the value has actually changed.
-        -- This drastically reduces TCP server load.
-		-- -------------------------------------------------------------------------
-        local function Set_Output(p_idx, key, value)
-            local p = _Player[p_idx]
-            if p.LastOutputs[key] ~= value and _OutputNames[p_idx][key] then
-                Set_Output_Safe(out, _OutputNames[p_idx][key], value)
-                p.LastOutputs[key] = value
-            end
-        end
-        
-        local function Set_Global_Output(key, value)
-            if _GlobalLastOutputs[key] ~= value then
-                Set_Output_Safe(out, _GlobalOutputs[key], value)
-                _GlobalLastOutputs[key] = value
-            end
-        end
-        
         -- -------------------------------------------------------------------------
         -- PHASE 0: WARMUP & INITIALIZATION FLUSH
         -- Ensures outputs are held silently during startup and perfectly
@@ -525,6 +711,7 @@ function stateoutput.startplugin()
         -- Trigger initialization exactly when warmup completes
         if warmup_ok and not _WarmupFlushed then
             Register_Outputs_Safe(out)
+            Seed_Frame_Baselines() -- prime Last* deltas from live values (no phantom "inserted" from NVRAM leftovers)
             _WarmupFlushed = true
             return -- Skip the rest of this frame so MAME actually broadcasts the '0' states!
         end
@@ -539,19 +726,19 @@ function stateoutput.startplugin()
         if CFG.ATTRACT_STATUS and type(CFG.ATTRACT_STATUS) == "number" then
             local val = Read_Data_Safe(_MemHandles["GLOBAL_ATTRACT_STATUS"], CFG.ATTRACT_STATUS, CFG.DATA_WIDTHS.GLOBAL_ATTRACT_STATUS or 8)
             local active = CFG.ATTRACT_STATUS_ACTIVE_VALUE
-            is_attract_mode = (type(active) == "table") and (function() for _,v in ipairs(active) do if val == v then return true end end return false end)() or ((type(active) == "number" and val == active) or (not active and val > 0))
-            Set_Global_Output("GLOBAL_ATTRACT_STATUS", warmup_ok and (is_attract_mode and 1 or 0) or 0)
+            is_attract_mode = Value_Is_Active(val, active)
+            Set_Global_Output(out, "GLOBAL_ATTRACT_STATUS", warmup_ok and (is_attract_mode and 1 or 0) or 0)
             if is_attract_mode then _PendingGlobalCreditDrops = 0 end
         end
 
         if CFG.CREDITS and type(CFG.CREDITS) == "number" then 
             local raw = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS)
             local current_credits = math.floor(raw / divisor)
-            Set_Global_Output("GLOBAL_CREDITS", warmup_ok and current_credits or 0)
+            Set_Global_Output(out, "GLOBAL_CREDITS", warmup_ok and current_credits or 0)
             if warmup_ok then
                 if current_credits > _LastGlobalCredits then
                     _GlobalCreditsInserted = _GlobalCreditsInserted + (current_credits - _LastGlobalCredits)
-                    if CFG.ENABLE_CREDIT_COUNT then Set_Global_Output("GLOBAL_CREDITS_INSERTED", _GlobalCreditsInserted) end
+                    if CFG.ENABLE_CREDIT_COUNT then Set_Global_Output(out, "GLOBAL_CREDITS_INSERTED", _GlobalCreditsInserted) end
                 elseif current_credits < _LastGlobalCredits then
                     _PendingGlobalCreditDrops = _PendingGlobalCreditDrops + (_LastGlobalCredits - current_credits)
                 end
@@ -569,7 +756,7 @@ function stateoutput.startplugin()
             if not is_attract_mode then
                 local val = Read_Data_Safe(_MemHandles["GLOBAL_GAME_STATUS"], CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
                 local active = CFG.GAME_STATUS_ACTIVE_VALUE
-                is_game_active = (type(active) == "table") and (function() for _,v in ipairs(active) do if val == v then return true end end return false end)() or ((type(active) == "number" and val == active) or (not active and val > 0))
+                is_game_active = Value_Is_Active(val, active)
             end
         end
         
@@ -627,7 +814,7 @@ function stateoutput.startplugin()
                     local raw = Read_Data_Safe(_MemHandles["CREDITS"], cfg.CREDITS, CFG.DATA_WIDTHS.CREDITS)
                     p_credits = math.floor(raw / divisor)
                     p_credits_known = true
-                    Set_Output(i, "CREDITS", warmup_ok and p_credits or 0)
+                    Set_Output(out, i, "CREDITS", warmup_ok and p_credits or 0)
                     
                     -- Aggregate individual credits for global override
                     aggregated_credits = aggregated_credits + p_credits
@@ -636,7 +823,7 @@ function stateoutput.startplugin()
                     if warmup_ok then
                         if p_credits > p.LastCredits then
                             p.CreditsInserted = p.CreditsInserted + (p_credits - p.LastCredits)
-                            if CFG.ENABLE_CREDIT_COUNT then Set_Output(i, "CREDITS_INSERTED", p.CreditsInserted) end
+                            if CFG.ENABLE_CREDIT_COUNT then Set_Output(out, i, "CREDITS_INSERTED", p.CreditsInserted) end
                         elseif p_credits < p.LastCredits then
                             p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - p_credits)
                         end
@@ -645,12 +832,12 @@ function stateoutput.startplugin()
                 elseif cfg.CREDITS == "auto" and CFG.CREDITS then 
                     p_credits = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS) 
                     p_credits_known = true
-                    Set_Output(i, "CREDITS", warmup_ok and p_credits or 0)
+                    Set_Output(out, i, "CREDITS", warmup_ok and p_credits or 0)
                     
                     if warmup_ok then
                         if p_credits > p.LastCredits then
                             p.CreditsInserted = p.CreditsInserted + (p_credits - p.LastCredits)
-                            if CFG.ENABLE_CREDIT_COUNT then Set_Output(i, "CREDITS_INSERTED", p.CreditsInserted) end
+                            if CFG.ENABLE_CREDIT_COUNT then Set_Output(out, i, "CREDITS_INSERTED", p.CreditsInserted) end
                         elseif p_credits < p.LastCredits then
                             p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - p_credits)
                         end
@@ -659,7 +846,7 @@ function stateoutput.startplugin()
                 end
             end
             
-            if cfg.LAMPSTART then Set_Output(i, "LAMPSTART", warmup_ok and Read_Data_Safe(_MemHandles["LAMPSTART"], cfg.LAMPSTART, CFG.DATA_WIDTHS.LAMPSTART) or 0) end
+            if cfg.LAMPSTART then Set_Output(out, i, "LAMPSTART", warmup_ok and Read_Data_Safe(_MemHandles["LAMPSTART"], cfg.LAMPSTART, CFG.DATA_WIDTHS.LAMPSTART) or 0) end
 
             local is_player_active = false
             local out_status_val = 0
@@ -673,12 +860,12 @@ function stateoutput.startplugin()
                     if cfg.STATUS and cfg.STATUS ~= "auto" then
                         local val = Read_Data_Safe(_MemHandles["STATUS"], cfg.STATUS, CFG.DATA_WIDTHS.STATUS)
                         local act = cfg.STATUS_ACTIVE_VALUE or CFG.STATUS_ACTIVE_VALUE
-                        p_stat_active = (type(act) == "table") and (function() for _,v in ipairs(act) do if val == v then return true end end return false end)() or ((type(act) == "number" and val == act) or (not act and val > 0))
+                        p_stat_active = Value_Is_Active(val, act)
                     end
                     if cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto" then
                         local val = Read_Data_Safe(_MemHandles["STATUS_ALT"], cfg.STATUS_ALT, CFG.DATA_WIDTHS.STATUS_ALT)
                         local act = cfg.STATUS_ALT_ACTIVE_VALUE or CFG.STATUS_ALT_ACTIVE_VALUE
-                        p_stat_alt_active = (type(act) == "table") and (function() for _,v in ipairs(act) do if val == v then return true end end return false end)() or ((type(act) == "number" and val == act) or (not act and val > 0))
+                        p_stat_alt_active = Value_Is_Active(val, act)
                     end
                     if global_exists then
                         if is_game_active and p_stat_active then out_status_val = 1 end
@@ -706,8 +893,8 @@ function stateoutput.startplugin()
             if is_player_active then any_player_active = true end
             p.IsFFBAllowed = (CFG.FORCE_FEEDBACK_ENABLER == "status") and (out_status_val == 1 or out_status_alt_val == 1) or (CFG.FORCE_FEEDBACK_ENABLER == "life") and (curr_life > 0 or curr_life_alt > 0) or (CFG.FORCE_FEEDBACK_ENABLER == "gamestatus") and is_game_active or is_player_active
             
-            if cfg.STATUS then Set_Output(i, "STATUS", out_status_val) end
-            if cfg.STATUS_ALT then Set_Output(i, "STATUS_ALT", out_status_alt_val) end
+            if cfg.STATUS then Set_Output(out, i, "STATUS", out_status_val) end
+            if cfg.STATUS_ALT then Set_Output(out, i, "STATUS_ALT", out_status_alt_val) end
 
             if CFG.ENABLE_CREDIT_COUNT and warmup_ok then
                 local spawned = false
@@ -716,8 +903,13 @@ function stateoutput.startplugin()
                 if is_player_active and not p.WasActive then
                     spawned = true
                     
-                -- Check 2: Did life reset while Player Status remained active (for player continues)
-                elseif cfg.LIFE then
+                -- Check 2: Did life reset while Player Status remained active (for player continues)?
+                -- The p.WasActive guard is what makes "remained active" real. Without it,
+                -- an idle player whose offset-DERIVED life byte happens to move (vcop2:
+                -- P2's auto address = P1+4 initializes the instant Start is pressed)
+                -- spawn-steals the pending credit drop from the player who actually
+                -- started - the log showed MSOP_P2_CreditsConsumed=1 on a P1-only game.
+                elseif cfg.LIFE and p.WasActive then
                     if CFG.LIFE_DIRECTION == "decrease" and curr_life > p.LastLife and p.LastLife == 0 then spawned = true
                     elseif CFG.LIFE_DIRECTION == "increase" and curr_life < p.LastLife and curr_life == 0 then spawned = true end
                 end
@@ -729,12 +921,12 @@ function stateoutput.startplugin()
                         p.CreditsConsumed = p.CreditsConsumed + 1
                         p.PendingCreditDrops = p.PendingCreditDrops - 1
                         p.SpawnsAwaitingCredit = p.SpawnsAwaitingCredit - 1
-                        Set_Output(i, "CREDITS_CONSUMED", p.CreditsConsumed)
+                        Set_Output(out, i, "CREDITS_CONSUMED", p.CreditsConsumed)
                     elseif _PendingGlobalCreditDrops > 0 then
                         p.CreditsConsumed = p.CreditsConsumed + 1
                         _PendingGlobalCreditDrops = _PendingGlobalCreditDrops - 1
                         p.SpawnsAwaitingCredit = p.SpawnsAwaitingCredit - 1
-                        Set_Output(i, "CREDITS_CONSUMED", p.CreditsConsumed)
+                        Set_Output(out, i, "CREDITS_CONSUMED", p.CreditsConsumed)
                     end
                 end
             end
@@ -776,7 +968,7 @@ function stateoutput.startplugin()
                           elseif trigger == 2 then p.CurrentRecoilDuration = _RecoilAltDuration
                           elseif trigger == 3 then p.CurrentRecoilDuration = _RecoilGrenadeDuration end
                           
-                          Set_Output(i, "RECOIL", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "CtmRecoil", 1) end
+                          Set_Output(out, i, "RECOIL", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmRecoil", 1) end
                           p.RecoilTick = current_time; p.IsRecoilActive = true; auto_recoil_triggered_this_frame = true
                           if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true end
                       end
@@ -785,17 +977,17 @@ function stateoutput.startplugin()
                   -- Fire Reload based on Ammo Math
                   if CFG.ENABLE_RELOAD_AMMO ~= false and cfg.AMMO then
                       if (CFG.AMMO_DIRECTION == "decrease" and curr_ammo > p.LastAmmo) or (CFG.AMMO_DIRECTION == "increase" and curr_ammo < p.LastAmmo) then
-                          if cfg.RELOAD then Set_Output(i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
+                          if cfg.RELOAD then Set_Output(out, i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
                       end
                   end
                   if CFG.ENABLE_RELOAD_AMMO_ALT ~= false and cfg.AMMO_ALT then
                       if (CFG.AMMO_ALT_DIRECTION == "decrease" and curr_ammo_alt > p.LastAmmoAlt) or (CFG.AMMO_ALT_DIRECTION == "increase" and curr_ammo_alt < p.LastAmmoAlt) then
-                          if cfg.RELOAD then Set_Output(i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
+                          if cfg.RELOAD then Set_Output(out, i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
                       end
                   end
                   if CFG.ENABLE_RELOAD_AMMO_GRENADE ~= false and cfg.AMMO_GRENADE then
                       if (CFG.AMMO_GRENADE_DIRECTION == "decrease" and curr_ammo_grenade > p.LastAmmoGrenade) or (CFG.AMMO_GRENADE_DIRECTION == "increase" and curr_ammo_grenade < p.LastAmmoGrenade) then
-                          if cfg.RELOAD then Set_Output(i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
+                          if cfg.RELOAD then Set_Output(out, i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
                       end
                   end
                   
@@ -829,7 +1021,7 @@ function stateoutput.startplugin()
                       end
                       
                       if manual_trigger then
-                          Set_Output(i, "RELOAD", 1)
+                          Set_Output(out, i, "RELOAD", 1)
                           p.ReloadTick = current_time; p.IsReloadActive = true
                           if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end
                       end
@@ -850,13 +1042,13 @@ function stateoutput.startplugin()
                               
                               local active_interval = (CFG.RECOIL_METHOD == "hold") and _RecoilHoldInterval or _MinRecoilInterval
                               if manual_trigger and (current_time - p.RecoilTick > active_interval) then
-                                  p.CurrentRecoilDuration = _RecoilDuration; Set_Output(i, "RECOIL", 1)
-                                  if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "CtmRecoil", 1) end
+                                  p.CurrentRecoilDuration = _RecoilDuration; Set_Output(out, i, "RECOIL", 1)
+                                  if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmRecoil", 1) end
                                   
                                   -- Use hardware fallback for primary shots if ammo is unmapped, OR if primary ammo is empty
                                   if CFG.ENABLE_SHOT_COUNT and warmup_ok and (not cfg.AMMO or curr_ammo == 0) then
                                       p.ShotCountPrimary = p.ShotCountPrimary + 1
-                                      Set_Output(i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
+                                      Set_Output(out, i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
                                   end
                                   p.RecoilTick = current_time; p.IsRecoilActive = true
                                   if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true end
@@ -873,72 +1065,72 @@ function stateoutput.startplugin()
             -- -------------------------------------------------------------------------
             if is_player_active or just_died then
                 if primary_active then
-                    if cfg.AMMO then Set_Output(i, "AMMO", warmup_ok and curr_ammo or 0) end
-                    if cfg.LIFE then Set_Output(i, "LIFE", warmup_ok and curr_life or 0) end
+                    if cfg.AMMO then Set_Output(out, i, "AMMO", warmup_ok and curr_ammo or 0) end
+                    if cfg.LIFE then Set_Output(out, i, "LIFE", warmup_ok and curr_life or 0) end
                     
                     if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_PRIMARY and warmup_ok then
                         if type(cfg.SHOTS_FIRED_PRIMARY) == "number" then 
                              local val = Read_Data_Safe(_MemHandles["SHOTS_FIRED_PRIMARY"], cfg.SHOTS_FIRED_PRIMARY, CFG.DATA_WIDTHS.SHOTS_FIRED_PRIMARY)
-                             Set_Output(i, "SHOTS_FIRED_PRIMARY", val); p.ShotCountPrimary = val
+                             Set_Output(out, i, "SHOTS_FIRED_PRIMARY", val); p.ShotCountPrimary = val
                         elseif cfg.SHOTS_FIRED_PRIMARY == "auto" and cfg.AMMO and p.WasActive then
                             local diff = (CFG.AMMO_DIRECTION == "decrease") and (curr_ammo < p.LastAmmo and p.LastAmmo <= t_ammo and p.LastAmmo - curr_ammo or 0) or ((curr_ammo > p.LastAmmo) and (curr_ammo - p.LastAmmo) or 0)
                             if diff > 0 or (CFG.AMMO_DIRECTION == "change" and curr_ammo ~= p.LastAmmo) then
                                 p.ShotCountPrimary = p.ShotCountPrimary + (CFG.SHOTS_FIRED_METHOD == "bullets" and diff or 1)
-                                Set_Output(i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
+                                Set_Output(out, i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
                             end
                         end
                     end
                 else
-                    if cfg.AMMO then Set_Output(i, "AMMO", 0) end
-                    if cfg.LIFE then Set_Output(i, "LIFE", 0) end
+                    if cfg.AMMO then Set_Output(out, i, "AMMO", 0) end
+                    if cfg.LIFE then Set_Output(out, i, "LIFE", 0) end
                 end
 
                 if alternate_active then
-                    if cfg.AMMO_ALT then Set_Output(i, "AMMO_ALT", warmup_ok and curr_ammo_alt or 0) end
-                    if cfg.LIFE_ALT then Set_Output(i, "LIFE_ALT", warmup_ok and curr_life_alt or 0) end
+                    if cfg.AMMO_ALT then Set_Output(out, i, "AMMO_ALT", warmup_ok and curr_ammo_alt or 0) end
+                    if cfg.LIFE_ALT then Set_Output(out, i, "LIFE_ALT", warmup_ok and curr_life_alt or 0) end
                     
                     if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_ALT and warmup_ok then
                         if type(cfg.SHOTS_FIRED_ALT) == "number" then
                             local val = Read_Data_Safe(_MemHandles["SHOTS_FIRED_ALT"], cfg.SHOTS_FIRED_ALT, CFG.DATA_WIDTHS.SHOTS_FIRED_ALT)
-                            Set_Output(i, "SHOTS_FIRED_ALT", val); p.ShotCountAlt = val
+                            Set_Output(out, i, "SHOTS_FIRED_ALT", val); p.ShotCountAlt = val
                         elseif cfg.SHOTS_FIRED_ALT == "auto" and cfg.AMMO_ALT and p.WasActive then
                             local diff = (CFG.AMMO_ALT_DIRECTION == "decrease") and (curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= t_alt and p.LastAmmoAlt - curr_ammo_alt or 0) or ((curr_ammo_alt > p.LastAmmoAlt) and (curr_ammo_alt - p.LastAmmoAlt) or 0)
                             if diff > 0 or (CFG.AMMO_ALT_DIRECTION == "change" and curr_ammo_alt ~= p.LastAmmoAlt) then
                                 p.ShotCountAlt = p.ShotCountAlt + (CFG.SHOTS_FIRED_ALT_METHOD == "bullets" and diff or 1)
-                                Set_Output(i, "SHOTS_FIRED_ALT", p.ShotCountAlt)
+                                Set_Output(out, i, "SHOTS_FIRED_ALT", p.ShotCountAlt)
                             end
                         end
                     end
                     
-                    if cfg.AMMO_GRENADE then Set_Output(i, "AMMO_GRENADE", warmup_ok and curr_ammo_grenade or 0) end
+                    if cfg.AMMO_GRENADE then Set_Output(out, i, "AMMO_GRENADE", warmup_ok and curr_ammo_grenade or 0) end
                     if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_GRENADE and warmup_ok then
                         if type(cfg.SHOTS_FIRED_GRENADE) == "number" then
                             local val = Read_Data_Safe(_MemHandles["SHOTS_FIRED_GRENADE"], cfg.SHOTS_FIRED_GRENADE, CFG.DATA_WIDTHS.SHOTS_FIRED_GRENADE)
-                            Set_Output(i, "SHOTS_FIRED_GRENADE", val); p.ShotCountGrenade = val
+                            Set_Output(out, i, "SHOTS_FIRED_GRENADE", val); p.ShotCountGrenade = val
                         elseif cfg.SHOTS_FIRED_GRENADE == "auto" and cfg.AMMO_GRENADE and p.WasActive then
                             local diff = (CFG.AMMO_GRENADE_DIRECTION == "decrease") and (curr_ammo_grenade < p.LastAmmoGrenade and p.LastAmmoGrenade <= t_grenade and p.LastAmmoGrenade - curr_ammo_grenade or 0) or ((curr_ammo_grenade > p.LastAmmoGrenade) and (curr_ammo_grenade - p.LastAmmoGrenade) or 0)
                             if diff > 0 or (CFG.AMMO_GRENADE_DIRECTION == "change" and curr_ammo_grenade ~= p.LastAmmoGrenade) then
                                 p.ShotCountGrenade = p.ShotCountGrenade + (CFG.SHOTS_FIRED_GRENADE_METHOD == "bullets" and diff or 1)
-                                Set_Output(i, "SHOTS_FIRED_GRENADE", p.ShotCountGrenade)
+                                Set_Output(out, i, "SHOTS_FIRED_GRENADE", p.ShotCountGrenade)
                             end
                         end
                     end
                 else
-                    if cfg.AMMO_ALT then Set_Output(i, "AMMO_ALT", 0) end
-                    if cfg.LIFE_ALT then Set_Output(i, "LIFE_ALT", 0) end
-                    if cfg.AMMO_GRENADE then Set_Output(i, "AMMO_GRENADE", 0) end
+                    if cfg.AMMO_ALT then Set_Output(out, i, "AMMO_ALT", 0) end
+                    if cfg.LIFE_ALT then Set_Output(out, i, "LIFE_ALT", 0) end
+                    if cfg.AMMO_GRENADE then Set_Output(out, i, "AMMO_GRENADE", 0) end
                 end
             else
-                if cfg.AMMO then Set_Output(i, "AMMO", 0) end
-                if cfg.LIFE then Set_Output(i, "LIFE", 0) end
-                if cfg.AMMO_ALT then Set_Output(i, "AMMO_ALT", 0) end
-                if cfg.LIFE_ALT then Set_Output(i, "LIFE_ALT", 0) end
-                if cfg.AMMO_GRENADE then Set_Output(i, "AMMO_GRENADE", 0) end
+                if cfg.AMMO then Set_Output(out, i, "AMMO", 0) end
+                if cfg.LIFE then Set_Output(out, i, "LIFE", 0) end
+                if cfg.AMMO_ALT then Set_Output(out, i, "AMMO_ALT", 0) end
+                if cfg.LIFE_ALT then Set_Output(out, i, "LIFE_ALT", 0) end
+                if cfg.AMMO_GRENADE then Set_Output(out, i, "AMMO_GRENADE", 0) end
             end
             
             if CFG.ENABLE_SHOT_COUNT and warmup_ok then
                 local total_shots = p.ShotCountPrimary + p.ShotCountAlt + p.ShotCountGrenade
-                Set_Output(i, "SHOTS_FIRED", total_shots)
+                Set_Output(out, i, "SHOTS_FIRED", total_shots)
             end
 
             -- Hit Damage, Environmental Rumble, and Life Lost processing
@@ -949,14 +1141,14 @@ function stateoutput.startplugin()
                 if type(cfg.DAMAGE_TAKEN) == "number" then
                     local val = Read_Data_Safe(_MemHandles["DAMAGE_TAKEN"], cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
                     if val > p.LastDmgMem and warmup_ok then
-                        if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(i, "DAMAGE_TAKEN", p.DamageCount) end
+                        if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(out, i, "DAMAGE_TAKEN", p.DamageCount) end
                         hit_triggered = true
                     end
                     p.LastDmgMem = val
                 elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and p.WasActive then
                     local hit = (cfg.LIFE and ((CFG.LIFE_DIRECTION == "decrease" and curr_life < p.LastLife) or (CFG.LIFE_DIRECTION == "increase" and curr_life > p.LastLife))) or (cfg.LIFE_ALT and ((CFG.LIFE_ALT_DIRECTION == "decrease" and curr_life_alt < p.LastLifeAlt) or (CFG.LIFE_ALT_DIRECTION == "increase" and curr_life_alt > p.LastLifeAlt)))
                     if hit and warmup_ok then 
-                        if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(i, "DAMAGE_TAKEN", p.DamageCount) end
+                        if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(out, i, "DAMAGE_TAKEN", p.DamageCount) end
                         hit_triggered = true
                     end
                 end
@@ -968,13 +1160,13 @@ function stateoutput.startplugin()
                     if type(cfg.DAMAGE) == "number" then
                         local val = Read_Data_Safe(_MemHandles["DAMAGE"], cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
                         if val > p.LastDamageVal then
-                            Set_Output(i, "DAMAGE", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "Damaged", 1) end
+                            Set_Output(out, i, "DAMAGE", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "Damaged", 1) end
                             p.DamageTick = current_time; p.IsDamageActive = true
                             if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].DamageTick = current_time; _Player[1].IsDamageActive = true end
                         end
                         p.LastDamageVal = val
                     elseif cfg.DAMAGE == "auto" and hit_triggered then
-                        Set_Output(i, "DAMAGE", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "Damaged", 1) end
+                        Set_Output(out, i, "DAMAGE", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "Damaged", 1) end
                         p.DamageTick = current_time; p.IsDamageActive = true
                         if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].DamageTick = current_time; _Player[1].IsDamageActive = true end
                     end
@@ -985,7 +1177,7 @@ function stateoutput.startplugin()
                     if type(cfg.RUMBLE) == "number" then
                         local val = Read_Data_Safe(_MemHandles["RUMBLE"], cfg.RUMBLE, CFG.DATA_WIDTHS.RUMBLE)
                         if val > p.LastRumbleEventVal then
-                            Set_Output(i, "RUMBLE", 1)
+                            Set_Output(out, i, "RUMBLE", 1)
                             p.RumbleTick = current_time; p.IsRumbleActive = true
                             if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RumbleTick = current_time; _Player[1].IsRumbleActive = true end
                         end
@@ -1014,11 +1206,11 @@ function stateoutput.startplugin()
                          end
                          if lost then
                              p.LifeLostCount = p.LifeLostCount + diff
-                             Set_Output(i, "LIFE_LOST", p.LifeLostCount)
+                             Set_Output(out, i, "LIFE_LOST", p.LifeLostCount)
                          end
                     elseif type(cfg.LIFE_LOST) == "number" then
                          local val = Read_Data_Safe(_MemHandles["LIFE_LOST"], cfg.LIFE_LOST, CFG.DATA_WIDTHS.LIFE_LOST)
-                         Set_Output(i, "LIFE_LOST", val)
+                         Set_Output(out, i, "LIFE_LOST", val)
                     end
                 end
             end
@@ -1029,20 +1221,20 @@ function stateoutput.startplugin()
 
             -- Cleanup Hardware Timers (Shuts hardware off when time is up)
             if CFG.SIMULTANEOUS_PLAY or i == 1 then
-                if p.IsRecoilActive and (current_time - p.RecoilTick > p.CurrentRecoilDuration) then Set_Output(i, "RECOIL", 0); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "CtmRecoil", 0) end; p.IsRecoilActive = false end
-                if p.IsReloadActive and (current_time - p.ReloadTick > _ReloadDuration) then Set_Output(i, "RELOAD", 0); p.IsReloadActive = false end
-                if p.IsDamageActive and (current_time - p.DamageTick > _DamageDuration) then Set_Output(i, "DAMAGE", 0); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(i, "Damaged", 0) end; p.IsDamageActive = false end
-                if p.IsRumbleActive and (current_time - p.RumbleTick > _RumbleDuration) then Set_Output(i, "RUMBLE", 0); p.IsRumbleActive = false end
+                if p.IsRecoilActive and (current_time - p.RecoilTick > p.CurrentRecoilDuration) then Set_Output(out, i, "RECOIL", 0); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmRecoil", 0) end; p.IsRecoilActive = false end
+                if p.IsReloadActive and (current_time - p.ReloadTick > _ReloadDuration) then Set_Output(out, i, "RELOAD", 0); p.IsReloadActive = false end
+                if p.IsDamageActive and (current_time - p.DamageTick > _DamageDuration) then Set_Output(out, i, "DAMAGE", 0); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "Damaged", 0) end; p.IsDamageActive = false end
+                if p.IsRumbleActive and (current_time - p.RumbleTick > _RumbleDuration) then Set_Output(out, i, "RUMBLE", 0); p.IsRumbleActive = false end
             end
         end
         
         -- Override Global Credits if individual credits are actively mapped
         if using_individual_credits then
-            Set_Global_Output("GLOBAL_CREDITS", warmup_ok and aggregated_credits or 0)
+            Set_Global_Output(out, "GLOBAL_CREDITS", warmup_ok and aggregated_credits or 0)
             if warmup_ok then
                 if aggregated_credits > _LastGlobalCredits then
                     _GlobalCreditsInserted = _GlobalCreditsInserted + (aggregated_credits - _LastGlobalCredits)
-                    if CFG.ENABLE_CREDIT_COUNT then Set_Global_Output("GLOBAL_CREDITS_INSERTED", _GlobalCreditsInserted) end
+                    if CFG.ENABLE_CREDIT_COUNT then Set_Global_Output(out, "GLOBAL_CREDITS_INSERTED", _GlobalCreditsInserted) end
                 elseif aggregated_credits < _LastGlobalCredits then
                     _PendingGlobalCreditDrops = _PendingGlobalCreditDrops + (_LastGlobalCredits - aggregated_credits)
                 end
@@ -1052,7 +1244,17 @@ function stateoutput.startplugin()
         end
         
         local final_game_active = ((global_exists and is_game_active) or (not global_exists and any_player_active))
-        Set_Global_Output("GLOBAL_GAME_STATUS", warmup_ok and final_game_active and 1 or 0)
+        Set_Global_Output(out, "GLOBAL_GAME_STATUS", warmup_ok and final_game_active and 1 or 0)
+
+        -- DERIVED ATTRACT MODE:
+        -- When no address exists, infer it: warmed up, no game running,
+        -- no player session active. This is an OUTPUT-ONLY signal -
+        -- unlike the address-backed attract detection in Phase 1, it must
+        -- never veto memory reads or clear pending credit accounting,
+        -- otherwise a derived-attract game could never observe its own game start.
+        if not (CFG.ATTRACT_STATUS and type(CFG.ATTRACT_STATUS) == "number") then
+            Set_Global_Output(out, "GLOBAL_ATTRACT_STATUS", (warmup_ok and not final_game_active and not any_player_active) and 1 or 0)
+        end
         
         -- Walk-away protection: Clear session stats if inactive for a long time
         if not final_game_active then
@@ -1070,7 +1272,7 @@ function stateoutput.startplugin()
         end
 
         -- -------------------------------------------------------------------------
-        -- PHASE 5: MEMORY PATCHING (Anti-Seizure)
+        -- PHASE 5: MEMORY PATCHING
         -- Actively overwrites MAME memory to disable blinding flashes.
         -- -------------------------------------------------------------------------
         if warmup_ok and CFG.SCREEN_FLASH then
@@ -1101,6 +1303,121 @@ function stateoutput.startplugin()
         if _IsShuttingDown or not CFG then return end
         local status, err = pcall(Frame_Logic)
         if not status then dbg_print("CRITICAL FRAME ERROR: " .. tostring(err)) end
+    end
+
+    -- -------------------------------------------------------------------------
+    -- Unhook_Frame()
+    -- Deterministically detaches the frame notifier. on_start() re-fires on
+    -- every reset (soft resets included) and previously just overwrote the
+    -- old subscription, leaving the abandoned one firing until garbage
+    -- collection got around to it - stacking two engine passes per frame in
+    -- the meantime.
+    -- -------------------------------------------------------------------------
+    local function Unhook_Frame()
+        local sub = exports.subscriptions.frame
+        if sub then
+            if type(sub) == "userdata" and sub.unsubscribe then
+                pcall(function() sub:unsubscribe() end)
+            end
+            exports.subscriptions.frame = nil
+        elseif emu.register_frame_done then
+            emu.register_frame_done(nil, "frame")
+        end
+    end
+
+    -- -------------------------------------------------------------------------
+    -- on_post_load()
+    -- SAVE-STATE ALIGNMENT: With the patched MAME core, every MSOP output is
+    -- part of the save state and snaps to its saved value on load - but this
+    -- engine's Lua-side mirrors, counters, and attotime anchors are NOT saved.
+    -- Left alone, the first frames after a load fire phantom deltas
+    -- (ammo jump -> recoil/reload, credit jump -> "inserted") and the stale
+    -- session counters immediately overwrite the freshly restored counter outputs.
+    -- Strategy:
+    --   1. re-seed memory delta baselines from restored RAM
+    --   2. ADOPT restored counter outputs as the session counters (the
+    --      outputs are the saved truth; proxy:get() returns it)
+    --   3. kill in-flight FFB pulses - their attotime anchors belong to the
+    --      pre-load timeline and can wedge comparisons for minutes
+    --   4. wipe change-detection mirrors so every next write re-broadcasts;
+    --      the core de-duplicates identical values, so clients only ever see
+    --      the values that genuinely differ
+    -- -------------------------------------------------------------------------
+    local function on_post_load()
+        if _IsShuttingDown or not CFG or not _WarmupFlushed then
+            -- a state loaded before warmup ever completed this session isn't
+            -- being tracked yet; the normal warmup flush will handle it
+            return
+        end
+        local ok, err = pcall(function()
+            Seed_Frame_Baselines()
+
+            local function adopt(name, fallback)
+                if not name then return fallback end
+                local proxy = Get_Output_Proxy(name, nil)
+                if proxy then
+                    local got = proxy:get()
+                    if type(got) == "number" then return got end
+                end
+                return fallback
+            end
+
+            _GlobalCreditsInserted = adopt(_GlobalOutputs["GLOBAL_CREDITS_INSERTED"], _GlobalCreditsInserted)
+            _PendingGlobalCreditDrops = 0
+
+            local now = manager.machine.time
+            local debounce_age = emu.attotime.from_msec((CFG.STATUS_DEBOUNCE_MS or 0) + 20)
+            local game_restored = adopt(_GlobalOutputs["GLOBAL_GAME_STATUS"], 0) == 1
+            _GameActiveTick = game_restored and (now - debounce_age) or _ZeroTime
+            _GameInactiveTick = _ZeroTime
+            gamestatus = game_restored and 1 or 0
+            _GlobalLastOutputs = {}
+
+            for i = 1, CFG.MAX_PLAYERS do
+                local p = _Player[i]
+                local names = _OutputNames[i] or {}
+
+                p.ShotCountPrimary = adopt(names["SHOTS_FIRED_PRIMARY"], p.ShotCountPrimary)
+                p.ShotCountAlt     = adopt(names["SHOTS_FIRED_ALT"], p.ShotCountAlt)
+                p.ShotCountGrenade = adopt(names["SHOTS_FIRED_GRENADE"], p.ShotCountGrenade)
+                p.DamageCount      = adopt(names["DAMAGE_TAKEN"], p.DamageCount)
+                p.LifeLostCount    = adopt(names["LIFE_LOST"], p.LifeLostCount)
+                p.CreditsInserted  = adopt(names["CREDITS_INSERTED"], p.CreditsInserted)
+                p.CreditsConsumed  = adopt(names["CREDITS_CONSUMED"], p.CreditsConsumed)
+
+                -- adopt restored activity so Check 1 doesn't phantom-spawn a
+                -- credit claim for a player who was already mid-session; the
+                -- pre-aged ActiveTick keeps an active player's Status output
+                -- seamless through the debounce window instead of blipping 0
+                local was_active = adopt(names["STATUS"], 0) == 1
+                p.IsActive, p.WasActive = was_active, was_active
+                p.ActiveTick = was_active and (now - debounce_age) or _ZeroTime
+                p.IsFFBAllowed, p.WasFFBAllowed = was_active, was_active
+
+                p.RecoilTick, p.ReloadTick, p.DamageTick, p.RumbleTick = _ZeroTime, _ZeroTime, _ZeroTime, _ZeroTime
+                p.IsRecoilActive, p.IsReloadActive, p.IsDamageActive, p.IsRumbleActive = false, false, false, false
+                p.PendingCreditDrops, p.SpawnsAwaitingCredit = 0, 0
+                p.LastOutputs = {}
+            end
+
+            -- a state saved mid-pulse restores RECOIL/RELOAD/etc as 1 with no
+            -- timer left running to turn them off - force every pulse low
+            if manager.machine and manager.machine.output then
+                local out = manager.machine.output
+                for i = 1, CFG.MAX_PLAYERS do
+                    Set_Output(out, i, "RECOIL", 0)
+                    Set_Output(out, i, "RELOAD", 0)
+                    Set_Output(out, i, "DAMAGE", 0)
+                    Set_Output(out, i, "RUMBLE", 0)
+                    if CFG.DEMULSHOOTER_COMPATIBILITY then
+                        Set_Output(out, i, "CtmRecoil", 0)
+                        Set_Output(out, i, "Damaged", 0)
+                    end
+                end
+            end
+            dbg_print("Save state loaded - baselines re-seeded, counters adopted from restored outputs")
+        end)
+        if not ok then dbg_print("POST-LOAD RESYNC ERROR: " .. tostring(err)) end
     end
 
     -- -------------------------------------------------------------------------
@@ -1143,25 +1460,149 @@ function stateoutput.startplugin()
             end
         end
 
-        if exports.subscriptions.frame then
-            exports.subscriptions.frame = nil -- Forces GC cleanup of the hook
-        elseif emu.remove_machine_frame_notifier then
-            emu.remove_machine_frame_notifier(Compute_Outputs)
-        else
-            emu.register_frame_done(nil, "frame")
+        Unhook_Frame()
+    end
+
+    -- -------------------------------------------------------------------------
+    -- DEVICES-STARTED HOOK (fires once devices exist, before register_save()
+    -- locks the output table)
+    -- Registers this session's MSOP output names against the root device.
+    -- Registration is ROM-FILTERED. Pre-lock registration also means
+    -- every registered name is carried in every save state this session
+    -- produces, so only the current ROM's realistic set is registered (its
+    -- OUTPUT_SUFFIXES, or "_default"'s, expanded for P1..MAX_PLAYERS).
+    -- Unsupported or user-disabled ROMs register nothing at all; any lookup
+    -- failure falls back to the full vocabulary so nothing can go missing.
+    -- -------------------------------------------------------------------------
+    local function Register_Master_List()
+        dbg_print("Register_Master_List triggered. Phase: " .. tostring(manager.machine.phase))
+        local root = manager.machine.devices[":"]
+        if not root or not root.register_output then
+            dbg_print("ERROR: Cannot register outputs. Root device missing.")
+            return
+        end
+
+        local unique_outputs = {}
+        local registered_scope = "full vocabulary"
+
+        -- ROM-FILTERED SELECTION:
+        --   * supported ROM   -> its suffix set (a game entry may override
+        --     OUTPUT_SUFFIXES; otherwise "_default"'s vocabulary applies),
+        --     expanded for P1..MAX_PLAYERS, plus the DemulShooter names.
+        --   * unsupported ROM / ENABLE_ROM=false -> register NOTHING. The
+        --     frame loop never engages for these (on_start bails out), so no
+        --     value would ever be written - registering would only bloat the
+        --     session's output table and every save state it produces.
+        --   * database missing / lookup failure -> full "_default" vocabulary
+        --     x4 players (the pre-v8.4.0 behaviour), so a broken lookup can
+        --     never silently cost real outputs.
+        local rom_ok, rom_name = pcall(function() return manager.machine.system.name end)
+        if rom_ok and rom_name and db and type(db) == "table" and type(db["_default"]) == "table" then
+            local entry = db[rom_name]
+            if type(entry) == "table" and entry.ENABLE_ROM == true then
+                local defaults = db["_default"]
+                local suffixes = entry.OUTPUT_SUFFIXES or defaults.OUTPUT_SUFFIXES
+                local max_players = tonumber(entry.MAX_PLAYERS) or tonumber(defaults.MAX_PLAYERS) or 4
+                if max_players < 1 then max_players = 1 elseif max_players > 4 then max_players = 4 end
+                if type(suffixes) == "table" then
+                    for key, suffix in pairs(suffixes) do
+                        if string.match(key, "^GLOBAL_") then
+                            unique_outputs["MSOP_" .. tostring(suffix)] = true
+                        else
+                            for i = 1, max_players do
+                                unique_outputs["MSOP_P" .. i .. "_" .. tostring(suffix)] = true
+                            end
+                        end
+                    end
+                    for i = 1, max_players do
+                        unique_outputs["MSOP_P" .. i .. "_CtmRecoil"] = true
+                        unique_outputs["MSOP_P" .. i .. "_Damaged"] = true
+                    end
+                    registered_scope = "ROM-filtered [" .. rom_name .. "] P1-P" .. max_players
+                end
+            else
+                dbg_print("ROM [" .. tostring(rom_name) .. "] not enabled in database - registering no MSOP outputs this session")
+                return
+            end
+        end
+
+        -- FALLBACK: full vocabulary scrape. "_default" alone already
+        -- guarantees the core global outputs (Credits, GameStatus,
+        -- AttractStatus, LuaVersion, LuaDate, LuaROMid, etc.) register
+        -- correctly-named even before a specific ROM is known - there used
+        -- to also be a hand-maintained `base_list` of hardcoded fallback
+        -- names here, but it had drifted out of sync with the actual suffix
+        -- strings (e.g. it registered "MSOP_Game_Status" while every write
+        -- in Frame_Logic targets "MSOP_GameStatus") and was redundant with
+        -- this scrape whenever the database loads successfully. If the
+        -- database ever fails to load, on_start() already disables every
+        -- ROM outright, so a hardcoded fallback output list would never
+        -- have received a value anyway - removed rather than re-synced, so
+        -- this naming can't drift again.
+        if next(unique_outputs) == nil then
+            if db and type(db) == "table" then
+                for rom, cfg in pairs(db) do
+                    if type(cfg) == "table" and cfg.OUTPUT_SUFFIXES then
+                        for key, suffix in pairs(cfg.OUTPUT_SUFFIXES) do
+                            if string.match(key, "^GLOBAL_") then
+                                unique_outputs["MSOP_" .. tostring(suffix)] = true
+                            else
+                                for i = 1, 4 do
+                                    unique_outputs["MSOP_P" .. i .. "_" .. tostring(suffix)] = true
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            for i = 1, 4 do
+                unique_outputs["MSOP_P"..i.."_CtmRecoil"] = true
+                unique_outputs["MSOP_P"..i.."_Damaged"] = true
+            end
+        end
+
+        -- Register everything, tracking REAL success/failure per name.
+        -- Previously this ran pcall() but discarded its result entirely and
+        -- incremented the counter regardless - a failed registration (locked
+        -- table, invalid name, anything) would vanish silently and still be
+        -- reported as a success. Now every failure is logged individually
+        -- with its actual error, and the summary line reports genuine
+        -- successes out of the true total.
+        local success_count = 0
+        local total = 0
+        local failures = {}
+        for name, _ in pairs(unique_outputs) do
+            total = total + 1
+            local ok, result = pcall(function() return root:register_output(name) end)
+            if ok and result ~= false then
+                success_count = success_count + 1
+            elseif ok then
+                failures[#failures + 1] = name .. ": rejected - output table already locked for save states (registration attempted too late)"
+            else
+                failures[#failures + 1] = name .. ": " .. tostring(result)
+            end
+        end
+        dbg_print("Master List Registration Complete (" .. registered_scope .. "). Registered " .. success_count .. "/" .. total .. " unique state outputs.")
+        if #failures > 0 then
+            dbg_print("WARNING: " .. #failures .. " output(s) FAILED to register:")
+            for _, f in ipairs(failures) do
+                dbg_print("  - " .. f)
+            end
         end
     end
-    
+
     -- =========================================================================
     -- THE BOOT HOOK (on_start)
     -- This fires exactly once when a specific ROM finishes launching.
     -- Initializes arrays, validates DB config, and sets up timers.
     -- =========================================================================
     local function on_start()
+        dbg_print("on_start triggered. Current MAME Phase: " .. tostring(manager.machine.phase))
         if not manager or not manager.machine then return end
         
         local rom_name = manager.machine.system.name
-        dbg_print("MSOP CHECKING ROM: " .. tostring(rom_name))
+        dbg_print("Checking ROM [" .. rom_name .. "] against database")
+		dbg_osd("Checking ROM [" .. rom_name .. "] against database")
         
         if db and type(db) == "table" and db[rom_name] then
             
@@ -1170,26 +1611,28 @@ function stateoutput.startplugin()
             
             -- Check if the user has explicitly disabled this ROM
             if merged.ENABLE_ROM == false then
-                dbg_print("MSOP INACTIVE: ROM [" .. rom_name .. "] disabled via ENABLE_ROM flag")
-                dbg_osd("MSOP INACTIVE: ROM " .. rom_name .. " disabled by user")
+                dbg_print("DISABLED - ROM [" .. rom_name .. "] disabled via ENABLE_ROM flag")
+                dbg_osd("DISABLED - ROM " .. rom_name .. " disabled by user")
                 CFG = nil
                 
-                if exports.subscriptions.frame then
-                    exports.subscriptions.frame = nil
-                elseif emu.register_frame_done then
-                    emu.register_frame_done(nil, "frame")
-                end
+                Unhook_Frame()
                 return
             end
             
-            dbg_print("MSOP ACTIVE: ROM [" .. rom_name .. "] found in database")
-            dbg_osd("MSOP ACTIVE: ROM [" .. rom_name .. "]")
+            dbg_print("ENABLED - ROM [" .. rom_name .. "] found in database")
+            dbg_osd("ENABLED - ROM [" .. rom_name .. "]")
             
             CFG = normalize_variables(merged)
             
             -- Fix JSON limitations for hex strings
             convert_hex_strings_to_numbers(CFG) 
             
+            -- Stable numeric identity for the MSOP_LuaROMid output: a
+            -- database-supplied LUA_ROM_ID always wins; otherwise derive a
+            -- deterministic 31-bit FNV-1a hash of the ROM short name, so the
+            -- id never changes across plugin or database updates.
+            _RomIdNum = tonumber(CFG.LUA_ROM_ID) or fnv1a_31(rom_name)
+
             -- Reset Engine Tracking
             _IsShuttingDown = false
             gamestatus = 0
@@ -1206,6 +1649,17 @@ function stateoutput.startplugin()
             _UniqueMemTargets = {}
             _OutputNames = {}
             _GlobalOutputs = {}
+
+            -- Reset Output Proxy Cache
+            -- CRITICAL: each cached proxy is bound to the root device_t of the
+            -- machine that was running when it was created. Switching to a new
+            -- ROM (e.g. via a frontend, or MAME's own game-select menu) destroys
+            -- that machine and constructs a fresh one - any proxy left in this
+            -- cache would be pointing at a device/output table that no longer
+            -- exists. Since output names (e.g. "MSOP_P1_Ammo") are templated
+            -- and reused across every supported game, a stale entry here WILL
+            -- get hit again on the next ROM. Must be cleared every on_start.
+            _ProxyCache = {}
             
             -- Establish exact attotime durations for the specific machine
             _RecoilDuration = emu.attotime.from_msec(CFG.RECOIL_DURATION_MS or 40)
@@ -1242,40 +1696,72 @@ function stateoutput.startplugin()
             -- Generate strings and math offsets
             Resolve_Addresses_And_Strings()
             
-            -- [ ENGAGE THE FRAME LOOP ]
+            -- Engage the frame loop, dropping any prior session/soft-reset
+            -- subscription deterministically first (on_start re-fires on
+            -- every reset; stacking notifiers double-runs the engine)
+            Unhook_Frame()
             if emu.add_machine_frame_notifier then
                 exports.subscriptions.frame = emu.add_machine_frame_notifier(Compute_Outputs)
             else
                 emu.register_frame_done(Compute_Outputs, "frame")
             end
         else
-            dbg_print("MSOP INACTIVE: ROM [" .. rom_name .. "] not supported in database")
-            dbg_osd("MSOP INACTIVE: ROM " .. rom_name .. " not supported")
+            dbg_print("DISABLED - ROM [" .. rom_name .. "] not supported in database")
+            dbg_osd("DISABLED - ROM " .. rom_name .. " not supported")
             CFG = nil
             
-            if exports.subscriptions.frame then
-                exports.subscriptions.frame = nil
-            elseif emu.register_frame_done then
-                emu.register_frame_done(nil, "frame")
-            end
+            Unhook_Frame()
         end
     end
     
     -- =========================================================================
     -- COMPATIBILITY API REGISTRATION
-    -- Associates our hooks with MAME events upon the plugin first loading.
-    -- Subscriptions MUST be persistently stored in the exports table.
     -- =========================================================================
-    if emu.add_machine_reset_notifier then
-        exports.subscriptions.reset = emu.add_machine_reset_notifier(on_start)
-    else
-        emu.register_start(on_start)
-    end
     
-    if emu.add_machine_stop_notifier then
-        exports.subscriptions.stop = emu.add_machine_stop_notifier(on_machine_stop)
-    else
-        emu.register_stop(on_machine_stop)
+    -- Prevent duplicate hook registration on consecutive ROM loads
+    if not stateoutput.api_hooks_bound then
+        dbg_print("Binding API Hooks...")
+        
+        -- 1. Register the Master List of synthetic outputs, as early as possible
+        if emu.add_machine_devices_started_notifier then
+            dbg_print("Hooked Register_Master_List to devices-started notifier (pre-lock)")
+            exports.subscriptions.devices_started = emu.add_machine_devices_started_notifier(Register_Master_List)
+        elseif emu.register_prestart then
+            -- older/unpatched builds: no pre-lock hook exists, prestart is the
+            -- earliest available approximation (already past the save-state lock)
+            dbg_print("Hooked Register_Master_List to prestart (fallback, post-lock)")
+            emu.register_prestart(Register_Master_List)
+        else
+            dbg_print("Hooked Register_Master_List to start (fallback)")
+            emu.register_start(Register_Master_List)
+        end
+        
+        -- 2. RESET Phase: Load the ROM configuration and bind memory
+        if emu.add_machine_reset_notifier then
+            dbg_print("Hooked on_start to machine_reset (RESET)")
+            exports.subscriptions.reset = emu.add_machine_reset_notifier(on_start)
+        else
+            emu.register_start(on_start)
+        end
+        
+        -- 3. STOP Phase: Cleanup on session end
+        if emu.add_machine_stop_notifier then
+            exports.subscriptions.stop = emu.add_machine_stop_notifier(on_machine_stop)
+        elseif emu.register_stop then
+            emu.register_stop(on_machine_stop)
+        end
+
+        -- 4. SAVE-STATE Phase: re-align Lua mirrors with restored output values
+        if emu.add_machine_post_load_notifier then
+            dbg_print("Hooked on_post_load to post_load notifier (save-state resync)")
+            exports.subscriptions.post_load = emu.add_machine_post_load_notifier(on_post_load)
+        elseif emu.register_postload then
+            dbg_print("Hooked on_post_load to register_postload (save-state resync, legacy)")
+            emu.register_postload(on_post_load)
+        end
+        
+        -- Mark hooks as bound so they don't stack on the next ROM launch
+        stateoutput.api_hooks_bound = true
     end
 end
 
