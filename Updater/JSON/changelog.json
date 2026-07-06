@@ -8,7 +8,7 @@
             "PackageType": ".zip",
             "FileName": "MSOP_CONFIGURATOR.exe",
             "Changes": [
-                "General: Please note that MSOP Configurator v1.0.6 and MSOP Plugin v8.4.0 and all versions of these below are only compatible with MAME 0.200 to MAME 0.288 (unless MAME PR #15639 is applied to a custom MAME build). The upcoming official MAME 0.289+ release requires a new version of MSOP to work, as there is a fundamental change being implemented by the MAME devs that will prevent custom state outputs from being registered with MAME moving forward (and no code that enables this function will be allowed back into MAME). A new version of MSOP will be released in the near future that works around this limitation without the need for a custom MAME fork or build, and a working prototype is already undergoing testing.",
+                "General: Please note that MSOP Configurator v1.0.6 and MSOP Plugin v8.4.0 and all versions of these below are only compatible with MAME 0.200 to MAME 0.288 (unless MAME PR 15639 is applied to a custom MAME build). The upcoming official MAME 0.289+ release requires a new version of MSOP to work, as there is a fundamental change being implemented by the MAME devs that will prevent custom state outputs from being registered with MAME moving forward (and no code that enables this function will be allowed back into MAME). A new version of MSOP will be released in the near future that works around this limitation without the need for a custom MAME fork or build, and a working prototype is already undergoing testing.",
                 "Feature Added: Added support for Diagnostics page to automatically identify MSOP Plugin state outputs both with and without 'MSOP_' prefix on state outputs from MAME. This is an early feature preview that will be required for the upcoming changes to MSOP in the next major release.",
                 "UI Polish: Renamed the toggle for Sniffer/Hooker to Diagnostics in Diagnostics page. This should make more sense to most users regardless of the terms they're familiar with."
             ]
@@ -527,7 +527,7 @@
             "Version": "8.4.0",
             "ReleaseDatePlugin": "2026.07.03",
             "ChangesPlugin": [
-                "Note: As of 2026.07.03, MAME PR #15639 (https://github.com/mamedev/mame/pull/15639) has been rejected, and so MSOP Plugin v8.4.0 and below are only compatible with MAME 0.200 to 0.288 unless MAME PR #15639 is applied to a custom MAME 0.289+ build. A future MSOP update will be released shortly that will work without a custom MAME build, and is expected in MSOP Configurator v2.0.0+ and MSOP Plugin v9.0.0+ (both will be required moving forward, not just MSOP Plugin).",
+                "Note: As of 2026.07.03, MAME PR 15639 (https://github.com/mamedev/mame/pull/15639) has been rejected, and so MSOP Plugin v8.4.0 and below are only compatible with MAME 0.200 to 0.288 unless MAME PR 15639 is applied to a custom MAME 0.289+ build. A future MSOP update will be released shortly that will work without a custom MAME build, and is expected in MSOP Configurator v2.0.0+ and MSOP Plugin v9.0.0+ (both will be required moving forward, not just MSOP Plugin).",
                 "init.lua: Reworked logic so that MSOP Plugin complies with the requirements of MAME 0.289+ if PR #15639 is applied. Removed the logic that was added in MSOP Plugin v8.3.0 since that applied to PR #15618 instead. Fallback logic that existed previously is still in place for official releases of MAME 0.200 to 0.288.",
                 "readme.txt: Expanded 'Output Mappings' section so it is clear what state outputs need to be mapped to commands in MAMEhooker, OutputHooker, and/or QMamehook."
             ],
@@ -544,7 +544,7 @@
             "Version": "8.3.0",
             "ReleaseDatePlugin": "2026.06.30",
             "ChangesPlugin": [
-                "Note: As of 2026.07.01, MAME PR #15618 (https://github.com/mamedev/mame/pull/15618) has been rejected, and so a new pull request will be created with a different solution proposal to this problem. MSOP Plugin v8.3.0 at this time will be compatible with MAME 0.288 and below, or with MAME 0.289 and the PR 15618 applied to a custom MAME build.",
+                "Note: As of 2026.07.01, MAME PR 15618 (https://github.com/mamedev/mame/pull/15618) has been rejected, and so a new pull request will be created with a different solution proposal to this problem. MSOP Plugin v8.3.0 at this time will be compatible with MAME 0.288 and below, or with MAME 0.289 and MAME PR 15618 applied to a custom MAME build.",
                 "init.lua: Implement 'Safe Setter' architecture. Centralises output management by abstracting Set_Output_Safe and Get_Output_Proxy, ensuring seamless compatibility between modern device-scoped MAME (0.289+) and legacy MAME releases.",
                 "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
                 "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations.",
@@ -748,7 +748,7 @@
             "Version": "8.4.0",
             "ReleaseDatePlugin": "2026.07.03",
             "ChangesPlugin": [
-                "Note: As of 2026.07.03, MAME PR #15639 (https://github.com/mamedev/mame/pull/15639) has been rejected, and so MSOP Plugin v8.4.0 and below are only compatible with MAME 0.200 to 0.288 unless MAME PR #15639 is applied to a custom MAME 0.289+ build. A future MSOP update will be released shortly that will work without a custom MAME build, and is expected in MSOP Configurator v2.0.0+ and MSOP Plugin v9.0.0+ (both will be required moving forward, not just MSOP Plugin).",
+                "Note: As of 2026.07.03, MAME PR 15639 (https://github.com/mamedev/mame/pull/15639) has been rejected, and so MSOP Plugin v8.4.0 and below are only compatible with MAME 0.200 to 0.288 unless MAME PR 15639 is applied to a custom MAME 0.289+ build. A future MSOP update will be released shortly that will work without a custom MAME build, and is expected in MSOP Configurator v2.0.0+ and MSOP Plugin v9.0.0+ (both will be required moving forward, not just MSOP Plugin).",
                 "init.lua: Reworked logic so that MSOP Plugin complies with the requirements of MAME 0.289+ if PR #15639 is applied. Removed the logic that was added in MSOP Plugin v8.3.0 since that applied to PR #15618 instead. Fallback logic that existed previously is still in place for official releases of MAME 0.200 to 0.288.",
                 "readme.txt: Expanded 'Output Mappings' section so it is clear what state outputs need to be mapped to commands in MAMEhooker, OutputHooker, and/or QMamehook."
             ],
@@ -765,7 +765,7 @@
             "Version": "8.3.0",
             "ReleaseDatePlugin": "2026.06.30",
             "ChangesPlugin": [
-                "Note: As of 2026.07.01, MAME PR #15618 (https://github.com/mamedev/mame/pull/15618) has been rejected, and so a new pull request will be created with a different solution proposal to this problem. MSOP Plugin v8.3.0 at this time will be compatible with MAME 0.288 and below, or with MAME 0.289 and the PR 15618 applied to a custom MAME build.",
+                "Note: As of 2026.07.01, MAME PR 15618 (https://github.com/mamedev/mame/pull/15618) has been rejected, and so a new pull request will be created with a different solution proposal to this problem. MSOP Plugin v8.3.0 at this time will be compatible with MAME 0.288 and below, or with MAME 0.289 and MAME PR 15618 applied to a custom MAME build.",
                 "init.lua: Implement 'Safe Setter' architecture. Centralises output management by abstracting Set_Output_Safe and Get_Output_Proxy, ensuring seamless compatibility between modern device-scoped MAME (0.289+) and legacy MAME releases.",
                 "init.lua: Implement 'Output Proxy Cache' function. Caches output_proxy objects at boot to eliminate redundant dictionary lookups and dynamic resolution overhead during the 60Hz frame loop.",
                 "init.lua: Encapsulate proxy resolution in pcall handlers. Prevents plugin crashes in environments lacking specific MAME API features, ensuring safe fallback to standard set_value operations.",
