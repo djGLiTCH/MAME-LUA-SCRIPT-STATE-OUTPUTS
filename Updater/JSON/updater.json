@@ -1,0 +1,32 @@
+{
+    "Configurator": {
+        "PackageLocation": "Updater/Configurator",
+        "PackageName": "MSOP-CONFIGURATOR",
+        "PackageType": ".zip"
+    },
+    "PluginStable": {
+        "PackageLocation": "Updater/Plugin",
+        "PackageName": "MSOP-PLUGIN-STABLE",
+        "PackageType": ".zip"
+    },
+    "PluginBeta": {
+        "PackageLocation": "Updater/Plugin",
+        "PackageName": "MSOP-PLUGIN-BETA",
+        "PackageType": ".zip"
+    },
+    "HookOfTheReaperStable": {
+        "PackageLocation": "Updater/HookOfTheReaper",
+        "PackageName": "MSOP-HOTR-STABLE",
+        "PackageType": ".zip"
+    },
+    "HookOfTheReaperBeta": {
+        "PackageLocation": "Updater/HookOfTheReaper",
+        "PackageName": "MSOP-HOTR-BETA",
+        "PackageType": ".zip"
+    },
+    "DatabaseCompiler": {
+        "PackageLocation": "Updater/DatabaseCompiler",
+        "PackageName": "MSOP-DATABASE-COMPILER",
+        "PackageType": ".zip"
+    }
+}
