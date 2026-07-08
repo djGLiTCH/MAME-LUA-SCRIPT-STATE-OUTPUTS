@@ -14,7 +14,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": true,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "area51",
@@ -30,7 +31,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "area51mx",
@@ -46,7 +48,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "bbust2",
@@ -62,7 +65,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "bel",
@@ -78,7 +82,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "carnevil",
@@ -94,7 +99,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "crszone",
@@ -110,7 +116,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.2.5"
+            "SupportedVersion": "8.2.5",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "cryptklr",
@@ -126,7 +133,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "dragngun",
@@ -142,7 +150,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "dragngunj",
@@ -158,7 +167,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.2.4"
+            "SupportedVersion": "8.2.4",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "hotd",
@@ -174,7 +184,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "invasnab",
@@ -190,7 +201,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "jdredd",
@@ -206,7 +218,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "jpark",
@@ -222,7 +235,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "lethalen",
@@ -238,7 +252,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "le2",
@@ -254,7 +269,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "lethalj",
@@ -270,7 +286,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "maxforce",
@@ -286,7 +303,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "opwolf",
@@ -302,7 +320,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": true,
             "NativeStateOutput": true,
-            "SupportedVersion": "8.2.3"
+            "SupportedVersion": "8.2.3",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "opwolf3",
@@ -318,7 +337,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.2.5"
+            "SupportedVersion": "8.2.5",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "othunder",
@@ -334,7 +354,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": true,
-            "SupportedVersion": "8.2.5"
+            "SupportedVersion": "8.2.5",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "ptblank",
@@ -350,7 +371,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "policetr",
@@ -366,7 +388,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "sgunner",
@@ -382,7 +405,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "sgunnerj",
@@ -398,7 +422,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.2.4"
+            "SupportedVersion": "8.2.4",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "sgunner2",
@@ -414,7 +439,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "sgunner2j",
@@ -430,7 +456,8 @@
             "ScreenFlash": false,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.2.4"
+            "SupportedVersion": "8.2.4",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "timecris",
@@ -446,7 +473,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": true,
             "NativeStateOutput": true,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "timecrs2",
@@ -462,7 +490,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "vcop",
@@ -478,7 +507,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "vcop2",
@@ -494,7 +524,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         },
         {
             "ROM": "duckhunt",
@@ -510,7 +541,8 @@
             "ScreenFlash": true,
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
-            "SupportedVersion": "8.1.6"
+            "SupportedVersion": "8.1.6",
+            "SupportAddedBy": "DJ_GLiTCH"
         }
     ]
 }
