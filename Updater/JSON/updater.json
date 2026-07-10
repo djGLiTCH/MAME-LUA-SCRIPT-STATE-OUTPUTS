@@ -28,5 +28,10 @@
         "PackageLocation": "Updater/DatabaseCompiler",
         "PackageName": "MSOP-DATABASE-COMPILER",
         "PackageType": ".zip"
+    },
+    "HookerIniCompiler": {
+        "PackageLocation": "Updater/HookerIniCompiler",
+        "PackageName": "MSOP-HOOKER-INI-COMPILER",
+        "PackageType": ".zip"
     }
 }
