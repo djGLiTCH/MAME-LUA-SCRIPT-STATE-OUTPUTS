@@ -1,0 +1,35 @@
+{
+    "LUA_GAME": "Alien3: The Gun",
+    "LUA_ROM_ID": 1,
+    "CPU_TAG": ":mainpcb:maincpu",
+    "CPU_TAGS": {
+        "CREDITS": ":mainpcb:soundcpu"
+    },
+    "STARTUP_DELAY_MS": 2000,
+    "DATA_WIDTHS": {
+        "LIFE": 16
+    },
+    "PLAYER_MEMORY_OFFSET": "0x100",
+    "AMMO_MAX": 255,
+    "LIFE_MAX": 640,
+    "RECOIL_HOLD_MS": 400,
+    "RECOIL_HOLD_MS_comment": "When ammo = 0, fire rate slows down for primary weapon until reloaded (by releasing the gun trigger)",
+    "P1": {
+        "CREDITS": "0x0000FF25",
+        "STATUS": "0x002005F1",
+        "AMMO": "0x00200698",
+        "AMMO_comment": "Ammo = Primary Machine Gun",
+        "AMMO_ALT": "0x0020069C",
+        "AMMO_ALT_comment": "AmmoAlt = Flamethrower",
+        "AMMO_GRENADE": "0x00200697",
+        "AMMO_GRENADE_comment": "AmmoGrenade = Grenade / Bomb",
+        "LIFE": "0x002006A2",
+        "RECOIL": "0x00200690",
+        "RECOIL_comment": "Recoil = Trigger Press (hold, not pulse)"
+    },
+    "P2": {
+        "CREDITS": "0x0000FF24"
+    },
+    "RECOIL_METHOD": "hold",
+    "RECOIL_PRIORITY": "ammo"
+}

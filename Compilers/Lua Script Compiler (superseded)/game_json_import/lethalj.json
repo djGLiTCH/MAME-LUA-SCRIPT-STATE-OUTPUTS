@@ -1,0 +1,22 @@
+{
+    "LUA_GAME": "Lethal Justice",
+    "LUA_ROM_ID": 47,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 8000,
+    "COINS_PER_CREDIT": 16,
+    "CREDITS": "0x00300220",
+    "GAME_STATUS": "0x000900C8",
+    "P1": {
+        "STATUS": "auto",
+        "AMMO": "0x00300710",
+        "LIFE": "0x00300870"
+    },
+    "P2": {
+        "AMMO": "0x00300750",
+        "LIFE": "0x00300890"
+    }
+}

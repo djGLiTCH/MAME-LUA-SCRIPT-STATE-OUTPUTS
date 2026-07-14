@@ -1,0 +1,22 @@
+{
+    "LUA_GAME": "Maximum Force",
+    "LUA_ROM_ID": 51,
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "STARTUP_DELAY_MS": 3000,
+    "COINS_PER_CREDIT": 2,
+    "PLAYER_MEMORY_OFFSET": "0x8C",
+    "CREDITS": "0x100003E5",
+    "GAME_STATUS": "0x1001DEC7",
+    "P1": {
+        "STATUS": "0x1000A543",
+        "AMMO": "0x1000AB37",
+        "LIFE": "0x1000AAE3"
+    },
+    "P2": {
+        "STATUS": "0x1000A547"
+    }
+}

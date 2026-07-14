@@ -1,0 +1,23 @@
+{
+    "LUA_GAME": "changeme",
+    "LUA_ROM_ID": 0,
+    "OFFSCREEN_RELOAD": false,
+    "LIGHTGUN_PATCH": false,
+    "SCREEN_FLASH": false,
+    "STARTUP_DELAY_MS": 5000,
+    "COINS_PER_CREDIT": 1,
+    "MAX_PLAYERS": 2,
+    "SIMULTANEOUS_PLAY": true,
+    "CREDITS": "changeme",
+    "GAME_STATUS": "changeme",
+    "P1": {
+        "STATUS": "changeme",
+        "AMMO": "changeme",
+        "LIFE": "changeme"
+    },
+    "P2": {
+        "STATUS": "changemeordeleteline",
+        "AMMO": "changemeordeleteline",
+        "LIFE": "changemeordeleteline"
+    }
+}
