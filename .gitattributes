@@ -1,0 +1,8 @@
+# Shell scripts must stay LF - bash's shebang-line handling on Linux/macOS is
+# unreliable with CRLF, regardless of what a committer's local core.autocrlf
+# setting would otherwise produce.
+*.sh text eol=lf
+
+# Batch scripts are Windows-only; keep them explicitly CRLF rather than
+# relying on the ambient global autocrlf setting.
+*.bat text eol=crlf
