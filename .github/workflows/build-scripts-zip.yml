@@ -1,11 +1,35 @@
-name: Package Latest Scripts
+name: Package Updater ZIPs
+
+# Packages the Updater subfolder zips from the Database Compiler's COMMITTED, per-channel output. This is
+# a pure PACKAGER - it runs no compilers. The owner builds output/<channel>/ locally
+# (scripts/run_stable.* / run_beta.* / run.* do db compile + driver + both generators per channel; the
+# driver's database_driver.lua needs a MAME source checkout CI does not have) and commits it; CI just zips.
+#
+#   STABLE (required - guard fails loudly if missing):
+#     Updater/Plugin/MSOP-PLUGIN-STABLE.zip          <- output/stable/stateoutput/   (stateoutput/ at zip root)
+#     Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip  <- output/stable/ini/           (ini/ at zip root)
+#     Updater/HookOfTheReaper/MSOP-HOTR-STABLE.zip   <- output/stable/defaultLG/     (defaultLG/ at zip root)
+#     Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip <- the standalone tool (scripts + STABLE input/output + README)
+#
+#   BETA (owner-gated - packaged ONLY when output/beta/ has been committed; skipped otherwise):
+#     Updater/Plugin/MSOP-PLUGIN-BETA.zip            <- output/beta/stateoutput/
+#     Updater/MameHooker/MSOP-MAMEHOOKER-BETA.zip    <- output/beta/ini/
+#     Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip     <- output/beta/defaultLG/
+#
+# Beta is deliberately manual: each beta channel's plugin/HOTR/INI are generated together from the SAME
+# beta database (input/beta/), so a beta plugin can never be paired with stable-suited HOTR/INI. Run
+# scripts/run_beta.* locally, commit output/beta/, and this workflow packages the BETA zips too.
+#
+# PREREQUISITE: the Compilers/Database Compiler folder (incl. its committed output/stable/) must be
+# COMMITTED - it is currently untracked, so the guard step fails loudly until it is committed + pushed.
+#
+# The OLD zips in the ROOT of Updater/ are intentionally left untouched (retired).
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'MAME/**'
-      - 'Hook Of The Reaper/**'
+      - 'Compilers/Database Compiler/**'
     branches:
       - main
 
@@ -15,23 +39,62 @@ jobs:
     permissions:
       contents: write
 
+    env:
+      DBC: Compilers/Database Compiler
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v7 # Updated to the latest Node 24 compatible release
+      uses: actions/checkout@v7
 
-    - name: Prepare and Package ZIP
+    - name: Guard - the committed STABLE output must be present
       run: |
-        # Ensure the target directory exists
-        mkdir -p Updater
-        
-        # Remove any existing zip to guarantee a clean package
-        rm -f Updater/MSOP-PLUGIN-STABLE.zip
-        
-        # Zip the folders directly into the Updater directory
-        zip -r Updater/MSOP-PLUGIN-STABLE.zip MAME "Hook Of The Reaper"
+        missing=0
+        for f in "output/stable/stateoutput/database.lua" "output/stable/ini" "output/stable/defaultLG"; do
+          if [ ! -e "$DBC/$f" ]; then
+            echo "::error::'$DBC/$f' not found. Build the Database Compiler locally (scripts/run_stable.*) and commit + push its output/stable/ before this workflow can package the zips."
+            missing=1
+          fi
+        done
+        [ "$missing" = "0" ]
+        # database_driver.lua is OPTIONAL: a MSOP-only build (scripts/run_stable_msop_only.*) intentionally
+        # omits it, so its absence is a warning, not a failure - the STABLE plugin zip then ships MSOP-only.
+        if [ ! -e "$DBC/output/stable/stateoutput/database_driver.lua" ]; then
+          echo "::warning::output/stable/stateoutput/database_driver.lua not found - the STABLE plugin will ship WITHOUT MAME native output forwarding (MSOP-only). If unintended, run scripts/run_stable.* with MAME_SRC set."
+        fi
 
-    - name: Commit and push the new ZIP
-      uses: stefanzweifel/git-auto-commit-action@v7 # Updated to v7 for Node 24 support
+    - name: Package the STABLE Updater ZIPs
+      run: |
+        mkdir -p Updater/Plugin Updater/MameHooker Updater/HookOfTheReaper Updater/DatabaseCompiler
+        rm -f Updater/Plugin/MSOP-PLUGIN-STABLE.zip \
+              Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip \
+              Updater/HookOfTheReaper/MSOP-HOTR-STABLE.zip \
+              Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip
+        # stateoutput/, ini/, defaultLG/ each sit at their zip's root (the app extracts expecting that).
+        (cd "$DBC/output/stable" && zip -rX "$GITHUB_WORKSPACE/Updater/Plugin/MSOP-PLUGIN-STABLE.zip" stateoutput)
+        (cd "$DBC/output/stable" && zip -rX "$GITHUB_WORKSPACE/Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip" ini)
+        (cd "$DBC/output/stable" && zip -rX "$GITHUB_WORKSPACE/Updater/HookOfTheReaper/MSOP-HOTR-STABLE.zip" defaultLG)
+        # The self-contained tool: scripts + STABLE input/output + README; beta stays internal (not shipped).
+        (cd "$DBC" && zip -rX "$GITHUB_WORKSPACE/Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip" scripts input/stable output/stable README.md -x '*__pycache__*')
+
+    - name: Package the BETA Updater ZIPs (only if beta output was committed)
+      run: |
+        if [ -f "$DBC/output/beta/stateoutput/database.lua" ]; then
+          echo "beta output present -> packaging BETA zips"
+          rm -f Updater/Plugin/MSOP-PLUGIN-BETA.zip \
+                Updater/MameHooker/MSOP-MAMEHOOKER-BETA.zip \
+                Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip
+          (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/Plugin/MSOP-PLUGIN-BETA.zip" stateoutput)
+          [ -d "$DBC/output/beta/ini" ]       && (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/MameHooker/MSOP-MAMEHOOKER-BETA.zip" ini)
+          [ -d "$DBC/output/beta/defaultLG" ] && (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip" defaultLG)
+          if [ ! -f "$DBC/output/beta/stateoutput/database_driver.lua" ]; then
+            echo "::warning::output/beta/ has no database_driver.lua - the BETA plugin will ship without native output forwarding. Run scripts/run_beta.* with MAME_SRC set to include it."
+          fi
+        else
+          echo "no beta output committed -> skipping BETA zips (beta is owner-gated)"
+        fi
+
+    - name: Commit and push the new ZIPs
+      uses: stefanzweifel/git-auto-commit-action@v7
       with:
-        commit_message: "Auto-package latest plugin files into zip file"
-        file_pattern: 'Updater/MSOP-PLUGIN-STABLE.zip'
+        commit_message: "Auto-package Database Compiler outputs into Updater subfolder zips (per channel)"
+        file_pattern: 'Updater/Plugin/*.zip Updater/MameHooker/*.zip Updater/HookOfTheReaper/*.zip Updater/DatabaseCompiler/*.zip'
