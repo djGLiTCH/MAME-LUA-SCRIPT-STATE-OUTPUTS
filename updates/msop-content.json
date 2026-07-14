@@ -1,0 +1,66 @@
+{
+    "_comment": "MSOP content manifest - consumed by the MSOP Configurator app and MESH app. Declares where the MSOP-owned packages live: the MSOP Plugin (stable/beta), Hook Of The Reaper (stable/beta), MAMEhooker (stable/beta), the MSOP Database Compiler, the list of MSOP supported games (games.json), and the MSOP changelog (changelog.json).",
+    "RepositoryUrl": "https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS",
+    "RawContentBaseUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/",
+    "Configurator": {
+        "PackageLocation": "Updater/Configurator",
+        "PackageName": "MSOP-CONFIGURATOR",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "PluginStable": {
+        "PackageLocation": "Updater/Plugin",
+        "PackageName": "MSOP-PLUGIN-STABLE",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "PluginBeta": {
+        "PackageLocation": "Updater/Plugin",
+        "PackageName": "MSOP-PLUGIN-BETA",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "HookOfTheReaperStable": {
+        "PackageLocation": "Updater/HookOfTheReaper",
+        "PackageName": "MSOP-HOTR-STABLE",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "HookOfTheReaperBeta": {
+        "PackageLocation": "Updater/HookOfTheReaper",
+        "PackageName": "MSOP-HOTR-BETA",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "MameHookerStable": {
+        "PackageLocation": "Updater/MameHooker",
+        "PackageName": "MSOP-MAMEHOOKER-STABLE",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "MameHookerBeta": {
+        "PackageLocation": "Updater/MameHooker",
+        "PackageName": "MSOP-MAMEHOOKER-BETA",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "DatabaseCompiler": {
+        "PackageLocation": "Updater/DatabaseCompiler",
+        "PackageName": "MSOP-DATABASE-COMPILER",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "Games": {
+        "PackageLocation": "Updater/JSON",
+        "PackageName": "games",
+        "PackageType": ".json",
+        "AssetUrl": ""
+    },
+    "Changelog": {
+        "_comment": "The MSOP changelog. If used with MESH, this will merge the MSOP related changelog details into the MESH Changelog tab (the app/Configurator history comes from MESH's mesh-changelog.json, so any MSOP Configurator section here is ignored).",
+        "PackageLocation": "Updater/JSON",
+        "PackageName": "changelog",
+        "PackageType": ".json",
+        "AssetUrl": ""
+    }
+}
