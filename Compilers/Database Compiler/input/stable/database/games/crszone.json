@@ -1,0 +1,18 @@
+{
+    "LUA_GAME": "Crisis Zone",
+    "ENABLE_ROM": true,
+    "STARTUP_DELAY_MS": 24000,
+    "COINS_PER_CREDIT": 1,
+    "COINS_PER_CREDIT_comment": "First credit requires 2 coins, but only 1 credit required to continue playing",
+    "MAX_PLAYERS": 1,
+    "SIMULTANEOUS_PLAY": false,
+    "CREDITS": "0x003BAB5B",
+    "GAME_STATUS": "0x003BAB63",
+    "P1": {
+        "STATUS": "auto",
+        "AMMO": "0x0054984B",
+        "AMMO_comment": "P1 Ammo = 0x0054984B; Also found P1 Ammo = 0x003AF5D3",
+        "LIFE": "0x00549847"
+    },
+    "ADDITIONAL_OUTPUT_FORWARDS": []
+}
