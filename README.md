@@ -22,6 +22,12 @@ We have since migrated to a **native MAME Plugin architecture** to establish a c
 * Easily add support for new games / ROMs by updating a single file (database.lua).
 * Provide a more stable foundation for future community contributions.
 
+Looking to the future, the need to move configure, maintain, and update MSOP became increasingly obvious. This was initially addressed by the MSOP Configurator app, which worked quite well, but as that app grew in scope and complexity it was time to branch this off into another project.
+
+As such, it is highly recommended that you use [MESH (Modern Emulator State Hub)](https://github.com/djGLiTCH/mesh) to install and use MSOP.
+
+All existing instances of MSOP Configurator will prompted to upgrade to [MESH](https://github.com/djGLiTCH/mesh) moving forward, while the MSOP GitHub remains as the repository for storing the MSOP Plugin, Database, and relevant 'Hooker' files for each supported game.
+
 ---
 
 ## ⚙️ What Does This Do?
@@ -39,10 +45,13 @@ This plugin handles the logic, while your external Output Program handles the co
 * Alien
 * Blamcon
 * Gun4IR
+* OpenFIRE
 * Retroshooter MX24
 * Retroshooter RS3 (Reaper Pro)
 * Sinden
 * X-Gunner
+
+Automatic configuration for your light guns can be made using [MESH (Modern Emulator State Hub)](https://github.com/djGLiTCH/mesh) which is my new project that builds upon what was created in MSOP.
 
 ---
 
@@ -99,23 +108,30 @@ If you encounter a new issue that isn't documented, please create a new issue on
 
 ## 🛠️ Installation & Setup
 
-> [!IMPORTANT]  
+> [IMPORTANT]  
 > **Backup your files.** This installation replaces existing scripts/plugins to prevent conflicts. It is recommended that you backup your configured 'Hooker' Program folder prior to installation.
 
-> [!WARNING]  
+> [WARNING]  
 > **Standalone MAME Only:** This plugin exclusively supports standalone MAME. RetroArch (and its MAME cores) are NOT supported due to differences in how cores are handled.
 
 ### Option 1: Automatic Installation (Recommended)
-We provide a custom Configurator app to streamline the installation and ensure all files are placed in the correct directories automatically. This will automatically update both MAME and your relevant Output Program(s). We highly recommend this app be used to install and configure your build.
+We provide a custom desktop app, **MESH (Modern Emulator State Hub)**, formerly known as the *MSOP Configurator*, to streamline the installation and ensure all files are placed in the correct directories automatically. This will automatically update both MAME and your relevant Output Program(s). We highly recommend this app be used to install and configure your build. MESH can also drive your light guns and LED lighting natively, with no external hooker program installed at all.
 
-1. Download the latest version of the **Configurator App**, extract the executable, and run it.
+1. Download the latest version of the **MESH app**, extract the executable, and run it.
 2. Follow the on-screen prompts. The tool will automatically clean out old conflicting scripts and copy the latest plugin framework files directly into your MAME and relevant Output Program(s) directories.
 
-#### MSOP Configurator App Workflow:
-* **Initial Setup:** Launch the Configurator app. You will be prompted to select your standalone MAME directory.
-* **Output Selection:** Choose your preferred "hooker" program from the available options so the app can correctly map the output integrations.
+> ℹ️ The current build still ships its executable as `MSOP_CONFIGURATOR.exe`; it is being renamed to `MESH.exe` as part of the MESH rebrand. Use whichever name matches your build until then.
+
+#### MESH App Workflow:
+* **Initial Setup:** Launch the MESH app. You will be prompted to select your standalone MAME directory.
+* **Output Selection:** Optionally choose an external "hooker" program so the app can map the output integrations - or configure none and let MESH's built-in engines drive your hardware directly.
 * **Channel Selection:** Choose between the "Stable" or "Beta" release channels ('Stable' is highly recommended).
 * **Install/Update:** Run the update process to automatically download the latest database mappings, copy the necessary plugin files directly into your MAME folder, and update your "hooker" program with command mappings if supported.
+
+> ℹ️ Beyond installing and updating the plugin, MESH can also drive your light guns and cabinet LED
+> lighting natively (no external hooker required), edit game profiles, and auto-generate hooker INIs.
+> Those are **app** features — see the MESH app's own documentation for its full capabilities. This
+> README stays focused on the MSOP plugin itself.
 
 ### Option 2: Manual Installation & Migration
 If you prefer to manage the file structure yourself, please follow these manual steps:
@@ -128,9 +144,9 @@ To prevent conflicts between the old standalone scripts and the new plugin, you 
 #### Step 2: Install the New Plugin
 1. **MAME INI:** Copy the new `.ini` files from the latest release to your `MAME\ini` folder. *This step is completely optional, and only needed if you want the "classic" version of the offscreen reload feature in MAME.*
 2. **MAME Plugins:** Copy the extracted plugin folders from the latest release into your `MAME\plugins` directory. 
-3. **Enable Output:** Open your `mame.ini` file in the MAME root directory and ensure the output is set to network:
+3. **Enable Output:** Open your `mame.ini` file in the MAME root directory and set the output mode. On MAME 0.288 and earlier, `output network` lets MAME deliver the outputs itself; on MAME 0.289+ (where Lua can no longer create state outputs) use `output none` and let the MESH app's relay deliver them instead - MESH manages this automatically per instance when installed via Option 1:
 `output network`
-4. **Enable Plugins:** Ensure the plugins is enabled in your `plugin.ini` file:
+4. **Enable Plugins:** Ensure plugins are enabled in your `plugin.ini` file:
 `plugins 1`
 
 #### Step 3: Output Programs ('Hooker' Programs)
@@ -143,7 +159,7 @@ There are many state output 'hooker' programs that exist, however, support has b
 
 **MAMEhooker, OutputHooker, and QMamehook**
 
-Documentation is still being worked on for MAMEhooker, OutputHooker, and QMamehook setup, which will be expanded later once the Configurator App can handle automatic ini generation.
+Manual setup documentation for MAMEhooker, OutputHooker, and QMamehook is still being expanded - but the MESH app already generates and distributes their per-game INI command files automatically (Devices → Configuration → Compile Hooker INI Files, plus auto-compile on every game launch), so manual INI authoring is only needed if you skip the app.
 
 For now, you can use the following Outputs in your per game ini file which will work across all supported games.
 
@@ -235,11 +251,11 @@ Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
 
 ## 📡 Release Channels (Stable vs Beta)
 
-The Configurator now supports dual release channels, allowing you to choose between maximum stability or cutting-edge features. You can toggle between these channels at any time using the radio buttons on the home screen.
+The MESH app supports dual release channels, allowing you to choose between maximum stability or cutting-edge features. You can toggle between these channels at any time using the radio buttons on the home screen.
 
 * **Stable Channel (Recommended):** The default track. These releases are thoroughly tested and guaranteed to provide a reliable experience for your arcade cabinet.
 * **Beta Channel:** Contains experimental features, bug fixes, and early support for newly added games or ROMs that are currently in active testing. 
-* **Smart Syncing:** The Configurator intelligently monitors both channels. If a Beta cycle ends and the Stable channel surpasses your installed Beta version, the app will automatically prompt you to jump back to the Stable track so you never miss an update.
+* **Smart Syncing:** The app intelligently monitors both channels. If a Beta cycle ends and the Stable channel surpasses your installed Beta version, the app will automatically prompt you to jump back to the Stable track so you never miss an update. If your installed build is *newer* than the published channel (alpha testing), the app shows a green **Ahead** state and offers a **Downgrade** instead.
 * **Offline Caching:** The app silently caches the latest release files for both channels in the background upon launch, ensuring you can still install or reinstall plugins even if your cabinet goes offline.
 
 ---
@@ -251,7 +267,7 @@ This section is for developers or community members looking to adapt the plugin 
 ### The Translation Layer
 In-game actions trigger changes in memory addresses, but these vary wildly between games. For example, one game might count ammo down (10 to 0), while another counts total shots fired infinitely upward.
 
-The plugin monitors four key memory addresses (Credits, Game Status, Ammo, Life) and combines this with a complex set of logic to determine several game-specific values or triggers while utitlising a standardised output.
+The plugin monitors four key memory addresses (Credits, Game Status, Ammo, Life) and combines this with a complex set of logic to determine several game-specific values or triggers while utilising a standardised output.
 
 ### Standardised Variables & Priority Logic
 To ensure reliable performance across all titles and prevent "phantom" hardware triggers, the plugin relies on a unified variable naming convention and strict evaluation logic:
@@ -265,21 +281,35 @@ By funneling all game events through this standardised logic flow, external tool
 
 ## 🤖 Command Line Automation (Headless Mode)
 
-For arcade owners and frontend users (RetroBat, LaunchBox, etc.) who want a true "set and forget" experience, the Configurator app fully supports headless command-line execution. 
+For arcade owners and frontend users (RetroBat, LaunchBox, etc.) who want a true "set and forget" experience, the MESH app fully supports headless command-line execution. 
 
 You can map these arguments to batch scripts that run on system boot or game launch. The application will execute completely invisibly in the background, download the required files, update your configurations, and close itself without ever drawing a UI or interrupting your arcade immersion.
 
-**Available Commands:**
+Run `MSOP_CONFIGURATOR.exe -help` in a terminal to print the full reference. Every run exits with a script-friendly code: **0** = success, **1** = completed with warnings, **2** = failed or refused - so batch files can branch on `%ERRORLEVEL%`.
+
+**Maintenance Commands** (run with the MESH app **closed** - the work happens invisibly, then the process exits):
 * `-update`
-  * **The Recommended Command** | This checks for a Configurator app update first. If found, it silently updates the Configurator, restarts itself, and seamlessly chains into updating your MAME State Output Plugin and Hooker configurations both silently and automatically. 
+  * **The Recommended Command** | This checks for a MESH app update first. If found, it silently updates the app, restarts itself, and seamlessly chains into updating your MAME State Output Plugin and Hooker configurations both silently and automatically. 
 * `-updateplugin`
-  * Bypasses Configurator app update checks and exclusively updates your MAME State Output Plugin files and Hooker configurations to match your currently selected release channel.
+  * Bypasses MESH app update checks and exclusively updates your MAME State Output Plugin files and Hooker configurations to match your currently selected release channel.
 * `-updateapp` (or `-updateconfigurator`)
-  * Exclusively checks for and installs updates to the Configurator app itself. 
+  * Exclusively checks for and installs updates to the MESH app itself (the `-updateconfigurator` alias is kept for older scripts).
+* `-compileinis`
+  * Compiles every supported game's hooker INI from your current profiles and distributes them to every enabled external hooker folder (the Compile Hooker INI Files button, scriptable).
+* `-compiledatabase`
+  * Compiles your game_json profiles into `database.lua` (the Game Editor's Compile) - build game profile edits made in a text editor without opening the app.
+* `-fetchcontent`
+  * Refreshes the MSOP content manifest (`msop-content.json`) plus the Database Compiler content into the cache without installing anything - pre-seed a cabinet before going offline.
+* `-verifyinstall [file]`
+  * Verifies each MAME instance against what the last install should have left behind (plugin presence, the per-install relay flag, mame.ini entries). Exit code 1 on any mismatch - run it straight after `-updateplugin`.
+* `-checkhealth [file]`
+  * Runs the Diagnostics → Troubleshooting health checks headlessly and reports to the console (and `[file]` if given). Exit code 1 when warnings were found - ideal for remote support.
+
+**Live-Control Commands** (sent to the MESH app while it is **open**): the app also exposes runtime controls for its own native engines - toggling LED / peripheral output, injecting a test event, and a safe shutdown - for front-end pre/post-game scripts. These drive the **app's** hardware engines rather than the MSOP plugin, so run `MSOP_CONFIGURATOR.exe -help` for the full list.
 
 **Headless Safety Features:**
-* **Mutex Locking:** If a background script triggers while you are manually using the Configurator UI, the script will safely abort to prevent overwriting files you are actively modifying.
-* **Silent Error Logging:** If an update fails in the background (e.g., your internet connection drops), the app will not throw an error popup on your arcade screen. Instead, it fails silently and writes the crash details to `%AppData%\MameStateOutputConfigurator\silent_update_error.txt` for your review.
+* **Loud refusal, never silent skips:** cold maintenance commands refuse with exit code **2** and a clear console message if the MESH UI is open (they no longer silently abort), and live-control commands refuse the same way when nothing is running.
+* **Run reporting:** every headless run writes its full step-by-step report to `headless_last_run.txt` in the app's settings folder (`MSOPsettings` next to the executable in portable mode, otherwise `%AppData%\MSOPsettings`); failed updates additionally keep writing `silent_update_error.txt` so existing scripts that watch it continue to work.
 
 ---
 
@@ -288,8 +318,8 @@ You can map these arguments to batch scripts that run on system boot or game lau
 This is a community-driven project. If you find a game that isn't supported, please build this out in the latest `database.lua` file to map the memory addresses and submit a Pull Request!
 
 **Special Thanks:**
-* **Muggins**, for all of his help and support. Without his tireless efforts in testing each release and suggesting quality of live improvements, it would not be what it is today.
-* **Bandicoot**, for all of his helpin testing newly supported games for this project.
+* **Muggins**, for all of his help and support. Without his tireless efforts in testing each release and suggesting quality of life improvements, it would not be what it is today.
+* **Bandicoot**, for all of his help in testing newly supported games for this project.
 * **Hexxed**, for all of his help in testing new design ideas, suggestions for improvements, and general architecture discussions for this project.
 * **Argon**, for the initial Lua script concept that sparked the idea for this project.
 * **PolybiusExtreme**, for [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and general testing and feedback for this project.
@@ -297,6 +327,14 @@ This is a community-driven project. If you find a game that isn't supported, ple
 * **SeongGino**, for [**QMamehook**](https://github.com/SeongGino/QMamehook).
 * **6Bolt**, for [**Hook Of The Reaper**](https://github.com/6Bolt/Hook-Of-The-Reaper).
 * The [**MAME Development Team**](https://www.mamedev.org), for building and maintaining such an amazing emulation project.
+
+---
+
+## 📜 Licensing
+
+This project, the MSOP plugin, Lua scripts, and configuration data in this repository, is licensed under **GPLv3** (see the badge above).
+
+The **MESH** app used for automatic installation bundles its own third-party open-source components; that full attribution (including licence texts) ships with the app as `THIRD-PARTY-NOTICES.txt` next to the executable, and is viewable in-app under **Help → Credits → Third-Party Software & Licences**.
 
 ---
 
