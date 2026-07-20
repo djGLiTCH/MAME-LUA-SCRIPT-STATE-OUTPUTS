@@ -2,12 +2,6 @@
     "_comment": "MSOP content manifest - consumed by the MSOP Configurator app and MESH app. Declares where the MSOP-owned packages live: the MSOP Plugin (stable/beta), Hook Of The Reaper (stable/beta), MAMEhooker (stable/beta), the MSOP Database Compiler, the list of MSOP supported games (games.json), and the MSOP changelog (changelog.json).",
     "RepositoryUrl": "https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS",
     "RawContentBaseUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/",
-    "Configurator": {
-        "PackageLocation": "Updater/Configurator",
-        "PackageName": "MSOP-CONFIGURATOR",
-        "PackageType": ".zip",
-        "AssetUrl": ""
-    },
     "PluginStable": {
         "PackageLocation": "Updater/Plugin",
         "PackageName": "MSOP-PLUGIN-STABLE",
