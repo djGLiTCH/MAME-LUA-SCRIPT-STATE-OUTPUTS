@@ -77,6 +77,12 @@ ship in an MSOP Plugin release (`output/beta/stateoutput/` for a beta).
   `output/<channel>/defaultLG/`) and `scripts/run_msop_mamehooker_ini_generator.*` (→
   `output/<channel>/ini/`). Each accepts `--channel stable|beta` (default stable), `--report` (diff
   every file against the shipped references) and `--rom <name>` (one game).
+- **Driver compiler on its own:** `scripts/run_msop_database_driver_compiler.*` runs **only** the MAME
+  native-output scrape → `output/<channel>/stateoutput/database_driver.lua` (plus the scrape report in
+  `output/<channel>/results/`). It never touches `database.lua`, the HOTR templates or the INIs — handy
+  for refreshing the driver after a MAME source update without rebuilding everything else. Set the MAME
+  checkout via `--mame-src "<path>"` or the `MAME_SRC_PATH` constant in the `.py`; also accepts
+  `--channel stable|beta`, `--rom <name>` and `--no-scrape-report`.
 - **Interactive database editing:** `python scripts/msop_database_compiler.py` with no argument opens
   the mode menu (mode 1 games→lua, mode 2 database.json→games) on the **stable** channel. The database
   and driver compilers also take an explicit `stable`|`beta` / `--channel`.

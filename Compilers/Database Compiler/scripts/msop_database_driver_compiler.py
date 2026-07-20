@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP DATABASE DRIVER COMPILER
-# Compiler Version: 1.3.0
-# Compiler Date: 2026.07.14
+# Compiler Version: 1.3.1
+# Compiler Date: 2026.07.20
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -83,6 +83,13 @@ import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
+# KEEP IN SYNC with the header comment above - stamped into
+# database_driver.lua's own generated header so a compiled file can be
+# traced back to the exact compiler version that produced it.
+COMPILER_VERSION = "1.3.1"
+COMPILER_DATE = "2026.07.20"
+COMPILED_DATE = datetime.now().strftime("%Y.%m.%d")
+
 # PROJECT PATHS (root-anchored via __file__: scripts/ -> parent is the project root, matching
 # msop_database_compiler.py). games/ is read only to discover which ROMs to scrape for - this
 # tool never writes into it.
@@ -96,11 +103,6 @@ def channel_output_dir(channel):  return os.path.join(BASE_DIR, "output", channe
 def channel_report_path(channel): return os.path.join(BASE_DIR, "output", channel, "results", "mame_driver_native_output_scrape_report.json")
 
 OUTPUT_LUA = "database_driver.lua"
-
-# KEEP IN SYNC with the header comment above - stamped into
-# database_driver.lua's own generated header so a compiled file can be
-# traced back to the exact compiler version that produced it.
-COMPILER_VERSION = "1.3.0"
 
 # Set this to your local MAME source checkout's path (the folder that
 # contains src/mame/), e.g. r"C:\Users\me\mame" or "/home/me/mame", so you
@@ -348,12 +350,12 @@ def write_database_driver_lua(output_dir, driver_data):
         lines.append(f'    ["{rom_name}"] = {format_lua_value(driver_data[rom_name], 1)},')
     lines.append("}\n\nreturn database_driver\n")
 
-    COMPILER_DATE = datetime.now().strftime("%Y.%m.%d")
     header = (
         "--\n-- MAME STATE OUTPUT PROJECT (MSOP)\n"
-        "-- MSOP DATABASE DRIVER LUA\n"
-        f"-- Compiler Version: {COMPILER_VERSION}\n"
-        f"-- Compiled Date: {COMPILER_DATE}\n"
+        "-- MSOP MAME DATABASE DRIVER LUA\n"
+        f"-- Script Version: {COMPILER_VERSION}\n"
+        f"-- Script Date: {COMPILER_DATE}\n"
+        f"-- Compiled Date: {COMPILED_DATE}\n"
         "-- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS\n"
         "-- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0\n"
         "-- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.\n--\n"
@@ -421,14 +423,14 @@ def print_summary(mame_src, report, report_path, out_path):
 
 
 def main():
-    compiler_date = datetime.now().strftime("%Y.%m.%d")
     
     print("-" * 70)
     print("MAME STATE OUTPUT PROJECT (MSOP)".center(70))
     print("MSOP DATABASE DRIVER COMPILER".center(70))
     print("-" * 70)
-    print(f" Compiler Version: {COMPILER_VERSION}")
-    print(f" Compiler Date: {compiler_date}\n")
+    print(f" Script Version: {COMPILER_VERSION}")
+    print(f" Script Date: {COMPILER_DATE}")
+    print(f" Compiled Date: {COMPILED_DATE}\n")
     print(" Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS")
     print(" License: GNU GENERAL PUBLIC LICENSE GPL-v3.0")
     print(" Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.")

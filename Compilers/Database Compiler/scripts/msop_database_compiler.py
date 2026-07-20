@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP DATABASE COMPILER
-# Compiler Version: 3.4.0
-# Compiler Date: 2026.07.14
+# Compiler Version: 3.4.1
+# Compiler Date: 2026.07.20
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -67,6 +67,12 @@ import traceback
 import re
 from datetime import datetime
 
+# KEEP IN SYNC with the header comment above - stamped into database.lua's
+# own generated header so a compiled file can be traced back to the exact
+# compiler version that produced it.
+COMPILER_VERSION = "3.4.1"
+COMPILER_DATE = "2026.07.20"
+
 # ==========================================
 # PROJECT PATHS (root-anchored via __file__: scripts/ -> parent is the project root)
 # ==========================================
@@ -103,11 +109,6 @@ OUTPUT_JSON = "database.json"   # -> DATABASE_DIR (source-format mirror, interch
 # Plugin runtime files: human-edited in SOURCE_DIR, copied into BUILD_DIR on every compile so
 # output/stateoutput/ is a complete, grab-and-ship plugin folder.
 PLUGIN_FILES = ("init.lua", "plugin.json", "readme.txt")
-
-# KEEP IN SYNC with the header comment above - stamped into database.lua's
-# own generated header so a compiled file can be traced back to the exact
-# compiler version that produced it.
-COMPILER_VERSION = "3.4.0"
 
 def parse_version_tuple(v_str):
     """Parses a "X.Y.Z" version string into a comparable (X, Y, Z) int tuple.
@@ -186,7 +187,8 @@ def build_lua_string(master_db, date_str):
     header = (
         "--\n-- MAME STATE OUTPUT PROJECT (MSOP)\n"
         "-- MSOP DATABASE LUA\n"
-        f"-- Compiler Version: {COMPILER_VERSION}\n"
+        f"-- Script Version: {COMPILER_VERSION}\n"
+        f"-- Script Date: {COMPILER_DATE}\n"
         f"-- Compiled Date: {date_str}\n"
         "-- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS\n"
         "-- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0\n"
@@ -599,8 +601,9 @@ def print_banner():
     print("MAME STATE OUTPUT PROJECT (MSOP)".center(70))
     print("MSOP DATABASE COMPILER".center(70))
     print("-" * 70)
-    print(f" Compiler Version: {COMPILER_VERSION}")
-    print(f" Compiler Date: {COMPILER_DATE}\n")
+    print(f" Script Version: {COMPILER_VERSION}")
+    print(f" Script Date: {COMPILER_DATE}\n")
+    print(f" Compiled Date: {date_str}\n")
     print(" Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS")
     print(" License: GNU GENERAL PUBLIC LICENSE GPL-v3.0")
     print(" Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.")
