@@ -2,13 +2,13 @@
 # MSOP Database Compiler - unified launcher (Linux/macOS): builds BOTH release channels end to end.
 # For EACH channel (stable, then beta) it runs, in order:
 #   1. database compiler   (input/<ch>/database/games  ->  output/<ch>/stateoutput/database.lua/json)
-#   2. driver compiler      (MAME source                ->  output/<ch>/stateoutput/database_driver.lua) [optional]
+#   2. driver compiler      (MAME source                ->  output/<ch>/stateoutput/native_outputs_by_rom.lua) [optional]
 #   3. HOTR defaultLG        (<ch> database              ->  output/<ch>/defaultLG)
 #   4. MAMEhooker .ini       (<ch> database              ->  output/<ch>/ini)
 # Single-channel launchers: run_stable.sh / run_beta.sh. Paths resolve from this script's own location.
 #
 # Set MAME_SRC to your MAME source checkout (the folder that contains src/mame) to enable the driver
-# step for BOTH channels; leave it EMPTY to skip that step. (msop_database_driver_compiler.py also has
+# step for BOTH channels; leave it EMPTY to skip that step. (msop_native_outputs_compiler.py also has
 # its own MAME_SRC_PATH default if you ever run it directly.)
 set -e
 MAME_SRC=""
@@ -31,8 +31,8 @@ run_channel() {
   if [ -z "$MAME_SRC" ]; then
     echo "=== [$ch] Driver Compiler SKIPPED - MAME_SRC not set in this launcher ==="
   else
-    echo "=== [$ch] Driver Compiler (MAME source -> database_driver.lua) ==="
-    "$PY" "$DIR/msop_database_driver_compiler.py" --channel "$ch" --mame-src "$MAME_SRC"
+    echo "=== [$ch] Driver Compiler (MAME source -> native_outputs_by_rom.lua) ==="
+    "$PY" "$DIR/msop_native_outputs_compiler.py" --channel "$ch" --mame-src "$MAME_SRC"
   fi
 
   echo

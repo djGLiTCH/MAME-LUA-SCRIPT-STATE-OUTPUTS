@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.0.0
-Plugin Date:    2026.07.14
-Database Date:  2026.07.14
+Plugin Version: 9.1.0
+Plugin Date:    2026.07.22
+Database Date:  2026.07.22
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -71,6 +71,170 @@ ini command files automatically from your configured hardware profiles - no
 hand-written inis required. MESH can also drive light guns and LED lighting
 itself (its built-in Player Hardware Commands and Native LED Control
 engines), so an external hooker program is entirely optional.
+
+--------------------------------------------------------------------------------
+HOW MSOP DELIVERS ITS OUTPUTS (AND WHY MESH MATTERS)
+--------------------------------------------------------------------------------
+
+MAME 0.289 removed the ability for a Lua plugin to CREATE outputs. MSOP can still
+read MAME's existing (driver-created) outputs, but it can no longer hand its own
+outputs to MAME for broadcasting. Everything MSOP produces - recoil, ammo, life,
+lamps, the derived Clip flag - therefore has to leave MAME over MSOP's own TCP
+relay connection instead.
+
+That relay needs something listening on the other end. This is what MESH provides.
+
+WITH MESH (recommended)
+  * Works on EVERY MAME version, 0.200 through 0.289+, because MESH hosts the
+    relay MSOP dials into.
+  * MESH speaks MAME's own network-output protocol, so any hooker program
+    connects to MESH exactly as it would to MAME - nothing about the hooker
+    changes.
+  * MESH can also drive your hardware directly (its Native LED Control and
+    Native Peripheral Control engines), so a hooker program is optional.
+  * MESH compiles and distributes each hooker's per-game ini files for you.
+  * Two delivery modes (Settings -> MESH):
+      - Hooker Compatible (default): MESH's relay owns port 8000. Hookers get
+        MSOP's outputs plus the native outputs MSOP forwards for unsupported
+        games. Set MAME to '-output none' or '-output console'.
+      - Maximum Coverage: MAME runs '-output network' and owns 8000, so EVERY
+        native output of EVERY game flows with no lookup tables; MESH moves its
+        relay to 8001 for MSOP's outputs and reads both. External hookers are
+        not supported in this mode (see the trade-off below).
+
+WHICH PORT MSOP USES (AUTOMATIC)
+  MSOP chooses its relay port from MAME's own '-output' setting, with nothing to
+  configure - this applies to a hand-installed plugin as much as a MESH-managed one.
+  As a rule of thumb by version: MAME 0.288 and earlier can broadcast MSOP's outputs
+  itself, so '-output network' works alone; MAME 0.289 and later cannot, so the relay
+  carries them and '-output none' or 'console' keeps everything on one port:
+      -output none / console  -> port 8000. MAME is not using it, and 8000 is where
+                                 every hooker program looks, so whatever is on 8000
+                                 is always the richest stream available.
+      -output network         -> port 8001. MAME's own server owns 8000; staying
+                                 there would make MSOP a stray client of MAME, whose
+                                 protocol discards everything sent to it.
+      -output windows         -> port 8000. Windows output uses Win32 messages and
+                                 binds no socket, so 8000 remains free for MSOP.
+
+  IMPORTANT: a hooker program can only connect to ONE port. Whichever program owns
+  8000 decides what that hooker sees - so with '-output network' it will receive
+  MAME's own native outputs and NONE of MSOP's (those are on 8001). If you are
+  using a hooker program, prefer '-output none' or '-output console' so everything
+  arrives on 8000 together.
+
+HOW MSOP FINDS A GAME'S NATIVE OUTPUTS TO FORWARD
+  Under the relay MAME runs '-output none' or '-output console', so MAME's own output
+  modules never broadcast the game's native outputs (lamp0, Player1_Gun_Recoil,
+  P1_Start_lamp, ...). MSOP forwards them itself over the relay so nothing is lost -
+  including for games MSOP has no profile for. It gets the list of names two ways, and
+  always prefers the first:
+
+  1. LIVE ENUMERATION (preferred; MAME builds that expose the 'device.outputs'
+     property). MSOP asks the running machine which outputs it has actually created and
+     forwards exactly those - no lookup tables, always current, and correct even for a
+     game nobody ever pre-scanned. This uses MAME's read-only 'device.outputs' property,
+     proposed upstream as mamedev/mame PR #15745. It only READS the output list and
+     creates nothing, which is why it can be accepted where output CREATION (PR #15639)
+     was not. On any build without it, MSOP silently falls back to (2), so nothing
+     changes on today's stock MAME.
+
+  2. SHIPPED LOOKUP FILES (fallback; every current stock MAME, since #15745 is not yet
+     merged). Two optional files sit in the stateoutput folder beside database.lua:
+       * native_outputs_by_rom.lua    - native output names keyed by ROM, scanned for
+                                        the games MSOP supports. The more specific of the
+                                        two (it can include layout-derived names).
+       * native_outputs_by_driver.lua - native output names keyed by MAME driver source
+                                        file, scanned across the whole driver tree, so one
+                                        entry covers every ROM (and clone) that driver
+                                        builds. This is what lets an UNSUPPORTED game
+                                        still forward its natives.
+     A supported ROM uses its by_rom entry; an unsupported ROM falls back to its driver's
+     by_driver entry. Both are regenerated by the compiler (msop_native_outputs_compiler.py)
+     - never hand-edit them. If they are absent, nothing breaks: MSOP still delivers its
+     own outputs, and unsupported games simply produce nothing extra.
+
+  Either way the result is the same stream: one connection to 127.0.0.1:8000 carries BOTH
+  the custom MSOP_ outputs and the game's native ones - so MSOP can be the single source
+  of every state output. To forward a name no discovery route can see (e.g. another
+  script's own output), list it per game in the database's ADDITIONAL_OUTPUT_FORWARDS; it
+  is always honoured on top, whichever route above supplied the rest.
+
+  Native forwarding is deliberately NOT done when MSOP is on its own port (MAME set to
+  '-output network', MSOP on 8001): MAME is already broadcasting those same natives on
+  8000, so forwarding them again would deliver each one twice to anything reading both
+  sockets.
+
+  Cost: negligible. Forwarding is a cached read per known name per frame with no
+  allocation, and a value is only ever put on the wire when it CHANGES. Measured on
+  Point Blank 2 (28 candidate names) it was within about 1% of running with forwarding
+  off entirely - 430% vs 435% of realtime with throttling off.
+
+WHEN IS THE RELAY USED AT ALL?
+  MSOP asks the running build whether it can create a custom output - which as of
+  v9.1.0 means one route, the legacy output.set_value, tested for real rather than
+  guessed from a version number. (The other route, register_output, was proposed to
+  MAME as PR #15639 and rejected, so it exists on no build; v9.1.0 removes MSOP's
+  support for it entirely.) If that route does not work, MAME can hold none of
+  MSOP's outputs and therefore cannot broadcast them in ANY output mode, so the
+  relay is the only delivery path and is switched on regardless of the setting.
+  This is deliberately capability-based rather than version-based: custom and
+  pre-release builds can report a version that does not match their behaviour, and
+  guessing from the number alone left '-output windows' silently undelivered.
+
+  EXPECTED CONSOLE MESSAGE. That probe runs in MAME's console. When the plugin loads it
+  first prints an explicit "COMPATIBILITY TEST" line saying it is about to check whether
+  this build can create state outputs, then makes the test call. On MAME 0.289 and newer,
+  MAME answers with its OWN error/warning about an unknown output on the very next line -
+  that message is EXPECTED, is not a fault in MSOP or the game, and is immediately followed
+  by MSOP's own line confirming the result and that it has switched to relay delivery. On
+  MAME 0.288 and earlier the test passes quietly and no such error appears.
+
+IF NOTHING IS LISTENING ON THE RELAY PORT
+  MSOP dials the relay; it never waits for one. If nothing answers, it retries on a
+  back-off rather than every frame, because a REFUSED connection is not always cheap:
+  on a machine that answers properly it is refused in well under a millisecond, but
+  where local firewall or security software silently drops loopback connection
+  attempts instead of refusing them outright, the operating system waits out its
+  retransmit first - about 2 seconds, measured. MAME's socket open is a plain
+  blocking call with no timeout setting, so that pause freezes emulation until it
+  returns, and MAME is not something this plugin can change.
+
+  The schedule, timed on a real clock rather than on frames:
+      one free attempt at every ROM start, where the pause is hidden inside loading
+      after losing a relay that WAS there   -> 2s, 4s, 8s, then 15s
+      when nothing has ever answered        -> 5s, 10s, then 15s
+      never slower than                        15s
+
+  A SUCCESSFUL connect costs nothing, which is why the first case retries eagerly:
+  a relay that was up moments ago (the MESH app restarting, typically) is very
+  likely to answer. Retries never stop, so starting MESH after MAME still connects
+  within 15 seconds, and every ROM start gets a fresh attempt regardless.
+
+  What you would notice on an affected machine, with nothing listening: a brief
+  hitch up to once every 15 seconds. Before this pacing existed it was once per
+  second, which held MAME at roughly 45% of full speed. If you are not using the
+  relay at all, set '-output network' on MAME 0.288 or earlier and MSOP will not
+  dial anything.
+
+WITHOUT MESH (MSOP + a hooker program only)
+  * MAME 0.200 - 0.288 ONLY, and MAME must be set to '-output network' (or
+    '-output windows'). In that configuration MAME creates and broadcasts MSOP's
+    outputs itself, and your hooker connects to MAME directly. This works well
+    and needs nothing else installed.
+  * On MAME 0.289+ this arrangement CANNOT work. MAME will not create MSOP's
+    outputs, so it has nothing to broadcast, and MSOP's relay has nobody to dial.
+    You would see the game's own native outputs (lamps, recoil lines the driver
+    creates) but NONE of MSOP's - no ammo, no life, no derived recoil or reload.
+  * You also give up the per-game ini generation, the supported-games list, the
+    plugin/database updater, and the diagnostics MESH provides.
+
+THE TRADE-OFF, IN ONE LINE
+  Port 8000 can host MAME's own output server OR a relay carrying MSOP's
+  outputs - not both. MAME's port is hard-coded and its protocol only ever
+  broadcasts outward, so nothing can merge the two streams back together for a
+  single hooker connection. Whichever program owns 8000 decides what a hooker
+  can see; MESH exists so that program can be one that carries BOTH.
 
 --------------------------------------------------------------------------------
 OUTPUT MAPPINGS (MAMEhooker, OutputHooker, and QMamehook)

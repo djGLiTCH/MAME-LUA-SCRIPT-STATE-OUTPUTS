@@ -1,0 +1,998 @@
+{
+    "alien3": {
+        "driver_file": "src\\mame\\sega\\segas32.cpp",
+        "class": "segas32_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_output_back_lamp",
+                    "names": [
+                        "Back_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_button",
+                    "names": [
+                        "Blue_Button_1P_lamp",
+                        "Blue_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_corner_lamp",
+                    "names": [
+                        "Blue_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_entry_lamp",
+                    "names": [
+                        "Entry_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_p_start",
+                    "names": [
+                        "1P_Start_lamp",
+                        "2P_Start_lamp",
+                        "3P_Start_lamp",
+                        "4P_Start_lamp",
+                        "5P_Start_lamp",
+                        "6P_Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp0",
+                    "names": [
+                        "lamp0"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp1",
+                    "names": [
+                        "lamp1"
+                    ]
+                },
+                {
+                    "field": "m_output_left_lamp",
+                    "names": [
+                        "Left_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_left_winner_lamp",
+                    "names": [
+                        "Left_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lights_lamp",
+                    "names": [
+                        "Lights_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_winner_lamp",
+                    "names": [
+                        "Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_player_gun_recoil",
+                    "names": [
+                        "Player1_Gun_Recoil",
+                        "Player2_Gun_Recoil"
+                    ]
+                },
+                {
+                    "field": "m_output_red_button",
+                    "names": [
+                        "Red_Button_1P_lamp",
+                        "Red_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_red_corner_lamp",
+                    "names": [
+                        "Red_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_lamp",
+                    "names": [
+                        "Right_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_winner_lamp",
+                    "names": [
+                        "Right_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_wiper_lamp",
+                    "names": [
+                        "Wiper_lamp"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "area51": {
+        "driver_file": "src\\mame\\atari\\jaguar.cpp",
+        "class": "jaguar_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "area51mx": {
+        "driver_file": "src\\mame\\atari\\jaguar.cpp",
+        "class": "jaguar_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "bbust2": {
+        "driver_file": "src\\mame\\snk\\hng64.cpp",
+        "class": "hng64_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps_out",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "bel": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2c_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "carnevil": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "crszone": {
+        "driver_file": "src\\mame\\namco\\namcos23.cpp",
+        "class": "crszone_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "cryptklr": {
+        "driver_file": "src\\mame\\konami\\konamigq.cpp",
+        "class": "konamigq_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "dragngun": {
+        "driver_file": "src\\mame\\dataeast\\deco32.cpp",
+        "class": "dragngun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "dragngunj": {
+        "driver_file": "src\\mame\\dataeast\\deco32.cpp",
+        "class": "dragngun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "duckhunt": {
+        "driver_file": "src\\mame\\nintendo\\vsnes.cpp",
+        "class": "vs_uni_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "hotd": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2c_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "invasnab": {
+        "driver_file": "src\\mame\\williams\\midzeus.cpp",
+        "class": "invasnab_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_digits",
+                    "names": [
+                        "digit0",
+                        "digit1",
+                        "digit2",
+                        "digit3",
+                        "digit4",
+                        "digit5",
+                        "digit6"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23",
+                        "led24",
+                        "led25",
+                        "led26",
+                        "led27",
+                        "led28",
+                        "led29",
+                        "led30",
+                        "led31"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "jdredd": {
+        "driver_file": "src\\mame\\sony\\zn.cpp",
+        "class": "jdredd_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "jpark": {
+        "driver_file": "src\\mame\\sega\\segas32.cpp",
+        "class": "segas32_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_output_back_lamp",
+                    "names": [
+                        "Back_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_button",
+                    "names": [
+                        "Blue_Button_1P_lamp",
+                        "Blue_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_corner_lamp",
+                    "names": [
+                        "Blue_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_entry_lamp",
+                    "names": [
+                        "Entry_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_p_start",
+                    "names": [
+                        "1P_Start_lamp",
+                        "2P_Start_lamp",
+                        "3P_Start_lamp",
+                        "4P_Start_lamp",
+                        "5P_Start_lamp",
+                        "6P_Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp0",
+                    "names": [
+                        "lamp0"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp1",
+                    "names": [
+                        "lamp1"
+                    ]
+                },
+                {
+                    "field": "m_output_left_lamp",
+                    "names": [
+                        "Left_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_left_winner_lamp",
+                    "names": [
+                        "Left_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lights_lamp",
+                    "names": [
+                        "Lights_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_winner_lamp",
+                    "names": [
+                        "Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_player_gun_recoil",
+                    "names": [
+                        "Player1_Gun_Recoil",
+                        "Player2_Gun_Recoil"
+                    ]
+                },
+                {
+                    "field": "m_output_red_button",
+                    "names": [
+                        "Red_Button_1P_lamp",
+                        "Red_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_red_corner_lamp",
+                    "names": [
+                        "Red_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_lamp",
+                    "names": [
+                        "Right_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_winner_lamp",
+                    "names": [
+                        "Right_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_wiper_lamp",
+                    "names": [
+                        "Wiper_lamp"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "le2": {
+        "driver_file": "src\\mame\\konami\\konamigx.cpp",
+        "class": "konamigx_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamp",
+                    "names": [
+                        "lamp0"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "lethalen": {
+        "driver_file": "src\\mame\\konami\\lethal.cpp",
+        "class": "lethal_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "lethalj": {
+        "driver_file": "src\\mame\\ice\\lethalj.cpp",
+        "class": "lethalj_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "maxforce": {
+        "driver_file": "src\\mame\\atari\\jaguar.cpp",
+        "class": "jaguar_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "opwolf": {
+        "driver_file": "src\\mame\\taito\\opwolf.cpp",
+        "class": "opwolf_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_recoil",
+                    "names": [
+                        "Player1_Recoil_Piston"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "opwolf3": {
+        "driver_file": "src\\mame\\taito\\slapshot.cpp",
+        "class": "slapshot_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "othunder": {
+        "driver_file": "src\\mame\\taito\\othunder.cpp",
+        "class": "othunder_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_recoil_piston",
+                    "names": [
+                        "Player1_Recoil_Piston",
+                        "Player2_Recoil_Piston"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "policetr": {
+        "driver_file": "src\\mame\\misc\\policetr.cpp",
+        "class": "policetr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "leds0",
+                        "leds1",
+                        "leds2",
+                        "leds3"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "ptblank": {
+        "driver_file": "src\\mame\\namco\\namconb1.cpp",
+        "class": "gunbulet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "sgunner": {
+        "driver_file": "src\\mame\\namco\\namcos2.cpp",
+        "class": "sgunner_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_out_digit",
+                    "names": [
+                        "digit0",
+                        "digit1",
+                        "digit2",
+                        "digit3",
+                        "digit4",
+                        "digit5",
+                        "digit6",
+                        "digit7"
+                    ]
+                },
+                {
+                    "field": "m_out_diorama",
+                    "names": [
+                        "diorama0",
+                        "diorama1",
+                        "diorama2",
+                        "diorama3",
+                        "diorama4",
+                        "diorama5"
+                    ]
+                },
+                {
+                    "field": "m_out_gun_recoil",
+                    "names": [
+                        "gun_recoil0",
+                        "gun_recoil1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "sgunner2": {
+        "driver_file": "src\\mame\\namco\\namcos2.cpp",
+        "class": "sgunner_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_out_digit",
+                    "names": [
+                        "digit0",
+                        "digit1",
+                        "digit2",
+                        "digit3",
+                        "digit4",
+                        "digit5",
+                        "digit6",
+                        "digit7"
+                    ]
+                },
+                {
+                    "field": "m_out_diorama",
+                    "names": [
+                        "diorama0",
+                        "diorama1",
+                        "diorama2",
+                        "diorama3",
+                        "diorama4",
+                        "diorama5"
+                    ]
+                },
+                {
+                    "field": "m_out_gun_recoil",
+                    "names": [
+                        "gun_recoil0",
+                        "gun_recoil1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "sgunner2j": {
+        "driver_file": "src\\mame\\namco\\namcos2.cpp",
+        "class": "sgunner_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_out_digit",
+                    "names": [
+                        "digit0",
+                        "digit1",
+                        "digit2",
+                        "digit3",
+                        "digit4",
+                        "digit5",
+                        "digit6",
+                        "digit7"
+                    ]
+                },
+                {
+                    "field": "m_out_diorama",
+                    "names": [
+                        "diorama0",
+                        "diorama1",
+                        "diorama2",
+                        "diorama3",
+                        "diorama4",
+                        "diorama5"
+                    ]
+                },
+                {
+                    "field": "m_out_gun_recoil",
+                    "names": [
+                        "gun_recoil0",
+                        "gun_recoil1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "sgunnerj": {
+        "driver_file": "src\\mame\\namco\\namcos2.cpp",
+        "class": "sgunner_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_out_digit",
+                    "names": [
+                        "digit0",
+                        "digit1",
+                        "digit2",
+                        "digit3",
+                        "digit4",
+                        "digit5",
+                        "digit6",
+                        "digit7"
+                    ]
+                },
+                {
+                    "field": "m_out_diorama",
+                    "names": [
+                        "diorama0",
+                        "diorama1",
+                        "diorama2",
+                        "diorama3",
+                        "diorama4",
+                        "diorama5"
+                    ]
+                },
+                {
+                    "field": "m_out_gun_recoil",
+                    "names": [
+                        "gun_recoil0",
+                        "gun_recoil1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "timecris": {
+        "driver_file": "src\\mame\\namco\\namcos22.cpp",
+        "class": "timecris_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_mcu_out",
+                    "names": [
+                        "mcuout0",
+                        "mcuout1",
+                        "mcuout2",
+                        "mcuout3",
+                        "mcuout4",
+                        "mcuout5",
+                        "mcuout6",
+                        "mcuout7",
+                        "mcuout8",
+                        "mcuout9",
+                        "mcuout10",
+                        "mcuout11",
+                        "mcuout12",
+                        "mcuout13",
+                        "mcuout14",
+                        "mcuout15"
+                    ]
+                },
+                {
+                    "field": "m_cpuled_out",
+                    "names": [
+                        "cpuled0",
+                        "cpuled1",
+                        "cpuled2",
+                        "cpuled3",
+                        "cpuled4",
+                        "cpuled5",
+                        "cpuled6",
+                        "cpuled7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "timecrs2": {
+        "driver_file": "src\\mame\\namco\\namcos23.cpp",
+        "class": "namcos23_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "vcop": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2o_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "vcop2": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2a_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    }
+}

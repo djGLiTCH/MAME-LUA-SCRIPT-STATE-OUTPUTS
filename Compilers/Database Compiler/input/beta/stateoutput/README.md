@@ -1,9 +1,9 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.0.0
-- **Plugin Date:** 2026.07.14
-- **Database Date:** 2026.07.14
+- **Plugin Version:** 9.1.0
+- **Plugin Date:** 2026.07.22
+- **Database Date:** 2026.07.22
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS

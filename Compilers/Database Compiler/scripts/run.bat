@@ -3,7 +3,7 @@ setlocal
 REM MSOP Database Compiler - unified launcher (Windows): builds BOTH release channels end to end.
 REM For EACH channel (stable, then beta) it runs, in order:
 REM   1. database compiler   (input\<ch>\database\games  ->  output\<ch>\stateoutput\database.lua/json)
-REM   2. driver compiler      (MAME source                ->  output\<ch>\stateoutput\database_driver.lua) [optional]
+REM   2. driver compiler      (MAME source                ->  output\<ch>\stateoutput\native_outputs_by_rom.lua) [optional]
 REM   3. HOTR defaultLG        (<ch> database              ->  output\<ch>\defaultLG)
 REM   4. MAMEhooker .ini       (<ch> database              ->  output\<ch>\ini)
 REM Single-channel launchers: run_stable.bat / run_beta.bat. %~dp0 = this scripts\ folder.
@@ -37,8 +37,8 @@ echo.
 if "%MAME_SRC%"=="" (
     echo === [%~1] Driver Compiler SKIPPED - MAME_SRC not set in this launcher ===
 ) else (
-    echo === [%~1] Driver Compiler ^(MAME source -^> database_driver.lua^) ===
-    python "%SCRIPTS%msop_database_driver_compiler.py" --channel %~1 --mame-src "%MAME_SRC%"
+    echo === [%~1] Driver Compiler ^(MAME source -^> native_outputs_by_rom.lua^) ===
+    python "%SCRIPTS%msop_native_outputs_compiler.py" --channel %~1 --mame-src "%MAME_SRC%"
     if errorlevel 1 exit /b 1
 )
 echo.

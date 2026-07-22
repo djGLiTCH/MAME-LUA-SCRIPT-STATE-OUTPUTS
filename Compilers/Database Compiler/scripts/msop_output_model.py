@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP OUTPUT MODEL - shared helper library (NOT a standalone runner)
-# Version: 1.1.0
-# Date: 2026.07.14
+# Version: 1.2.0
+# Date: 2026.07.20
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -30,7 +30,7 @@ REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", ".."))   # repo root
 # set_channel("beta") - as the generators do from their --channel flag - to repoint every path below.
 CHANNEL    = "stable"
 DB_GAMES   = os.path.join(BASE_DIR, "input", CHANNEL, "database", "games")
-DRIVER_LUA = os.path.join(BASE_DIR, "output", CHANNEL, "stateoutput", "database_driver.lua")
+DRIVER_LUA = os.path.join(BASE_DIR, "output", CHANNEL, "stateoutput", "native_outputs_by_rom.lua")
 
 
 def set_channel(channel):
@@ -39,7 +39,7 @@ def set_channel(channel):
     global CHANNEL, DB_GAMES, DRIVER_LUA
     CHANNEL    = channel
     DB_GAMES   = os.path.join(BASE_DIR, "input", channel, "database", "games")
-    DRIVER_LUA = os.path.join(BASE_DIR, "output", channel, "stateoutput", "database_driver.lua")
+    DRIVER_LUA = os.path.join(BASE_DIR, "output", channel, "stateoutput", "native_outputs_by_rom.lua")
 
 # An output maps to a real Hooker event only if that event exists; identity except LampStart.
 SUFFIX_EVENT = {
@@ -64,7 +64,7 @@ def supported_roms():
 
 
 def load_driver_natives():
-    """{rom: [native_output_name, ...]} from database_driver.lua (raw MAME driver outputs the plugin
+    """{rom: [native_output_name, ...]} from native_outputs_by_rom.lua (raw MAME driver outputs the plugin
     forwards verbatim). Returns {} if the driver was never compiled."""
     if not os.path.exists(DRIVER_LUA):
         return {}
@@ -126,6 +126,18 @@ def build_outputs(game, default, natives=None):
     active, max_players = resolve_players(game, default)
     flag = lambda k: bool(game.get(k, default.get(k, True)))
     demul = flag("DEMULSHOOTER_COMPATIBILITY")
+
+    # P*_Clip (plugin v9.0.1) is DERIVED from the primary ammo rather than read from memory: 1 while
+    # ammo > 0, 0 the moment it empties (a reload is needed). KEEP IN SYNC with init.lua's _ClipEnabled:
+    # it is only emitted for a genuinely DEPLETING clip, because that is the only reading where 0
+    # unambiguously means empty.
+    #   * "decrease" -> a real clip counting down to 0. Emitted.
+    #   * increase   -> the address is a shots-FIRED counter, so 0 means a FULL clip and the flag would
+    #                   be exactly inverted. Never emitted.
+    #   * "change"   -> direction unknown, so it carries the same inversion risk. Never emitted.
+    ammo_dir = str(game.get("AMMO_DIRECTION", default.get("AMMO_DIRECTION", "")) or "").strip().lower()
+    clip_enabled = (ammo_dir == "decrease")
+
     out = {}
 
     def put(name, value):
@@ -139,6 +151,7 @@ def build_outputs(game, default, natives=None):
         a = active[i]
         gates = {
             "Ammo": "AMMO" in a, "AmmoAlt": "AMMO_ALT" in a, "AmmoGrenade": "AMMO_GRENADE" in a,
+            "Clip": ("AMMO" in a) and clip_enabled,
             "Life": "LIFE" in a, "LifeAlt": "LIFE_ALT" in a,
             "Status": "STATUS" in a, "StatusAlt": "STATUS_ALT" in a,
             "Recoil": "RECOIL" in a, "Reload": "RELOAD" in a, "Damage": "DAMAGE" in a,

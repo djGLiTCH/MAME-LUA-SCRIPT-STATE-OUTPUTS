@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MSOP Database Compiler - STABLE channel launcher (Linux/macOS). Runs the full STABLE pipeline:
 #   1. database compiler   (input/stable/database/games  ->  output/stable/stateoutput/database.lua/json)
-#   2. driver compiler      (MAME source                  ->  output/stable/stateoutput/database_driver.lua) [optional]
+#   2. driver compiler      (MAME source                  ->  output/stable/stateoutput/native_outputs_by_rom.lua) [optional]
 #   3. HOTR defaultLG        (stable database              ->  output/stable/defaultLG)
 #   4. MAMEhooker .ini       (stable database              ->  output/stable/ini)
 # See run.sh to build BOTH channels at once, and run_beta.sh for beta.
@@ -21,8 +21,8 @@ echo
 if [ -z "$MAME_SRC" ]; then
   echo "=== [STABLE] Driver Compiler SKIPPED - MAME_SRC not set in this launcher ==="
 else
-  echo "=== [STABLE] Driver Compiler (MAME source -> database_driver.lua) ==="
-  "$PY" "$DIR/msop_database_driver_compiler.py" --channel stable --mame-src "$MAME_SRC"
+  echo "=== [STABLE] Driver Compiler (MAME source -> native_outputs_by_rom.lua) ==="
+  "$PY" "$DIR/msop_native_outputs_compiler.py" --channel stable --mame-src "$MAME_SRC"
 fi
 
 echo

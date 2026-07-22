@@ -21,7 +21,7 @@ Ensure your files are organized correctly. The compiler resolves all of its path
 Database Compiler/
   ├── scripts/
   │    ├── msop_database_compiler.py          (games *.json  ->  database.lua + database.json)
-  │    ├── msop_database_driver_compiler.py   (MAME source   ->  database_driver.lua)   [optional]
+  │    ├── msop_native_outputs_compiler.py   (MAME source   ->  native_outputs_by_rom.lua)   [optional]
   │    ├── msop_hotr_defaultlg_generator.py   (database      ->  Hook Of The Reaper defaultLG/*)
   │    ├── msop_mamehooker_ini_generator.py   (database      ->  MAMEhooker *.ini skeletons)
   │    ├── msop_output_model.py               (shared helper - not run directly)
@@ -41,7 +41,7 @@ Database Compiler/
   │                   └── ...
   └── output/                                 (auto-generated - safe to delete, rebuilt on every run)
        └── stable/
-            ├── stateoutput/   (database.lua + database_driver.lua)
+            ├── stateoutput/   (database.lua + native_outputs_by_rom.lua)
             ├── ini/           (MAMEhooker per-game .ini skeletons)
             └── defaultLG/     (Hook Of The Reaper per-game templates)
 ```
@@ -56,7 +56,7 @@ Ensure you have Python 3 installed on your Windows system and that it is added t
 
 **Instructions**
 1. Navigate to the `scripts` folder of the extracted MSOP Compiler
-2. Double-click **`run_stable.bat`**. This runs the whole stable pipeline in one go: it compiles your game JSONs into `database.lua`/`database.json`, then regenerates the Hook Of The Reaper `defaultLG` templates and the MAMEhooker `.ini` skeletons. (The optional driver step that scrapes MAME's own native outputs into `database_driver.lua` is skipped unless you set a MAME source path at the top of the launcher.)
+2. Double-click **`run_stable.bat`**. This runs the whole stable pipeline in one go: it compiles your game JSONs into `database.lua`/`database.json`, then regenerates the Hook Of The Reaper `defaultLG` templates and the MAMEhooker `.ini` skeletons. (The optional driver step that scrapes MAME's own native outputs into `native_outputs_by_rom.lua` is skipped unless you set a MAME source path at the top of the launcher.)
 3. A Command Prompt window shows each step's progress and a summary when it finishes.
 
 **Alternative:** Open Command Prompt (`cmd`), `cd` to the MSOP Compiler's `scripts` folder, and run `run_stable.bat`.
@@ -89,7 +89,7 @@ As on Windows, run `python3 msop_database_compiler.py` on its own for the intera
 
 Running `run_stable` (or `run_beta` / `run`) executes these steps for that channel, all reading from its `input/…` and writing to its `output/…`:
 1. **Database compile** — reads every individual `.json` in the channel's `games` folder (or the single combined `database.json`), validates each for correct JSON syntax (if there's an error you're told the specific line), keeps the two source formats in sync, and generates a fresh `database.lua` (plus `database.json`).
-2. **Driver compile** *(optional)* — if a MAME source path is set, scrapes MAME's own native output names into `database_driver.lua` so the plugin can re-broadcast them. Skipped otherwise, in which case the plugin simply delivers its MSOP outputs only.
+2. **Driver compile** *(optional)* — if a MAME source path is set, scrapes MAME's own native output names into `native_outputs_by_rom.lua` so the plugin can re-broadcast them. Skipped otherwise, in which case the plugin simply delivers its MSOP outputs only.
 3. **Hook Of The Reaper templates** — generates a `defaultLG` mapping file per supported game into `output/<channel>/defaultLG/`.
 4. **MAMEhooker skeletons** — generates a blank per-game `.ini` into `output/<channel>/ini/`, prepopulated with the MSOP outputs that game emits (and, if the driver ran, the MAME native outputs too).
 
@@ -143,7 +143,7 @@ These variables protect physical arcade hardware from burning out.
 ### Feature Toggles & Fixes
 * **`SCREEN_FLASH`**: For use with older arcade games that used a 'screen flash' to detect crosshair position on-screen in a game (common with CRT displays). Set to `true` and provide the `SCREEN_FLASH_MEMORY_ADDRESS` and `SCREEN_FLASH_DISABLE_VALUE` to actively overwrite MAME's memory and disable blinding white screen flashes.
 * **`DEMULSHOOTER_COMPATIBILITY`**: Seamlessly duplicates outputs to `CtmRecoil` and `Damaged` to sync with DemulShooter architecture. When set to `true`, this will duplicate `RECOIL` and `DAMAGE` outputs so that both the plugin naming convention (`Recoil` and `Damage`) and demulshooter naming convention (`CtmRecoil` and `Damaged`) are utilised. This is set to `true` by default.
-* **`ADDITIONAL_OUTPUT_FORWARDS`**: A list of extra MAME-native output names (lamps, LEDs, etc.) for the plugin to re-broadcast alongside its own state outputs for this game — on top of the per-driver list that ships compiled in `database_driver.lua`. Useful when a driver exposes native outputs you want delivered through the same MSOP stream.
+* **`ADDITIONAL_OUTPUT_FORWARDS`**: A list of extra MAME-native output names (lamps, LEDs, etc.) for the plugin to re-broadcast alongside its own state outputs for this game — on top of the per-driver list that ships compiled in `native_outputs_by_rom.lua`. Useful when a driver exposes native outputs you want delivered through the same MSOP stream.
 
 ---
 

@@ -16,7 +16,7 @@
 # System_AspectRatio (a plugin directive, not a MAME output). The derivation is shared with the HOTR
 # defaultLG generator via msop_output_model. By DEFAULT the skeleton is MSOP-ONLY: it lists only the
 # plugin's own MSOP state outputs (+ each game's curated ADDITIONAL_OUTPUT_FORWARDS). Pass --include-driver
-# to ALSO include the scraped MAME native outputs from database_driver.lua (matching a plugin that ships it).
+# to ALSO include the scraped MAME native outputs from native_outputs_by_rom.lua (matching a plugin that ships it).
 #
 # Output: output/<channel>/ini/<rom>.ini  (CRLF, WITH a trailing newline - matches the shipped
 # skeletons). --channel stable|beta selects both the input database and this output tree.
@@ -56,7 +56,7 @@ def main():
     ap.add_argument("--channel", choices=("stable", "beta"), default="stable",
                     help="which channel's database to read and where to write (default: stable)")
     ap.add_argument("--include-driver", action="store_true",
-                    help="ALSO include the scraped MAME native outputs from database_driver.lua in [Output]. "
+                    help="ALSO include the scraped MAME native outputs from native_outputs_by_rom.lua in [Output]. "
                          "By default the skeleton is MSOP-only: just the plugin's own MSOP state outputs "
                          "(+ each game's curated ADDITIONAL_OUTPUT_FORWARDS)")
     ap.add_argument("--report", action="store_true", help="diff every generated file against the shipped references")
@@ -69,7 +69,7 @@ def main():
     default = load_default()
     natives = load_driver_natives() if args.include_driver else {}
     if args.include_driver and not natives:
-        print("NOTE: --include-driver was set but database_driver.lua was not found - native driver outputs will be omitted.", file=sys.stderr)
+        print("NOTE: --include-driver was set but native_outputs_by_rom.lua was not found - native driver outputs will be omitted.", file=sys.stderr)
     os.makedirs(out_dir, exist_ok=True)
 
     print("=" * 78)

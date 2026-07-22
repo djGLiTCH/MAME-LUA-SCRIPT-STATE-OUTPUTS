@@ -1,7 +1,7 @@
 @echo off
 REM MSOP Database Compiler - STABLE channel launcher (Windows). Runs the full STABLE pipeline:
 REM   1. database compiler   (input\stable\database\games  ->  output\stable\stateoutput\database.lua/json)
-REM   2. driver compiler      (MAME source                  ->  output\stable\stateoutput\database_driver.lua) [optional]
+REM   2. driver compiler      (MAME source                  ->  output\stable\stateoutput\native_outputs_by_rom.lua) [optional]
 REM   3. HOTR defaultLG        (stable database              ->  output\stable\defaultLG)
 REM   4. MAMEhooker .ini       (stable database              ->  output\stable\ini)
 REM See run.bat to build BOTH channels at once, run_beta.bat for beta.
@@ -16,8 +16,8 @@ echo.
 if "%MAME_SRC%"=="" (
     echo === [STABLE] Driver Compiler SKIPPED - MAME_SRC not set in this launcher ===
 ) else (
-    echo === [STABLE] Driver Compiler ^(MAME source -^> database_driver.lua^) ===
-    python "%~dp0msop_database_driver_compiler.py" --channel stable --mame-src "%MAME_SRC%"
+    echo === [STABLE] Driver Compiler ^(MAME source -^> native_outputs_by_rom.lua^) ===
+    python "%~dp0msop_native_outputs_compiler.py" --channel stable --mame-src "%MAME_SRC%"
     if errorlevel 1 goto :error
 )
 

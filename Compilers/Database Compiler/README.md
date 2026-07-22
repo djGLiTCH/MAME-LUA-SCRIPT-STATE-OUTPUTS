@@ -24,7 +24,7 @@ experimental plugin code stay fully isolated from the shipped stable build.
 Database Compiler/
 ├── scripts/            YOU RUN THIS
 │   ├── msop_database_compiler.py         games <-> database.json, and -> database.lua
-│   ├── msop_database_driver_compiler.py  MAME source -> database_driver.lua (+ scrape report)
+│   ├── msop_native_outputs_compiler.py  MAME source -> native_outputs_by_rom.lua + native_outputs_by_driver.lua (+ scrape report)
 │   ├── msop_hotr_defaultlg_generator.py  games -> output/<channel>/defaultLG/*.txt   (Hook Of The Reaper)
 │   ├── msop_mamehooker_ini_generator.py  games -> output/<channel>/ini/*.ini         (MAMEhooker skeletons)
 │   ├── msop_output_model.py              shared helper (init.lua-mirroring output derivation; not run directly)
@@ -41,7 +41,7 @@ Database Compiler/
 │
 ├── output/             GENERATED  (safe to delete; rebuilt on every run)  -  split per release channel
 │   ├── stable/
-│   │   ├── stateoutput/    deployable plugin: database.lua + database_driver.lua + init.lua/plugin.json/readme.txt
+│   │   ├── stateoutput/    deployable plugin: database.lua + native_outputs_by_rom.lua + native_outputs_by_driver.lua + init.lua/plugin.json/readme.txt
 │   │   ├── defaultLG/      Hook Of The Reaper defaultLG/<rom>.txt templates
 │   │   ├── ini/            MAMEhooker <rom>.ini skeletons ([Output] prepopulated with the game's MSOP outputs)
 │   │   └── results/        mame_driver_native_output_scrape_report.json (driver audit aid)
@@ -67,18 +67,32 @@ ship in an MSOP Plugin release (`output/beta/stateoutput/` for a beta).
 - **MSOP-only vs. driver-included:** the ini generator is **MSOP-only by default** — it lists only the
   plugin's own **MSOP state outputs** (+ each game's curated `ADDITIONAL_OUTPUT_FORWARDS`), not the
   scraped MAME native outputs. Pass **`--include-driver`** to also fold in the MAME natives from
-  `database_driver.lua`. The full launchers `run_stable.*`/`run_beta.*` (and `run.*`) run the driver
+  `native_outputs_by_rom.lua`. The full launchers `run_stable.*`/`run_beta.*` (and `run.*`) run the driver
   compiler and pass `--include-driver`, so their ini includes the MAME natives. The
   `run_stable_msop_only.*` / `run_beta_msop_only.*` launchers instead **skip the driver compiler** and
-  drop `database_driver.lua` from the plugin folder, so the plugin *and* its ini are both driver-free.
+  drop `native_outputs_by_rom.lua` **and `native_outputs_by_driver.lua`** from the plugin folder, so the plugin
+  *and* its ini are both driver-free.
   HOTR defaultLG is identical either way (it never uses the driver). (CI still packages a MSOP-only
   stable build — the missing driver is a warning, not a failure.)
 - **Template generators on their own:** `scripts/run_msop_hotr_defaultlg_generator.*` (→
   `output/<channel>/defaultLG/`) and `scripts/run_msop_mamehooker_ini_generator.*` (→
   `output/<channel>/ini/`). Each accepts `--channel stable|beta` (default stable), `--report` (diff
   every file against the shipped references) and `--rom <name>` (one game).
-- **Driver compiler on its own:** `scripts/run_msop_database_driver_compiler.*` runs **only** the MAME
-  native-output scrape → `output/<channel>/stateoutput/database_driver.lua` (plus the scrape report in
+- **Two driver tables (v1.4.0):** the scrape writes both, and `init.lua` prefers the first.
+  - `native_outputs_by_rom.lua` — keyed by **ROM**, scraped only for the ROMs in `input/<channel>/database/games`.
+    Includes layout-derived names (a `.lay` belongs to one ROM), so it is the more specific of the two.
+  - `native_outputs_by_driver.lua` — keyed by **MAME driver source basename** (`namco/namcos12.cpp` →
+    `namcos12`), scraped across the **whole** driver tree (~610 entries). MAME declares
+    `output_finder<>` once per driver and every ROM it builds shares it, so this covers clones,
+    never-launchable parents, and ROMs MAME adds to an existing driver later. This is what lets the
+    plugin's PASS-THROUGH mode forward native outputs for games MSOP has **no profile for** — it is
+    looked up via `manager.machine.system.source_file` when the ROM has no entry of its own.
+    Over-inclusion is harmless: a name MAME's output table doesn't confirm is simply never forwarded.
+    Skip it with `--no-mame-driver-table` (that full-tree scan is the slow part of a run).
+
+- **Driver compiler on its own:** `scripts/run_msop_native_outputs_compiler.*` runs **only** the MAME
+  native-output scrape → `output/<channel>/stateoutput/native_outputs_by_rom.lua` **and
+  `native_outputs_by_driver.lua`** (plus the scrape report in
   `output/<channel>/results/`). It never touches `database.lua`, the HOTR templates or the INIs — handy
   for refreshing the driver after a MAME source update without rebuilding everything else. Set the MAME
   checkout via `--mame-src "<path>"` or the `MAME_SRC_PATH` constant in the `.py`; also accepts
@@ -113,8 +127,8 @@ All scripts resolve their paths from the project root via `__file__`, so they ru
   writes into installed copies) is always **stripped** from the source/shipped `plugin.json` if it ever
   leaks in — manual installs must self-detect.
 
-- **`msop_database_driver_compiler.py`** — scrapes a MAME source checkout for each supported ROM's
-  native output names and writes `output/<channel>/stateoutput/database_driver.lua` (the companion
+- **`msop_native_outputs_compiler.py`** — scrapes a MAME source checkout for each supported ROM's
+  native output names and writes `output/<channel>/stateoutput/native_outputs_by_rom.lua` (the companion
   `init.lua` loads it; missing/stale just degrades to no native forwarding). Takes `--channel` (default
   stable; `--games-dir`/`--output-dir` override). With the scrape report enabled (default;
   `--no-scrape-report` to skip) it also writes

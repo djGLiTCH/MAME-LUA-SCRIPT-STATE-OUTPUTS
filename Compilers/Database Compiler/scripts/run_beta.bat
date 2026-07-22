@@ -1,7 +1,7 @@
 @echo off
 REM MSOP Database Compiler - BETA channel launcher (Windows). Runs the full BETA pipeline:
 REM   1. database compiler   (input\beta\database\games  ->  output\beta\stateoutput\database.lua/json)
-REM   2. driver compiler      (MAME source                ->  output\beta\stateoutput\database_driver.lua) [optional]
+REM   2. driver compiler      (MAME source                ->  output\beta\stateoutput\native_outputs_by_rom.lua) [optional]
 REM   3. HOTR defaultLG        (beta database              ->  output\beta\defaultLG)
 REM   4. MAMEhooker .ini       (beta database              ->  output\beta\ini)
 REM BETA is intentionally isolated from STABLE (its own input\beta\ tree), so experimental games AND
@@ -18,8 +18,8 @@ echo.
 if "%MAME_SRC%"=="" (
     echo === [BETA] Driver Compiler SKIPPED - MAME_SRC not set in this launcher ===
 ) else (
-    echo === [BETA] Driver Compiler ^(MAME source -^> database_driver.lua^) ===
-    python "%~dp0msop_database_driver_compiler.py" --channel beta --mame-src "%MAME_SRC%"
+    echo === [BETA] Driver Compiler ^(MAME source -^> native_outputs_by_rom.lua^) ===
+    python "%~dp0msop_native_outputs_compiler.py" --channel beta --mame-src "%MAME_SRC%"
     if errorlevel 1 goto :error
 )
 

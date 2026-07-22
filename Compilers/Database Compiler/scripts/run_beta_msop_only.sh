@@ -2,7 +2,7 @@
 # MSOP Database Compiler - BETA, MSOP-ONLY launcher (Linux/macOS). Builds the beta channel WITHOUT the
 # MAME driver's native outputs:
 #   1. database compiler   (input/beta/database/games  ->  output/beta/stateoutput/database.lua/json)
-#   2. drops database_driver.lua from the plugin folder (does NOT run the driver compiler)
+#   2. drops native_outputs_by_rom.lua + native_outputs_by_driver.lua from the plugin folder (does NOT run the driver compiler)
 #   3. HOTR defaultLG        (beta database  ->  output/beta/defaultLG)         [never uses the driver]
 #   4. MAMEhooker .ini       (beta database  ->  output/beta/ini, --no-driver)  [MSOP outputs only]
 # The result reflects the plugin's own MSOP state outputs plus each game's curated
@@ -15,10 +15,15 @@ PY="$(command -v python3 || command -v python)"
 echo "=== [BETA / MSOP-only] Database Compiler ==="
 "$PY" "$DIR/msop_database_compiler.py" beta
 
-DRV="$DIR/../output/beta/stateoutput/database_driver.lua"
+DRV="$DIR/../output/beta/stateoutput/native_outputs_by_rom.lua"
+DRVSRC="$DIR/../output/beta/stateoutput/native_outputs_by_driver.lua"
 if [ -f "$DRV" ]; then
-  echo "=== [BETA / MSOP-only] removing database_driver.lua from the plugin folder ==="
+  echo "=== [BETA / MSOP-only] removing native_outputs_by_rom.lua from the plugin folder ==="
   rm -f "$DRV"
+fi
+if [ -f "$DRVSRC" ]; then
+  echo "=== [BETA / MSOP-only] removing native_outputs_by_driver.lua from the plugin folder ==="
+  rm -f "$DRVSRC"
 fi
 
 echo
@@ -30,5 +35,5 @@ echo "=== [BETA / MSOP-only] MAMEhooker INI Generator (MSOP-only default -> outp
 "$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel beta
 
 echo
-echo "Done - output/beta/ is a MSOP-ONLY build (no database_driver.lua, no MAME native outputs)."
+echo "Done - output/beta/ is a MSOP-ONLY build (no native_outputs_by_rom*.lua, no MAME native outputs)."
 echo "      Re-run run_beta.* with MAME_SRC set to restore the driver + native forwarding."

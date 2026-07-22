@@ -3,7 +3,7 @@ name: Package Updater ZIPs
 # Packages the Updater subfolder zips from the Database Compiler's COMMITTED, per-channel output. This is
 # a pure PACKAGER - it runs no compilers. The owner builds output/<channel>/ locally
 # (scripts/run_stable.* / run_beta.* / run.* do db compile + driver + both generators per channel; the
-# driver's database_driver.lua needs a MAME source checkout CI does not have) and commits it; CI just zips.
+# driver's native_outputs_by_rom.lua needs a MAME source checkout CI does not have) and commits it; CI just zips.
 #
 #   STABLE (required - guard fails loudly if missing):
 #     Updater/Plugin/MSOP-PLUGIN-STABLE.zip          <- output/stable/stateoutput/   (stateoutput/ at zip root)
@@ -56,10 +56,10 @@ jobs:
           fi
         done
         [ "$missing" = "0" ]
-        # database_driver.lua is OPTIONAL: a MSOP-only build (scripts/run_stable_msop_only.*) intentionally
+        # native_outputs_by_rom.lua is OPTIONAL: a MSOP-only build (scripts/run_stable_msop_only.*) intentionally
         # omits it, so its absence is a warning, not a failure - the STABLE plugin zip then ships MSOP-only.
-        if [ ! -e "$DBC/output/stable/stateoutput/database_driver.lua" ]; then
-          echo "::warning::output/stable/stateoutput/database_driver.lua not found - the STABLE plugin will ship WITHOUT MAME native output forwarding (MSOP-only). If unintended, run scripts/run_stable.* with MAME_SRC set."
+        if [ ! -e "$DBC/output/stable/stateoutput/native_outputs_by_rom.lua" ]; then
+          echo "::warning::output/stable/stateoutput/native_outputs_by_rom.lua not found - the STABLE plugin will ship WITHOUT MAME native output forwarding (MSOP-only). If unintended, run scripts/run_stable.* with MAME_SRC set."
         fi
 
     - name: Package the STABLE Updater ZIPs
@@ -86,8 +86,8 @@ jobs:
           (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/Plugin/MSOP-PLUGIN-BETA.zip" stateoutput)
           [ -d "$DBC/output/beta/ini" ]       && (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/MameHooker/MSOP-MAMEHOOKER-BETA.zip" ini)
           [ -d "$DBC/output/beta/defaultLG" ] && (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip" defaultLG)
-          if [ ! -f "$DBC/output/beta/stateoutput/database_driver.lua" ]; then
-            echo "::warning::output/beta/ has no database_driver.lua - the BETA plugin will ship without native output forwarding. Run scripts/run_beta.* with MAME_SRC set to include it."
+          if [ ! -f "$DBC/output/beta/stateoutput/native_outputs_by_rom.lua" ]; then
+            echo "::warning::output/beta/ has no native_outputs_by_rom.lua - the BETA plugin will ship without native output forwarding. Run scripts/run_beta.* with MAME_SRC set to include it."
           fi
         else
           echo "no beta output committed -> skipping BETA zips (beta is owner-gated)"
