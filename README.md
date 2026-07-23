@@ -130,7 +130,7 @@ We provide a custom desktop app, **MESH (Modern Emulator State Hub)**, formerly 
 
 > ℹ️ Beyond installing and updating the plugin, MESH can also drive your light guns and cabinet LED
 > lighting natively (no external hooker required), edit game profiles, and auto-generate hooker INIs.
-> Those are **app** features — see the MESH app's own documentation for its full capabilities. This
+> Those are **app** features - see the MESH app's own documentation for its full capabilities. This
 > README stays focused on the MSOP plugin itself.
 
 ### Option 2: Manual Installation & Migration
@@ -146,8 +146,75 @@ To prevent conflicts between the old standalone scripts and the new plugin, you 
 2. **MAME Plugins:** Copy the extracted plugin folders from the latest release into your `MAME\plugins` directory. 
 3. **Enable Output:** Open your `mame.ini` file in the MAME root directory and set the output mode. On MAME 0.288 and earlier, `output network` lets MAME deliver the outputs itself; on MAME 0.289+ (where Lua can no longer create state outputs) use `output none` and let the MESH app's relay deliver them instead - MESH manages this automatically per instance when installed via Option 1:
 `output network`
+
+   > ⚠️ **Two ports may be in play.** MAME's own `-output network` server always binds **port 8000** (hard-coded, and it fails to start if something else already has it). MSOP therefore chooses its own relay port automatically so the two never collide:
+   >
+   > | MAME `-output` | MSOP relay port | Why |
+   > | :--- | :--- | :--- |
+   > | `none` / `console` / `windows` | **8000** | MAME is not using 8000, and 8000 is where every hooker program looks |
+   > | `network` | **8001** | MAME's own server owns 8000 |
+   >
+   > **As a rule of thumb by version:** on **MAME 0.288 and earlier** MAME can create and broadcast MSOP's
+   > outputs itself, so `output network` works on its own and the relay is not needed. On **MAME 0.289 and
+   > later** Lua can no longer create outputs, so MSOP's own outputs can only travel over the relay - use
+   > `output none` (or `console`) so everything arrives together on 8000. The plugin does not actually
+   > trust the version number for this, because custom and pre-release builds can report a version that
+   > does not match their behaviour: it asks the running build whether it can create an output and decides
+   > from the answer. The version rule above is simply what that works out to on official builds.
+   >
+   > This is automatic and applies to a hand-installed plugin as much as a MESH-managed one. `-output windows` keeps 8000 because it delivers over Win32 messages and binds no socket. A hooker program can only connect to **one** port, so whichever program owns 8000 decides what it sees.
 4. **Enable Plugins:** Ensure plugins are enabled in your `plugin.ini` file:
 `plugins 1`
+
+#### Native output forwarding - MSOP carries MAME's own outputs too
+Under the relay (`output none` / `output console`) MAME's own output modules never broadcast the game's
+native outputs (`lamp0`, `Player1_Gun_Recoil`, `P1_Start_lamp`, ...), so MSOP forwards them itself - a single
+connection to `127.0.0.1:8000` carries **both** MSOP's outputs and the game's native ones, including for
+games MSOP has no profile for. It finds the native names two ways, always preferring the first:
+
+1. **Live enumeration** - on MAME builds that expose the read-only `device.outputs` property, MSOP asks the
+   running machine which outputs it actually created. No lookup tables, always exact, and it covers games
+   nobody ever pre-scanned. On any build without the property MSOP silently falls back to (2).
+2. **Shipped lookup files** - two optional files that sit in the `stateoutput` folder beside `database.lua`:
+   * **`native_outputs_by_rom.lua`** - names keyed by ROM, scanned for the games MSOP supports (the more
+     specific of the two).
+   * **`native_outputs_by_driver.lua`** - names keyed by MAME driver source file, scanned across the whole
+     driver tree, so one entry covers every ROM (and clone) that driver builds. This is what lets an
+     unsupported game still forward its natives on today's stock MAME.
+
+Without the files (and without enumeration), MSOP still delivers its own outputs; games it does not support
+simply produce nothing. Forwarding is not used with `output network`, because MAME is already broadcasting
+those same native outputs itself - forwarding them again would deliver everything twice.
+
+> ℹ️ **A deliberate console message on MAME 0.289+.** At the first output write of a session the plugin
+> prints a `COMPATIBILITY TEST` line and makes one deliberate test write to discover whether the build can
+> still create state outputs. On MAME 0.289 and newer, MAME answers that test with its **own** error on the
+> next console line - that error is **expected and harmless**; MSOP reads the result and switches to relay
+> delivery automatically.
+
+#### If nothing is listening on the relay port
+MSOP dials the relay and never waits for one, but a *failed* connection is not always cheap. On most machines it is refused in well under a millisecond; where local firewall or security software silently drops loopback connection attempts rather than refusing them, the OS waits out its retransmit first - about **2 seconds**. MAME's socket open is a plain blocking call with no timeout setting, so that pause freezes emulation until it returns, and MAME is not something the plugin can change.
+
+So retries are paced on a real clock, and the plugin adapts to what a session actually shows it:
+
+* **One free attempt at every ROM start** (the pause hides inside loading), then `2s > 4s > 8s > 15s` after
+  losing a relay that *was* there - a restarting MESH is back within seconds, so this case stays eager.
+* **When nothing has ever answered**, `5s > 10s`, then a cap the plugin chooses by **timing its own dials**:
+  machines that refuse instantly keep the responsive **15s** cap; machines where each dial visibly stalls
+  slow to every **60s** instead.
+* **Games MSOP has no profile for give up entirely** once that initial schedule is exhausted - their relay
+  traffic would only be mirrored native outputs, which is not worth freezing the game for on a repeating
+  timer. A ROM with no native outputs to mirror at all stops after the single ROM-start attempt. Supported
+  games never give up - their real recoil/ammo/life outputs are worth one dial per interval.
+* **Dialling re-arms wherever a listener plausibly just appeared**: every ROM start or soft reset, and
+  **unpausing** - so *pause the game, start MESH, unpause* reconnects instantly.
+
+The first time a session concludes nobody is listening, MSOP prints a console warning **and puts a one-shot
+message on MAME's OSD**: state outputs are not being delivered, and MESH (or another hooker tool) must be
+running before launching a ROM. When the give-up applies, the same message states that no further connection
+attempts will be made this session and how to reconnect (pause/unpause, reset, or a new ROM).
+
+Set `-output network` on MAME 0.288 or earlier if you are not using the relay at all, and MSOP will not dial anything.
 
 #### Step 3: Output Programs ('Hooker' Programs)
 There are many state output 'hooker' programs that exist, however, support has been provided for the following tools:
@@ -159,7 +226,7 @@ There are many state output 'hooker' programs that exist, however, support has b
 
 **MAMEhooker, OutputHooker, and QMamehook**
 
-Manual setup documentation for MAMEhooker, OutputHooker, and QMamehook is still being expanded - but the MESH app already generates and distributes their per-game INI command files automatically (Devices → Configuration → Compile Hooker INI Files, plus auto-compile on every game launch), so manual INI authoring is only needed if you skip the app.
+Manual setup documentation for MAMEhooker, OutputHooker, and QMamehook is still being expanded - but the MESH app already generates and distributes their per-game INI command files automatically (Devices > Configuration > Compile Hooker INI Files, plus auto-compile on every game launch), so manual INI authoring is only needed if you skip the app.
 
 For now, you can use the following Outputs in your per game ini file which will work across all supported games.
 
@@ -206,6 +273,7 @@ MSOP_P1_Life=
 MSOP_P1_LifeAlt=
 MSOP_P1_LifeLost=
 MSOP_P1_Ammo=
+MSOP_P1_Clip=
 MSOP_P1_AmmoAlt=
 MSOP_P1_AmmoGrenade=
 MSOP_P1_ShotsFired=
@@ -228,6 +296,7 @@ MSOP_P2_Life=
 MSOP_P2_LifeAlt=
 MSOP_P2_LifeLost=
 MSOP_P2_Ammo=
+MSOP_P2_Clip=
 MSOP_P2_AmmoAlt=
 MSOP_P2_AmmoGrenade=
 MSOP_P2_ShotsFired=
@@ -246,6 +315,7 @@ Note 1: PX = Player Number (e.g. P1 = Player 1)
 Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
 Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
 Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
+Note 5: PX_Clip is a derived instant flag - 1 while the player still has ammo, 0 the moment the clip empties (reload needed). It is only published for games whose ammo genuinely counts DOWN; games whose ammo counter climbs (or is otherwise ambiguous) never emit it, so the flag can never read inverted.
 
 ---
 
@@ -303,7 +373,7 @@ Run `MSOP_CONFIGURATOR.exe -help` in a terminal to print the full reference. Eve
 * `-verifyinstall [file]`
   * Verifies each MAME instance against what the last install should have left behind (plugin presence, the per-install relay flag, mame.ini entries). Exit code 1 on any mismatch - run it straight after `-updateplugin`.
 * `-checkhealth [file]`
-  * Runs the Diagnostics → Troubleshooting health checks headlessly and reports to the console (and `[file]` if given). Exit code 1 when warnings were found - ideal for remote support.
+  * Runs the Diagnostics > Troubleshooting health checks headlessly and reports to the console (and `[file]` if given). Exit code 1 when warnings were found - ideal for remote support.
 
 **Live-Control Commands** (sent to the MESH app while it is **open**): the app also exposes runtime controls for its own native engines - toggling LED / peripheral output, injecting a test event, and a safe shutdown - for front-end pre/post-game scripts. These drive the **app's** hardware engines rather than the MSOP plugin, so run `MSOP_CONFIGURATOR.exe -help` for the full list.
 
@@ -334,7 +404,7 @@ This is a community-driven project. If you find a game that isn't supported, ple
 
 This project, the MSOP plugin, Lua scripts, and configuration data in this repository, is licensed under **GPLv3** (see the badge above).
 
-The **MESH** app used for automatic installation bundles its own third-party open-source components; that full attribution (including licence texts) ships with the app as `THIRD-PARTY-NOTICES.txt` next to the executable, and is viewable in-app under **Help → Credits → Third-Party Software & Licences**.
+The **MESH** app used for automatic installation bundles its own third-party open-source components; that full attribution (including licence texts) ships with the app as `THIRD-PARTY-NOTICES.txt` next to the executable, and is viewable in-app under **Help > Credits > Third-Party Software & Licences**.
 
 ---
 

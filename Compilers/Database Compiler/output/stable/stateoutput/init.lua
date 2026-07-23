@@ -1,60 +1,40 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.1.0
--- Plugin Date: 2026.07.22
+-- Plugin Version: 9.1.1
+-- Plugin Date: 2026.07.23
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 -- =========================================================================================
 --
 -- ARCHITECTURE OVERVIEW:
--- This script operates as a native MAME plugin. Unlike standalone Lua scripts, plugins 
--- are loaded once when MAME starts. They run in the background and must actively "hook" 
--- into MAME's event system (like when a game boots, or when a frame renders) to function.
+-- This script operates as a native MAME plugin: loaded once when MAME starts, it runs in
+-- the background and hooks into MAME's event system. A machine's output table is a static
+-- part of its configuration - a plugin cannot add to it - so MSOP's own outputs are
+-- delivered over the TCP relay (see RELAY TRANSPORT LAYER), and MAME's native outputs
+-- are discovered read-only (see Enumerate_Native_Outputs).
 --
--- This plugin subscribes to the following deliberately different hooks per machine
--- session - do not merge them or change which one does what:
+-- Per machine session this plugin subscribes to two deliberately different hooks - do
+-- not merge them or change which one does what:
 --
---   1. REMOVED IN v9.1.0 - emu.add_machine_devices_started_notifier ->
---      Register_Master_List()
---      MSOP used to register its own synthetic outputs (MSOP_P1_Ammo and the
---      rest) against the root device here, by calling root:register_output()
---      from a patched MAME core. That core patch was proposed upstream as
---      mamedev/mame PR #15639 and was REJECTED on design grounds, not for any
---      fixable coding reason: MAME's maintainers hold that a machine's output
---      table is a STATIC part of its configuration, so nothing outside the
---      driver may add to it, and allowing scripts to would make save states
---      depend on which scripts were loaded. See
---      https://github.com/mamedev/mame/pull/15639 (and PR #15618 before it) for
---      the full reasoning. That capability is therefore gone for good on stock
---      MAME, and every trace of it has been removed here rather than left to rot
---      behind a capability flag.
---
---      Nothing replaces it, because nothing needs to: MSOP's own outputs have
---      been delivered over the relay since v9.0.2 (see the RELAY TRANSPORT LAYER
---      section), which never depended on MAME holding them. What HAS changed is
---      how MAME's own NATIVE outputs are discovered - see Enumerate_Native_Outputs.
---
---   2. emu.add_machine_reset_notifier -> on_start()
+--   1. emu.add_machine_reset_notifier -> on_start()
 --      Fires on every reset of the current machine (including in-game soft resets,
 --      not just the initial boot). Loads the ROM's JSON config, resolves memory
---      addresses, and engages the per-frame loop. Must NOT attempt output
---      registration - by the time this fires, the output table is always locked.
+--      addresses, and engages the per-frame loop.
 --
---   3. emu.add_machine_post_load_notifier -> on_post_load()
---      Save-state alignment only. Whatever outputs ARE part of the save state
---      (the driver's own natives - never MSOP's, see 1 above) snap to their
---      saved values on load; this hook re-seeds the engine's Lua-side delta
---      baselines, counters, and pulse timers to match, so the first frames
---      after a load can't fire phantom recoils/reloads or overwrite freshly
---      restored counters. Never registers outputs, never re-resolves config.
+--   2. emu.add_machine_post_load_notifier -> on_post_load()
+--      Save-state alignment only. Outputs that ARE part of the save state (the
+--      driver's own natives) snap to their saved values on load; this hook re-seeds
+--      the engine's Lua-side delta baselines, counters, and pulse timers to match,
+--      so the first frames after a load can't fire phantom recoils/reloads or
+--      overwrite freshly restored counters. Never re-resolves config.
 --
 -- =========================================================================================
 
 local exports = {
     name = "stateoutput",
-    version = "9.1.0",
+    version = "9.1.1",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -114,7 +94,7 @@ function stateoutput.startplugin()
     -- every ROM in it - clones, parents that are never launchable in their own right, and any
     -- ROM MAME adds to an existing driver later. Pass-through mode consults it when a ROM has
     -- no entry of its own, which is what lets a game MSOP has no profile for still deliver its
-    -- lamps/recoil. Missing file = the v9.0.2 behaviour exactly (per-ROM entries only).
+    -- lamps/recoil. Missing file = per-ROM entries only.
     local success_mame_driver, mame_driver_db = pcall(require, "stateoutput/native_outputs_by_driver")
     if not success_mame_driver then
         success_mame_driver, mame_driver_db = pcall(require, "native_outputs_by_driver")
@@ -180,25 +160,10 @@ function stateoutput.startplugin()
     -- uncached and simply retried on a later frame.
     local _RetryMissingProxies = false
 
-    -- v9.1.0: _RegisterOutputSupported IS GONE - do not reintroduce it.
-    -- It tracked whether this build had root:register_output(), the Lua-side
-    -- output-CREATION API from mamedev/mame PR #15639. That PR was rejected
-    -- upstream on design grounds (outputs are a static part of a machine
-    -- configuration; letting scripts create them would make save states depend on
-    -- which scripts were loaded), so no MAME build will ever ship it. The flag
-    -- could therefore only ever read false, and every branch that consulted it has
-    -- been simplified accordingly - see resolve_relay_mode's capability gate and
-    -- Probe_Legacy_Set_Value's safety net.
-    --   https://github.com/mamedev/mame/pull/15639  (creation - rejected)
-    --   https://github.com/mamedev/mame/pull/15618  (the attempt before it)
-
-    -- v9.1.0: can this build ENUMERATE a device's outputs (the device.outputs
-    -- property)? This is read-only introspection - it lists the outputs a machine
-    -- has already created and cannot bring one into existence, which is exactly why
-    -- it is a proposal upstream can accept where #15639 was not. Probed once per
-    -- session, lazily, by Enumerate_Native_Outputs; nil means "not yet asked".
-    -- When absent, native-output discovery falls back to the scraped databases
-    -- exactly as v9.0.4 did, so this plugin still runs unchanged on stock MAME.
+    -- Can this build ENUMERATE a device's outputs (the read-only device.outputs
+    -- property)? Probed once per session, lazily, by Enumerate_Native_Outputs;
+    -- nil means "not yet asked". When absent, native-output discovery falls back
+    -- to the scraped database files, so the plugin runs unchanged on stock MAME.
     local _EnumerateOutputsSupported = nil
 
     -- Whether the deprecated output.set_value() can still AUTO-CREATE an output (true on
@@ -221,11 +186,11 @@ function stateoutput.startplugin()
     local _RelayPortStamped = false
 
     -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
-    -- KEEP IN SYNC with the header + exports.version above (910 == v9.1.0).
+    -- KEEP IN SYNC with the header + exports.version above (911 == v9.1.1).
     -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 910
-    local PLUGIN_DATE_NUM    = 20260722
+    local PLUGIN_VERSION_NUM = 911
+    local PLUGIN_DATE_NUM    = 20260723
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -275,12 +240,10 @@ function stateoutput.startplugin()
     -- MSOP RELAY TRANSPORT LAYER
     -- =========================================================================
     -- Ships every MSOP_* value change (plus native MAME lifecycle events) to
-    -- the MSOP Configurator's relay service over a plain TCP socket, so
-    -- hooker software (MAMEhooker, QMamehook, HOTR) can consume them without
-    -- any MAME core patch. This exists because stock MAME 0.289+ removes the
-    -- last Lua-side path for creating a new output (register_output is gone;
-    -- see Set_Output_Safe above) - the relay is the only delivery mechanism
-    -- that still works once that door closes, not an optional add-on.
+    -- the MESH relay service over a plain TCP socket, so hooker software
+    -- (MAMEhooker, QMamehook, HOTR) can consume them without any MAME core
+    -- patch. Stock MAME 0.289+ cannot hold plugin-created outputs, so there
+    -- the relay is the only delivery mechanism - not an optional add-on.
     --
     -- Three stages, in call order, for a per-output value (Set_Output_Safe
     -- is this pipeline's only caller):
@@ -314,11 +277,6 @@ function stateoutput.startplugin()
     -- open is a plain blocking connect() with no timeout knob and MAME is not ours to
     -- change, so the stall per attempt is immovable - only how OFTEN we attempt is ours.
     --
-    -- This used to be a frame counter ("> 60"), which is not a wall-clock cadence at all:
-    -- one dial per second of EMULATED time, and far more often than that under
-    -- -nothrottle. Against a ~2s stall that is unwinnable, and it pinned MAME at ~45% of
-    -- realtime for as long as nothing was listening.
-    --
     -- Note a SUCCESSFUL connect is effectively free - only failures cost - which is what
     -- makes it worth staying eager in the case where success is likely.
     local RETRY_WARM_FIRST = 2.0   -- first gap after losing a connection we HAD
@@ -327,6 +285,56 @@ function stateoutput.startplugin()
     local next_retry_at = 0        -- monotonic deadline; 0 = free to dial right now
     local retry_backoff = 0        -- current gap, doubled on each consecutive failure
     local ever_connected = false   -- warm vs cold: has a relay EVER answered this session?
+
+    -- ADAPTIVE NO-LISTENER CONTROL (v9.1.1) ----------------------------------------------
+    -- The back-off above bounds how OFTEN a dead relay is dialled; these bound how MUCH a
+    -- whole session can cost when nobody ever answers. Three cooperating mechanisms:
+    --   * DIAL-COST ADAPTION - every dial is timed on the real clock. A healthy machine
+    --     refuses a dead port in well under a millisecond and keeps the snappy 15s cap; a
+    --     machine whose security software silently drops loopback SYNs pays ~1-2s per dial
+    --     (measured), so once ONE dial crosses EXPENSIVE_DIAL_SECS the never-answered cap
+    --     escalates to RETRY_MAX_EXPENSIVE. Losing a live relay (warm) always keeps the
+    --     15s cap - a restarting MESH is back within seconds and reconnects are free.
+    --   * GIVE-UP for pass-through sessions - an UNSUPPORTED ROM's relay traffic is only
+    --     the mirrored native outputs, so after COLD_GIVE_UP_AFTER consecutive failures
+    --     with nothing ever answering, retries STOP for that session instead of stalling
+    --     the game every cap-interval forever. Supported ROMs (real MSOP outputs at
+    --     stake) never give up - they ride the adaptive cap instead.
+    --   * RE-ARM CUES - the give-up (and fail count) clears wherever a listener plausibly
+    --     just appeared, each costing at most one deliberate dial: every ROM start / soft
+    --     reset (the stall hides in loading), and machine RESUME (pause the game, start
+    --     MESH, unpause - picked up instantly).
+    -- The first time the session concludes nobody is listening, warn_no_listener() puts a
+    -- one-shot message on the OSD so the silence is explained rather than mysterious.
+    local RETRY_MAX_EXPENSIVE = 60.0 -- never-answered cap once dials are KNOWN to stall
+    local EXPENSIVE_DIAL_SECS = 0.5  -- one dial slower than this = SYNs are being dropped
+    local COLD_GIVE_UP_AFTER  = 4    -- ROM-start dial + 3 scheduled retries (~30s cold)
+    local dial_is_expensive = false  -- latched for the session by any one slow dial
+    local cold_fail_count   = 0      -- consecutive failed dials while never connected
+    local relay_given_up    = false  -- pass-through session concluded nobody is listening
+    local osd_no_listener_shown = false -- the OSD warning fires once per session
+    local _PassThroughOnly  = false  -- current ROM has no MSOP profile (set in on_start)
+
+    -- One-shot, user-facing (deliberately NOT the debug-gated dbg_osd): the player needs
+    -- to know WHY nothing is reacting, whether or not diagnostics are on. Fires the first
+    -- time the never-answered schedule is exhausted, supported and unsupported ROMs alike.
+    -- `gave_up` folds the retries-have-stopped notice into the SAME message - a second
+    -- popmessage would just replace this one on screen, so the two facts must travel
+    -- together. Ends with how to recover either way.
+    local function warn_no_listener(gave_up)
+        if osd_no_listener_shown then return end
+        osd_no_listener_shown = true
+        local tail = gave_up
+            and (" No further connection attempts will be made this session - after starting"
+                 .. " MESH, pause and unpause the game (or reset / load a new ROM) to reconnect.")
+            or  " MSOP will keep retrying occasionally."
+        print("[MSOP] WARNING: nothing is listening on the relay port " .. _RelayPort
+              .. " - state outputs are NOT being delivered. Start MESH (or your hooker setup) BEFORE launching a ROM." .. tail)
+        pcall(function()
+            manager.machine:popmessage("MSOP Relay: nothing connected on port " .. _RelayPort
+                .. " - state outputs are NOT being delivered. MESH (or another hooker tool) must be running before launching a ROM in MAME." .. tail)
+        end)
+    end
 
     -- Monotonic wall-clock seconds. emu.osd_ticks is MAME's own cross-platform monotonic
     -- source (QueryPerformanceCounter on Windows, clock_gettime elsewhere), so this reads
@@ -358,8 +366,11 @@ function stateoutput.startplugin()
 
     -- True when the back-off says we may dial again. Every path that opens the socket
     -- goes through this, so no single one of them can reintroduce a per-frame stall.
+    -- v9.1.1: also the single enforcement point for the pass-through give-up - once
+    -- relay_given_up latches, NO path dials again until a re-arm cue (ROM start / soft
+    -- reset / machine resume) clears it, so the gate cannot be bypassed piecemeal.
     local function relay_retry_due()
-        return monotonic_seconds() >= next_retry_at
+        return (not relay_given_up) and (monotonic_seconds() >= next_retry_at)
     end
 
     local last_state = {}
@@ -390,7 +401,18 @@ function stateoutput.startplugin()
         -- connecting to it would make this plugin a stray client of MAME itself.
         if not _UseRelay then return end
         sock = emu.file("w")
+        -- v9.1.1: time the dial on the real clock. This is the whole basis of the
+        -- adaptive cap - a sub-millisecond refusal proves retries are harmless, while a
+        -- single slow dial proves every future one will stall emulation just as badly.
+        local dial_started = monotonic_seconds()
         local err = sock:open("socket.127.0.0.1:" .. _RelayPort)
+        if (monotonic_seconds() - dial_started) >= EXPENSIVE_DIAL_SECS and not dial_is_expensive then
+            dial_is_expensive = true
+            print("[MSOP] Relay dials are EXPENSIVE on this machine (~"
+                  .. string.format("%.1f", monotonic_seconds() - dial_started)
+                  .. "s each - loopback connects are being silently dropped, not refused). "
+                  .. "Never-answered retries will slow to every " .. RETRY_MAX_EXPENSIVE .. "s.")
+        end
 
         if not err then
             connected = true
@@ -400,6 +422,8 @@ function stateoutput.startplugin()
             retry_backoff = 0
             next_retry_at = 0
             ever_connected = true
+            cold_fail_count = 0
+            relay_given_up = false
             print("[MSOP] Connected to Relay on port " .. _RelayPort)
             last_state = {}
             -- Only a genuine no-op before any ROM has loaded/warmed up this
@@ -415,11 +439,33 @@ function stateoutput.startplugin()
             if sock then sock:close() end
             sock = nil
             connected = false
+
+            -- v9.1.1: count consecutive never-answered failures. Exhausting the initial
+            -- schedule is the session's "timeout" moment: warn the player once (OSD +
+            -- console), and for a PASS-THROUGH ROM - where the relay would only carry
+            -- mirrored natives - stop dialling entirely until a re-arm cue. A supported
+            -- ROM keeps trying (its real MSOP outputs are worth one stall per cap).
+            if not ever_connected then
+                cold_fail_count = cold_fail_count + 1
+                if cold_fail_count >= COLD_GIVE_UP_AFTER then
+                    warn_no_listener(_PassThroughOnly)
+                    if _PassThroughOnly then
+                        relay_given_up = true
+                        print("[MSOP] Relay: giving up for this unsupported ROM ("
+                              .. cold_fail_count .. " failed dials, nothing has ever answered). "
+                              .. "No further attempts until the next ROM start, soft reset, or unpause.")
+                    end
+                end
+            end
+
             -- Failed dial - and on an affected machine we have just cost the player ~2s
             -- of frozen emulation to learn it. Double the gap (capped), or open at the
-            -- warm/cold gap if this is the first failure of a run.
+            -- warm/cold gap if this is the first failure of a run. v9.1.1: the cap is
+            -- adaptive - never-answered sessions on a machine with expensive dials slow
+            -- to RETRY_MAX_EXPENSIVE; warm losses always keep the responsive 15s cap.
+            local cap = (dial_is_expensive and not ever_connected) and RETRY_MAX_EXPENSIVE or RETRY_MAX
             if retry_backoff > 0 then
-                arm_relay_retry(math.min(retry_backoff * 2, RETRY_MAX))
+                arm_relay_retry(math.min(retry_backoff * 2, cap))
             elseif ever_connected then
                 arm_relay_retry(RETRY_WARM_FIRST)
             else
@@ -433,12 +479,10 @@ function stateoutput.startplugin()
     -- write, since a half-closed TCP socket doesn't reliably surface as an
     -- error until the next syscall - treating any write failure as "the
     -- connection is gone" is simpler and safer than trying to distinguish
-    -- a transient failure from a dead peer. Leaving connected=true after a
-    -- failed write (as broadcast_native_event used to) is worse than just
-    -- losing that one message: connect_socket() is only ever attempted
-    -- while connected is false, so a stale true would silently block every
-    -- later reconnect attempt too - including, worst case, the next ROM's
-    -- own mame_start after a mid-process ROM switch.
+    -- a transient failure from a dead peer. It also matters that connected
+    -- never stays stale-true: connect_socket() is only ever attempted while
+    -- connected is false, so a missed teardown would silently block every
+    -- later reconnect - including the next ROM's own mame_start.
     local function teardown_connection()
         print("[MSOP] Connection dropped by Relay")
         connected = false
@@ -468,9 +512,8 @@ function stateoutput.startplugin()
     -- subject to the same reconnect back-off as the frame path, since a
     -- failed dial is equally expensive whichever path made it.
     -- A failed write here tears the connection down the same way a failed
-    -- flush does (see teardown_connection) - previously this discarded the
-    -- pcall's result entirely, so a dead write left connected=true pointing
-    -- at a closed socket until something else eventually noticed.
+    -- flush does (see teardown_connection), so a dead write can never leave
+    -- connected=true pointing at a closed socket.
     local function broadcast_native_event(event_string)
         if not _UseRelay then return end -- native-delivery install: MAME emits lifecycle itself
         -- Opportunistic open, but through the same back-off gate as the frame path: these
@@ -734,24 +777,17 @@ function stateoutput.startplugin()
             return
         end
 
-        -- CAPABILITY GATE (v9.0.4; simplified in v9.1.0). Ground truth, and it outranks both
-        -- inferences below. Ask this build whether it can hold a custom output at all. As of
-        -- v9.1.0 there is exactly ONE route left to ask about - the deprecated
-        -- output.set_value(), probed for real by Probe_Legacy_Set_Value. The second route this
-        -- gate used to consider, register_output, was PR 15639's and exists nowhere; see the
-        -- note where _RegisterOutputSupported used to be declared. If set_value can't create,
-        -- MAME cannot store our outputs, so it cannot broadcast them in ANY -output mode, and
-        -- the relay is the only delivery path there is.
+        -- CAPABILITY GATE. Ground truth - it outranks both inferences below. Ask this
+        -- build whether it can hold a custom output at all (the deprecated
+        -- output.set_value(), probed for real by Probe_Legacy_Set_Value). If set_value
+        -- can't create, MAME cannot store our outputs, so it cannot broadcast them in
+        -- ANY -output mode, and the relay is the only delivery path there is.
         --
-        -- This is what closes the -output windows hole: the mode gate below reads "windows" as
-        -- "MAME self-delivers and the relay must stay off", which is correct for a real
-        -- <= 0.288 and wrong for a 0.289-code build that merely REPORTS 0.288 (custom builds,
-        -- and MAME's own pre-release window). Asking the binary removes the guesswork, and the
-        -- same rule covers network, console, none and anything added later.
-        --
-        -- Dropping register_output from this condition does NOT widen it: that flag was false
-        -- on every stock build anyway, so `not _RegisterOutputSupported` was already true
-        -- everywhere this gate could fire. The probe was, and remains, the deciding term.
+        -- Deliberately capability-based, not version-based: the mode gate below reads
+        -- "windows" as "MAME self-delivers, relay off", which is correct for a real
+        -- <= 0.288 and wrong for a 0.289-code build that merely REPORTS 0.288 (custom
+        -- builds, and MAME's own pre-release window). Asking the binary removes the
+        -- guesswork, and the same rule covers every -output mode alike.
         --
         -- Only ever forces the relay ON, never off.
         if _LegacyCreateProbed and not _LegacyCreateWorks then
@@ -1096,36 +1132,19 @@ function stateoutput.startplugin()
     -- -------------------------------------------------------------------------
     local _ProxyCache = {}
 
-    -- (v9.1.0 removed the _RegisterOutputSupported flag that used to be described
-    -- here; PR 15639's register_output does not exist on any build. The set_value
-    -- probe below is now the only capability question worth asking.)
+    -- Whether the deprecated output.set_value() can still auto-create a brand new
+    -- output on first use (true on MAME 0.288 and earlier) or only resolves EXISTING
+    -- outputs (0.289+ stock). There is no direct way to ask the Lua API, and a version
+    -- number cannot be trusted on custom/patched builds - so Probe_Legacy_Set_Value
+    -- tests it empirically, once, and remembers the answer for the session.
 
-    -- Whether the deprecated output.set_value() can still auto-create a
-    -- brand new output on first use (true on MAME 0.288 and earlier) or has
-    -- been restricted to only ever resolve EXISTING outputs (0.289+ stock,
-    -- where it's a guaranteed no-op for every synthetic MSOP_ name, since
-    -- none of them exist without PR 15639's register_output). There's no
-    -- direct way to ask the Lua API which behaviour applies, and guessing
-    -- from a version number wouldn't reliably cover every custom/patched
-    -- build - so Probe_Legacy_Set_Value (below) tests it empirically, once,
-    -- and remembers the answer for the rest of the session.
-
-    -- The one-time test itself, using a disposable name that's never part
-    -- of any real vocabulary and a value no real output write would ever
-    -- coincidentally produce - probing with whatever the first real call
-    -- happens to pass isn't reliable, since 0 (very often the first value
-    -- ever written, e.g. from Register_Outputs_Safe's warmup zero-flush)
-    -- is indistinguishable from get_value's own default for a name that
-    -- was never created. Verified against get_value - the SAME legacy API
-    -- family set_value belongs to, not device:output()'s newer per-device
-    -- proxy lookup, which is a different binding onto (as far as this Lua
-    -- engine exposes it) a namespace that doesn't necessarily reflect what
-    -- set_value just wrote. Cross-checking against the wrong API here
-    -- previously produced a false "doesn't work" reading on real MAME
-    -- 0.287/0.288, where set_value is exactly the mechanism
-    -- init_v8.2.5.lua relied on entirely and genuinely does still create
-    -- new outputs - silently breaking native output delivery there for the
-    -- rest of the session.
+    -- The one-time test uses a disposable name that is never part of any real
+    -- vocabulary and a value no real write would coincidentally produce (0 is
+    -- unusable: it is indistinguishable from get_value's own default for a name that
+    -- was never created). The result MUST be verified through get_value - the same
+    -- legacy API family set_value belongs to - not device:output(), whose per-device
+    -- proxy lookup does not necessarily reflect what set_value just wrote and reads
+    -- false-negative on real 0.287/0.288.
     local function Probe_Legacy_Set_Value(out_handle)
         if _LegacyCreateProbed then return end
         if not out_handle or not out_handle.set_value or not out_handle.get_value then return end
@@ -1134,14 +1153,10 @@ function stateoutput.startplugin()
         local PROBE_NAME = "MSOP_LegacyCreateProbe"
         local PROBE_VALUE = 123456789
 
-        -- COMPATIBILITY TEST (harmless) - announced so the console reads as intentional.
-        -- The very next line deliberately asks MAME to create a throwaway output through the
-        -- deprecated output.set_value(), purely to discover whether THIS build still lets a
-        -- plugin create state outputs at all. On MAME 0.289 and newer that capability was
-        -- removed, so MAME prints its OWN "unknown output"/creation error on the line right
-        -- after this one. That error is EXPECTED, is not a fault in MSOP or the game, and can
-        -- be safely ignored - MSOP reads the result either way and, when creation is
-        -- unavailable, switches to relay delivery automatically.
+        -- Announced so the console reads as intentional: on MAME 0.289+ this deliberate
+        -- test write makes MAME print its OWN error on the next line. That error is
+        -- EXPECTED and harmless - MSOP reads the result either way and switches to
+        -- relay delivery automatically when creation is unavailable.
         dbg_print("COMPATIBILITY TEST: probing whether this MAME build can create state outputs "
                   .. "(via the deprecated output.set_value). If a MAME error/warning appears on "
                   .. "the NEXT line, that is EXPECTED on MAME 0.289+ (output creation was removed) "
@@ -1158,14 +1173,13 @@ function stateoutput.startplugin()
 
         if not _LegacyCreateWorks then
             dbg_print("COMPATIBILITY TEST result: this MAME build CANNOT create state outputs (expected on MAME 0.289+ - any output error above was the test, not a fault). No further attempts will be made this session; the relay is delivering everything.")
-            -- SAFETY NET: set_value is the last route by which MAME itself could hold one
-            -- of our outputs (v9.1.0: register_output, the other one, is gone for good -
-            -- PR 15639 was rejected). With it confirmed dead, custom outputs are
-            -- structurally impossible in MAME, so the relay is the ONLY delivery path.
-            -- Force it on even if the plugin.json relay stamp was never written (e.g. a
-            -- 0.289 dev build the Configurator hadn't been told about), so 0.289+ can never
-            -- silently go dark. Reached only when the probe has just failed, so this still
-            -- cannot turn the relay on for an old build that self-delivers.
+            -- SAFETY NET: set_value is the only route by which MAME itself could hold one
+            -- of our outputs. With it confirmed dead, custom outputs are structurally
+            -- impossible in MAME, so the relay is the ONLY delivery path. Force it on even
+            -- if the plugin.json relay stamp was never written (e.g. a 0.289 dev build the
+            -- app hadn't been told about), so 0.289+ can never silently go dark. Reached
+            -- only when the probe has just failed, so this still cannot turn the relay on
+            -- for an old build that self-delivers.
             if not _UseRelay then
                 _UseRelay = true
                 dbg_print("Relay auto-enabled (native output creation is impossible on this build).")
@@ -1235,14 +1249,12 @@ function stateoutput.startplugin()
         -- integer values every other path produces, floor(v + 0.5) is the same integer.
         value = math.floor(value + 0.5)
 
-        -- Always broadcast to the Relay - this is the only delivery path on
-        -- 0.289+ stock MAME, where Lua can no longer create new outputs at all
-        -- (register_output is gone; both output_proxy and the deprecated
-        -- output.set_value() only ever resolve EXISTING outputs).
+        -- Always broadcast to the Relay - the only delivery path on 0.289+ stock
+        -- MAME, where Lua cannot create new outputs.
         msop_out(name, value)
 
         -- Also write MAME's own output table wherever that's still possible -
-        -- which since v9.1.0 means only genuinely old stock builds, where the
+        -- meaning old stock builds, where the
         -- deprecated set_value can still auto-create (see Try_Legacy_Set_Value
         -- for how that stops being attempted once it's confirmed futile).
         -- Restores save-state persistence and on_post_load's adopt() recovery
@@ -2159,16 +2171,14 @@ function stateoutput.startplugin()
     end
 
     -- -------------------------------------------------------------------------
-    -- Probe_Enumerate_Outputs() / Enumerate_Native_Outputs()   [v9.1.0]
+    -- Probe_Enumerate_Outputs() / Enumerate_Native_Outputs()
     -- Asks the running machine which outputs it has actually created, instead of
     -- trusting a list scraped from MAME's source months earlier.
     --
-    -- This needs MAME's read-only device.outputs property. Unlike PR 15639's
-    -- register_output (rejected - see the architecture notes at the top of this
-    -- file), that property CREATES NOTHING: it lists what a device already made,
-    -- which is information MAME already publishes to any external process through
-    -- -output console and -output network. Where it is missing, every caller falls
-    -- back to the scraped databases and behaviour is exactly v9.0.4's.
+    -- This needs MAME's read-only device.outputs property. It CREATES nothing: it
+    -- lists what a device already made, which is information MAME already publishes
+    -- to any external process through -output console and -output network. Where it
+    -- is missing, every caller falls back to the scraped database files.
     --
     -- Why this matters beyond tidiness: the scraped data is keyed by driver SOURCE
     -- FILE, so a game inherits the union of every output declared by every sibling
@@ -2310,10 +2320,9 @@ function stateoutput.startplugin()
         if _IsShuttingDown then return end
 
         -- Frame_Logic is the MSOP profile engine and REQUIRES CFG. An unsupported ROM has CFG == nil
-        -- but may still be running in pass-through mode (v9.0.2) - where the only job is mirroring
-        -- MAME's own native outputs over the relay - so skip the engine and fall through to the
-        -- forward + flush below. (Previously this returned early on `not CFG`, which meant an
-        -- unsupported ROM forwarded nothing AND never flushed the relay at all.)
+        -- but may still be running in pass-through mode - where the only job is mirroring MAME's
+        -- own native outputs over the relay - so skip the engine and fall through to the
+        -- forward + flush below rather than returning early.
         if CFG then
             -- Execute the massive Frame_Logic engine safely
             -- pcall prevents garbage collection spikes and handles errors gracefully
@@ -2355,12 +2364,11 @@ function stateoutput.startplugin()
     -- on_post_load()
     -- SAVE-STATE ALIGNMENT: any output that is genuinely part of the machine
     -- snaps to its saved value on load - but this engine's Lua-side mirrors,
-    -- counters, and attotime anchors are NOT saved. (v9.1.0: MSOP's own outputs
-    -- are no longer among them on any stock build, since nothing outside the
-    -- driver can add to the output table - see the REMOVED IN v9.1.0 note. The
-    -- adopt() calls below therefore fall back to the session value for MSOP
-    -- names and only find real data where an output actually exists, which is
-    -- exactly what they were written to handle.)
+    -- counters, and attotime anchors are NOT saved. (MSOP's own outputs are not
+    -- among the saved ones on stock builds - nothing outside the driver can add
+    -- to the output table - so the adopt() calls below fall back to the session
+    -- value for MSOP names and only find real data where an output actually
+    -- exists, which is exactly what they were written to handle.)
     -- Left alone, the first frames after a load fire phantom deltas
     -- (ammo jump -> recoil/reload, credit jump -> "inserted") and the stale
     -- session counters immediately overwrite the freshly restored counter outputs.
@@ -2457,9 +2465,9 @@ function stateoutput.startplugin()
     local function on_machine_stop()
         _IsShuttingDown = true
 
-        -- v9.1.0: drop the native-forward records. Each one can hold a device handle
-        -- and a resolved output proxy belonging to the machine now being torn down
-        -- (v9.0.4 held only names, which were harmless to keep). on_start rebuilds
+        -- Drop the native-forward records. Each one can hold a device handle and a
+        -- resolved output proxy belonging to the machine now being torn down.
+        -- on_start rebuilds
         -- this list wholesale for every ROM, so nothing is lost by clearing it here -
         -- it only guarantees no stale machine reference can outlive its machine. Same
         -- reasoning as the _ProxyCache reset in on_start.
@@ -2504,37 +2512,6 @@ function stateoutput.startplugin()
         Unhook_Frame()
     end
 
-    -- -------------------------------------------------------------------------
-    -- REMOVED IN v9.1.0 - Register_Master_List() and the devices-started hook
-    -- -------------------------------------------------------------------------
-    -- What used to live here registered MSOP's own synthetic output names
-    -- (MSOP_P1_Ammo and the rest) against the root device by calling
-    -- root:register_output(), early enough that MAME had not yet locked its output
-    -- table for save states. It required a patched MAME core to exist at all.
-    --
-    -- That core change was submitted upstream as mamedev/mame PR #15639 and was
-    -- REJECTED - on principle, not for anything fixable in the code. MAME's
-    -- maintainers hold that a machine's outputs are a STATIC part of its
-    -- configuration, in the same way as its I/O ports and devices: fixed for a
-    -- given system configuration, and therefore not something a script may add to.
-    -- Allowing it would also make save states depend on which scripts happened to
-    -- be loaded. The attempt before it, PR #15618, was closed for the same
-    -- underlying reason.
-    --
-    --   https://github.com/mamedev/mame/pull/15639   (create outputs - rejected)
-    --   https://github.com/mamedev/mame/pull/15618   (the earlier attempt)
-    --
-    -- Do not reintroduce this. MSOP does not need it: its own outputs travel over
-    -- the relay (see the MSOP RELAY TRANSPORT LAYER section), which never depended
-    -- on MAME holding them, and which is the only delivery path that works on stock
-    -- 0.289+ in any case.
-    --
-    -- What MSOP does still want from MAME is the opposite direction - being able to
-    -- READ which outputs a machine has created. That is introspection rather than
-    -- creation, adds nothing to the output table, and is what
-    -- Enumerate_Native_Outputs uses where the build supports it.
-    -- -------------------------------------------------------------------------
-
     -- =========================================================================
     -- THE BOOT HOOK (on_start)
     -- This fires exactly once when a specific ROM finishes launching.
@@ -2559,8 +2536,13 @@ function stateoutput.startplugin()
         -- connect - MAME is already loading, so the stall hides in work the player is
         -- waiting on anyway - and it is exactly when a relay is most likely to have
         -- appeared (MESH launched between games, or launching the game itself).
+        -- v9.1.1: this is also the primary re-arm cue for the no-listener give-up - a new
+        -- ROM (or soft reset) restarts the whole never-answered schedule from scratch.
         next_retry_at = 0
         retry_backoff = 0
+        relay_given_up = false
+        cold_fail_count = 0
+        _PassThroughOnly = false
 
         -- ALWAYS broadcast mame_start with the actual ROM name so hookers load the right profile
         broadcast_native_event("mame_start = " .. rom_name .. "\r\n")
@@ -2623,23 +2605,21 @@ function stateoutput.startplugin()
             -- get hit again on the next ROM. Must be cleared every on_start.
             _ProxyCache = {}
 
-            -- v9.1.0: pass-through sets this true and nothing used to clear it, so a
-            -- single unsupported ROM left it set for the rest of the session. That
-            -- kept Forward_Native_Outputs re-resolving a permanently absent name on
-            -- every frame instead of caching the miss once. Supported ROMs resolve
-            -- their outputs at start, so reset it here.
+            -- Pass-through sets this true; without clearing it here, one unsupported
+            -- ROM would leave Forward_Native_Outputs re-resolving permanently absent
+            -- names every frame for the rest of the session. Supported ROMs resolve
+            -- their outputs at start, so the miss-cache is safe again.
             _RetryMissingProxies = false
 
             -- Resolve this ROM's native-output forward list once per load.
             --
-            -- v9.1.0: when this build can enumerate (device.outputs), the running
-            -- machine IS the list, and the scraped databases are not consulted at
-            -- all. They are keyed by driver source file, so they both name outputs a
-            -- given machine never creates and miss machines nobody scraped; asking
-            -- the machine is exact in both directions. Without enumeration this falls
-            -- back to native_outputs_by_rom.lua's auto-scraped entry for this ROM exactly as
-            -- v9.0.4 did (regenerated wholesale by msop_native_outputs_compiler.py -
-            -- never hand-edit it).
+            -- When this build can enumerate (device.outputs), the running machine IS
+            -- the list, and the scraped databases are not consulted at all - they are
+            -- keyed by driver source file, so they both name outputs a given machine
+            -- never creates and miss machines nobody scraped; asking the machine is
+            -- exact in both directions. Without enumeration this falls back to
+            -- native_outputs_by_rom.lua's auto-scraped entry for this ROM (regenerated
+            -- wholesale by msop_native_outputs_compiler.py - never hand-edit it).
             --
             -- database.lua's hand-curated ADDITIONAL_OUTPUT_FORWARDS is applied on top
             -- either way: it exists for names no discovery route can see, e.g. another
@@ -2723,22 +2703,19 @@ function stateoutput.startplugin()
         else
             CFG = nil
 
-            -- PASS-THROUGH MODE (v9.0.2)
+            -- PASS-THROUGH MODE
             -- The ROM has no MSOP profile, but MAME's own NATIVE outputs still exist. Under the relay
             -- the instance runs with -output none/console, so MAME's own network module never gets to
             -- broadcast them and the hookers see NOTHING at all. Mirror whatever native names we know
             -- for this ROM so unsupported games still deliver their lamps/LEDs/etc.
             --
-            -- v9.1.0: this is where enumeration pays off most. The limitation that used to be
-            -- recorded here - "Lua cannot ENUMERATE MAME's output table; output_manager's Lua
-            -- usertype exposes only get/set_value(+indexed), and neither add_global_notifier nor
-            -- notify_all is bound" - is precisely what the read-only device.outputs property
-            -- lifts. With it, an unsupported game forwards its REAL outputs whether or not anyone
-            -- ever scraped its driver. Without it, the scraped-database path below still applies
-            -- unchanged, and a ROM with no entry forwards nothing here and should simply run with
+            -- With device.outputs available, an unsupported game forwards its REAL outputs whether
+            -- or not anyone ever scraped its driver. Without it, the scraped-database path below
+            -- applies, and a ROM with no entry forwards nothing here - it should simply run with
             -- -output network instead, letting MAME broadcast its own natives directly.
             _ProxyCache = {}
             _RetryMissingProxies = true
+            _PassThroughOnly = true -- v9.1.1: this ROM's relay value is mirrored natives only
             _NativeForwards = {}
             do
                 local seen = {}
@@ -2805,6 +2782,17 @@ function stateoutput.startplugin()
                 dbg_print("DISABLED - ROM [" .. rom_name .. "] not supported in database"
                           .. (_UseRelay and " (no scraped native outputs to forward)" or ""))
                 dbg_osd("DISABLED - ROM " .. rom_name .. " not supported")
+                -- v9.1.1: NOTHING TO DELIVER. The one free ROM-start dial above already gave a
+                -- running MESH its mame_start (game tracking / unknown-game recording); if even
+                -- that found nobody - or from here on the connection drops - there is no payload
+                -- that could ever justify another stall, so retries stop outright for this ROM.
+                -- Covers both the no-forwards case and the split-port standdown (where dialling
+                -- 8001 for a game with no MSOP outputs bought nothing at all). Re-armed by the
+                -- usual cues: next ROM start, soft reset, or unpause.
+                if not connected then
+                    relay_given_up = true
+                    dbg_print("Relay: no MSOP payload exists for this ROM - no further dials this session")
+                end
             end
         end
     end
@@ -2826,20 +2814,22 @@ function stateoutput.startplugin()
         
         if emu.add_machine_resume_notifier then
             exports.subscriptions.resume = emu.add_machine_resume_notifier(function()
+                -- v9.1.1 re-arm cue: unpausing is a deliberate player action and the natural
+                -- moment for "pause the game, start MESH, unpause" to be picked up instantly.
+                -- Clearing the give-up + deadline grants exactly ONE immediate dial (via the
+                -- broadcast below, through the usual relay_retry_due gate); if nobody answers,
+                -- the never-answered schedule restarts from scratch. No-op while connected.
+                if not connected then
+                    relay_given_up = false
+                    cold_fail_count = 0
+                    next_retry_at = 0
+                    retry_backoff = 0
+                end
                 broadcast_native_event("pause = 0\r\n")
             end)
         end
         
-        -- 1. (v9.1.0) The devices-started hook that used to register MSOP's own
-        --    synthetic outputs has been removed along with Register_Master_List
-        --    itself - see the "REMOVED IN v9.1.0" note just above on_start, and
-        --    https://github.com/mamedev/mame/pull/15639 for why that capability is
-        --    never coming back. Nothing replaces it here: native outputs are now
-        --    discovered by enumeration from within on_start, which needs no hook of
-        --    its own because a machine's outputs already exist by the time
-        --    machine_reset fires.
-
-        -- 2. RESET Phase: Load the ROM configuration and bind memory
+        -- 1. RESET Phase: Load the ROM configuration and bind memory
         if emu.add_machine_reset_notifier then
             dbg_print("Hooked on_start to machine_reset (RESET)")
             exports.subscriptions.reset = emu.add_machine_reset_notifier(on_start)
@@ -2847,7 +2837,7 @@ function stateoutput.startplugin()
             emu.register_start(on_start)
         end
         
-        -- 3. STOP Phase: Cleanup on session end
+        -- 2. STOP Phase: Cleanup on session end
         if emu.add_machine_stop_notifier then
             exports.subscriptions.stop = emu.add_machine_stop_notifier(on_machine_stop)
         elseif emu.register_stop then

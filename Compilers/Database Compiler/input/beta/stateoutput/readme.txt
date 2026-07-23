@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.1.0
-Plugin Date:    2026.07.22
-Database Date:  2026.07.22
+Plugin Version: 9.1.1
+Plugin Date:    2026.07.23
+Database Date:  2026.07.23
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -38,7 +38,7 @@ to track game states and applies various logic to derive accurate state outputs.
   to ensure the hardware never enters an undefined state.
 
 * Data Handling: The plugin converts internal MAME memory values into
-  actionable signals. Specifically, it tracks key events—such as ammo changes
+  actionable signals. Specifically, it tracks key events - such as ammo changes
   (recoil and/or reload), life changes (damage), lamp states (such as player
   start), and many more, to trigger external hardware response (e.g. force
   feedback, lighting, display counters, etc.).
@@ -135,9 +135,8 @@ HOW MSOP FINDS A GAME'S NATIVE OUTPUTS TO FORWARD
      forwards exactly those - no lookup tables, always current, and correct even for a
      game nobody ever pre-scanned. This uses MAME's read-only 'device.outputs' property,
      proposed upstream as mamedev/mame PR #15745. It only READS the output list and
-     creates nothing, which is why it can be accepted where output CREATION (PR #15639)
-     was not. On any build without it, MSOP silently falls back to (2), so nothing
-     changes on today's stock MAME.
+     creates nothing. On any build without it, MSOP silently falls back to (2), so
+     nothing changes on today's stock MAME.
 
   2. SHIPPED LOOKUP FILES (fallback; every current stock MAME, since #15745 is not yet
      merged). Two optional files sit in the stateoutput folder beside database.lua:
@@ -171,11 +170,9 @@ HOW MSOP FINDS A GAME'S NATIVE OUTPUTS TO FORWARD
   off entirely - 430% vs 435% of realtime with throttling off.
 
 WHEN IS THE RELAY USED AT ALL?
-  MSOP asks the running build whether it can create a custom output - which as of
-  v9.1.0 means one route, the legacy output.set_value, tested for real rather than
-  guessed from a version number. (The other route, register_output, was proposed to
-  MAME as PR #15639 and rejected, so it exists on no build; v9.1.0 removes MSOP's
-  support for it entirely.) If that route does not work, MAME can hold none of
+  MSOP asks the running build whether it can create a custom output - the legacy
+  output.set_value route, tested for real rather than
+  guessed from a version number. If that route does not work, MAME can hold none of
   MSOP's outputs and therefore cannot broadcast them in ANY output mode, so the
   relay is the only delivery path and is switched on regardless of the setting.
   This is deliberately capability-based rather than version-based: custom and
@@ -202,20 +199,42 @@ IF NOTHING IS LISTENING ON THE RELAY PORT
 
   The schedule, timed on a real clock rather than on frames:
       one free attempt at every ROM start, where the pause is hidden inside loading
-      after losing a relay that WAS there   -> 2s, 4s, 8s, then 15s
-      when nothing has ever answered        -> 5s, 10s, then 15s
-      never slower than                        15s
+      after losing a relay that WAS there   -> 2s, 4s, 8s, then every 15s
+      when nothing has ever answered        -> 5s, 10s, then the adaptive cap below
 
-  A SUCCESSFUL connect costs nothing, which is why the first case retries eagerly:
-  a relay that was up moments ago (the MESH app restarting, typically) is very
-  likely to answer. Retries never stop, so starting MESH after MAME still connects
-  within 15 seconds, and every ROM start gets a fresh attempt regardless.
+  A SUCCESSFUL connect costs nothing, which is why the lost-relay case retries
+  eagerly: a relay that was up moments ago (the MESH app restarting, typically) is
+  very likely to answer, and it always keeps the responsive 15s cap.
 
-  What you would notice on an affected machine, with nothing listening: a brief
-  hitch up to once every 15 seconds. Before this pacing existed it was once per
-  second, which held MAME at roughly 45% of full speed. If you are not using the
-  relay at all, set '-output network' on MAME 0.288 or earlier and MSOP will not
-  dial anything.
+  ADAPTIVE BEHAVIOUR WHEN NOBODY EVER ANSWERS (v9.1.1). Every dial is timed. On a
+  machine that refuses a dead port instantly (the healthy case) retries stay at the
+  15s cap - they cost nothing worth avoiding. On a machine where each dial stalls
+  (loopback connects silently dropped), never-answered retries slow to every 60s
+  instead. And once the initial schedule is exhausted with nothing ever answering:
+      * a game MSOP has NO profile for (pass-through only) STOPS dialling for the
+        rest of that session - its relay traffic would only be mirrored native
+        outputs, which is not worth freezing the game for on a repeating timer.
+        A ROM with no native outputs to mirror at all stops after the single
+        ROM-start attempt.
+      * a SUPPORTED game keeps trying at the adaptive cap - its real MSOP outputs
+        (recoil, ammo, life) are worth one dial per interval.
+  Dialling re-arms wherever a listener plausibly just appeared, each costing at
+  most one deliberate dial: every ROM start or soft reset (the pause hides inside
+  loading), and UNPAUSING the machine - so "pause the game, start MESH, unpause"
+  connects instantly.
+
+  THE ON-SCREEN WARNING. The first time a session concludes nobody is listening,
+  MSOP prints a warning to the console AND puts a one-shot message on MAME's OSD:
+  nothing is connected to the MSOP Relay, and MESH (or another hooker tool reading
+  the relay) must be running BEFORE launching a ROM for state outputs to be
+  delivered. When the give-up applies (a game MSOP has no profile for), the same
+  message also states that no further connection attempts will be made this
+  session, and how to reconnect: after starting MESH, pause and unpause the game
+  (or reset / load a new ROM). For supported games it instead notes that MSOP
+  will keep retrying occasionally.
+
+  If you are not using the relay at all, set '-output network' on MAME 0.288 or
+  earlier and MSOP will not dial anything.
 
 WITHOUT MESH (MSOP + a hooker program only)
   * MAME 0.200 - 0.288 ONLY, and MAME must be set to '-output network' (or

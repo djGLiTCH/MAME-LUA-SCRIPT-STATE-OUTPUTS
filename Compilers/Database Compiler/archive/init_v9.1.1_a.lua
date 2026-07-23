@@ -318,21 +318,14 @@ function stateoutput.startplugin()
     -- One-shot, user-facing (deliberately NOT the debug-gated dbg_osd): the player needs
     -- to know WHY nothing is reacting, whether or not diagnostics are on. Fires the first
     -- time the never-answered schedule is exhausted, supported and unsupported ROMs alike.
-    -- `gave_up` folds the retries-have-stopped notice into the SAME message - a second
-    -- popmessage would just replace this one on screen, so the two facts must travel
-    -- together. Ends with how to recover either way.
-    local function warn_no_listener(gave_up)
+    local function warn_no_listener()
         if osd_no_listener_shown then return end
         osd_no_listener_shown = true
-        local tail = gave_up
-            and (" No further connection attempts will be made this session - after starting"
-                 .. " MESH, pause and unpause the game (or reset / load a new ROM) to reconnect.")
-            or  " MSOP will keep retrying occasionally."
         print("[MSOP] WARNING: nothing is listening on the relay port " .. _RelayPort
-              .. " - state outputs are NOT being delivered. Start MESH (or your hooker setup) BEFORE launching a ROM." .. tail)
+              .. " - state outputs are NOT being delivered. Start MESH (or your hooker setup) BEFORE launching a ROM.")
         pcall(function()
             manager.machine:popmessage("MSOP Relay: nothing connected on port " .. _RelayPort
-                .. " - state outputs are NOT being delivered. MESH (or another hooker tool) must be running before launching a ROM in MAME." .. tail)
+                .. " - state outputs are NOT being delivered. MESH (or another hooker tool) must be running before launching a ROM in MAME.")
         end)
     end
 
@@ -448,7 +441,7 @@ function stateoutput.startplugin()
             if not ever_connected then
                 cold_fail_count = cold_fail_count + 1
                 if cold_fail_count >= COLD_GIVE_UP_AFTER then
-                    warn_no_listener(_PassThroughOnly)
+                    warn_no_listener()
                     if _PassThroughOnly then
                         relay_given_up = true
                         print("[MSOP] Relay: giving up for this unsupported ROM ("

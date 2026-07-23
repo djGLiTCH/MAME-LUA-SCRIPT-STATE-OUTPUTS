@@ -15,7 +15,7 @@ Because MAME Lua plugins require a `.lua` array for high-performance reading, th
 ### Folder Structure
 Ensure your files are organized correctly. The compiler resolves all of its paths relative to the project root (so it can be run from anywhere) and expects your individual `.json` game profiles in the `input/stable/database/games` folder. The `_default` game profile must exist in order for this to work properly, as this is used to fill in all the non-mentioned settings and logic for each game profile.
 
-> The tool builds per **release channel**. **`stable`** is the normal channel (and the only one that ships in the downloadable Database Compiler). A parallel **`beta`** channel — `input/beta/…` → `output/beta/…` — is kept by the maintainer for new/untested games, so a beta plugin is always paired with beta Hook Of The Reaper / MAMEhooker files generated from that *same* beta database.
+> The tool builds per **release channel**. **`stable`** is the normal channel (and the only one that ships in the downloadable Database Compiler). A parallel **`beta`** channel - `input/beta/...` > `output/beta/...` - is kept by the maintainer for new/untested games, so a beta plugin is always paired with beta Hook Of The Reaper / MAMEhooker files generated from that *same* beta database.
 
 ```text
 Database Compiler/
@@ -61,7 +61,7 @@ Ensure you have Python 3 installed on your Windows system and that it is added t
 
 **Alternative:** Open Command Prompt (`cmd`), `cd` to the MSOP Compiler's `scripts` folder, and run `run_stable.bat`.
 
-> **Reverse compile (rebuild per-game JSONs from a single `database.json`):** run `python msop_database_compiler.py` on its own — with no channel argument it shows the interactive menu with **`[ 1 ]`** (per-game JSONs → `database.lua`) and **`[ 2 ]`** (`database.json` → per-game JSONs). The `run_*` launchers always use option 1.
+> **Reverse compile (rebuild per-game JSONs from a single `database.json`):** run `python msop_database_compiler.py` on its own - with no channel argument it shows the interactive menu with **`[ 1 ]`** (per-game JSONs > `database.lua`) and **`[ 2 ]`** (`database.json` > per-game JSONs). The `run_*` launchers always use option 1.
 
 #### Linux or macOS
 
@@ -80,20 +80,20 @@ Modern Linux and macOS distributions usually require python3 (which the MSOP Com
 4. Execute it:
 
     **`./scripts/run_stable.sh`**
-5. The terminal shows each step's progress (database compile → HOTR templates → MAMEhooker INIs) and prints a summary when it finishes.
+5. The terminal shows each step's progress (database compile > HOTR templates > MAMEhooker INIs) and prints a summary when it finishes.
 
 As on Windows, run `python3 msop_database_compiler.py` on its own for the interactive menu (option **`[ 2 ]`** rebuilds the per-game JSONs from a single `database.json`).
 
 
 #### How The Pipeline Works
 
-Running `run_stable` (or `run_beta` / `run`) executes these steps for that channel, all reading from its `input/…` and writing to its `output/…`:
-1. **Database compile** — reads every individual `.json` in the channel's `games` folder (or the single combined `database.json`), validates each for correct JSON syntax (if there's an error you're told the specific line), keeps the two source formats in sync, and generates a fresh `database.lua` (plus `database.json`).
-2. **Driver compile** *(optional)* — if a MAME source path is set, scrapes MAME's own native output names into `native_outputs_by_rom.lua` so the plugin can re-broadcast them. Skipped otherwise, in which case the plugin simply delivers its MSOP outputs only.
-3. **Hook Of The Reaper templates** — generates a `defaultLG` mapping file per supported game into `output/<channel>/defaultLG/`.
-4. **MAMEhooker skeletons** — generates a blank per-game `.ini` into `output/<channel>/ini/`, prepopulated with the MSOP outputs that game emits (and, if the driver ran, the MAME native outputs too).
+Running `run_stable` (or `run_beta` / `run`) executes these steps for that channel, all reading from its `input/...` and writing to its `output/...`:
+1. **Database compile** - reads every individual `.json` in the channel's `games` folder (or the single combined `database.json`), validates each for correct JSON syntax (if there's an error you're told the specific line), keeps the two source formats in sync, and generates a fresh `database.lua` (plus `database.json`).
+2. **Driver compile** *(optional)* - if a MAME source path is set, scrapes MAME's own native output names into `native_outputs_by_rom.lua` so the plugin can re-broadcast them. Skipped otherwise, in which case the plugin simply delivers its MSOP outputs only.
+3. **Hook Of The Reaper templates** - generates a `defaultLG` mapping file per supported game into `output/<channel>/defaultLG/`.
+4. **MAMEhooker skeletons** - generates a blank per-game `.ini` into `output/<channel>/ini/`, prepopulated with the MSOP outputs that game emits (and, if the driver ran, the MAME native outputs too).
 
-Your new `database.lua` (in `output/stable/stateoutput/`) is now ready to be used in MAME with the MSOP Plugin. For the complete launcher reference — the MSOP-only variants, the single-generator launchers, and how the maintainer builds the beta channel — see the Database Compiler's own `README.md`.
+Your new `database.lua` (in `output/stable/stateoutput/`) is now ready to be used in MAME with the MSOP Plugin. For the complete launcher reference - the MSOP-only variants, the single-generator launchers, and how the maintainer builds the beta channel - see the Database Compiler's own `README.md`.
 
 If you have added support for additional games, sharing this with the community via a pull request on the MSOP GitHub would be greatly appreciated. :)
 
@@ -143,7 +143,7 @@ These variables protect physical arcade hardware from burning out.
 ### Feature Toggles & Fixes
 * **`SCREEN_FLASH`**: For use with older arcade games that used a 'screen flash' to detect crosshair position on-screen in a game (common with CRT displays). Set to `true` and provide the `SCREEN_FLASH_MEMORY_ADDRESS` and `SCREEN_FLASH_DISABLE_VALUE` to actively overwrite MAME's memory and disable blinding white screen flashes.
 * **`DEMULSHOOTER_COMPATIBILITY`**: Seamlessly duplicates outputs to `CtmRecoil` and `Damaged` to sync with DemulShooter architecture. When set to `true`, this will duplicate `RECOIL` and `DAMAGE` outputs so that both the plugin naming convention (`Recoil` and `Damage`) and demulshooter naming convention (`CtmRecoil` and `Damaged`) are utilised. This is set to `true` by default.
-* **`ADDITIONAL_OUTPUT_FORWARDS`**: A list of extra MAME-native output names (lamps, LEDs, etc.) for the plugin to re-broadcast alongside its own state outputs for this game — on top of the per-driver list that ships compiled in `native_outputs_by_rom.lua`. Useful when a driver exposes native outputs you want delivered through the same MSOP stream.
+* **`ADDITIONAL_OUTPUT_FORWARDS`**: A list of extra MAME-native output names (lamps, LEDs, etc.) for the plugin to re-broadcast alongside its own state outputs for this game - on top of the per-driver list that ships compiled in `native_outputs_by_rom.lua`. Useful when a driver exposes native outputs you want delivered through the same MSOP stream.
 
 ---
 
@@ -278,7 +278,7 @@ Please note that the following examples are stripped down versions of the .json 
 
 ### Example 7: The Turn-Based Game (*Duck Hunt*)
 **The Goal:** Support a multiplayer game where players take turns using the exact same controller, meaning only one player is ever truly "active" on the screen.
-**The Execution:** Set the `SIMULTANEOUS_PLAY` flag to `false`. Set `PLAYER_MEMORY_OFFSET` to `0` so the plugin doesn't try to calculate secondary blocks. Map unique `STATUS` addresses for both players, but share the `AMMO` and `LIFE` data—the plugin will route the shared data to whichever player's status is currently active.
+**The Execution:** Set the `SIMULTANEOUS_PLAY` flag to `false`. Set `PLAYER_MEMORY_OFFSET` to `0` so the plugin doesn't try to calculate secondary blocks. Map unique `STATUS` addresses for both players, but share the `AMMO` and `LIFE` data - the plugin will route the shared data to whichever player's status is currently active.
 
 ```json
 {

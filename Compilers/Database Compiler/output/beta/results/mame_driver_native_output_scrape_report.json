@@ -319,7 +319,7 @@
         }
     },
     "dragngun": {
-        "driver_file": "src\\mame\\dataeast\\deco32.cpp",
+        "driver_file": "src\\mame\\dataeast\\dragngun.cpp",
         "class": "dragngun_state",
         "layout_file": null,
         "candidates": {
@@ -328,7 +328,7 @@
         }
     },
     "dragngunj": {
-        "driver_file": "src\\mame\\dataeast\\deco32.cpp",
+        "driver_file": "src\\mame\\dataeast\\dragngun.cpp",
         "class": "dragngun_state",
         "layout_file": null,
         "candidates": {
