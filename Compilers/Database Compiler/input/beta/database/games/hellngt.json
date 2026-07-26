@@ -1,0 +1,26 @@
+{
+    "LUA_GAME": "Hell Night",
+    "ENABLE_ROM": true,
+    "CPU_TAG": ":ppc1",
+    "STARTUP_DELAY_MS": 40000,
+    "MAX_PLAYERS": 3,
+    "PLAYER_MEMORY_OFFSET": "0x38",
+    "CREDITS": "0x40126FBD",
+    "GAME_STATUS": "0x4012710D",
+    "P1": {
+        "STATUS": "0x4012711D",
+        "AMMO": "0x4012714B",
+        "LIFE": "0x40127121"
+    },
+    "P2": {
+        "STATUS_comment": "P2 Status = 0x40127155",
+        "AMMO_comment": "P2 Ammo = 0x40127183",
+        "LIFE_comment": "P2 Life = 0x40127159"
+    },
+    "P3": {
+        "STATUS_comment": "P3 Status = 0x4012718D",
+        "AMMO_comment": "P3 Ammo = 0x401271BB",
+        "LIFE_comment": "P3 Life = 0x40127191"
+    },
+    "ADDITIONAL_OUTPUT_FORWARDS": []
+}

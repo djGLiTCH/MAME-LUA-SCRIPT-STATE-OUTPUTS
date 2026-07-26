@@ -1,0 +1,31 @@
+{
+    "LUA_GAME": "Jurassic Park III",
+    "ENABLE_ROM": true,
+    "STARTUP_DELAY_MS": 35000,
+    "COINS_PER_CREDIT": 1,
+    "COINS_PER_CREDIT_comment": "First Play = 2 Credits, Continue = 1 Credit",
+    "PLAYER_MEMORY_OFFSET": "0x38",
+    "CREDITS": "0x002EAC13",
+    "CREDITS_comment": "Credits = 0x002EAC13 or 0x002EAC17",
+    "GAME_STATUS": "",
+    "P1": {
+        "STATUS": "0x0034F345",
+        "STATUS_ACTIVE_VALUE": [
+            1,
+            3
+        ],
+        "AMMO": "0x00588CA1",
+        "AMMO_comment": "Needs validation",
+        "LIFE": "0x00350C21"
+    },
+    "P2": {
+        "STATUS": "0x0034F345",
+        "STATUS_ACTIVE_VALUE": [
+            2,
+            3
+        ],
+        "AMMO": "",
+        "LIFE": "0x00351A41"
+    },
+    "ADDITIONAL_OUTPUT_FORWARDS": []
+}

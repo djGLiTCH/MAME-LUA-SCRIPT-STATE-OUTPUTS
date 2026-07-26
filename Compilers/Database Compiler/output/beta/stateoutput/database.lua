@@ -3,7 +3,7 @@
 -- MSOP DATABASE LUA
 -- Script Version: 3.4.2
 -- Script Date: 2026.07.20
--- Compiled Date: 2026.07.23
+-- Compiled Date: 2026.07.27
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,8 +15,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 911,
-        ["LUA_DATE"] = 20260723,
+        ["LUA_VERSION"] = 912,
+        ["LUA_DATE"] = 20260727,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
         ["OFFSCREEN_RELOAD"] = false,
@@ -618,6 +618,60 @@ local database = {
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },
+    ["evilngt"] = {
+        ["LUA_GAME"] = "Evil Night",
+        ["ENABLE_ROM"] = true,
+        ["CPU_TAG"] = ":ppc1",
+        ["STARTUP_DELAY_MS"] = 40000,
+        ["MAX_PLAYERS"] = 3,
+        ["PLAYER_MEMORY_OFFSET"] = "0x38",
+        ["CREDITS"] = "0x4012CADD",
+        ["GAME_STATUS"] = "0x4012CC2D",
+        ["P1"] = {
+            ["STATUS"] = "0x4012CC3D",
+            ["AMMO"] = "0x4012CC6B",
+            ["LIFE"] = "0x4012CC41"
+        },
+        ["P2"] = {
+            ["STATUS_comment"] = "P2 Status = 0x4012CC75",
+            ["AMMO_comment"] = "P2 Ammo = 0x4012CCA3",
+            ["LIFE_comment"] = "P2 Life = 0x4012CC79"
+        },
+        ["P3"] = {
+            ["STATUS_comment"] = "P3 Status = 0x4012CCAD",
+            ["AMMO_comment"] = "P3 Ammo = 0x4012CCDB",
+            ["LIFE_comment"] = "P3 Life = 0x4012CCB1"
+        },
+        ["ADDITIONAL_OUTPUT_FORWARDS"] = {
+        }
+    },
+    ["hellngt"] = {
+        ["LUA_GAME"] = "Hell Night",
+        ["ENABLE_ROM"] = true,
+        ["CPU_TAG"] = ":ppc1",
+        ["STARTUP_DELAY_MS"] = 40000,
+        ["MAX_PLAYERS"] = 3,
+        ["PLAYER_MEMORY_OFFSET"] = "0x38",
+        ["CREDITS"] = "0x40126FBD",
+        ["GAME_STATUS"] = "0x4012710D",
+        ["P1"] = {
+            ["STATUS"] = "0x4012711D",
+            ["AMMO"] = "0x4012714B",
+            ["LIFE"] = "0x40127121"
+        },
+        ["P2"] = {
+            ["STATUS_comment"] = "P2 Status = 0x40127155",
+            ["AMMO_comment"] = "P2 Ammo = 0x40127183",
+            ["LIFE_comment"] = "P2 Life = 0x40127159"
+        },
+        ["P3"] = {
+            ["STATUS_comment"] = "P3 Status = 0x4012718D",
+            ["AMMO_comment"] = "P3 Ammo = 0x401271BB",
+            ["LIFE_comment"] = "P3 Life = 0x40127191"
+        },
+        ["ADDITIONAL_OUTPUT_FORWARDS"] = {
+        }
+    },
     ["hotd"] = {
         ["LUA_GAME"] = "The House of the Dead",
         ["ENABLE_ROM"] = true,
@@ -761,6 +815,38 @@ local database = {
         ["RECOIL_METHOD"] = "hold",
         ["RECOIL_PRIORITY"] = "recoil",
         ["ENABLE_RELOAD_AMMO"] = false,
+        ["ADDITIONAL_OUTPUT_FORWARDS"] = {
+        }
+    },
+    ["jpark3"] = {
+        ["LUA_GAME"] = "Jurassic Park III",
+        ["ENABLE_ROM"] = true,
+        ["STARTUP_DELAY_MS"] = 35000,
+        ["COINS_PER_CREDIT"] = 1,
+        ["COINS_PER_CREDIT_comment"] = "First Play = 2 Credits, Continue = 1 Credit",
+        ["PLAYER_MEMORY_OFFSET"] = "0x38",
+        ["CREDITS"] = "0x002EAC13",
+        ["CREDITS_comment"] = "Credits = 0x002EAC13 or 0x002EAC17",
+        ["GAME_STATUS"] = "",
+        ["P1"] = {
+            ["STATUS"] = "0x0034F345",
+            ["STATUS_ACTIVE_VALUE"] = {
+                1,
+                3
+            },
+            ["AMMO"] = "0x00588CA1",
+            ["AMMO_comment"] = "Needs validation",
+            ["LIFE"] = "0x00350C21"
+        },
+        ["P2"] = {
+            ["STATUS"] = "0x0034F345",
+            ["STATUS_ACTIVE_VALUE"] = {
+                2,
+                3
+            },
+            ["AMMO"] = "",
+            ["LIFE"] = "0x00351A41"
+        },
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },

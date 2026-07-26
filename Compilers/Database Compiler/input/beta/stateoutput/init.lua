@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.1.1
--- Plugin Date: 2026.07.23
+-- Plugin Version: 9.1.2
+-- Plugin Date: 2026.07.26
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -34,7 +34,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.1.1",
+    version = "9.1.2",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -186,11 +186,11 @@ function stateoutput.startplugin()
     local _RelayPortStamped = false
 
     -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
-    -- KEEP IN SYNC with the header + exports.version above (911 == v9.1.1).
+    -- KEEP IN SYNC with the header + exports.version above (912 == v9.1.2).
     -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 911
-    local PLUGIN_DATE_NUM    = 20260723
+    local PLUGIN_VERSION_NUM = 912
+    local PLUGIN_DATE_NUM    = 20260726
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -267,6 +267,14 @@ function stateoutput.startplugin()
     local sock = nil
     local connected = false
     local first_frame_seeded = false
+
+    -- The running game's mame_start line ("mame_start = <rom>\r\n"), set in on_start and
+    -- cleared at mame_stop. Unlike a one-shot broadcast, keeping it here lets connect_socket
+    -- RE-ANNOUNCE the game on every (re)connect - so a listener (MESH / a hooker) that attaches
+    -- even a frame after the ROM started still learns which profile to load. Without this, the
+    -- output VALUES survive a late connect (Resync_Relay_State replays them) but mame_start does
+    -- not, so a slightly-late listener sees the outputs yet never gets the game announcement.
+    local _ActiveMameStart = nil
 
     -- RECONNECT BACK-OFF (v9.0.4) ------------------------------------------------------
     -- A FAILED dial blocks the emulation thread for however long the OS takes to refuse
@@ -426,6 +434,25 @@ function stateoutput.startplugin()
             relay_given_up = false
             print("[MSOP] Connected to Relay on port " .. _RelayPort)
             last_state = {}
+
+            -- Re-announce the running game to whatever just connected. mame_start is
+            -- otherwise one-shot (on_start), so a listener attaching a frame late would
+            -- get every output value via the resync below yet never learn which ROM to
+            -- load a profile for. Sent BEFORE the resync so the profile is in place when
+            -- the values arrive. Written directly - teardown_connection is not in scope
+            -- yet, so a (very unlikely) failed write on a just-opened socket is handled
+            -- inline exactly like a failed dial.
+            if _ActiveMameStart then
+                local ok_w, n_w = pcall(sock.write, sock, _ActiveMameStart)
+                if not (ok_w and n_w and n_w > 0) then
+                    if sock then sock:close() end
+                    sock = nil
+                    connected = false
+                    arm_relay_retry(RETRY_WARM_FIRST)
+                    return
+                end
+            end
+
             -- Only a genuine no-op before any ROM has loaded/warmed up this
             -- session (nothing to resync yet - the normal warmup flush
             -- covers that case on its own). When it does resync, mark this
@@ -502,15 +529,15 @@ function stateoutput.startplugin()
         changes_detected = false
     end
 
-    -- Lifecycle pings (mame_start/mame_stop/pause) bypass payload_buffer
-    -- entirely and write immediately. They're one-shot events with no "last
-    -- value" to diff against, and they can't wait for the next
-    -- flush_payload_to_relay() call - that only runs from Compute_Outputs,
-    -- which may not fire again for a while (or ever, right after mame_stop).
-    -- Also opportunistically opens the connection if it isn't up yet, so a
-    -- mame_start sent before the engine's first frame still gets through -
-    -- subject to the same reconnect back-off as the frame path, since a
-    -- failed dial is equally expensive whichever path made it.
+    -- Transient lifecycle pings (mame_stop/pause) bypass payload_buffer entirely and
+    -- write immediately. They're one-shot events with no "last value" to diff against,
+    -- and they can't wait for the next flush_payload_to_relay() call - that only runs
+    -- from Compute_Outputs, which may not fire again for a while (or ever, right after
+    -- mame_stop). Also opportunistically opens the connection if it isn't up yet, subject
+    -- to the same reconnect back-off as the frame path.
+    -- (mame_start is NOT sent this way: it identifies the running game and so must survive
+    -- a late/reconnecting listener, which a one-shot write cannot. It lives in
+    -- _ActiveMameStart and is re-announced on every connect - see connect_socket.)
     -- A failed write here tears the connection down the same way a failed
     -- flush does (see teardown_connection), so a dead write can never leave
     -- connected=true pointing at a closed socket.
@@ -1183,11 +1210,9 @@ function stateoutput.startplugin()
             if not _UseRelay then
                 _UseRelay = true
                 dbg_print("Relay auto-enabled (native output creation is impossible on this build).")
-                -- on_start's mame_start ping was suppressed while _UseRelay was false, so
-                -- resend it now that the relay is live, or a hooker connecting fresh would
-                -- never learn which game to load its profile for.
-                local rok, rname = pcall(function() return manager.machine.system.name end)
-                if rok and rname then broadcast_native_event("mame_start = " .. rname .. "\r\n") end
+                -- No need to resend mame_start here: _ActiveMameStart already holds the running
+                -- game (set in on_start), and connect_socket re-announces it on the next connect -
+                -- which the frame flush triggers now that the relay is live.
             end
         end
     end
@@ -2473,6 +2498,10 @@ function stateoutput.startplugin()
         -- reasoning as the _ProxyCache reset in on_start.
         _NativeForwards = {}
 
+        -- No game is running now, so a relay that (re)connects after this must NOT re-announce
+        -- a stale ROM. Clear it before the stop ping goes out.
+        _ActiveMameStart = nil
+
         -- ALWAYS broadcast mame_stop so hookers know to sleep
         broadcast_native_event("mame_stop = 1\r\n")
         
@@ -2544,8 +2573,20 @@ function stateoutput.startplugin()
         cold_fail_count = 0
         _PassThroughOnly = false
 
-        -- ALWAYS broadcast mame_start with the actual ROM name so hookers load the right profile
-        broadcast_native_event("mame_start = " .. rom_name .. "\r\n")
+        -- Remember the running game so the relay can (re)announce it on every (re)connect
+        -- (see connect_socket), then deliver it now. Opening the relay here also serves as
+        -- the one free ROM-start dial. On a native-delivery install (_UseRelay false) MAME
+        -- emits mame_start itself, so we only track + dial when the relay is our path.
+        _ActiveMameStart = "mame_start = " .. rom_name .. "\r\n"
+        if _UseRelay then
+            if connected and sock then
+                -- Already connected (e.g. a mid-process ROM switch): announce the new game now.
+                local ok_w, n_w = pcall(sock.write, sock, _ActiveMameStart)
+                if not (ok_w and n_w and n_w > 0) then teardown_connection() end
+            elseif relay_retry_due() then
+                connect_socket()  -- on success, connect_socket sends _ActiveMameStart itself
+            end
+        end
         
         dbg_print("Checking ROM [" .. rom_name .. "] against database")
 		dbg_osd("Checking ROM [" .. rom_name .. "] against database")
