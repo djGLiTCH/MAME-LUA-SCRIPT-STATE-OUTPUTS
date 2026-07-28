@@ -3,9 +3,9 @@
     "ENABLE_ROM": true,
     "STARTUP_DELAY_MS": 4000,
     "MIN_RECOIL_INTERVAL_MS": 100,
-    "MIN_RECOIL_INTERVAL_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+    "MIN_RECOIL_INTERVAL_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",
     "RECOIL_HOLD_MS": 100,
-    "RECOIL_HOLD_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+    "RECOIL_HOLD_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",
     "CREDITS": "0x0011F220",
     "GAME_STATUS": "0x0011F1BC",
     "P1": {

@@ -1,7 +1,7 @@
 {
     "_default": {
         "LUA_VERSION": 912,
-        "LUA_DATE": 20260727,
+        "LUA_DATE": 20260728,
         "LUA_GAME": "Default MSOP Plugin Values",
         "ENABLE_ROM": false,
         "OFFSCREEN_RELOAD": false,

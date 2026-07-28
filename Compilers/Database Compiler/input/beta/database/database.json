@@ -1,7 +1,7 @@
 {
     "_default": {
         "LUA_VERSION": 912,
-        "LUA_DATE": 20260727,
+        "LUA_DATE": 20260728,
         "LUA_GAME": "Default MSOP Plugin Values",
         "ENABLE_ROM": false,
         "OFFSCREEN_RELOAD": false,
@@ -506,9 +506,9 @@
         "ENABLE_ROM": true,
         "STARTUP_DELAY_MS": 4000,
         "MIN_RECOIL_INTERVAL_MS": 100,
-        "MIN_RECOIL_INTERVAL_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+        "MIN_RECOIL_INTERVAL_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",
         "RECOIL_HOLD_MS": 100,
-        "RECOIL_HOLD_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
+        "RECOIL_HOLD_MS_comment": "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",
         "CREDITS": "0x0011F220",
         "GAME_STATUS": "0x0011F1BC",
         "P1": {
@@ -594,8 +594,13 @@
     "evilngt": {
         "LUA_GAME": "Evil Night",
         "ENABLE_ROM": true,
+        "OFFSCREEN_RELOAD": true,
+        "SCREEN_FLASH": true,
+        "SCREEN_FLASH_MEMORY_ADDRESS": false,
+        "SCREEN_FLASH_DISABLE_VALUE": false,
+        "SCREEN_FLASH_RESTORE_VALUE": false,
         "CPU_TAG": ":ppc1",
-        "STARTUP_DELAY_MS": 40000,
+        "STARTUP_DELAY_MS": 18000,
         "MAX_PLAYERS": 3,
         "PLAYER_MEMORY_OFFSET": "0x38",
         "CREDITS": "0x4012CADD",
@@ -620,8 +625,13 @@
     "hellngt": {
         "LUA_GAME": "Hell Night",
         "ENABLE_ROM": true,
+        "OFFSCREEN_RELOAD": true,
+        "SCREEN_FLASH": true,
+        "SCREEN_FLASH_MEMORY_ADDRESS": false,
+        "SCREEN_FLASH_DISABLE_VALUE": false,
+        "SCREEN_FLASH_RESTORE_VALUE": false,
         "CPU_TAG": ":ppc1",
-        "STARTUP_DELAY_MS": 40000,
+        "STARTUP_DELAY_MS": 18000,
         "MAX_PLAYERS": 3,
         "PLAYER_MEMORY_OFFSET": "0x38",
         "CREDITS": "0x40126FBD",
@@ -788,21 +798,27 @@
     "jpark3": {
         "LUA_GAME": "Jurassic Park III",
         "ENABLE_ROM": true,
+        "OFFSCREEN_RELOAD": true,
+        "SCREEN_FLASH": true,
+        "SCREEN_FLASH_MEMORY_ADDRESS": false,
+        "SCREEN_FLASH_DISABLE_VALUE": false,
+        "SCREEN_FLASH_RESTORE_VALUE": false,
         "STARTUP_DELAY_MS": 35000,
         "COINS_PER_CREDIT": 1,
         "COINS_PER_CREDIT_comment": "First Play = 2 Credits, Continue = 1 Credit",
-        "PLAYER_MEMORY_OFFSET": "0x38",
+        "PLAYER_MEMORY_OFFSET": "0xE20",
         "CREDITS": "0x002EAC13",
         "CREDITS_comment": "Credits = 0x002EAC13 or 0x002EAC17",
-        "GAME_STATUS": "",
+        "GAME_STATUS": "0x0034F345",
+        "GAME_STATUS_comment": "Need to verify if this works during attract mode",
         "P1": {
             "STATUS": "0x0034F345",
             "STATUS_ACTIVE_VALUE": [
                 1,
                 3
             ],
-            "AMMO": "0x00588CA1",
-            "AMMO_comment": "Needs validation",
+            "AMMO": "0x003508CB",
+            "AMMO_comment": "Needs validation 0x00588CA1",
             "LIFE": "0x00350C21"
         },
         "P2": {
@@ -811,8 +827,8 @@
                 2,
                 3
             ],
-            "AMMO": "",
-            "LIFE": "0x00351A41"
+            "AMMO_comment": "P2 Ammo = 0x003516EB",
+            "LIFE_comment": "P2 Life = 0x00351A41"
         },
         "ADDITIONAL_OUTPUT_FORWARDS": []
     },
@@ -1144,6 +1160,42 @@
         "ENABLE_RELOAD_AMMO": false,
         "ADDITIONAL_OUTPUT_FORWARDS": []
     },
+    "terabrst": {
+        "LUA_GAME": "Teraburst",
+        "ENABLE_ROM": true,
+        "STARTUP_DELAY_MS": 16000,
+        "RECOIL_HOLD_MS": 100,
+        "RECOIL_HOLD_MS_comment": "Unknown recoil interval for terabrst (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",
+        "COINS_PER_CREDIT": 3,
+        "P1": {
+            "CREDITS": "0x0023A538",
+            "STATUS": "0x0023A97D",
+            "STATUS_comment": "Status is shared between P1 and P2",
+            "STATUS_ACTIVE_VALUE": [
+                1,
+                3
+            ],
+            "RECOIL": "0x0023AA78",
+            "RECOIL_comment": "P1 Recoil = 0x0023AA78 or 0x0023B329",
+            "LIFE": "0x002426FB",
+            "LIFE_comment": "P1 Life = 0x002426FB or 0x0025324D"
+        },
+        "P2": {
+            "CREDITS_comment": "P2 Credits = 0x0023A544",
+            "STATUS": "0x0023A97D",
+            "STATUS_comment": "Status is shared between P1 and P2",
+            "STATUS_ACTIVE_VALUE": [
+                2,
+                3
+            ],
+            "RECOIL": "0x0023ACE8",
+            "RECOIL_comment": "P2 Recoil = 0x0023ACE8",
+            "LIFE": "0x00242453",
+            "LIFE_comment": "P2 Life = 0x00242453 or 0x00253275"
+        },
+        "RECOIL_METHOD": "hold",
+        "ADDITIONAL_OUTPUT_FORWARDS": []
+    },
     "timecris": {
         "LUA_GAME": "Time Crisis",
         "ENABLE_ROM": true,
@@ -1192,6 +1244,31 @@
             "STATUS": "auto",
             "AMMO": "0x002F43FF",
             "LIFE": "0x002F4401"
+        },
+        "ADDITIONAL_OUTPUT_FORWARDS": []
+    },
+    "totlvice": {
+        "LUA_GAME": "Total Vice",
+        "ENABLE_ROM": true,
+        "OFFSCREEN_RELOAD": true,
+        "SCREEN_FLASH": true,
+        "SCREEN_FLASH_MEMORY_ADDRESS": false,
+        "SCREEN_FLASH_DISABLE_VALUE": false,
+        "SCREEN_FLASH_RESTORE_VALUE": false,
+        "CPU_TAG": ":ppc1",
+        "STARTUP_DELAY_MS": 18000,
+        "PLAYER_MEMORY_OFFSET": "0x38",
+        "CREDITS": "0x400FA797",
+        "GAME_STATUS": "0x400FA899",
+        "P1": {
+            "STATUS": "0x400FA8AD",
+            "AMMO": "0x400FA8DB",
+            "LIFE": "0x400FA8B1"
+        },
+        "P2": {
+            "STATUS_comment": "P2 Status = 0x400FA8E5",
+            "AMMO_comment": "P2 Ammo = 0x400FA913",
+            "LIFE_comment": "P2 Life = 0x400FA8E9"
         },
         "ADDITIONAL_OUTPUT_FORWARDS": []
     },
