@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.1.2
--- Plugin Date: 2026.07.26
+-- Plugin Version: 9.1.3
+-- Plugin Date: 2026.07.28
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -34,7 +34,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.1.2",
+    version = "9.1.3",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -186,11 +186,11 @@ function stateoutput.startplugin()
     local _RelayPortStamped = false
 
     -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
-    -- KEEP IN SYNC with the header + exports.version above (912 == v9.1.2).
+    -- KEEP IN SYNC with the header + exports.version above (913 == v9.1.3).
     -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 912
-    local PLUGIN_DATE_NUM    = 20260726
+    local PLUGIN_VERSION_NUM = 913
+    local PLUGIN_DATE_NUM    = 20260728
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -317,6 +317,10 @@ function stateoutput.startplugin()
     local RETRY_MAX_EXPENSIVE = 60.0 -- never-answered cap once dials are KNOWN to stall
     local EXPENSIVE_DIAL_SECS = 0.5  -- one dial slower than this = SYNs are being dropped
     local COLD_GIVE_UP_AFTER  = 4    -- ROM-start dial + 3 scheduled retries (~30s cold)
+    local COLD_WARN_AFTER     = 2    -- supported ROM: say "MESH not running" after ~5s (1 retry of
+                                     -- grace), NOT at the give-up point - the player must see the
+                                     -- reason promptly, while a MESH launched a beat behind MAME
+                                     -- still connects before the warning fires.
     local dial_is_expensive = false  -- latched for the session by any one slow dial
     local cold_fail_count   = 0      -- consecutive failed dials while never connected
     local relay_given_up    = false  -- pass-through session concluded nobody is listening
@@ -335,13 +339,38 @@ function stateoutput.startplugin()
         local tail = gave_up
             and (" No further connection attempts will be made this session - after starting"
                  .. " MESH, pause and unpause the game (or reset / load a new ROM) to reconnect.")
-            or  " MSOP will keep retrying occasionally."
-        print("[MSOP] WARNING: nothing is listening on the relay port " .. _RelayPort
-              .. " - state outputs are NOT being delivered. Start MESH (or your hooker setup) BEFORE launching a ROM." .. tail)
+            or  " MSOP will keep retrying, so starting MESH now will connect on its own."
+        print("[MSOP] WARNING: MESH IS NOT RUNNING - nothing is listening on the MSOP relay port "
+              .. _RelayPort .. ", so NONE of MSOP's state outputs (recoil, rumble, lamps, LEDs) are"
+              .. " reaching your hardware or hooker programs. MESH provides the relay that carries"
+              .. " these outputs; start it and leave it running before launching a ROM." .. tail)
         pcall(function()
-            manager.machine:popmessage("MSOP Relay: nothing connected on port " .. _RelayPort
-                .. " - state outputs are NOT being delivered. MESH (or another hooker tool) must be running before launching a ROM in MAME." .. tail)
+            manager.machine:popmessage("MSOP: MESH IS NOT RUNNING\n"
+                .. "Nothing is listening on relay port " .. _RelayPort .. " - MSOP's state outputs"
+                .. " are NOT being delivered.\nStart MESH (it relays MSOP's outputs to your"
+                .. " hardware) before launching a ROM." .. tail)
         end)
+    end
+
+    -- One-shot, UNGATED console banner (not the dbg-gated dbg_print): announces, the moment the
+    -- relay is confirmed as the ONLY delivery path (MAME 0.289+, or -output none/console), that MESH
+    -- has to be running. The "Relay mode: ENABLED ..." diagnostics in resolve_relay_mode are all
+    -- dbg-gated and so invisible to a normal user, which left the delivery model unexplained until
+    -- something failed. This always prints, so anyone reading MAME's console/log sees the MESH
+    -- requirement up front. The matching ON-SCREEN (OSD) notice is deliberately left to
+    -- warn_no_listener() - it fires only if the relay genuinely has no listener, so a user who DOES
+    -- have MESH running is informed in the console but never nagged on screen.
+    local relay_required_announced = false
+    local function announce_relay_required()
+        if relay_required_announced then return end
+        relay_required_announced = true
+        print("[MSOP] ----------------------------------------------------------------")
+        print("[MSOP] MESH REQUIRED: MSOP is sending this session's state outputs to the")
+        print("[MSOP] MSOP relay on 127.0.0.1:" .. _RelayPort .. ". MESH must be running there to")
+        print("[MSOP] receive and forward them (recoil / rumble / lamps / LEDs) to your")
+        print("[MSOP] hardware and hooker programs - with nothing listening on that port,")
+        print("[MSOP] these outputs are not delivered anywhere.")
+        print("[MSOP] ----------------------------------------------------------------")
     end
 
     -- Monotonic wall-clock seconds. emu.osd_ticks is MAME's own cross-platform monotonic
@@ -432,7 +461,8 @@ function stateoutput.startplugin()
             ever_connected = true
             cold_fail_count = 0
             relay_given_up = false
-            print("[MSOP] Connected to Relay on port " .. _RelayPort)
+            print("[MSOP] Connected to the MSOP relay (MESH) on port " .. _RelayPort
+                  .. " - state outputs are now being delivered.")
             last_state = {}
 
             -- Re-announce the running game to whatever just connected. mame_start is
@@ -474,13 +504,25 @@ function stateoutput.startplugin()
             -- ROM keeps trying (its real MSOP outputs are worth one stall per cap).
             if not ever_connected then
                 cold_fail_count = cold_fail_count + 1
-                if cold_fail_count >= COLD_GIVE_UP_AFTER then
-                    warn_no_listener(_PassThroughOnly)
-                    if _PassThroughOnly then
+                if _PassThroughOnly then
+                    -- Unsupported ROM: the relay would only carry mirrored native outputs, and the
+                    -- plugin stops dialling after COLD_GIVE_UP_AFTER to avoid stalling the game
+                    -- forever. Warn AT that give-up point so the "no further attempts" advice in the
+                    -- message is accurate.
+                    if cold_fail_count >= COLD_GIVE_UP_AFTER then
+                        warn_no_listener(true)
                         relay_given_up = true
                         print("[MSOP] Relay: giving up for this unsupported ROM ("
                               .. cold_fail_count .. " failed dials, nothing has ever answered). "
                               .. "No further attempts until the next ROM start, soft reset, or unpause.")
+                    end
+                else
+                    -- Supported ROM: real MSOP outputs are at stake, so the plugin keeps retrying for
+                    -- the whole session. Surface "MESH is not running" EARLY (COLD_WARN_AFTER, ~5s -
+                    -- one retry of grace for a MESH still starting) instead of waiting out the full
+                    -- schedule, so the player is not left staring at dead force feedback wondering why.
+                    if cold_fail_count >= COLD_WARN_AFTER then
+                        warn_no_listener(false)
                     end
                 end
             end
@@ -2557,6 +2599,12 @@ function stateoutput.startplugin()
         -- late (which is exactly how -output windows went dark on a version-misreporting build).
         pcall(function() Probe_Legacy_Set_Value(manager.machine.output) end)
         resolve_relay_mode()
+
+        -- With the relay decision now final, tell the user up front (once per session, ungated) that
+        -- MESH must be running whenever the relay is the delivery path. Printed here rather than
+        -- inside resolve_relay_mode's many return branches so it fires regardless of WHICH gate
+        -- turned the relay on, and only when it actually did.
+        if _UseRelay then announce_relay_required() end
 
         local rom_name = manager.machine.system.name
 
