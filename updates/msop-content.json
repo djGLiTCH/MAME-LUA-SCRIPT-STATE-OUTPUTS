@@ -1,7 +1,14 @@
 {
-    "_comment": "MSOP content manifest - consumed by the MSOP Configurator app and MESH app. Declares where the MSOP-owned packages live: the MSOP Plugin (stable/beta), Hook Of The Reaper (stable/beta), MAMEhooker (stable/beta), the MSOP Database Compiler, the list of MSOP supported games (games.json), and the MSOP changelog (changelog.json).",
+    "_comment": "MSOP content manifest - consumed by the MSOP Configurator app and MESH app. Declares where the MSOP-owned packages live: the final MSOP Configurator self-update zip, the MSOP Plugin (stable/beta), Hook Of The Reaper (stable/beta), MAMEhooker (stable/beta), the MSOP Database Compiler, the list of MSOP supported games (games.json), and the MSOP changelog (changelog.json).",
     "RepositoryUrl": "https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS",
     "RawContentBaseUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/",
+    "Configurator": {
+        "_comment": "The final MSOP Configurator (v1.1.0) self-update zip. Present so a hotfix can still be shipped to users who have not yet migrated to MESH: update this location (or set AssetUrl to a Release asset) and existing installs pick it up on the next self-update - no new app build required. Version comparison still uses changelog.json; this only says WHERE the latest Configurator zip lives. MESH ignores this ref.",
+        "PackageLocation": "Updater/Configurator",
+        "PackageName": "MSOP-CONFIGURATOR",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
     "PluginStable": {
         "PackageLocation": "Updater/Plugin",
         "PackageName": "MSOP-PLUGIN-STABLE",
