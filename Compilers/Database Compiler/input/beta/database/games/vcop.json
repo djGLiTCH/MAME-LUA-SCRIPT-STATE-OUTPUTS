@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Virtua Cop",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "OFFSCREEN_RELOAD": true,
     "SCREEN_FLASH": true,
     "SCREEN_FLASH_MEMORY_ADDRESS": false,

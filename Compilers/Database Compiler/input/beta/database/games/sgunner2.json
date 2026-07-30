@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Steel Gunner 2",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "STARTUP_DELAY_MS": 4000,
     "PLAYER_MEMORY_OFFSET": "0x2",
     "GAME_STATUS": "0x00100944",

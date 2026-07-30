@@ -102,6 +102,15 @@ The latest source code and release includes support for the following MAME ROMs 
 | `vcop` | Virtua Cop | Working |
 | `vcop2` | Virtua Cop 2 | Working |
 
+**Racing / Force Feedback games (beta channel, plugin v9.2.0+):**
+
+| ROM | Game | Comments |
+| :--- | :--- | :--- |
+| `thrilld` | Thrill Drive | Primary FFB test game (Konami wheel encoding) |
+| `gticlub` | GTI Club | Same Konami encoding as Thrill Drive |
+| `raverace` | Rave Racer | Enable feedback in the game's service menu first (Namco LUT encoding) |
+| `overrev` | Over Rev | Change output mode in the game's service menu (Sega Model 2 banded protocol) |
+
 If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 
 ---
@@ -308,6 +317,25 @@ MSOP_P2_CreditsConsumed=
 ```
 
 Please note that not all outputs will be available for each supported game, but the main outputs will always be available (PX_CtmRecoil, PX_Reload, PX_Damaged).
+
+**Racing / Force Feedback** _(beta channel, plugin v9.2.0+ - racing-genre games emit these instead of the gun set)_
+```ini
+[Output]
+MSOP_P1_FFB_Constant=
+MSOP_P1_FFB_Spring=
+MSOP_P1_FFB_Friction=
+MSOP_P1_FFB_Damper=
+MSOP_P1_FFB_Sine=
+MSOP_P1_FFB_Rumble=
+MSOP_P1_FFB_Raw=
+MSOP_P1_FFB_Collision=
+MSOP_P1_FFB_GearChange=
+MSOP_P1_FFB_SurfaceRumble=
+MSOP_P1_FFB_TyreSlip=
+MSOP_P1_FFB_EngineRumble=
+```
+
+The plugin reads the game's raw force-feedback command (a native driver output, or an emulated memory address - the same acquisition model as the gun games), decodes the game-specific encoding internally, and re-emits it as these standardized effect channels, so a consumer needs zero game knowledge. Stream channels persist until changed and an explicit `0` releases them: `FFB_Constant` is signed -255..+255 (positive = force from the right, i.e. wheel pushed left); `FFB_Spring` / `FFB_Friction` / `FFB_Damper` / `FFB_Sine` / `FFB_Rumble` are 0..255. `FFB_Rumble` is a continuous force-correlated motor level that deliberately coexists with the pulse-style `PX_Rumble` - a consumer with a single rumble path should mix the two by MAX, never sum. The semantic events (`FFB_Collision` through `FFB_EngineRumble`; 0..255, pulse/level style) are optional per game and appear only where the game's database entry configures their memory addresses. Every game's database entry carries a `GAME_TYPE` (`lightgun` default / `racing` / `both`), so racing games emit only the FFB vocabulary (plus the global outputs) and gun games never emit FFB names.
 
 Every output above only appears once a supported ROM actually drives it away from its default value - this keeps your hooker software free of names that ROM never uses, and is consistent across every output MSOP produces, global or per-player.
 

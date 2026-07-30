@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Jurassic Park",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "LIGHTGUN_PATCH": true,
     "CPU_TAG": ":mainpcb:maincpu",
     "STARTUP_DELAY_MS": 1000,

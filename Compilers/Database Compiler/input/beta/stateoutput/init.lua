@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.1.3
--- Plugin Date: 2026.07.28
+-- Plugin Version: 9.2.0
+-- Plugin Date: 2026.07.31
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -34,7 +34,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.1.3",
+    version = "9.2.0",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -186,11 +186,11 @@ function stateoutput.startplugin()
     local _RelayPortStamped = false
 
     -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
-    -- KEEP IN SYNC with the header + exports.version above (913 == v9.1.3).
+    -- KEEP IN SYNC with the header + exports.version above (920 == v9.2.0).
     -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 913
-    local PLUGIN_DATE_NUM    = 20260728
+    local PLUGIN_VERSION_NUM = 920
+    local PLUGIN_DATE_NUM    = 20260731
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -1045,6 +1045,15 @@ function stateoutput.startplugin()
         CFG.RECOIL_METHOD              = string.lower(tostring(CFG.RECOIL_METHOD or "pulse"))
         CFG.RECOIL_PRIORITY            = string.lower(tostring(CFG.RECOIL_PRIORITY or "ammo"))
 
+        -- GAME_TYPE (v9.2.0): genre gate. "lightgun" (default) runs the classic
+        -- per-player gun pipeline and compiles the gun vocabulary; "racing"
+        -- skips the gun pipeline and compiles only the FFB_* vocabulary;
+        -- "both" does it all (hybrids, e.g. a racing game with life/damage
+        -- tracking). Unknown values degrade to "lightgun" - the pre-v9.2.0
+        -- behaviour, so existing game profiles are untouched by this field.
+        CFG.GAME_TYPE = string.lower(tostring(CFG.GAME_TYPE or "lightgun"))
+        if CFG.GAME_TYPE ~= "racing" and CFG.GAME_TYPE ~= "both" then CFG.GAME_TYPE = "lightgun" end
+
         if CFG.DATA_WIDTHS then
             for k, v in pairs(CFG.DATA_WIDTHS) do
                 if type(v) == "string" then CFG.DATA_WIDTHS[k] = string.lower(v) end
@@ -1055,7 +1064,8 @@ function stateoutput.startplugin()
             "SCREEN_FLASH", "GLOBAL_ATTRACT_STATUS", "GLOBAL_CREDITS", "GLOBAL_GAME_STATUS",
             "CREDITS", "STATUS", "STATUS_ALT", "AMMO", "AMMO_ALT", "AMMO_GRENADE", "LIFE", "LIFE_ALT",
             "RECOIL", "RELOAD", "DAMAGE", "RUMBLE", "LAMPSTART",
-            "SHOTS_FIRED_PRIMARY", "SHOTS_FIRED_ALT", "SHOTS_FIRED_GRENADE", "LIFE_LOST", "DAMAGE_TAKEN"
+            "SHOTS_FIRED_PRIMARY", "SHOTS_FIRED_ALT", "SHOTS_FIRED_GRENADE", "LIFE_LOST", "DAMAGE_TAKEN",
+            "FFB" -- racing FFB: memory-address sources bind through CPU_TAGS.FFB / MEMORY_SPACES.FFB
         }
 
         local function Resolve_Mem_Path(val, global_val)
@@ -1090,11 +1100,24 @@ function stateoutput.startplugin()
         CFG.OUTPUT_SUFFIXES = CFG.OUTPUT_SUFFIXES or {}
         if CFG.OUTPUT_SUFFIXES.CLIP == nil then CFG.OUTPUT_SUFFIXES.CLIP = "Clip" end
 
+        -- GAME_TYPE filter (v9.2.0): precompile only the vocabulary this game's
+        -- genre can actually drive, so the warmup zero-flush and the relay never
+        -- carry names the ROM will never use ("racing" = FFB_* only, "lightgun" =
+        -- everything except FFB_*, "both" = all). Globals are genre-neutral and
+        -- unaffected. Set_Output's nil-name guard makes the trim safe by
+        -- construction - a write to a filtered key is simply skipped.
+        local function Type_Allows(key)
+            local is_ffb = string.match(key, "^FFB_") ~= nil
+            if CFG.GAME_TYPE == "racing" then return is_ffb end
+            if CFG.GAME_TYPE == "lightgun" then return not is_ffb end
+            return true -- "both"
+        end
+
         -- Pre-compile the MAME output broadcast strings (e.g. "MSOP_P1_Ammo")
         for i = 1, CFG.MAX_PLAYERS do
             _OutputNames[i] = {}
             for key, suffix in pairs(CFG.OUTPUT_SUFFIXES) do
-                if not string.match(key, "^GLOBAL_") then
+                if not string.match(key, "^GLOBAL_") and Type_Allows(key) then
                     local target_p = i
                     if not CFG.SIMULTANEOUS_PLAY and (key == "RECOIL" or key == "RELOAD" or key == "DAMAGE" or key == "RUMBLE" or key == "LAMPSTART") then target_p = 1 end
                     
@@ -1106,9 +1129,12 @@ function stateoutput.startplugin()
             
             -- DemulShooter-compat aliases are emitted WITHOUT the MSOP_ prefix, so DemulShooter reads
             -- them under its own expected output names (P<n>_CtmRecoil / P<n>_Damaged / P<n>_CtmLmpStart).
-            _OutputNames[i]["CtmRecoil"]   = "P" .. target_p_ctm .. "_CtmRecoil"
-            _OutputNames[i]["Damaged"]     = "P" .. target_p_ctm .. "_Damaged"
-            _OutputNames[i]["CtmLmpStart"] = "P" .. target_p_ctm .. "_CtmLmpStart"
+            -- Gun-specific: not compiled for "racing" profiles (GAME_TYPE filter above).
+            if CFG.GAME_TYPE ~= "racing" then
+                _OutputNames[i]["CtmRecoil"]   = "P" .. target_p_ctm .. "_CtmRecoil"
+                _OutputNames[i]["Damaged"]     = "P" .. target_p_ctm .. "_Damaged"
+                _OutputNames[i]["CtmLmpStart"] = "P" .. target_p_ctm .. "_CtmLmpStart"
+            end
         end
         
         for key, suffix in pairs(CFG.OUTPUT_SUFFIXES) do
@@ -1585,6 +1611,164 @@ function stateoutput.startplugin()
     end
 
     -- =========================================================================
+    -- FORCE FEEDBACK STATE OUTPUTS (racing genre)  --  see CFG.FFB in the database
+    -- Racing-genre extension of the gun games' translation-layer model: read the
+    -- raw force-feedback command the emulated game produces (a NATIVE OUTPUT the
+    -- driver creates, or a stable EMULATED memory address), decode the
+    -- game-specific encoding, and emit a STANDARDIZED effect-channel vocabulary
+    -- (the set of channels real FFB hardware is typically driven with):
+    --
+    --   MSOP_P<n>_FFB_Constant  signed -SCALE..+SCALE  directional push force.
+    --                          positive = force FROM the right (wheel pushed
+    --                          left), negative = from the left, 0 = release.
+    --   MSOP_P<n>_FFB_Spring    0..SCALE  self-centering spring strength.
+    --   MSOP_P<n>_FFB_Friction  0..SCALE  steering friction / clutch drag.
+    --   MSOP_P<n>_FFB_Damper    0..SCALE  velocity damping strength.
+    --   MSOP_P<n>_FFB_Sine      0..SCALE  vibration/shake strength (the effect
+    --                          period is a consumer-side tuning knob).
+    --   MSOP_P<n>_FFB_Rumble    0..SCALE  continuous force-correlated motor
+    --                          rumble level. UNSIGNED by contract: motor
+    --                          routing lives in the consumer's config, and
+    --                          direction is derivable from FFB_Constant's
+    --                          sign. Coexists with the standard pulse-style
+    --                          P<n>_Rumble output - a single-rumble-path
+    --                          consumer should MIX the two (max), never sum.
+    --   MSOP_P<n>_FFB_Raw       the undecoded source value (diagnostics and
+    --                          new-game analysis).
+    --
+    --   SEMANTIC EVENTS (contract 2.2) - pulse/level strengths 0..SCALE read
+    --   from separate per-game MEMORY ADDRESSES via CFG.FFB.EVENTS (the gun
+    --   games' Damage/Rumble acquisition model; address-only by contract):
+    --   MSOP_P<n>_FFB_Collision / FFB_GearChange / FFB_SurfaceRumble /
+    --   FFB_TyreSlip / FFB_EngineRumble. Optional per game - a profile emits
+    --   only what it can source.
+    --
+    --   SCALE defaults to 255 (Signed255/Unsigned255 per the MESH contract):
+    --   lossless for every known source encoding (max +/-127 levels/side).
+    --
+    -- COMMAND SEMANTICS: a decoder returns only the channels the game's command
+    -- byte addresses THIS frame; unlisted channels keep their previous value
+    -- (arcade drive boards receive commands, not state snapshots - e.g. Model 2
+    -- sends one banded command per frame that means "set spring to X" while the
+    -- last roll force stays in force). Explicit zero releases a channel.
+    -- Consumers (MESH, hookers) map channels onto real effects with zero game
+    -- knowledge - exactly like PX_CtmRecoil for guns.
+    --
+    -- All state lives in ONE table (startplugin is a single Lua function close
+    -- to the 200-local limit; one local is all this module may add). Only the
+    -- state + decoders live here: the functions needing Enumerate_Native_Outputs
+    -- / _MemHandles are attached AFTER those exist - see the "FORCE FEEDBACK
+    -- RESOLUTION + COMPUTE" section further down. That is safe because
+    -- Frame_Logic only CALLS _FFB.Compute at frame time, long after load.
+    --
+    -- Decoders take (raw, scale) and return a partial {CHANNEL = value} table
+    -- (or nil for "no change"). Encodings cross-referenced against the FFB
+    -- Arcade Plugin (GPLv3, Boomslangnz et al.) - MSOP is GPLv3 as well.
+    -- =========================================================================
+    local _FFB = {
+        proxy = false,       -- resolved native-output proxy (output mode)
+        source = false,      -- resolved source (name string or numeric address)
+        mode = false,        -- "output" | "mem"
+        probe_frames = 0,    -- frames spent probing, for the one-shot warning
+        warned = false,
+        events_rt = {},      -- per-event runtime state (last value, pulse tick)
+        channels = { "CONSTANT", "SPRING", "FRICTION", "DAMPER", "SINE", "RUMBLE" },
+
+        -- Rave Racer / Namco Super System 22 wheel LUT: the MCU's scrambled
+        -- force byte -> linear force index 1..123 (-1 = code never emitted).
+        -- Index the array with (raw & 0xFF) + 1. Derived from the FFB Arcade
+        -- Plugin's empirically-built table (GPLv3).
+        rr_map = {
+            -1,-1,62,-1,30,-1,94,-1,  46,-1,78,-1,14,-1,110,-1,
+            54,-1,70,-1,22,-1,102,-1, 38,-1,86,-1,6,-1,118,-1,
+            59,-1,65,-1,27,-1,97,-1,  43,-1,81,-1,11,-1,113,-1,
+            50,-1,74,-1,18,-1,106,-1, 34,-1,90,-1,2,-1,122,-1,
+            60,-1,64,-1,28,-1,96,-1,  44,-1,80,-1,12,-1,112,-1,
+            52,-1,72,-1,20,-1,104,-1, 36,-1,88,-1,4,-1,120,-1,
+            56,-1,68,-1,24,-1,100,-1, 40,-1,84,-1,8,-1,116,-1,
+            48,-1,76,-1,16,-1,108,-1, 32,-1,92,-1,1,-1,123,-1,
+            61,-1,63,-1,29,-1,95,-1,  45,-1,79,-1,13,-1,111,-1,
+            53,-1,71,-1,21,-1,103,-1, 37,-1,87,-1,5,-1,119,-1,
+            57,-1,67,-1,25,-1,99,-1,  41,-1,83,-1,9,-1,115,-1,
+            49,-1,75,-1,17,-1,107,-1, 33,-1,91,-1,-1,-1,-1,-1,
+            58,-1,66,-1,26,-1,98,-1,  42,-1,82,-1,10,-1,114,-1,
+            51,-1,73,-1,19,-1,105,-1, 35,-1,89,-1,3,-1,121,-1,
+            55,-1,69,-1,23,-1,101,-1, 39,-1,85,-1,7,-1,117,-1,
+            47,-1,77,-1,15,-1,109,-1, 31,-1,93,-1,-1,-1,-1,-1,
+        },
+    }
+
+    -- Linear band helper shared by the banded decoders: maps raw in
+    -- (base, base+span] onto 0..scale, clamped.
+    function _FFB.Band(raw, base, span, scale)
+        local p = (raw - base) / span
+        if p < 0 then p = 0 elseif p > 1 then p = 1 end
+        return math.floor(p * scale + 0.5)
+    end
+
+    _FFB.decoders = {
+        -- Raw value straight onto the Constant channel (analysis/bring-up).
+        passthrough = function(raw, scale) return { CONSTANT = raw } end,
+
+        -- Two's-complement byte -> signed Constant. Round half away from zero
+        -- symmetrically (floor for positives, ceil for negatives - floor(x-0.5)
+        -- would over-round negatives: -0.79 must become -1, not -2).
+        signed8 = function(raw, scale)
+            local v = raw & 0xFF
+            if v > 127 then v = v - 256 end
+            local scaled = v * scale / 127
+            return { CONSTANT = scaled >= 0 and math.floor(scaled + 0.5) or math.ceil(scaled - 0.5) }
+        end,
+
+        -- Konami racers (Thrill Drive, GTI Club, Midnight Run, Winding Heat,
+        -- Racing Jam): bits 0-3 = force level 0-15, bit 4 = direction
+        -- (set = force from the LEFT). Level 0 releases regardless of bit 4.
+        konami_dir4 = function(raw, scale)
+            local level = raw & 0x0F
+            if level == 0 then return { CONSTANT = 0, RUMBLE = 0 } end
+            local force = math.floor((level * scale / 15) + 0.5)
+            -- RUMBLE carries the unsigned magnitude; only CONSTANT is signed.
+            if (raw & 0x10) ~= 0 then return { CONSTANT = -force, RUMBLE = force } end
+            return { CONSTANT = force, RUMBLE = force }
+        end,
+
+        -- Sega Model 2 banded drive-board protocol (Over Rev, and the family
+        -- Daytona/Sega Rally/Indy 500 belong to): one command byte per frame
+        -- selects ONE effect band; every other channel keeps its last value.
+        model2_bands = function(raw, scale)
+            if raw == 0x00 then return { CONSTANT = 0, RUMBLE = 0 } end
+            if raw > 0x09 and raw < 0x18 then return { SPRING   = _FFB.Band(raw, 0x0F, 8, scale) } end
+            if raw > 0x1F and raw < 0x28 then return { FRICTION = _FFB.Band(raw, 0x1F, 8, scale) } end
+            if raw > 0x2F and raw < 0x3D then return { SPRING   = _FFB.Band(raw, 0x2F, 13, scale) } end
+            if raw > 0x3F and raw < 0x48 then return { SINE     = _FFB.Band(raw, 0x3F, 8, scale) } end
+            if raw > 0x4F and raw < 0x58 then
+                local f = _FFB.Band(raw, 0x4F, 8, scale)
+                return { CONSTANT = f, RUMBLE = f }    -- roll: force from the RIGHT
+            end
+            if raw > 0x5F and raw < 0x68 then
+                local f = _FFB.Band(raw, 0x5F, 8, scale)
+                return { CONSTANT = -f, RUMBLE = f }   -- roll: force from the LEFT
+            end
+            return { CONSTANT = 0 }                    -- neutral / unknown band
+        end,
+
+        -- Rave Racer (Namco): rr_map descrambles the MCU byte to 1..123, then
+        -- <=0x3D = force from the right, >0x3D = from the left. -1 = ignore.
+        namco_lut_rr = function(raw, scale)
+            local v = _FFB.rr_map[(raw & 0xFF) + 1]
+            if not v or v < 0 then return nil end
+            if v > 0x3D and v < 0x7C then
+                local f = math.floor(((124 - v) * scale / 61) + 0.5)
+                return { CONSTANT = -f, RUMBLE = f }
+            elseif v > 0x00 and v < 0x3E then
+                local f = math.floor((v * scale / 61) + 0.5)
+                return { CONSTANT = f, RUMBLE = f }
+            end
+            return { CONSTANT = 0, RUMBLE = 0 }
+        end,
+    }
+
+    -- =========================================================================
     -- THE FRAME LOOP ENGINE (Frame_Logic)
     -- This is the heartbeat of the plugin. It evaluates memory conditions 60 
 	-- times a second. It is isolated from the `pcall` wrapper below to prevent
@@ -1690,7 +1874,13 @@ function stateoutput.startplugin()
         local any_player_active = false
         local aggregated_credits = 0
         local using_individual_credits = false
-        for i = 1, CFG.MAX_PLAYERS do
+        -- GAME_TYPE (v9.2.0): "racing" profiles skip the whole per-player gun
+        -- pipeline - every address guard inside would evaluate false anyway,
+        -- so a zero-iteration loop saves that conditional sweep each frame.
+        -- The post-loop logic runs on the initialized defaults above. Use
+        -- "both" for a hybrid that needs the gun pipeline as well.
+        local player_loop_max = (CFG.GAME_TYPE == "racing") and 0 or CFG.MAX_PLAYERS
+        for i = 1, player_loop_max do
             local cfg = _PlayerCFG[i]
             local p = _Player[i]
             
@@ -2218,6 +2408,15 @@ function stateoutput.startplugin()
                 end
             end
         end
+
+        -- -------------------------------------------------------------------------
+        -- PHASE 6: FORCE FEEDBACK STATE OUTPUTS (racing genre)
+        -- Reads and decodes the game's force command for racing profiles.
+        -- No-op unless this ROM's profile has FFB.ENABLED = true. Defined in
+        -- the "FORCE FEEDBACK RESOLUTION + COMPUTE" section (after native-
+        -- output enumeration is in scope) - resolved at call time.
+        -- -------------------------------------------------------------------------
+        _FFB.Compute(out, warmup_ok, current_time)
     end
 
     -- -------------------------------------------------------------------------
@@ -2370,6 +2569,213 @@ function stateoutput.startplugin()
                 msop_out(fwd.wire, proxy:get())
             end
         end
+    end
+
+    -- =========================================================================
+    -- FORCE FEEDBACK RESOLUTION + COMPUTE   (state table + decoders declared
+    -- just before Frame_Logic). Defined HERE because resolution leans on
+    -- Enumerate_Native_Outputs, which is only in scope from this point -
+    -- Frame_Logic's PHASE 6 call binds to these at call time.
+    -- =========================================================================
+
+    -- Side-effect-free single-name probe against the ROOT device. Deliberately
+    -- NOT Get_Output_Proxy: its miss path writes a legacy 0 into the output
+    -- table, and this must never write to the DRIVER's own output. Used only
+    -- as the fallback when enumeration is unavailable on this build.
+    function _FFB.Probe_Output(name)
+        if not (manager and manager.machine and manager.machine.devices) then return false end
+        local root = manager.machine.devices[":"]
+        if not (root and root.output) then return false end
+        local ok, p = pcall(function() return root:output(name) end)
+        if ok and p and p:exists() then return p end
+        return false
+    end
+
+    function _FFB.Reset()
+        _FFB.proxy = false
+        _FFB.source = false
+        _FFB.mode = false
+        _FFB.probe_frames = 0
+        _FFB.warned = false
+        _FFB.events_rt = {}
+    end
+
+    -- Walks CFG.FFB.SOURCES in order: hex strings were already converted to
+    -- numbers at load (convert_hex_strings_to_numbers), so a number is an
+    -- emulated MEMORY ADDRESS (bound via _MemHandles["FFB"], the same
+    -- acquisition model as the gun games) and a string is a NATIVE OUTPUT
+    -- name. Native names resolve through v9.1.0 enumeration first (exact,
+    -- and the only route to a subdevice-owned output), then the root-device
+    -- probe. First hit wins and is logged. Retries every frame until
+    -- something resolves - driver outputs may not exist on frame 1.
+    function _FFB.Resolve()
+        local cfgF = CFG.FFB
+        local enumerated = nil
+        local enumerated_fetched = false
+        for _, src in ipairs(cfgF.SOURCES) do
+            if type(src) == "number" then
+                if _MemHandles["FFB"] then
+                    _FFB.source = src
+                    _FFB.mode = "mem"
+                    dbg_print(string.format("FFB: source resolved to memory address 0x%08X", src))
+                    return true
+                end
+            elseif type(src) == "string" then
+                if not enumerated_fetched then
+                    enumerated = Enumerate_Native_Outputs()
+                    enumerated_fetched = true
+                end
+                if enumerated then
+                    for _, rec in ipairs(enumerated) do
+                        if rec.name == src or rec.wire == src then
+                            local ok, p = pcall(function() return rec.dev:output(rec.name) end)
+                            if ok and p and p:exists() then
+                                _FFB.proxy = p
+                                _FFB.source = src
+                                _FFB.mode = "output"
+                                dbg_print("FFB: source resolved to native output '" .. rec.wire .. "' (enumerated)")
+                                return true
+                            end
+                        end
+                    end
+                else
+                    local p = _FFB.Probe_Output(src)
+                    if p then
+                        _FFB.proxy = p
+                        _FFB.source = src
+                        _FFB.mode = "output"
+                        dbg_print("FFB: source resolved to native output '" .. src .. "' (root probe)")
+                        return true
+                    end
+                end
+            end
+        end
+        _FFB.probe_frames = _FFB.probe_frames + 1
+        if not _FFB.warned and _FFB.probe_frames == 600 then
+            _FFB.warned = true
+            dbg_print("FFB WARNING: no source found after 600 frames - none of the configured SOURCES exist for this ROM")
+        end
+        return false
+    end
+
+    -- Semantic-event engine (contract 2.2). Each configured event reads its
+    -- own per-game MEMORY ADDRESS (address-only by contract - the gun games'
+    -- Damage/Rumble acquisition model) through the shared FFB memory binding
+    -- (CPU_TAGS.FFB / MEMORY_SPACES.FFB), and emits pulse- or level-style
+    -- strengths 0..SCALE. Event config (CFG.FFB.EVENTS[<KEY>], where <KEY> is
+    -- COLLISION / GEARCHANGE / SURFACERUMBLE / TYRESLIP / ENGINERUMBLE):
+    --   SOURCE      "0x..." memory address (required; hex string -> number at load)
+    --   MODE        "nonzero"  level: STRENGTH while raw ~= 0, else 0 (default)
+    --               "change"   pulse STRENGTH for DURATION_MS when raw changes
+    --               "increase" pulse when raw increases (event counters)
+    --               "value"    raw scaled 0..SCALE against MAX
+    --   STRENGTH    pulse/level strength (default SCALE)
+    --   DURATION_MS pulse length for change/increase (default 150)
+    --   MAX         full-scale raw value for "value" mode (default SCALE)
+    --   WIDTH       read width override (default DATA_WIDTHS.FFB)
+    -- Unknown keys emit nothing (Set_Output's name guard skips them).
+    function _FFB.Compute_Events(out, p_idx, current_time)
+        local events = CFG.FFB.EVENTS
+        if type(events) ~= "table" then return end
+        local mem = _MemHandles["FFB"]
+        if not mem then return end
+        local def_width = CFG.DATA_WIDTHS.FFB or 8
+        local scale = tonumber(CFG.FFB.SCALE) or 255
+
+        for key, ev in pairs(events) do
+            if type(ev) == "table" and type(ev.SOURCE) == "number" then
+                local rt = _FFB.events_rt[key]
+                if not rt then
+                    rt = { last = false, tick = false,
+                           dur = emu.attotime.from_msec(tonumber(ev.DURATION_MS) or 150) }
+                    _FFB.events_rt[key] = rt
+                end
+                local raw = Read_Data_Safe(mem, ev.SOURCE, ev.WIDTH or def_width)
+                local mode = string.lower(tostring(ev.MODE or "nonzero"))
+                local strength = tonumber(ev.STRENGTH) or scale
+                local out_key = "FFB_" .. key
+
+                if mode == "value" then
+                    local max = tonumber(ev.MAX) or scale
+                    if max < 1 then max = 1 end
+                    local v = math.floor(raw * scale / max + 0.5)
+                    if v < 0 then v = 0 elseif v > scale then v = scale end
+                    Set_Output(out, p_idx, out_key, v)
+                elseif mode == "change" or mode == "increase" then
+                    local fire = false
+                    if rt.last ~= false then
+                        if mode == "increase" then fire = raw > rt.last
+                        else fire = raw ~= rt.last end
+                    end
+                    if fire then
+                        rt.tick = current_time
+                        Set_Output(out, p_idx, out_key, strength)
+                    elseif rt.tick and (current_time - rt.tick) > rt.dur then
+                        rt.tick = false
+                        Set_Output(out, p_idx, out_key, 0)
+                    end
+                else -- "nonzero" (default): level-style flag held by the game
+                    Set_Output(out, p_idx, out_key, (raw ~= 0) and strength or 0)
+                end
+
+                rt.last = raw
+            end
+        end
+    end
+
+    -- Called once per frame from Frame_Logic's PHASE 6 (enabled profiles
+    -- only). Holds everything at 0 during warmup, then reads + decodes +
+    -- emits through the normal Set_Output path (per-player LastOutputs dedup
+    -- + relay delivery). Stream channels need the main SOURCES to resolve;
+    -- semantic events are independent per-address reads, so an events-only
+    -- profile (empty SOURCES) works too. Only the channels a decoder returns
+    -- are updated - see COMMAND SEMANTICS at the module declaration.
+    function _FFB.Compute(out, warmup_ok, current_time)
+        local cfgF = CFG.FFB
+        if not (cfgF and cfgF.ENABLED == true) then return end
+
+        local p_idx = tonumber(cfgF.PLAYER) or 1
+        if p_idx < 1 or p_idx > CFG.MAX_PLAYERS then p_idx = 1 end
+
+        if not warmup_ok then
+            for _, ch in ipairs(_FFB.channels) do
+                Set_Output(out, p_idx, "FFB_" .. ch, 0)
+            end
+            Set_Output(out, p_idx, "FFB_RAW", 0)
+            if type(cfgF.EVENTS) == "table" then
+                for key in pairs(cfgF.EVENTS) do
+                    Set_Output(out, p_idx, "FFB_" .. key, 0)
+                end
+            end
+            return
+        end
+
+        -- STREAM CHANNELS (skipped cleanly when no SOURCES are configured)
+        if type(cfgF.SOURCES) == "table" and #cfgF.SOURCES > 0
+           and (_FFB.mode ~= false or _FFB.Resolve()) then
+            local raw
+            if _FFB.mode == "output" then
+                raw = _FFB.proxy:get()
+            else
+                raw = Read_Data_Safe(_MemHandles["FFB"], _FFB.source, CFG.DATA_WIDTHS.FFB or 8)
+            end
+            if type(raw) == "number" then
+                Set_Output(out, p_idx, "FFB_RAW", raw)
+
+                local decoder = _FFB.decoders[string.lower(tostring(cfgF.DECODE or "passthrough"))] or _FFB.decoders.passthrough
+                local scale = tonumber(cfgF.SCALE) or 255
+                local set = decoder(raw, scale)
+                if type(set) == "table" then
+                    for ch, val in pairs(set) do
+                        if val > scale then val = scale elseif val < -scale then val = -scale end
+                        Set_Output(out, p_idx, "FFB_" .. ch, val)
+                    end
+                end
+            end
+        end
+
+        -- SEMANTIC EVENTS (independent of the stream source)
+        _FFB.Compute_Events(out, p_idx, current_time)
     end
 
     -- -------------------------------------------------------------------------
@@ -2693,6 +3099,7 @@ function stateoutput.startplugin()
             -- and reused across every supported game, a stale entry here WILL
             -- get hit again on the next ROM. Must be cleared every on_start.
             _ProxyCache = {}
+            _FFB.Reset() -- same staleness rule: the FFB source/proxy belongs to the old machine
 
             -- Pass-through sets this true; without clearing it here, one unsupported
             -- ROM would leave Forward_Native_Outputs re-resolving permanently absent
@@ -2803,6 +3210,7 @@ function stateoutput.startplugin()
             -- applies, and a ROM with no entry forwards nothing here - it should simply run with
             -- -output network instead, letting MAME broadcast its own natives directly.
             _ProxyCache = {}
+            _FFB.Reset() -- an unsupported ROM never computes FFB, but its predecessor's proxy is stale
             _RetryMissingProxies = true
             _PassThroughOnly = true -- v9.1.1: this ROM's relay value is mirrored natives only
             _NativeForwards = {}

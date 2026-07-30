@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Alien3: The Gun",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "CPU_TAG": ":mainpcb:maincpu",
     "CPU_TAGS": {
         "CREDITS": ":mainpcb:soundcpu"

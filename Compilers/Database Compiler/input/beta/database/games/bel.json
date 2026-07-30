@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Behind Enemy Lines",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "LIGHTGUN_PATCH": true,
     "STARTUP_DELAY_MS": 7000,
     "DATA_WIDTHS": {

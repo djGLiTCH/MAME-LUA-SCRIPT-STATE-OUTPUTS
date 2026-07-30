@@ -110,6 +110,7 @@ These variables define how the plugin identifies the game and where it looks for
 * **`LUA_DATE`**: This is the date that the MSOP Plugin Database was compiled. This should be left alone and taken care of by `_default`.
 * **`LUA_GAME`**: The official name for the game.
 * **`ENABLE_ROM`**: Used to enable or disable a supported game ROM for use by MSOP Plugin. This is useful if you have a custom script or build that clashes with MSOP Plugin, and you want to disable MSOP for that specific game without uninstalling MSOP Plugin entirely.
+* **`GAME_TYPE`** *(plugin v9.2.0+)*: The genre gate - `"lightgun"` (the default; existing profiles are unaffected), `"racing"`, or `"both"`. Racing profiles skip the per-player gun pipeline each frame and compile only the `FFB_*` output vocabulary, so each ROM's output stream carries only names it can actually drive; gun games never emit FFB names. Use `"both"` for hybrids (e.g. a racing game that also tracks life/damage). Unknown values degrade to `"lightgun"`.
 * **`LUA_ROM_ID`**: The unique tracker ID for the game (parent and clone may share the same ID).
 * **`CPU_TAG`**: Tells MAME which emulated CPU contains the game's core logic (Defaults: `":maincpu"`).
 * **`MEMORY_SPACE`**: The address space within `CPU_TAG` that the plugin reads the game's values from (e.g. `"program"`, `"data"`) (Defaults: `"program"`).
@@ -146,6 +147,35 @@ These variables protect physical arcade hardware from burning out.
 * **`ADDITIONAL_OUTPUT_FORWARDS`**: A list of extra MAME-native output names (lamps, LEDs, etc.) for the plugin to re-broadcast alongside its own state outputs for this game - on top of the per-driver list that ships compiled in `native_outputs_by_rom.lua`. Useful when a driver exposes native outputs you want delivered through the same MSOP stream.
 
 ---
+
+### Force Feedback (`FFB` block) *(plugin v9.2.0+, racing/both game types)*
+
+Racing-genre profiles configure an `FFB` block that tells the plugin where the game's raw
+force-feedback command lives and how to decode it into the standardized effect channels
+(`MSOP_P<n>_FFB_Constant` / `_Spring` / `_Friction` / `_Damper` / `_Sine` / `_Rumble` / `_Raw`):
+
+* **`ENABLED`**: Master switch for the FFB engine on this ROM.
+* **`SOURCES`**: A list probed in order each frame until one resolves. Plain strings are **native
+  output names** the MAME driver itself creates (e.g. `"wheel"`, resolved through exact
+  `device.outputs` enumeration with a root-device probe fallback); `"0x..."` hex strings are
+  emulated **memory addresses**, read via `CPU_TAGS.FFB` / `MEMORY_SPACES.FFB` /
+  `DATA_WIDTHS.FFB` - the same acquisition model as the gun games' Ammo/Life.
+* **`DECODE`**: The per-game encoding translator - `passthrough`, `signed8` (two's-complement
+  full-value, e.g. the Midway Cruis'n/Rush family), `konami_dir4` (bits 0-3 = force level,
+  bit 4 = direction; Thrill Drive/GTI Club family), `model2_bands` (Sega Model 2 banded
+  drive-board protocol; multi-channel), or `namco_lut_rr` (Rave Racer's scrambled MCU byte via a
+  256-entry lookup table). Decoders update only the channels a command addresses; other channels
+  persist until changed, and an explicit 0 releases.
+* **`SCALE`**: Full-scale output value (255 = Signed255/Unsigned255, the standard).
+* **`PLAYER`**: Which player index emits the FFB outputs (1-4).
+* **`EVENTS`** *(optional)*: Address-sourced semantic events - keys `COLLISION`, `GEARCHANGE`,
+  `SURFACERUMBLE`, `TYRESLIP`, `ENGINERUMBLE`, each `{ "SOURCE": "0x...", "MODE":
+  "nonzero|change|increase|value", "STRENGTH": ..., "DURATION_MS": ..., "MAX": ..., "WIDTH": ... }`.
+  `nonzero` is level-style (STRENGTH while the flag byte is non-zero), `change`/`increase` pulse
+  for `DURATION_MS`, and `value` scales the raw read against `MAX`.
+
+See `Compilers/Database Compiler/FFB-TESTING.md` for the full vocabulary contract, testing
+procedure, and how to profile a new racing game.
 
 ## 3. Tutorial Examples (JSON Format)
 

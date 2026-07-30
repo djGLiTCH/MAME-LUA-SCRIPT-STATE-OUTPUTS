@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Steel Gunner",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "STARTUP_DELAY_MS": 4000,
     "DATA_WIDTHS": {
         "AMMO": 16

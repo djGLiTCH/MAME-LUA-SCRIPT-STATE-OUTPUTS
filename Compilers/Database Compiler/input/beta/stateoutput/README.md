@@ -1,9 +1,9 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.1.3
-- **Plugin Date:** 2026.07.28
-- **Database Date:** 2026.07.28
+- **Plugin Version:** 9.2.0
+- **Plugin Date:** 2026.07.31
+- **Database Date:** 2026.07.31
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -168,6 +168,47 @@ output MSOP produces, global or per-player.
 - **Note 2:** MSOP currently supports up to 4 players, so the above outputs extend to P4.
 - **Note 3:** Recoil can be `PX_Recoil` or `PX_CtmRecoil` (with DemulShooter compatibility).
 - **Note 4:** Damage can be `PX_Damage` or `PX_Damaged` (with DemulShooter compatibility).
+
+### Racing / Force Feedback outputs (new in v9.2.0)
+
+Racing-genre games emit a dedicated **force feedback vocabulary** instead of the gun set. The
+plugin reads the game's raw force-feedback command (a native driver output, or an emulated
+memory address - the same acquisition model as the gun games), decodes the game-specific
+encoding inside the plugin, and re-emits it as standardized effect channels that any consumer
+(MESH, or a hooker program) can map onto real hardware with zero game knowledge:
+
+```ini
+[Output]
+MSOP_P1_FFB_Constant=
+MSOP_P1_FFB_Spring=
+MSOP_P1_FFB_Friction=
+MSOP_P1_FFB_Damper=
+MSOP_P1_FFB_Sine=
+MSOP_P1_FFB_Rumble=
+MSOP_P1_FFB_Raw=
+MSOP_P1_FFB_Collision=
+MSOP_P1_FFB_GearChange=
+MSOP_P1_FFB_SurfaceRumble=
+MSOP_P1_FFB_TyreSlip=
+MSOP_P1_FFB_EngineRumble=
+```
+
+- **Stream channels** persist until changed and an explicit `0` releases them:
+  `FFB_Constant` is signed -255..+255 (**positive = force from the right**, i.e. wheel pushed
+  left); `FFB_Spring`, `FFB_Friction`, `FFB_Damper`, `FFB_Sine`, and `FFB_Rumble` are 0..255.
+  `FFB_Raw` is the undecoded source value (diagnostics / new-game analysis).
+- **Semantic events** (`FFB_Collision`, `FFB_GearChange`, `FFB_SurfaceRumble`, `FFB_TyreSlip`,
+  `FFB_EngineRumble`; 0..255, pulse/level style) are optional per game, read from separate
+  per-game memory addresses. They appear only for games whose database entry configures them.
+- `FFB_Rumble` is a **continuous** force-correlated motor level and deliberately coexists with
+  the pulse-style `PX_Rumble` - a consumer with a single rumble path should mix the two by
+  **MAX**, never sum.
+- Every game's database entry now carries a **`GAME_TYPE`** (`lightgun` default / `racing` /
+  `both`): racing games emit only the FFB vocabulary (plus the global outputs) and skip the gun
+  pipeline entirely, and gun games never emit FFB names - so your hooker mappings only ever see
+  the names each ROM can actually drive. Supported racing ROMs in this release: `thrilld`
+  (Thrill Drive), `gticlub` (GTI Club), `raverace` (Rave Racer - enable feedback in its service
+  menu), `overrev` (Over Rev - change output mode in its service menu).
 
 ## MESH App (formerly MSOP Configurator) - Tutorial & Usage
 
