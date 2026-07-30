@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP OUTPUT MODEL - shared helper library (NOT a standalone runner)
-# Version: 1.2.1
-# Date: 2026.07.28
+# Version: 1.3.0
+# Date: 2026.07.31
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -152,6 +152,14 @@ def build_outputs(game, default, natives=None):
     flag = lambda k: bool(game.get(k, default.get(k, True)))
     demul = flag("DEMULSHOOTER_COMPATIBILITY")
 
+    # GAME_TYPE (plugin v9.2.0): mirrors init.lua's genre gate. "racing" compiles only the
+    # FFB vocabulary (the gun per-player set and DemulShooter aliases are skipped);
+    # "lightgun" (default, incl. unknown values) compiles everything except FFB names;
+    # "both" compiles all. Globals are genre-neutral and unaffected.
+    game_type = str(game.get("GAME_TYPE", default.get("GAME_TYPE", "lightgun")) or "").strip().lower()
+    if game_type not in ("racing", "both"):
+        game_type = "lightgun"
+
     # P*_Clip (plugin v9.0.1) is DERIVED from the primary ammo rather than read from memory: 1 while
     # ammo > 0, 0 the moment it empties (a reload is needed). KEEP IN SYNC with init.lua's _ClipEnabled:
     # it is only emitted for a genuinely DEPLETING clip, because that is the only reading where 0
@@ -172,30 +180,60 @@ def build_outputs(game, default, natives=None):
         ev = SUFFIX_EVENT.get(suffix)
         return "P{}_{}".format(p, ev) if ev else "false"
 
-    for i in range(1, max_players + 1):
-        a = active[i]
-        gates = {
-            "Ammo": "AMMO" in a, "AmmoAlt": "AMMO_ALT" in a, "AmmoGrenade": "AMMO_GRENADE" in a,
-            "Clip": ("AMMO" in a) and clip_enabled,
-            "Life": "LIFE" in a, "LifeAlt": "LIFE_ALT" in a,
-            "Status": "STATUS" in a, "StatusAlt": "STATUS_ALT" in a,
-            "Recoil": "RECOIL" in a, "Reload": "RELOAD" in a, "Damage": "DAMAGE" in a,
-            "Rumble": "RUMBLE" in a, "LampStart": "LAMPSTART" in a,
-            "ShotsFiredPrimary": ("AMMO" in a) and flag("ENABLE_SHOT_COUNT"),
-            "ShotsFiredAlt":     ("AMMO_ALT" in a) and flag("ENABLE_SHOT_COUNT"),
-            "ShotsFiredGrenade": ("AMMO_GRENADE" in a) and flag("ENABLE_SHOT_COUNT"),
-            "LifeLost":   (("LIFE" in a) or ("LIFE_ALT" in a)) and flag("ENABLE_LIFE_LOST"),
-            "DamageTaken": (("LIFE" in a) or ("LIFE_ALT" in a) or ("DAMAGE" in a)) and flag("ENABLE_DAMAGE_COUNT"),
-            "CreditsInserted": ("CREDITS" in a) and flag("ENABLE_CREDIT_COUNT"),
-            "CreditsConsumed": ("CREDITS" in a) and flag("ENABLE_CREDIT_COUNT"),
+    # GAME_TYPE gate: "racing" profiles skip the entire gun per-player set (mirrors
+    # init.lua v9.2.0's zero-iteration player loop + vocabulary filter).
+    if game_type != "racing":
+        for i in range(1, max_players + 1):
+            a = active[i]
+            gates = {
+                "Ammo": "AMMO" in a, "AmmoAlt": "AMMO_ALT" in a, "AmmoGrenade": "AMMO_GRENADE" in a,
+                "Clip": ("AMMO" in a) and clip_enabled,
+                "Life": "LIFE" in a, "LifeAlt": "LIFE_ALT" in a,
+                "Status": "STATUS" in a, "StatusAlt": "STATUS_ALT" in a,
+                "Recoil": "RECOIL" in a, "Reload": "RELOAD" in a, "Damage": "DAMAGE" in a,
+                "Rumble": "RUMBLE" in a, "LampStart": "LAMPSTART" in a,
+                "ShotsFiredPrimary": ("AMMO" in a) and flag("ENABLE_SHOT_COUNT"),
+                "ShotsFiredAlt":     ("AMMO_ALT" in a) and flag("ENABLE_SHOT_COUNT"),
+                "ShotsFiredGrenade": ("AMMO_GRENADE" in a) and flag("ENABLE_SHOT_COUNT"),
+                "LifeLost":   (("LIFE" in a) or ("LIFE_ALT" in a)) and flag("ENABLE_LIFE_LOST"),
+                "DamageTaken": (("LIFE" in a) or ("LIFE_ALT" in a) or ("DAMAGE" in a)) and flag("ENABLE_DAMAGE_COUNT"),
+                "CreditsInserted": ("CREDITS" in a) and flag("ENABLE_CREDIT_COUNT"),
+                "CreditsConsumed": ("CREDITS" in a) and flag("ENABLE_CREDIT_COUNT"),
+            }
+            for suffix, on in gates.items():
+                if on:
+                    put("MSOP_P{}_{}".format(i, suffix), event_value(suffix, i))
+            if demul:
+                if gates["Recoil"]:    put("P{}_CtmRecoil".format(i), "false")
+                if gates["Damage"]:    put("P{}_Damaged".format(i), "false")
+                if gates["LampStart"]: put("P{}_CtmLmpStart".format(i), "false")
+
+    # FFB vocabulary (plugin v9.2.0, GAME_TYPE racing/both + FFB.ENABLED): mirrors
+    # _FFB.Compute's warmup zero-flush - the six stream channels + FFB_Raw always emit
+    # for an enabled profile (for its configured PLAYER index), plus one output per
+    # configured EVENTS key. Suffixes match _default's OUTPUT_SUFFIXES. No hooker
+    # event mapping yet (values "false"), same as the informational outputs.
+    ffb = dict(default.get("FFB", {}) or {})
+    ffb.update(game.get("FFB", {}) or {})
+    if game_type in ("racing", "both") and ffb.get("ENABLED") is True:
+        try:
+            fp = int(ffb.get("PLAYER", 1))
+        except (TypeError, ValueError):
+            fp = 1
+        if fp < 1 or fp > max_players:
+            fp = 1
+        for suffix in ("FFB_Constant", "FFB_Spring", "FFB_Friction", "FFB_Damper",
+                       "FFB_Sine", "FFB_Rumble", "FFB_Raw"):
+            put("MSOP_P{}_{}".format(fp, suffix), "false")
+        ffb_event_suffix = {
+            "COLLISION": "FFB_Collision", "GEARCHANGE": "FFB_GearChange",
+            "SURFACERUMBLE": "FFB_SurfaceRumble", "TYRESLIP": "FFB_TyreSlip",
+            "ENGINERUMBLE": "FFB_EngineRumble",
         }
-        for suffix, on in gates.items():
-            if on:
-                put("MSOP_P{}_{}".format(i, suffix), event_value(suffix, i))
-        if demul:
-            if gates["Recoil"]:    put("P{}_CtmRecoil".format(i), "false")
-            if gates["Damage"]:    put("P{}_Damaged".format(i), "false")
-            if gates["LampStart"]: put("P{}_CtmLmpStart".format(i), "false")
+        for key in (ffb.get("EVENTS") or {}):
+            sfx = ffb_event_suffix.get(str(key).upper())
+            if sfx:
+                put("MSOP_P{}_{}".format(fp, sfx), "false")
 
     put("MSOP_Credits", "false")
     put("MSOP_GameStatus", "false")

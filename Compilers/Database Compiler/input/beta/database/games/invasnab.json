@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Invasion: The Abductors",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "OFFSCREEN_RELOAD": true,
     "STARTUP_DELAY_MS": 7000,
     "COINS_PER_CREDIT": 2,

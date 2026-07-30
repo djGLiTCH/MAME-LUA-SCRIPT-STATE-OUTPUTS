@@ -1,0 +1,24 @@
+{
+    "LUA_GAME": "GTI Club",
+    "LUA_GAME_comment": "FFB STATE OUTPUTS - secondary Konami test (same encoding as Thrill Drive).",
+    "ENABLE_ROM": true,
+    "GAME_TYPE": "racing",
+    "STARTUP_DELAY_MS": 5000,
+    "MAX_PLAYERS": 1,
+    "SIMULTANEOUS_PLAY": false,
+    "FFB": {
+        "ENABLED": true,
+        "SOURCES": [
+            "wheel",
+            "wheel_motor",
+            "output0",
+            "pcboutput0",
+            "wheel0"
+        ],
+        "SOURCES_comment": "Native output name candidates probed in order at runtime via enumeration (device.outputs); the first name the running machine actually created wins (logged to the MSOP debug console). Covers the names used across Konami racing drivers. Memory-address alternative: put a 0x-prefixed hex string first once the RAM location of the motor command is identified with the MAME debugger.",
+        "DECODE": "konami_dir4",
+        "SCALE": 255,
+        "PLAYER": 1
+    },
+    "ADDITIONAL_OUTPUT_FORWARDS": []
+}

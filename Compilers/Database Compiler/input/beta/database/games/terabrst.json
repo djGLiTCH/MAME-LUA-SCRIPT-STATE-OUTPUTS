@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Teraburst",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "STARTUP_DELAY_MS": 16000,
     "RECOIL_HOLD_MS": 100,
     "RECOIL_HOLD_MS_comment": "Unknown recoil interval for terabrst (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",

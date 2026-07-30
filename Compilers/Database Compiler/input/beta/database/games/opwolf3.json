@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Operation Wolf 3",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "STARTUP_DELAY_MS": 8000,
     "PLAYER_MEMORY_OFFSET": "0x30",
     "ATTRACT_STATUS": "0x00500015",

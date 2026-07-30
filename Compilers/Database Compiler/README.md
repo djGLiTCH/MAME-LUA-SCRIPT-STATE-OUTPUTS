@@ -110,6 +110,23 @@ automatically and the BETA zips only once you commit `output/beta/`.
 
 All scripts resolve their paths from the project root via `__file__`, so they run from any directory.
 
+## Game JSON: `GAME_TYPE` and `FFB` (plugin v9.2.0)
+
+Every per-game JSON now carries a **`GAME_TYPE`** - `"lightgun"` (the default; existing profiles
+are unaffected), `"racing"`, or `"both"`. The plugin uses it to skip the per-player gun pipeline
+for racing games and to compile only the vocabulary each genre can actually drive (racing = the
+`FFB_*` outputs only, lightgun = everything except `FFB_*`, both = all). The shared output model
+(`msop_output_model.py`) mirrors this same gate, so the generated HOTR defaultLG files and
+MAMEhooker `.ini` skeletons list exactly the outputs each game emits.
+
+Racing profiles configure an **`FFB`** block (see `_default.json`'s `FFB_comment` for the full
+schema): `SOURCES` (native output names and/or `0x...` memory addresses, probed in order),
+`DECODE` (`passthrough | signed8 | konami_dir4 | model2_bands | namco_lut_rr`), `SCALE` (255 =
+Signed255/Unsigned255), `PLAYER`, and optional address-sourced `EVENTS`
+(`COLLISION | GEARCHANGE | SURFACERUMBLE | TYRESLIP | ENGINERUMBLE`). The emitted vocabulary is
+`MSOP_P<n>_FFB_Constant/_Spring/_Friction/_Damper/_Sine/_Rumble/_Raw` plus one output per
+configured event.
+
 ## What each does
 
 - **`msop_database_compiler.py`** - two interactive modes (paths shown for the resolved `<channel>`):

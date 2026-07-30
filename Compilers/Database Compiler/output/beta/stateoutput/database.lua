@@ -3,7 +3,7 @@
 -- MSOP DATABASE LUA
 -- Script Version: 3.4.2
 -- Script Date: 2026.07.20
--- Compiled Date: 2026.07.28
+-- Compiled Date: 2026.07.31
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,10 +15,12 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 913,
-        ["LUA_DATE"] = 20260728,
+        ["LUA_VERSION"] = 920,
+        ["LUA_DATE"] = 20260731,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
+        ["GAME_TYPE"] = "lightgun",
+        ["GAME_TYPE_comment"] = "Genre gate (v9.2.0): lightgun (default) | racing | both. Controls which per-player output vocabulary is compiled/zero-flushed for the ROM (racing = FFB_* only, lightgun = everything except FFB_*, both = all) and whether the per-player gun pipeline runs each frame (racing skips it). Globals (Credits/GameStatus/AttractStatus) always apply. Unknown values degrade to lightgun, so existing profiles are unaffected.",
         ["OFFSCREEN_RELOAD"] = false,
         ["LIGHTGUN_PATCH"] = false,
         ["SCREEN_FLASH"] = false,
@@ -29,6 +31,7 @@ local database = {
         ["MEMORY_SPACE"] = "program",
         ["CPU_TAGS"] = {
             ["SCREEN_FLASH"] = false,
+            ["FFB"] = false,
             ["GLOBAL_ATTRACT_STATUS"] = false,
             ["GLOBAL_CREDITS"] = false,
             ["GLOBAL_GAME_STATUS"] = false,
@@ -54,6 +57,7 @@ local database = {
         },
         ["MEMORY_SPACES"] = {
             ["SCREEN_FLASH"] = false,
+            ["FFB"] = false,
             ["GLOBAL_ATTRACT_STATUS"] = false,
             ["GLOBAL_CREDITS"] = false,
             ["GLOBAL_GAME_STATUS"] = false,
@@ -111,10 +115,23 @@ local database = {
             ["SHOTS_FIRED_ALT"] = "ShotsFiredAlt",
             ["SHOTS_FIRED_GRENADE"] = "ShotsFiredGrenade",
             ["DAMAGE_TAKEN"] = "DamageTaken",
-            ["LIFE_LOST"] = "LifeLost"
+            ["LIFE_LOST"] = "LifeLost",
+            ["FFB_CONSTANT"] = "FFB_Constant",
+            ["FFB_SPRING"] = "FFB_Spring",
+            ["FFB_FRICTION"] = "FFB_Friction",
+            ["FFB_DAMPER"] = "FFB_Damper",
+            ["FFB_SINE"] = "FFB_Sine",
+            ["FFB_RUMBLE"] = "FFB_Rumble",
+            ["FFB_RAW"] = "FFB_Raw",
+            ["FFB_COLLISION"] = "FFB_Collision",
+            ["FFB_GEARCHANGE"] = "FFB_GearChange",
+            ["FFB_SURFACERUMBLE"] = "FFB_SurfaceRumble",
+            ["FFB_TYRESLIP"] = "FFB_TyreSlip",
+            ["FFB_ENGINERUMBLE"] = "FFB_EngineRumble"
         },
         ["DATA_WIDTHS"] = {
             ["SCREEN_FLASH"] = 8,
+            ["FFB"] = 8,
             ["GLOBAL_ATTRACT_STATUS"] = 8,
             ["GLOBAL_CREDITS"] = 8,
             ["GLOBAL_GAME_STATUS"] = 8,
@@ -289,12 +306,24 @@ local database = {
         ["ENABLE_LIFE_LOST"] = true,
         ["DEMULSHOOTER_COMPATIBILITY"] = true,
         ["ENABLE_OSD"] = false,
+        ["FFB"] = {
+            ["ENABLED"] = false,
+            ["SOURCES"] = {
+            },
+            ["DECODE"] = "passthrough",
+            ["SCALE"] = 255,
+            ["PLAYER"] = 1,
+            ["EVENTS"] = {
+            }
+        },
+        ["FFB_comment"] = "Force feedback state outputs (racing genre) - contract: MESH docs FFB-MSOP-CONTRACT.md. SOURCES: probed in order; plain strings = NATIVE OUTPUT names the driver creates (e.g. wheel), 0x-prefixed hex strings = emulated MEMORY ADDRESSES read via CPU_TAGS.FFB / MEMORY_SPACES.FFB / DATA_WIDTHS.FFB. DECODE: passthrough | signed8 | konami_dir4 | model2_bands | namco_lut_rr. SCALE 255 = Signed255/Unsigned255. Stream channels (persist until changed): MSOP_P<PLAYER>_FFB_Constant (signed, positive = force from the right), FFB_Spring, FFB_Friction, FFB_Damper, FFB_Sine, FFB_Rumble (UNSIGNED continuous motor level; coexists with pulse-style P<n>_Rumble - consumers mix by MAX), FFB_Raw (diagnostics). EVENTS (semantic, address-only): keys COLLISION | GEARCHANGE | SURFACERUMBLE | TYRESLIP | ENGINERUMBLE, each { SOURCE: 0x-address (required), MODE: nonzero|change|increase|value, STRENGTH, DURATION_MS, MAX, WIDTH }. Decoders update only the channels a command addresses; others persist.",
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },
     ["alien3"] = {
         ["LUA_GAME"] = "Alien3: The Gun",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["CPU_TAG"] = ":mainpcb:maincpu",
         ["CPU_TAGS"] = {
             ["CREDITS"] = ":mainpcb:soundcpu"
@@ -335,6 +364,7 @@ local database = {
     ["area51"] = {
         ["LUA_GAME"] = "Area 51",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -355,6 +385,7 @@ local database = {
     ["area51mx"] = {
         ["LUA_GAME"] = "Area 51 / Maximum Force Duo",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -397,6 +428,7 @@ local database = {
     ["bbust2"] = {
         ["LUA_GAME"] = "Beast Busters: Second Nightmare",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 8000,
         ["DATA_WIDTHS"] = {
             ["LIFE"] = 16
@@ -426,6 +458,7 @@ local database = {
     ["bel"] = {
         ["LUA_GAME"] = "Behind Enemy Lines",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["LIGHTGUN_PATCH"] = true,
         ["STARTUP_DELAY_MS"] = 7000,
         ["DATA_WIDTHS"] = {
@@ -462,6 +495,7 @@ local database = {
     ["carnevil"] = {
         ["LUA_GAME"] = "CarnEvil",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 23000,
         ["COINS_PER_CREDIT"] = 2,
         ["DATA_WIDTHS"] = {
@@ -483,6 +517,7 @@ local database = {
     ["crszone"] = {
         ["LUA_GAME"] = "Crisis Zone",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 24000,
         ["COINS_PER_CREDIT"] = 1,
         ["COINS_PER_CREDIT_comment"] = "First credit requires 2 coins, but only 1 credit required to continue playing",
@@ -502,6 +537,7 @@ local database = {
     ["cryptklr"] = {
         ["LUA_GAME"] = "Crypt Killer",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x8001512A",
         ["SCREEN_FLASH_DISABLE_VALUE"] = "0x1400",
@@ -528,6 +564,7 @@ local database = {
     ["dragngun"] = {
         ["LUA_GAME"] = "Dragon Gun",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 4000,
         ["MIN_RECOIL_INTERVAL_MS"] = 100,
         ["MIN_RECOIL_INTERVAL_MS_comment"] = "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",
@@ -561,6 +598,7 @@ local database = {
     ["dragngunj"] = {
         ["LUA_GAME"] = "Dragon Gun",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 4000,
         ["MIN_RECOIL_INTERVAL_MS"] = 100,
         ["MIN_RECOIL_INTERVAL_MS_comment"] = "Unknown recoil interval for dragngun (due to missing ammo memory address) but restricted to 80 to prevent light gun solenoid from overheating",
@@ -594,6 +632,7 @@ local database = {
     ["duckhunt"] = {
         ["LUA_GAME"] = "Duck Hunt",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
         ["SCREEN_FLASH_DISABLE_VALUE"] = false,
@@ -621,6 +660,7 @@ local database = {
     ["evilngt"] = {
         ["LUA_GAME"] = "Evil Night",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -650,9 +690,35 @@ local database = {
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },
+    ["gticlub"] = {
+        ["LUA_GAME"] = "GTI Club",
+        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - secondary Konami test (same encoding as Thrill Drive).",
+        ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "racing",
+        ["STARTUP_DELAY_MS"] = 5000,
+        ["MAX_PLAYERS"] = 1,
+        ["SIMULTANEOUS_PLAY"] = false,
+        ["FFB"] = {
+            ["ENABLED"] = true,
+            ["SOURCES"] = {
+                "wheel",
+                "wheel_motor",
+                "output0",
+                "pcboutput0",
+                "wheel0"
+            },
+            ["SOURCES_comment"] = "Native output name candidates probed in order at runtime via enumeration (device.outputs); the first name the running machine actually created wins (logged to the MSOP debug console). Covers the names used across Konami racing drivers. Memory-address alternative: put a 0x-prefixed hex string first once the RAM location of the motor command is identified with the MAME debugger.",
+            ["DECODE"] = "konami_dir4",
+            ["SCALE"] = 255,
+            ["PLAYER"] = 1
+        },
+        ["ADDITIONAL_OUTPUT_FORWARDS"] = {
+        }
+    },
     ["hellngt"] = {
         ["LUA_GAME"] = "Hell Night",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -685,6 +751,7 @@ local database = {
     ["hotd"] = {
         ["LUA_GAME"] = "The House of the Dead",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00018610",
@@ -723,6 +790,7 @@ local database = {
     ["invasnab"] = {
         ["LUA_GAME"] = "Invasion: The Abductors",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["STARTUP_DELAY_MS"] = 7000,
         ["COINS_PER_CREDIT"] = 2,
@@ -759,6 +827,7 @@ local database = {
     ["jdredd"] = {
         ["LUA_GAME"] = "Judge Dredd",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -785,6 +854,7 @@ local database = {
     ["jpark"] = {
         ["LUA_GAME"] = "Jurassic Park",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["LIGHTGUN_PATCH"] = true,
         ["CPU_TAG"] = ":mainpcb:maincpu",
         ["STARTUP_DELAY_MS"] = 1000,
@@ -831,6 +901,7 @@ local database = {
     ["jpark3"] = {
         ["LUA_GAME"] = "Jurassic Park III",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -869,6 +940,7 @@ local database = {
     ["le2"] = {
         ["LUA_GAME"] = "Lethal Enforcers II: Gun Fighters",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x002017A4",
@@ -896,6 +968,7 @@ local database = {
     ["lethalen"] = {
         ["LUA_GAME"] = "Lethal Enforcers",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -923,6 +996,7 @@ local database = {
     ["lethalj"] = {
         ["LUA_GAME"] = "Lethal Justice",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -947,6 +1021,7 @@ local database = {
     ["maxforce"] = {
         ["LUA_GAME"] = "Maximum Force",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -971,6 +1046,7 @@ local database = {
     ["opwolf"] = {
         ["LUA_GAME"] = "Operation Wolf",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x00001131",
         ["SCREEN_FLASH_DISABLE_VALUE"] = "0x02",
@@ -997,6 +1073,7 @@ local database = {
     ["opwolf3"] = {
         ["LUA_GAME"] = "Operation Wolf 3",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 8000,
         ["PLAYER_MEMORY_OFFSET"] = "0x30",
         ["ATTRACT_STATUS"] = "0x00500015",
@@ -1026,6 +1103,7 @@ local database = {
     ["othunder"] = {
         ["LUA_GAME"] = "Operation Thunderbolt",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 4000,
         ["PLAYER_MEMORY_OFFSET"] = "0x2",
         ["CREDITS"] = "0x000826F1",
@@ -1045,9 +1123,31 @@ local database = {
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },
+    ["overrev"] = {
+        ["LUA_GAME"] = "Over Rev",
+        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - Sega Model 2 banded-protocol demonstration (multi-channel: one command byte per frame selects spring / friction / centering / shake / roll bands - exercises FFB_Spring, FFB_Friction, FFB_Sine and FFB_Constant with persist-until-changed semantics). NOTE: output mode must be changed in the service menu (per the FFB Arcade Plugin's documentation).",
+        ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "racing",
+        ["STARTUP_DELAY_MS"] = 5000,
+        ["MAX_PLAYERS"] = 1,
+        ["SIMULTANEOUS_PLAY"] = false,
+        ["FFB"] = {
+            ["ENABLED"] = true,
+            ["SOURCES"] = {
+                "wheel_motor"
+            },
+            ["SOURCES_comment"] = "Sega Model 2 driver exposes the drive-board command byte as the wheel_motor native output.",
+            ["DECODE"] = "model2_bands",
+            ["SCALE"] = 255,
+            ["PLAYER"] = 1
+        },
+        ["ADDITIONAL_OUTPUT_FORWARDS"] = {
+        }
+    },
     ["policetr"] = {
         ["LUA_GAME"] = "Police Trainer",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
         ["SCREEN_FLASH_DISABLE_VALUE"] = false,
@@ -1083,6 +1183,7 @@ local database = {
     ["ptblank"] = {
         ["LUA_GAME"] = "Point Blank",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["SCREEN_FLASH"] = true,
         ["MEMORY_SPACES"] = {
             ["SCREEN_FLASH"] = "region"
@@ -1115,9 +1216,31 @@ local database = {
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },
+    ["raverace"] = {
+        ["LUA_GAME"] = "Rave Racer",
+        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - Namco LUT decode demonstration. NOTE: feedback must be activated in the game's service menu first (per the FFB Arcade Plugin's documentation). The scrambled MCU byte is descrambled through the rr_map lookup table in init.lua, then mapped to signed FFB_Constant + FFB_Rumble.",
+        ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "racing",
+        ["STARTUP_DELAY_MS"] = 5000,
+        ["MAX_PLAYERS"] = 1,
+        ["SIMULTANEOUS_PLAY"] = false,
+        ["FFB"] = {
+            ["ENABLED"] = true,
+            ["SOURCES"] = {
+                "wheel_motor"
+            },
+            ["SOURCES_comment"] = "Namco Super System 22 driver exposes the wheel MCU byte as the wheel_motor native output.",
+            ["DECODE"] = "namco_lut_rr",
+            ["SCALE"] = 255,
+            ["PLAYER"] = 1
+        },
+        ["ADDITIONAL_OUTPUT_FORWARDS"] = {
+        }
+    },
     ["sgunner"] = {
         ["LUA_GAME"] = "Steel Gunner",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 4000,
         ["DATA_WIDTHS"] = {
             ["AMMO"] = 16
@@ -1141,6 +1264,7 @@ local database = {
     ["sgunner2"] = {
         ["LUA_GAME"] = "Steel Gunner 2",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 4000,
         ["PLAYER_MEMORY_OFFSET"] = "0x2",
         ["GAME_STATUS"] = "0x00100944",
@@ -1164,6 +1288,7 @@ local database = {
     ["sgunner2j"] = {
         ["LUA_GAME"] = "Steel Gunner 2",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 4000,
         ["PLAYER_MEMORY_OFFSET"] = "0x2",
         ["CREDITS"] = "0x00108C11",
@@ -1187,6 +1312,7 @@ local database = {
     ["sgunnerj"] = {
         ["LUA_GAME"] = "Steel Gunner",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 4000,
         ["DATA_WIDTHS"] = {
             ["AMMO"] = 16
@@ -1210,6 +1336,7 @@ local database = {
     ["terabrst"] = {
         ["LUA_GAME"] = "Teraburst",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["STARTUP_DELAY_MS"] = 16000,
         ["RECOIL_HOLD_MS"] = 100,
         ["RECOIL_HOLD_MS_comment"] = "Unknown recoil interval for terabrst (due to missing ammo memory address) but restricted to 100 to prevent light gun solenoid from overheating",
@@ -1244,9 +1371,35 @@ local database = {
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },
+    ["thrilld"] = {
+        ["LUA_GAME"] = "Thrill Drive",
+        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - PRIMARY TEST GAME. Konami hardware; the driver publishes the wheel-motor command byte as a native output. konami_dir4 decode: bits 0-3 = force level 0-15, bit 4 = direction (set = from-left). Emits FFB_Constant + FFB_Rumble.",
+        ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "racing",
+        ["STARTUP_DELAY_MS"] = 5000,
+        ["MAX_PLAYERS"] = 1,
+        ["SIMULTANEOUS_PLAY"] = false,
+        ["FFB"] = {
+            ["ENABLED"] = true,
+            ["SOURCES"] = {
+                "wheel",
+                "wheel_motor",
+                "output0",
+                "pcboutput0",
+                "wheel0"
+            },
+            ["SOURCES_comment"] = "Native output name candidates probed in order at runtime via enumeration (device.outputs); the first name the running machine actually created wins (logged to the MSOP debug console). Covers the names used across Konami racing drivers. Memory-address alternative: put a 0x-prefixed hex string first once the RAM location of the motor command is identified with the MAME debugger.",
+            ["DECODE"] = "konami_dir4",
+            ["SCALE"] = 255,
+            ["PLAYER"] = 1
+        },
+        ["ADDITIONAL_OUTPUT_FORWARDS"] = {
+        }
+    },
     ["timecris"] = {
         ["LUA_GAME"] = "Time Crisis",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x0000923C",
         ["SCREEN_FLASH_DISABLE_VALUE"] = "0x6006",
@@ -1275,6 +1428,7 @@ local database = {
     ["timecrs2"] = {
         ["LUA_GAME"] = "Time Crisis II",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = "0x8009192C",
         ["SCREEN_FLASH_DISABLE_VALUE"] = "0x03E0000800000000",
@@ -1300,6 +1454,7 @@ local database = {
     ["totlvice"] = {
         ["LUA_GAME"] = "Total Vice",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -1326,6 +1481,7 @@ local database = {
     ["vcop"] = {
         ["LUA_GAME"] = "Virtua Cop",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,
@@ -1352,6 +1508,7 @@ local database = {
     ["vcop2"] = {
         ["LUA_GAME"] = "Virtua Cop 2",
         ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
         ["OFFSCREEN_RELOAD"] = true,
         ["SCREEN_FLASH"] = true,
         ["SCREEN_FLASH_MEMORY_ADDRESS"] = false,

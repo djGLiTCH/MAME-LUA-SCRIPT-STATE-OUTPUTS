@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Beast Busters: Second Nightmare",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "STARTUP_DELAY_MS": 8000,
     "DATA_WIDTHS": {
         "LIFE": 16

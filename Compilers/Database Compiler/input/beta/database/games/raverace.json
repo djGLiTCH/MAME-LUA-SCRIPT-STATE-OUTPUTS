@@ -1,0 +1,20 @@
+{
+    "LUA_GAME": "Rave Racer",
+    "LUA_GAME_comment": "FFB STATE OUTPUTS - Namco LUT decode demonstration. NOTE: feedback must be activated in the game's service menu first (per the FFB Arcade Plugin's documentation). The scrambled MCU byte is descrambled through the rr_map lookup table in init.lua, then mapped to signed FFB_Constant + FFB_Rumble.",
+    "ENABLE_ROM": true,
+    "GAME_TYPE": "racing",
+    "STARTUP_DELAY_MS": 5000,
+    "MAX_PLAYERS": 1,
+    "SIMULTANEOUS_PLAY": false,
+    "FFB": {
+        "ENABLED": true,
+        "SOURCES": [
+            "wheel_motor"
+        ],
+        "SOURCES_comment": "Namco Super System 22 driver exposes the wheel MCU byte as the wheel_motor native output.",
+        "DECODE": "namco_lut_rr",
+        "SCALE": 255,
+        "PLAYER": 1
+    },
+    "ADDITIONAL_OUTPUT_FORWARDS": []
+}

@@ -1,8 +1,10 @@
 {
-    "LUA_VERSION": 913,
-    "LUA_DATE": 20260728,
+    "LUA_VERSION": 920,
+    "LUA_DATE": 20260731,
     "LUA_GAME": "Default MSOP Plugin Values",
     "ENABLE_ROM": false,
+    "GAME_TYPE": "lightgun",
+    "GAME_TYPE_comment": "Genre gate (v9.2.0): lightgun (default) | racing | both. Controls which per-player output vocabulary is compiled/zero-flushed for the ROM (racing = FFB_* only, lightgun = everything except FFB_*, both = all) and whether the per-player gun pipeline runs each frame (racing skips it). Globals (Credits/GameStatus/AttractStatus) always apply. Unknown values degrade to lightgun, so existing profiles are unaffected.",
     "OFFSCREEN_RELOAD": false,
     "LIGHTGUN_PATCH": false,
     "SCREEN_FLASH": false,
@@ -13,6 +15,7 @@
     "MEMORY_SPACE": "program",
     "CPU_TAGS": {
         "SCREEN_FLASH": false,
+        "FFB": false,
         "GLOBAL_ATTRACT_STATUS": false,
         "GLOBAL_CREDITS": false,
         "GLOBAL_GAME_STATUS": false,
@@ -38,6 +41,7 @@
     },
     "MEMORY_SPACES": {
         "SCREEN_FLASH": false,
+        "FFB": false,
         "GLOBAL_ATTRACT_STATUS": false,
         "GLOBAL_CREDITS": false,
         "GLOBAL_GAME_STATUS": false,
@@ -95,10 +99,23 @@
         "SHOTS_FIRED_ALT": "ShotsFiredAlt",
         "SHOTS_FIRED_GRENADE": "ShotsFiredGrenade",
         "DAMAGE_TAKEN": "DamageTaken",
-        "LIFE_LOST": "LifeLost"
+        "LIFE_LOST": "LifeLost",
+        "FFB_CONSTANT": "FFB_Constant",
+        "FFB_SPRING": "FFB_Spring",
+        "FFB_FRICTION": "FFB_Friction",
+        "FFB_DAMPER": "FFB_Damper",
+        "FFB_SINE": "FFB_Sine",
+        "FFB_RUMBLE": "FFB_Rumble",
+        "FFB_RAW": "FFB_Raw",
+        "FFB_COLLISION": "FFB_Collision",
+        "FFB_GEARCHANGE": "FFB_GearChange",
+        "FFB_SURFACERUMBLE": "FFB_SurfaceRumble",
+        "FFB_TYRESLIP": "FFB_TyreSlip",
+        "FFB_ENGINERUMBLE": "FFB_EngineRumble"
     },
     "DATA_WIDTHS": {
         "SCREEN_FLASH": 8,
+        "FFB": 8,
         "GLOBAL_ATTRACT_STATUS": 8,
         "GLOBAL_CREDITS": 8,
         "GLOBAL_GAME_STATUS": 8,
@@ -273,5 +290,14 @@
     "ENABLE_LIFE_LOST": true,
     "DEMULSHOOTER_COMPATIBILITY": true,
     "ENABLE_OSD": false,
+    "FFB": {
+        "ENABLED": false,
+        "SOURCES": [],
+        "DECODE": "passthrough",
+        "SCALE": 255,
+        "PLAYER": 1,
+        "EVENTS": {}
+    },
+    "FFB_comment": "Force feedback state outputs (racing genre) - contract: MESH docs FFB-MSOP-CONTRACT.md. SOURCES: probed in order; plain strings = NATIVE OUTPUT names the driver creates (e.g. wheel), 0x-prefixed hex strings = emulated MEMORY ADDRESSES read via CPU_TAGS.FFB / MEMORY_SPACES.FFB / DATA_WIDTHS.FFB. DECODE: passthrough | signed8 | konami_dir4 | model2_bands | namco_lut_rr. SCALE 255 = Signed255/Unsigned255. Stream channels (persist until changed): MSOP_P<PLAYER>_FFB_Constant (signed, positive = force from the right), FFB_Spring, FFB_Friction, FFB_Damper, FFB_Sine, FFB_Rumble (UNSIGNED continuous motor level; coexists with pulse-style P<n>_Rumble - consumers mix by MAX), FFB_Raw (diagnostics). EVENTS (semantic, address-only): keys COLLISION | GEARCHANGE | SURFACERUMBLE | TYRESLIP | ENGINERUMBLE, each { SOURCE: 0x-address (required), MODE: nonzero|change|increase|value, STRENGTH, DURATION_MS, MAX, WIDTH }. Decoders update only the channels a command addresses; others persist.",
     "ADDITIONAL_OUTPUT_FORWARDS": []
 }
