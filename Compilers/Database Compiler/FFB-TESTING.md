@@ -76,22 +76,43 @@ tracks life/damage). Unknown values degrade to `lightgun`.
 - **Plain string** = **native output name** — resolved through the plugin's exact `device.outputs`
   enumeration first (subdevice-capable), then a side-effect-free root probe.
 
-## Test games
+## Supported racing games (145 ROMs, 11 decoder families)
 
-| ROM | Decoder | Channels exercised | Notes |
-| :--- | :--- | :--- | :--- |
-| `thrilld` | `konami_dir4` | Constant, Rumble | **primary test** |
-| `gticlub` | `konami_dir4` | Constant, Rumble | Konami confidence check |
-| `raverace` | `namco_lut_rr` | Constant, Rumble | enable feedback in **service menu** first |
-| `overrev` | `model2_bands` | Spring, Friction, Sine, Constant, Rumble | change output mode in **service menu**; exercises multi-channel persist semantics |
+Every ROM the FFB Arcade Plugin projects drive through a decodable MAME output now has a
+profile. Decoding mirrors those projects' per-game readers (GPLv3); **none are hardware
+validated yet**.
 
-(Cruis'n/Rush-family Midway games = the `signed8` decoder on the full-value `wheel` output —
-one small profile each when wanted.)
+| Decoder | ROMs | Source output | Games |
+| :--- | ---: | :--- | :--- |
+| `harddrivin_serial` | 35 | `wheel` | Hard Drivin', Race Drivin', Hard Drivin's Airborne (all revisions) |
+| `konami_dir4` | 34 | `wheel` family | Thrill Drive, GTI Club, Midnight Run, Winding Heat, Racing Jam 1/2 |
+| `signed8` | 27 | `wheel` / `wheel_motor` | Cruis'n USA/World, San Francisco Rush + 2049 + The Rock, Off Road Challenge, California Speed, Cart Fury, Hyperdrive, Vapor TRX |
+| `flag_shake` | 16 | `MA_Steering_Wheel_motor` family, `led2` | OutRunners, Turbo OutRun, Chase Bombers, Double Axle, Cisco Heat, F-1 Grand Prix Star 1/2 |
+| `model2_bands` | 13 | `wheel_motor` | Daytona USA, Indianapolis 500, Sega Touring Car, Over Rev, Super GT 24h |
+| `pdrift_8step` | 5 | `bank_motor_position` | Power Drift |
+| `sega_rally_bands` | 4 | `wheel_motor` | Sega Rally Championship |
+| `namco_lut_rr` | 4 | `wheel_motor` | Rave Racer |
+| `sidebs_5bit` | 4 | `wheel_motor` | Side by Side 1/2 |
+| `hng64_bands` | 2 | `wheel_motor` | Roads Edge, Xtreme Rally |
+| `virtua_racing` | 1 | `digit0` | Virtua Racing |
 
-All decoder encodings cross-referenced against the FFB Arcade Plugin (GPLv3), unit-tested at
-scale 255: `konami_dir4` (0x0F→+255, 0x1F→−255, 0x93→−51 constant / +51 rumble, 0x10→0),
-`model2_bands` band edges, `namco_lut_rr` LUT descramble (over-range clamped), `signed8`
-symmetric rounding.
+`INVERT: true` is set on the 17 Cruis'n / San Francisco Rush ROMs, whose wheel output uses the
+opposite direction convention to the otherwise identical California Speed / Cart Fury group.
+
+**Start here:** `thrilld` (Thrill Drive) is the primary test game - a simple decoder on a
+native output. `overrev` exercises the multi-channel banded path, and `harddriv` exercises the
+stateful frame reassembly, so those two are the most valuable second tests.
+
+**Per-game prerequisites** carried in the profiles: Rave Racer needs feedback enabled in its
+service menu; Over Rev needs its output mode changed there; Virtua Racing must be set to
+UPRIGHT cabinet; the Side by Side pair are under-clocked in MAME and are scaffolding only.
+
+### Not yet supported (14 ROMs)
+
+| Games | Why |
+| :--- | :--- |
+| Super Chase (4), Dirt Dash (3), Ace Driver + Victory Lap (4) | The plugin obtains the force by **signature-scanning host memory** - it has no MAME output to read. MSOP needs the equivalent **emulated** RAM address instead; find it with MAME's debugger and add it to `SOURCES` as a `"0x..."` string (no plugin change needed). |
+| OutRun (3) | Needs **two** outputs combined (`Bank_Motor_Direction` for sign + `Bank_Motor_Speed` for magnitude). The current schema resolves a single source per profile. |
 
 ## Install & run
 

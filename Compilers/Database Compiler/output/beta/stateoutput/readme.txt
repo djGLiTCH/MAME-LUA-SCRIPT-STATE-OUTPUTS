@@ -405,9 +405,16 @@ MSOP_P1_FFB_EngineRumble=
 * Every game's database entry now carries a GAME_TYPE (lightgun default /
   racing / both): racing games emit only the FFB vocabulary (plus the global
   outputs) and skip the gun pipeline entirely, and gun games never emit FFB
-  names. Supported racing ROMs in this release: thrilld (Thrill Drive),
-  gticlub (GTI Club), raverace (Rave Racer - enable feedback in its service
-  menu), overrev (Over Rev - change output mode in its service menu).
+  names. 145 racing ROMs are supported in this release,
+  covering the Konami (Thrill Drive, GTI Club, Midnight Run, Winding Heat,
+  Racing Jam), Atari (Hard Drivin', Race Drivin'), Midway (Cruis'n, San
+  Francisco Rush, Off Road Challenge, California Speed, Cart Fury, Hyperdrive,
+  Vapor TRX), Sega (Daytona USA, Indianapolis 500, Sega Touring Car, Over Rev,
+  Super GT 24h, Sega Rally, Power Drift, OutRunners, Turbo OutRun, Virtua
+  Racing), Namco (Rave Racer), Taito (Chase Bombers, Double Axle, Side by
+  Side), Jaleco (Cisco Heat, F-1 Grand Prix Star) and Hyper Neo Geo 64 (Roads
+  Edge, Xtreme Rally) families. A few carry service-menu prerequisites noted
+  in their database entry.
 
 --------------------------------------------------------------------------------
 MESH APP (FORMERLY MSOP CONFIGURATOR): TUTORIAL & USAGE

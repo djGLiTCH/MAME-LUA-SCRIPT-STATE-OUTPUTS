@@ -104,12 +104,23 @@ The latest source code and release includes support for the following MAME ROMs 
 
 **Racing / Force Feedback games (beta channel, plugin v9.2.0+):**
 
-| ROM | Game | Comments |
-| :--- | :--- | :--- |
-| `thrilld` | Thrill Drive | Primary FFB test game (Konami wheel encoding) |
-| `gticlub` | GTI Club | Same Konami encoding as Thrill Drive |
-| `raverace` | Rave Racer | Enable feedback in the game's service menu first (Namco LUT encoding) |
-| `overrev` | Over Rev | Change output mode in the game's service menu (Sega Model 2 banded protocol) |
+145 racing ROMs are supported, covering every game the [FFB Arcade Plugin](https://github.com/Boomslangnz/FFBArcadePlugin) projects drive through a decodable MAME output. These emit the force feedback vocabulary described below instead of the light gun set.
+
+| Family | ROMs | Games |
+| :--- | ---: | :--- |
+| Atari Hard Drivin' | 35 | Hard Drivin', Race Drivin', Hard Drivin's Airborne (all revisions) |
+| Konami racing | 34 | Thrill Drive, GTI Club, Midnight Run, Winding Heat, Racing Jam 1 & 2 |
+| Midway / Atari full-value | 27 | Cruis'n USA & World, San Francisco Rush / 2049 / The Rock, Off Road Challenge, California Speed, Cart Fury, Hyperdrive, Vapor TRX |
+| On/off shaker cabinets | 16 | OutRunners, Turbo OutRun, Chase Bombers, Double Axle, Cisco Heat, F-1 Grand Prix Star 1 & 2 |
+| Sega Model 2 | 13 | Daytona USA, Indianapolis 500, Sega Touring Car Championship, Over Rev, Super GT 24h |
+| Sega Y-board | 5 | Power Drift |
+| Sega Rally | 4 | Sega Rally Championship |
+| Namco Super System 22 | 4 | Rave Racer |
+| Taito Side by Side | 4 | Side by Side 1 & 2 |
+| Hyper Neo Geo 64 | 2 | Roads Edge, Xtreme Rally |
+| Sega Model 1 | 1 | Virtua Racing |
+
+A few games carry prerequisites noted in their database entry (Rave Racer and Over Rev need a service-menu change; Virtua Racing must be set to an upright cabinet). Super Chase, Dirt Dash, Ace Driver and OutRun are **not** yet supported - see `Compilers/Database Compiler/FFB-TESTING.md` for why and what each would need.
 
 If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 

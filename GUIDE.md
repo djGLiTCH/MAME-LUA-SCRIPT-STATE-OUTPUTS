@@ -160,12 +160,25 @@ force-feedback command lives and how to decode it into the standardized effect c
   `device.outputs` enumeration with a root-device probe fallback); `"0x..."` hex strings are
   emulated **memory addresses**, read via `CPU_TAGS.FFB` / `MEMORY_SPACES.FFB` /
   `DATA_WIDTHS.FFB` - the same acquisition model as the gun games' Ammo/Life.
-* **`DECODE`**: The per-game encoding translator - `passthrough`, `signed8` (two's-complement
-  full-value, e.g. the Midway Cruis'n/Rush family), `konami_dir4` (bits 0-3 = force level,
-  bit 4 = direction; Thrill Drive/GTI Club family), `model2_bands` (Sega Model 2 banded
-  drive-board protocol; multi-channel), or `namco_lut_rr` (Rave Racer's scrambled MCU byte via a
-  256-entry lookup table). Decoders update only the channels a command addresses; other channels
-  persist until changed, and an explicit 0 releases.
+* **`DECODE`**: The per-game encoding translator. Decoders update only the channels a command
+  addresses; other channels persist until changed, and an explicit 0 releases.
+  * `passthrough` - raw value straight onto the Constant channel (bring-up/analysis).
+  * `signed8` - two's-complement full-value byte (Midway/Atari wheel outputs).
+  * `konami_dir4` - bits 0-3 = force level, bit 4 = direction (Konami racing hardware).
+  * `model2_bands` - Sega Model 2 banded drive-board protocol (multi-channel).
+  * `sega_rally_bands` - Sega Rally's two 32-step force bands.
+  * `hng64_bands` - Hyper Neo Geo 64's two 63-step force bands.
+  * `namco_lut_rr` - Rave Racer's scrambled MCU byte via a 256-entry lookup table.
+  * `sidebs_5bit` - Taito Side by Side (low 5 bits; a LOW byte means a HIGH force).
+  * `virtua_racing` - Sega Model 1 discrete command values (multi-channel).
+  * `pdrift_8step` - Power Drift's bank-motor position byte.
+  * `flag_shake` - cabinets whose only feedback line is an ON/OFF shaker.
+  * `harddrivin_serial` - Atari Hard Drivin' hardware, where the force arrives as a 4-byte
+    frame written serially through one output (stateful: the decoder reassembles and validates
+    each frame before emitting a force).
+* **`INVERT`** *(optional)*: Set `true` when a cabinet encodes steering direction the opposite
+  way round to its family norm (used by the Cruis'n / San Francisco Rush group). Only the signed
+  `FFB_Constant` channel flips; magnitudes stay positive.
 * **`SCALE`**: Full-scale output value (255 = Signed255/Unsigned255, the standard).
 * **`PLAYER`**: Which player index emits the FFB outputs (1-4).
 * **`EVENTS`** *(optional)*: Address-sourced semantic events - keys `COLLISION`, `GEARCHANGE`,

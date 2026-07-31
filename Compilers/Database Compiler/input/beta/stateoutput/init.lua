@@ -1672,6 +1672,7 @@ function stateoutput.startplugin()
         probe_frames = 0,    -- frames spent probing, for the one-shot warning
         warned = false,
         events_rt = {},      -- per-event runtime state (last value, pulse tick)
+        hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0, last=0 },
         channels = { "CONSTANT", "SPRING", "FRICTION", "DAMPER", "SINE", "RUMBLE" },
 
         -- Rave Racer / Namco Super System 22 wheel LUT: the MCU's scrambled
@@ -1750,6 +1751,144 @@ function stateoutput.startplugin()
                 return { CONSTANT = -f, RUMBLE = f }   -- roll: force from the LEFT
             end
             return { CONSTANT = 0 }                    -- neutral / unknown band
+        end,
+
+        -- Sega Rally (srallyc family): two 32-step bands on the drive-board byte.
+        -- 0xC0-0xDF = force from the RIGHT, 0x80-0x9F = force from the LEFT.
+        sega_rally_bands = function(raw, scale)
+            if raw == 0x00 then return { CONSTANT = 0, RUMBLE = 0 } end
+            if raw >= 0xC0 and raw <= 0xDF then
+                local f = math.floor(((raw - 0xC0) * scale / 31) + 0.5)
+                return { CONSTANT = f, RUMBLE = f }
+            elseif raw >= 0x80 and raw <= 0x9F then
+                local f = math.floor(((raw - 0x80) * scale / 31) + 0.5)
+                return { CONSTANT = -f, RUMBLE = f }
+            end
+            return nil -- outside both bands: leave the last force in place
+        end,
+
+        -- Hyper Neo Geo 64 racers (Roads Edge, Xtreme Rally): two 63-step bands.
+        -- 193-255 = force from the LEFT, 129-191 = force from the RIGHT.
+        hng64_bands = function(raw, scale)
+            if raw == 0 then return { CONSTANT = 0, RUMBLE = 0 } end
+            if raw >= 193 and raw <= 255 then
+                local f = math.floor(((raw - 193) * scale / 62) + 0.5)
+                if f > scale then f = scale end
+                return { CONSTANT = -f, RUMBLE = f }
+            elseif raw >= 129 and raw <= 191 then
+                local f = math.floor(((raw - 129) * scale / 62) + 0.5)
+                if f > scale then f = scale end
+                return { CONSTANT = f, RUMBLE = f }
+            end
+            return { CONSTANT = 0, RUMBLE = 0 }
+        end,
+
+        -- Side by Side 1/2 (Taito): low 5 bits carry the command. 0x00/0x1E/0x1F
+        -- release; otherwise ODD = force from the right, EVEN = from the left, and
+        -- the step count is INVERTED (a low command byte means a high force).
+        sidebs_5bit = function(raw, scale)
+            local v = raw & 0x1F
+            if v == 0 or v == 0x1E or v == 0x1F then return { CONSTANT = 0, RUMBLE = 0 } end
+            local steps = (v + 1) // 2
+            if steps > 15 then steps = 15 end
+            local f = math.floor((((16 - steps) * scale) / 15) + 0.5)
+            if f > scale then f = scale end
+            if (v & 1) == 1 then return { CONSTANT = f, RUMBLE = f } end
+            return { CONSTANT = -f, RUMBLE = f }
+        end,
+
+        -- Virtua Racing (Sega Model 1): the digit0 command byte selects one effect
+        -- band per frame, like the Model 2 protocol but with a different layout.
+        virtua_racing = function(raw, scale)
+            if raw == 0x03 or raw == 0x07 or raw == 0x09 or raw == 0x10 then
+                return { SPRING = math.floor(scale * 0.8 + 0.5), CONSTANT = 0 }
+            end
+            if raw == 0x20 or raw == 0x28 then
+                return { FRICTION = math.floor(scale * 0.4 + 0.5), CONSTANT = 0 }
+            end
+            if raw > 0x2F and raw < 0x40 then
+                return { SPRING = _FFB.Band(raw, 0x2F, 11, scale), CONSTANT = 0 }
+            end
+            if raw == 0x40 or raw == 0x46 or raw == 0x4A then
+                local f = math.floor(scale * 0.4 + 0.5)
+                return { SINE = f, RUMBLE = f, CONSTANT = 0 }
+            end
+            if raw == 0x50 or raw == 0x5F then
+                local f = math.floor(scale * 0.5 + 0.5)
+                return { CONSTANT = f, RUMBLE = f }   -- roll: force from the RIGHT
+            end
+            if raw == 0x60 or raw == 0x6F then
+                local f = math.floor(scale * 0.5 + 0.5)
+                return { CONSTANT = -f, RUMBLE = f }  -- roll: force from the LEFT
+            end
+            return { CONSTANT = 0 }
+        end,
+
+        -- Power Drift (Sega Y-board): the bank-motor position byte doubles as the
+        -- steering command - 0x01-0x03 = from the LEFT, 0x05-0x07 = from the RIGHT.
+        pdrift_8step = function(raw, scale)
+            if raw > 0x00 and raw < 0x04 then
+                local f = math.floor((((4 - raw) * scale) / 3) + 0.5)
+                return { CONSTANT = -f, RUMBLE = f }
+            elseif raw > 0x04 and raw < 0x08 then
+                local f = math.floor((((raw - 4) * scale) / 3) + 0.5)
+                return { CONSTANT = f, RUMBLE = f }
+            end
+            return { CONSTANT = 0, RUMBLE = 0 }
+        end,
+
+        -- Cabinets whose only feedback line is an ON/OFF shaker (Outrunners, Turbo
+        -- OutRun, Chase Bombers, Double Axle, Cisco Heat, F-1 GP Star): any non-zero
+        -- command means "vibrate", so the strength is a consumer-side tuning choice.
+        flag_shake = function(raw, scale)
+            if raw ~= 0 then return { SINE = scale, RUMBLE = scale } end
+            return { SINE = 0, RUMBLE = 0 }
+        end,
+
+        -- Hard Drivin' / Race Drivin' (Atari): the wheel force is not a single byte -
+        -- the driver writes a 4-byte FRAME serially through the same output, so this
+        -- decoder is STATEFUL (state in _FFB.hd, cleared by _FFB.Reset).
+        --   * an alternating 0xE0/0x00 run is the idle/sync pattern - it resets the
+        --     frame cursor and is never treated as data;
+        --   * vals[0] must stay < 200 and vals[1] > 200, else the frame is garbage
+        --     and collection restarts (mirrors the plugin's validity guard);
+        --   * on the 5th write the frame decodes to a signed force:
+        --       f = (v0 & 15) + ((v3 & 7) << 5), |0x10 when v1's high nibble is F,
+        --       negated when v2's high nibble is F, clamped to +/-100 and rescaled.
+        --     A positive frame value drives the wheel FROM THE LEFT, so the sign is
+        --     inverted into MSOP's convention.
+        -- Returns nil on every intermediate write, holding the last force in place.
+        harddrivin_serial = function(raw, scale)
+            local h = _FFB.hd
+            h.s3, h.s2, h.s1, h.s0 = h.s2, h.s1, h.s0, raw
+
+            local sync = (raw == 0xE0 and h.s1 == 0x00 and h.s2 == 0xE0 and h.s3 == 0x00)
+                      or (raw == 0x00 and h.s1 == 0xE0 and h.s2 == 0x00 and h.s3 == 0xE0)
+            if sync then h.frame = 0; return nil end
+
+            if h.frame > 4 then h.frame = 0 end
+            if h.frame > 2 and (h.v0 > 200 or (h.v1 < 200 and h.v1 ~= 0)) then
+                h.frame = 0; h.v1 = 0; h.v2 = 0; h.v3 = 0
+            end
+
+            if h.frame == 0 then h.v0 = raw
+            elseif h.frame == 1 then h.v1 = raw
+            elseif h.frame == 2 then h.v2 = raw
+            elseif h.frame == 3 then h.v3 = raw end
+            h.frame = h.frame + 1
+
+            if h.frame ~= 5 then return nil end   -- frame still assembling
+            h.frame = 0
+
+            local f = (h.v0 & 15) + ((h.v3 & 7) << 5)
+            if (h.v1 & 0xF0) == 0xF0 then f = f | 0x10 end
+            if (h.v2 & 0xF0) == 0xF0 then f = -f end
+            if f > 100 then f = 100 elseif f < -100 then f = -100 end
+
+            local mag = math.floor(((f < 0 and -f or f) * scale / 100) + 0.5)
+            -- plugin: f >= 0 -> DIRECTION_FROM_LEFT, so invert into MSOP's convention
+            if f >= 0 then return { CONSTANT = -mag, RUMBLE = mag } end
+            return { CONSTANT = mag, RUMBLE = mag }
         end,
 
         -- Rave Racer (Namco): rr_map descrambles the MCU byte to 1..123, then
@@ -2598,6 +2737,7 @@ function stateoutput.startplugin()
         _FFB.probe_frames = 0
         _FFB.warned = false
         _FFB.events_rt = {}
+        _FFB.hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0, last=0 }
     end
 
     -- Walks CFG.FFB.SOURCES in order: hex strings were already converted to
@@ -2764,8 +2904,14 @@ function stateoutput.startplugin()
 
                 local decoder = _FFB.decoders[string.lower(tostring(cfgF.DECODE or "passthrough"))] or _FFB.decoders.passthrough
                 local scale = tonumber(cfgF.SCALE) or 255
-                local set = decoder(raw, scale)
+                        local set = decoder(raw, scale)
                 if type(set) == "table" then
+                    -- INVERT (per profile): some cabinets encode steering direction the
+                    -- opposite way round to the family norm. Only the signed CONSTANT
+                    -- channel flips; magnitudes stay positive.
+                    if cfgF.INVERT == true and set.CONSTANT then
+                        set.CONSTANT = -set.CONSTANT
+                    end
                     for ch, val in pairs(set) do
                         if val > scale then val = scale elseif val < -scale then val = -scale end
                         Set_Output(out, p_idx, "FFB_" .. ch, val)
