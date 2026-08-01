@@ -11,6 +11,34 @@
 
 ---
 
+## 📅 MAME Compatibility & Release Status
+
+> **In short:** the current release, **MSOP Plugin v8**, supports **MAME 0.200 to 0.288**. Support for **MAME 0.289 and later** arrives with **MSOP Plugin v9 combined with MESH v1**, both targeted for release around **mid-August 2026**.
+
+MAME 0.289 removed the ability for a Lua plugin to create state outputs. MAME can therefore no longer hold - and no longer broadcast - any of MSOP's custom outputs on 0.289 and above, in any `-output` mode. This was a deliberate change by the MAME development team, and it is not something a plugin can work around on its own. From v9, MSOP delivers its outputs over its own relay instead, which the MESH app hosts - and that is why the two are released together.
+
+| | MAME 0.200 – 0.288 | MAME 0.289 and later |
+| :--- | :--- | :--- |
+| **MSOP Plugin v8** (current release) | ✅ Supported | ❌ Not supported |
+| **MSOP Plugin v9 + MESH v1** (upcoming) | ✅ Supported | ✅ Supported |
+
+### Where things stand today
+
+* **On MAME 0.288 or earlier:** everything in this repository works right now. Install MSOP Plugin v8 with the MSOP Configurator (or by hand) and carry on as normal.
+* **On MAME 0.289 or later:** please stay on MAME 0.288 for the moment, or wait for the v9 + MESH v1 release. No currently released version of MSOP can deliver state outputs on 0.289+.
+
+### What is coming (targeting mid-August 2026)
+
+* **MSOP Plugin v9** - *currently unreleased.* Delivers state outputs over the MSOP relay, so a single install covers **MAME 0.200 and above, including 0.289+**, with no custom or patched MAME build required.
+* **MESH (Modern Emulator State Hub) v1** - *currently unreleased, and in private beta testing.* The successor to the MSOP Configurator. It hosts the relay that Plugin v9 delivers through, and it can also drive peripherals (e.g. light guns) and cabinet lighting natively with no external hooker program at all. **MESH is required for MSOP Plugin v9 on MAME 0.289+.** Its own GitHub repository will be published with the public release.
+* **MSOP Configurator v1.1.0** - the **final** MSOP Configurator update, published once Plugin v9 and MESH v1 are both released. Its purpose is migration: existing installs will update to it automatically, and it will assist you in moving across to MESH. The MSOP Configurator is retired after this release, and all further app development continues in MESH, with MSOP being purely reserved for the MSOP Plugin which creates custom state outputs in MAME.
+
+MSOP Plugin v9 and MESH v1 have been in the making for the past few months, and have been developed and privately beta tested together as a pair over that whole period - the plugin's state outputs are delivered through the app's relay, so neither side can be properly tested without the other. That testing is why both are released together rather than separately.
+
+This repository remains the home of the MSOP Plugin, the game database, and the generated 'Hooker' files for each supported game, before and after that transition.
+
+---
+
 ## 📖 Historical Context: From Lua Script to MAME Plugin
 
 Previously, this project was known as the "Universal MAME Lua Script for State Outputs". It relied on standalone Lua scripts for each game / ROM to monitor memory addresses and output states. While effective, as the list of supported games grew, we needed a more robust and integrated solution.
@@ -22,11 +50,11 @@ We have since migrated to a **native MAME Plugin architecture** to establish a c
 * Easily add support for new games / ROMs by updating a single file (database.lua).
 * Provide a more stable foundation for future community contributions.
 
-Looking to the future, the need to move configure, maintain, and update MSOP became increasingly obvious. This was initially addressed by the MSOP Configurator app, which worked quite well, but as that app grew in scope and complexity it was time to branch this off into another project.
+Looking to the future, the need to configure, maintain, and update MSOP became increasingly obvious. This was initially addressed by the MSOP Configurator app, which worked quite well, but as that app grew in scope and complexity it was time to branch this off into another project.
 
-As such, it is highly recommended that you use [MESH (Modern Emulator State Hub)](https://github.com/djGLiTCH/mesh) to install and use MSOP.
+That successor is **MESH (Modern Emulator State Hub)**, which has been in the making for the past few months alongside MSOP Plugin v9 and is currently in private beta testing, so it is not yet publicly available. Once released it becomes the recommended way to install and use MSOP, and its own GitHub repository will be published at the same time.
 
-All existing instances of MSOP Configurator will prompted to upgrade to [MESH](https://github.com/djGLiTCH/mesh) moving forward, while the MSOP GitHub remains as the repository for storing the MSOP Plugin, Database, and relevant 'Hooker' files for each supported game.
+Until then, the **MSOP Configurator** remains the supported installer for MSOP Plugin v8 on MAME 0.200 to 0.288. When MESH is released, existing MSOP Configurator installs will receive a final v1.1.0 update that prompts and assists with the migration to MESH - see [MAME Compatibility & Release Status](#-mame-compatibility--release-status) above. The MSOP GitHub remains the repository for storing the MSOP Plugin, Database, and relevant 'Hooker' files for each supported game.
 
 ---
 
@@ -51,7 +79,7 @@ This plugin handles the logic, while your external Output Program handles the co
 * Sinden
 * X-Gunner
 
-Automatic configuration for your light guns can be made using [MESH (Modern Emulator State Hub)](https://github.com/djGLiTCH/mesh) which is my new project that builds upon what was created in MSOP.
+Automatic configuration for your light guns can be made today using the **MSOP Configurator**, and once it is publicly released, with **MESH (Modern Emulator State Hub)** - my new project that builds upon what was created in MSOP.
 
 ---
 
@@ -80,10 +108,13 @@ The latest source code and release includes support for the following MAME ROMs 
 | `dragngun` | Dragon Gun | Working |
 | `dragngunj` | Dragon Gun (Japan) | Working |
 | `duckhunt` | Vs. Duck Hunt | Working |
+| `evilngt` | Evil Night | Work-in-progress |
+| `hellngt` | Hell Night | Work-in-progress |
 | `hotd` | The House of the Dead | Working |
 | `invasnab` | Invasion: The Abductors | Working |
 | `jdredd` | Judge Dredd | Working |
 | `jpark` | Jurassic Park | Working<br>Life and Ammo are disabled due to memory addresses shifting with new player life.<br>Recoil, Status, and Lamp Start are enabled. |
+| `jpark3` | Jurassic Park III | Work-in-progress |
 | `le2` | Lethal Enforcers II: Gun Fighters | Working |
 | `lethalen` | Lethal Enforcers | Working |
 | `lethalj` | Lethal Justice | Working |
@@ -97,19 +128,12 @@ The latest source code and release includes support for the following MAME ROMs 
 | `sgunnerj` | Steel Gunner (Japan) | Working |
 | `sgunner2` | Steel Gunner 2 | Working |
 | `sgunner2j` | Steel Gunner 2 (Japan) | Working |
+| `terabrst` | Teraburst | Work-in-progress |
 | `timecris` | Time Crisis | Working |
 | `timecrs2` | Time Crisis II | Working |
+| `totlvice` | Total Vice | Work-in-progress |
 | `vcop` | Virtua Cop | Working |
 | `vcop2` | Virtua Cop 2 | Working |
-
-**Racing / Force Feedback games (beta channel, plugin v9.2.0+):**
-
-| ROM | Game | Comments |
-| :--- | :--- | :--- |
-| `thrilld` | Thrill Drive | Primary FFB test game (Konami wheel encoding) |
-| `gticlub` | GTI Club | Same Konami encoding as Thrill Drive |
-| `raverace` | Rave Racer | Enable feedback in the game's service menu first (Namco LUT encoding) |
-| `overrev` | Over Rev | Change output mode in the game's service menu (Sega Model 2 banded protocol) |
 
 If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 
@@ -124,12 +148,14 @@ If you encounter a new issue that isn't documented, please create a new issue on
 > **Standalone MAME Only:** This plugin exclusively supports standalone MAME. RetroArch (and its MAME cores) are NOT supported due to differences in how cores are handled.
 
 ### Option 1: Automatic Installation (Recommended)
-We provide a custom desktop app, **MESH (Modern Emulator State Hub)**, formerly known as the *MSOP Configurator*, to streamline the installation and ensure all files are placed in the correct directories automatically. This will automatically update both MAME and your relevant Output Program(s). We highly recommend this app be used to install and configure your build. MESH can also drive your light guns and LED lighting natively, with no external hooker program installed at all.
+We provide a custom desktop app to streamline the installation and ensure all files are placed in the correct directories automatically. This will automatically update both MAME and your relevant Output Program(s). We highly recommend this app be used to install and configure your build.
 
-1. Download the latest version of the **MESH app**, extract the executable, and run it.
+> ℹ️ **Which app do I use?** Today, that app is the **MSOP Configurator**, which installs MSOP Plugin v8 for **MAME 0.200 to 0.288**. Its successor, **MESH (Modern Emulator State Hub)**, is still in private beta testing and not yet publicly available; when it is released (targeting mid-August 2026) it becomes the recommended app, and it is **required** for MSOP Plugin v9 on **MAME 0.289+**. Existing MSOP Configurator installs will receive a final v1.1.0 update that assists with the migration. The workflow below is the same in both apps, and MESH additionally drives your light guns and LED lighting natively, with no external hooker program installed at all.
+
+1. Download the latest version of the app, extract the executable, and run it.
 2. Follow the on-screen prompts. The tool will automatically clean out old conflicting scripts and copy the latest plugin framework files directly into your MAME and relevant Output Program(s) directories.
 
-> ℹ️ The current build still ships its executable as `MSOP_CONFIGURATOR.exe`; it is being renamed to `MESH.exe` as part of the MESH rebrand. Use whichever name matches your build until then.
+> ℹ️ The MSOP Configurator ships its executable as `MSOP_CONFIGURATOR.exe`; MESH ships as `MESH.exe`. Use whichever name matches your build.
 
 #### MESH App Workflow:
 * **Initial Setup:** Launch the MESH app. You will be prompted to select your standalone MAME directory.
@@ -316,28 +342,7 @@ MSOP_P2_CreditsInserted=
 MSOP_P2_CreditsConsumed=
 ```
 
-Please note that not all outputs will be available for each supported game, but the main outputs will always be available (PX_CtmRecoil, PX_Reload, PX_Damaged).
-
-**Racing / Force Feedback** _(beta channel, plugin v9.2.0+ - racing-genre games emit these instead of the gun set)_
-```ini
-[Output]
-MSOP_P1_FFB_Constant=
-MSOP_P1_FFB_Spring=
-MSOP_P1_FFB_Friction=
-MSOP_P1_FFB_Damper=
-MSOP_P1_FFB_Sine=
-MSOP_P1_FFB_Rumble=
-MSOP_P1_FFB_Raw=
-MSOP_P1_FFB_Collision=
-MSOP_P1_FFB_GearChange=
-MSOP_P1_FFB_SurfaceRumble=
-MSOP_P1_FFB_TyreSlip=
-MSOP_P1_FFB_EngineRumble=
-```
-
-The plugin reads the game's raw force-feedback command (a native driver output, or an emulated memory address - the same acquisition model as the gun games), decodes the game-specific encoding internally, and re-emits it as these standardized effect channels, so a consumer needs zero game knowledge. Stream channels persist until changed and an explicit `0` releases them: `FFB_Constant` is signed -255..+255 (positive = force from the right, i.e. wheel pushed left); `FFB_Spring` / `FFB_Friction` / `FFB_Damper` / `FFB_Sine` / `FFB_Rumble` are 0..255. `FFB_Rumble` is a continuous force-correlated motor level that deliberately coexists with the pulse-style `PX_Rumble` - a consumer with a single rumble path should mix the two by MAX, never sum. The semantic events (`FFB_Collision` through `FFB_EngineRumble`; 0..255, pulse/level style) are optional per game and appear only where the game's database entry configures their memory addresses. Every game's database entry carries a `GAME_TYPE` (`lightgun` default / `racing` / `both`), so racing games emit only the FFB vocabulary (plus the global outputs) and gun games never emit FFB names.
-
-Every output above only appears once a supported ROM actually drives it away from its default value - this keeps your hooker software free of names that ROM never uses, and is consistent across every output MSOP produces, global or per-player.
+Please note that not all outputs will be available for each supported game, but the main outputs will always be available. Every output above only appears once a supported ROM actually drives it away from its default value - this keeps your hooker software free of names that ROM never uses, and is consistent across every output MSOP produces, global or per-player.
 
 Note 1: PX = Player Number (e.g. P1 = Player 1)
 Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
@@ -349,7 +354,7 @@ Note 5: PX_Clip is a derived instant flag - 1 while the player still has ammo, 0
 
 ## 📡 Release Channels (Stable vs Beta)
 
-The MESH app supports dual release channels, allowing you to choose between maximum stability or cutting-edge features. You can toggle between these channels at any time using the radio buttons on the home screen.
+Both the MSOP Configurator and MESH support dual release channels, allowing you to choose between maximum stability or cutting-edge features. You can toggle between these channels at any time using the radio buttons on the home screen.
 
 * **Stable Channel (Recommended):** The default track. These releases are thoroughly tested and guaranteed to provide a reliable experience for your arcade cabinet.
 * **Beta Channel:** Contains experimental features, bug fixes, and early support for newly added games or ROMs that are currently in active testing. 
@@ -379,7 +384,7 @@ By funneling all game events through this standardised logic flow, external tool
 
 ## 🤖 Command Line Automation (Headless Mode)
 
-For arcade owners and frontend users (RetroBat, LaunchBox, etc.) who want a true "set and forget" experience, the MESH app fully supports headless command-line execution. 
+For arcade owners and frontend users (RetroBat, LaunchBox, etc.) who want a true "set and forget" experience, the app fully supports headless command-line execution. The commands below describe **MESH**; the MSOP Configurator supports the same core update commands today, and the full set listed here becomes available with the MESH release.
 
 You can map these arguments to batch scripts that run on system boot or game launch. The application will execute completely invisibly in the background, download the required files, update your configurations, and close itself without ever drawing a UI or interrupting your arcade immersion.
 
@@ -419,6 +424,7 @@ This is a community-driven project. If you find a game that isn't supported, ple
 * **Muggins**, for all of his help and support. Without his tireless efforts in testing each release and suggesting quality of life improvements, it would not be what it is today.
 * **Bandicoot**, for all of his help in testing newly supported games for this project.
 * **Hexxed**, for all of his help in testing new design ideas, suggestions for improvements, and general architecture discussions for this project.
+* **Endprodukt**, for testing releases and sharing suggestions for improvement.
 * **Argon**, for the initial Lua script concept that sparked the idea for this project.
 * **PolybiusExtreme**, for [**OutputHooker**](https://github.com/PolybiusExtreme/OutputHooker), and general testing and feedback for this project.
 * **Howard Casto**, for [**MAMEhooker**](https://dragonking.arcadecontrols.com/static.php?page=aboutmamehooker).
