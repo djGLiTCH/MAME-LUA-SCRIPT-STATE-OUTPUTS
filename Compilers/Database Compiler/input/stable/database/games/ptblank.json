@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Point Blank",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "SCREEN_FLASH": true,
     "MEMORY_SPACES": {
         "SCREEN_FLASH": "region"

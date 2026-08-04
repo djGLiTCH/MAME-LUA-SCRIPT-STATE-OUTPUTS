@@ -15,6 +15,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": true,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.05.22",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -32,6 +33,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -49,6 +51,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -66,6 +69,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -83,6 +87,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -100,6 +105,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -117,6 +123,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.5",
+            "SupportedDate": "2026.06.29",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -134,6 +141,7 @@
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -151,6 +159,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.05.07",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -168,6 +177,43 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.4",
+            "SupportedDate": "2026.06.19",
+            "SupportAddedBy": "DJ_GLiTCH"
+        },
+        {
+            "ROM": "evilngt",
+            "Name": "Evil Night",
+            "ReleaseYear": "1998",
+            "DeveloperPublisher": "Konami",
+            "Category": "Rail Shooter",
+            "ArcadeHardware": "Konami M2",
+            "CHD": true,
+            "MAMECompatibility": "Imperfect",
+            "OffscreenReload": true,
+            "LightGunPatch": false,
+            "ScreenFlash": true,
+            "ScreenFlashFix": false,
+            "NativeStateOutput": false,
+            "SupportedVersion": "9.1.2",
+            "SupportedDate": "2026.07.26",
+            "SupportAddedBy": "DJ_GLiTCH"
+        },
+        {
+            "ROM": "hellngt",
+            "Name": "Hell Night",
+            "ReleaseYear": "1998",
+            "DeveloperPublisher": "Konami",
+            "Category": "Rail Shooter",
+            "ArcadeHardware": "Konami M2",
+            "CHD": true,
+            "MAMECompatibility": "Imperfect",
+            "OffscreenReload": true,
+            "LightGunPatch": false,
+            "ScreenFlash": true,
+            "ScreenFlashFix": false,
+            "NativeStateOutput": false,
+            "SupportedVersion": "9.1.2",
+            "SupportedDate": "2026.07.26",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -185,6 +231,7 @@
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -202,6 +249,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -219,6 +267,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -236,6 +285,25 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.05.07",
+            "SupportAddedBy": "DJ_GLiTCH"
+        },
+        {
+            "ROM": "jpark3",
+            "Name": "Jurassic Park III",
+            "ReleaseYear": "2001",
+            "DeveloperPublisher": "Konami",
+            "Category": "Rail Shooter",
+            "ArcadeHardware": "Konami Viper",
+            "CHD": true,
+            "MAMECompatibility": "Not Working",
+            "OffscreenReload": true,
+            "LightGunPatch": false,
+            "ScreenFlash": true,
+            "ScreenFlashFix": false,
+            "NativeStateOutput": false,
+            "SupportedVersion": "9.1.2",
+            "SupportedDate": "2026.07.26",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -253,6 +321,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -270,6 +339,7 @@
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -287,6 +357,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -304,6 +375,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -321,6 +393,7 @@
             "ScreenFlashFix": true,
             "NativeStateOutput": true,
             "SupportedVersion": "8.2.3",
+            "SupportedDate": "2026.06.12",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -338,6 +411,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.5",
+            "SupportedDate": "2026.06.24",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -355,6 +429,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": true,
             "SupportedVersion": "8.2.5",
+            "SupportedDate": "2026.06.24",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -372,6 +447,7 @@
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -389,6 +465,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -406,6 +483,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -423,6 +501,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.4",
+            "SupportedDate": "2026.06.19",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -440,6 +519,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.05.07",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -457,6 +537,25 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.4",
+            "SupportedDate": "2026.06.19",
+            "SupportAddedBy": "DJ_GLiTCH"
+        },
+        {
+            "ROM": "terabrst",
+            "Name": "Teraburst",
+            "ReleaseYear": "1998",
+            "DeveloperPublisher": "Konami",
+            "Category": "Rail Shooter",
+            "ArcadeHardware": "Konami Hornet",
+            "CHD": false,
+            "MAMECompatibility": "Not Working",
+            "OffscreenReload": false,
+            "LightGunPatch": false,
+            "ScreenFlash": false,
+            "ScreenFlashFix": false,
+            "NativeStateOutput": false,
+            "SupportedVersion": "9.1.3",
+            "SupportedDate": "2026.07.28",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -474,6 +573,7 @@
             "ScreenFlashFix": true,
             "NativeStateOutput": true,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -491,6 +591,25 @@
             "ScreenFlashFix": true,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
+            "SupportAddedBy": "DJ_GLiTCH"
+        },
+        {
+            "ROM": "totlvice",
+            "Name": "Total Vice",
+            "ReleaseYear": "1997",
+            "DeveloperPublisher": "Konami",
+            "Category": "Rail Shooter",
+            "ArcadeHardware": "Konami M2",
+            "CHD": true,
+            "MAMECompatibility": "Imperfect",
+            "OffscreenReload": true,
+            "LightGunPatch": false,
+            "ScreenFlash": true,
+            "ScreenFlashFix": false,
+            "NativeStateOutput": false,
+            "SupportedVersion": "9.1.3",
+            "SupportedDate": "2026.07.28",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -508,6 +627,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -525,6 +645,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         },
         {
@@ -542,6 +663,7 @@
             "ScreenFlashFix": false,
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
+            "SupportedDate": "2026.04.05",
             "SupportAddedBy": "DJ_GLiTCH"
         }
     ]

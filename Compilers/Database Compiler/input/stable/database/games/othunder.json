@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "Operation Thunderbolt",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "STARTUP_DELAY_MS": 4000,
     "PLAYER_MEMORY_OFFSET": "0x2",
     "CREDITS": "0x000826F1",

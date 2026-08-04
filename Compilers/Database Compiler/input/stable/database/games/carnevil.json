@@ -1,6 +1,7 @@
 {
     "LUA_GAME": "CarnEvil",
     "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
     "STARTUP_DELAY_MS": 23000,
     "COINS_PER_CREDIT": 2,
     "DATA_WIDTHS": {

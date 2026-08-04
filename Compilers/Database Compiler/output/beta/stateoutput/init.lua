@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.2.0
--- Plugin Date: 2026.07.31
+-- Plugin Version: 9.2.1
+-- Plugin Date: 2026.08.04
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -34,7 +34,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.2.0",
+    version = "9.2.1",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -88,7 +88,7 @@ function stateoutput.startplugin()
         if not success_driver then driver_db = {} end
     end
 
-    -- native_outputs_by_driver.lua (v9.0.4) is the DRIVER-keyed companion to the ROM-keyed table
+    -- native_outputs_by_driver.lua is the DRIVER-keyed companion to the ROM-keyed table
     -- above, and is equally optional. MAME declares its output_finder<> fields once per driver
     -- SOURCE FILE and every ROM that file builds shares them, so one entry per driver covers
     -- every ROM in it - clones, parents that are never launchable in their own right, and any
@@ -152,7 +152,7 @@ function stateoutput.startplugin()
     -- Resolved once per ROM load, not every frame - see Forward_Native_Outputs.
     local _NativeForwards = {}
 
-    -- v9.0.4: pass-through proxies must NOT cache a negative result. A driver's outputs are
+    -- Pass-through proxies must NOT cache a negative result. A driver's outputs are
     -- created when its output_finder<> fields resolve at device start, which is normally before
     -- on_start runs - but "normally" is not "always" (a device started late, or an output only
     -- created on first write). Get_Output_Proxy caches `false` permanently, so one early miss
@@ -175,7 +175,7 @@ function stateoutput.startplugin()
     local _LegacyCreateProbed = false
     local _LegacyCreateWorks = true
 
-    -- v9.0.4: which TCP port the relay dials. 8000 is the protocol's own port and stays the
+    -- Which TCP port the relay dials. 8000 is the protocol's own port and stays the
     -- default, so a manual install behaves exactly as before. MESH moves it (per install, via
     -- plugin.json's "relayport") when it wants MAME's -output network server to own 8000
     -- instead - see Resolve_Relay_Port. MAME's port is hard-coded and its protocol is
@@ -186,11 +186,11 @@ function stateoutput.startplugin()
     local _RelayPortStamped = false
 
     -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
-    -- KEEP IN SYNC with the header + exports.version above (920 == v9.2.0).
+    -- KEEP IN SYNC with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 920
-    local PLUGIN_DATE_NUM    = 20260731
+    local PLUGIN_VERSION_NUM = 921
+    local PLUGIN_DATE_NUM    = 20260804
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -276,7 +276,7 @@ function stateoutput.startplugin()
     -- not, so a slightly-late listener sees the outputs yet never gets the game announcement.
     local _ActiveMameStart = nil
 
-    -- RECONNECT BACK-OFF (v9.0.4) ------------------------------------------------------
+    -- RECONNECT BACK-OFF ------------------------------------------------------
     -- A FAILED dial blocks the emulation thread for however long the OS takes to refuse
     -- the connection. On a machine that answers with RST that is under a millisecond and
     -- none of this matters; on one where something local drops loopback SYNs instead
@@ -294,7 +294,7 @@ function stateoutput.startplugin()
     local retry_backoff = 0        -- current gap, doubled on each consecutive failure
     local ever_connected = false   -- warm vs cold: has a relay EVER answered this session?
 
-    -- ADAPTIVE NO-LISTENER CONTROL (v9.1.1) ----------------------------------------------
+    -- ADAPTIVE NO-LISTENER CONTROL ----------------------------------------------
     -- The back-off above bounds how OFTEN a dead relay is dialled; these bound how MUCH a
     -- whole session can cost when nobody ever answers. Three cooperating mechanisms:
     --   * DIAL-COST ADAPTION - every dial is timed on the real clock. A healthy machine
@@ -403,7 +403,7 @@ function stateoutput.startplugin()
 
     -- True when the back-off says we may dial again. Every path that opens the socket
     -- goes through this, so no single one of them can reintroduce a per-frame stall.
-    -- v9.1.1: also the single enforcement point for the pass-through give-up - once
+    -- Also the single enforcement point for the pass-through give-up - once
     -- relay_given_up latches, NO path dials again until a re-arm cue (ROM start / soft
     -- reset / machine resume) clears it, so the gate cannot be bypassed piecemeal.
     local function relay_retry_due()
@@ -438,7 +438,7 @@ function stateoutput.startplugin()
         -- connecting to it would make this plugin a stray client of MAME itself.
         if not _UseRelay then return end
         sock = emu.file("w")
-        -- v9.1.1: time the dial on the real clock. This is the whole basis of the
+        -- Time the dial on the real clock. This is the whole basis of the
         -- adaptive cap - a sub-millisecond refusal proves retries are harmless, while a
         -- single slow dial proves every future one will stall emulation just as badly.
         local dial_started = monotonic_seconds()
@@ -489,7 +489,12 @@ function stateoutput.startplugin()
             -- frame as already-seeded so flush_payload_to_relay's own
             -- absorb-first-frame guard (below) doesn't discard the payload
             -- Resync_Relay_State just built.
-            if Resync_Relay_State() then
+            -- Additionally gated on a game actually being announced. With
+            -- _ActiveMameStart nil there is no session identity on the wire, so a fresh
+            -- listener could never attribute the replayed values to any ROM - the resync
+            -- would be pure contract noise. Barely reachable now that on_stop broadcasts
+            -- mame_stop before clearing the announcement, but kept as a guard.
+            if _ActiveMameStart and Resync_Relay_State() then
                 first_frame_seeded = true
             end
         else
@@ -497,7 +502,7 @@ function stateoutput.startplugin()
             sock = nil
             connected = false
 
-            -- v9.1.1: count consecutive never-answered failures. Exhausting the initial
+            -- Count consecutive never-answered failures. Exhausting the initial
             -- schedule is the session's "timeout" moment: warn the player once (OSD +
             -- console), and for a PASS-THROUGH ROM - where the relay would only carry
             -- mirrored natives - stop dialling entirely until a re-arm cue. A supported
@@ -529,7 +534,7 @@ function stateoutput.startplugin()
 
             -- Failed dial - and on an affected machine we have just cost the player ~2s
             -- of frozen emulation to learn it. Double the gap (capped), or open at the
-            -- warm/cold gap if this is the first failure of a run. v9.1.1: the cap is
+            -- warm/cold gap if this is the first failure of a run. The cap is
             -- adaptive - never-answered sessions on a machine with expensive dials slow
             -- to RETRY_MAX_EXPENSIVE; warm losses always keep the responsive 15s cap.
             local cap = (dial_is_expensive and not ever_connected) and RETRY_MAX_EXPENSIVE or RETRY_MAX
@@ -707,7 +712,7 @@ function stateoutput.startplugin()
                 first_frame_seeded = true
                 payload_buffer = {}
                 changes_detected = false
-                -- v9.1.0: msop_out already recorded every value in this discarded
+                -- msop_out already recorded every value in this discarded
                 -- payload as "sent". Without wiping last_state, anything whose FIRST
                 -- appearance landed on the seed frame would be marked delivered while
                 -- its line was thrown away here, and would never be sent again until
@@ -783,7 +788,7 @@ function stateoutput.startplugin()
         end
     end
 
-    -- Pass 38: DERIVE the relay decision from MAME itself, at runtime, so the plugin no
+    -- DERIVE the relay decision from MAME itself, at runtime, so the plugin no
     -- longer depends on the Configurator having stamped a correct relay flag. Runs
     -- ONCE, from on_start (machine fully up, before any relay use). Mirrors exactly what
     -- the Configurator computes for an instance's "needs relay":
@@ -817,7 +822,7 @@ function stateoutput.startplugin()
             if ok_out and type(m) == "string" then out_mode = m:lower() end
         end
 
-        -- DERIVED PORT (v9.0.4). MAME's own -output network server binds a hard-coded 8000, so
+        -- DERIVED PORT. MAME's own -output network server binds a hard-coded 8000, so
         -- when it is running we must not be there: dialling 8000 in that state makes this plugin
         -- a stray client of MAME, whose protocol discards everything but "mame_message". Step
         -- aside to 8001 and let MAME have its port.
@@ -1026,7 +1031,7 @@ function stateoutput.startplugin()
         CFG.AMMO_ALT_DIRECTION         = string.lower(tostring(CFG.AMMO_ALT_DIRECTION or ""))
         CFG.AMMO_GRENADE_DIRECTION     = string.lower(tostring(CFG.AMMO_GRENADE_DIRECTION or ""))
 
-        -- P*_Clip (v9.0.1) is a DERIVED "do I still have ammo" flag: 1 while ammo > 0, 0 the moment it
+        -- P*_Clip is a DERIVED "do I still have ammo" flag: 1 while ammo > 0, 0 the moment it
         -- hits 0 (i.e. a reload is needed). It is only published for a genuinely DEPLETING clip, because
         -- that is the only reading where 0 unambiguously means empty:
         --   * "decrease" -> a real clip counting down to 0. Emitted.
@@ -1045,12 +1050,12 @@ function stateoutput.startplugin()
         CFG.RECOIL_METHOD              = string.lower(tostring(CFG.RECOIL_METHOD or "pulse"))
         CFG.RECOIL_PRIORITY            = string.lower(tostring(CFG.RECOIL_PRIORITY or "ammo"))
 
-        -- GAME_TYPE (v9.2.0): genre gate. "lightgun" (default) runs the classic
+        -- GAME_TYPE: genre gate. "lightgun" (default) runs the classic
         -- per-player gun pipeline and compiles the gun vocabulary; "racing"
         -- skips the gun pipeline and compiles only the FFB_* vocabulary;
         -- "both" does it all (hybrids, e.g. a racing game with life/damage
-        -- tracking). Unknown values degrade to "lightgun" - the pre-v9.2.0
-        -- behaviour, so existing game profiles are untouched by this field.
+        -- tracking). Unknown values degrade to "lightgun" - the long-standing
+        -- default behaviour, so existing game profiles are untouched by this field.
         CFG.GAME_TYPE = string.lower(tostring(CFG.GAME_TYPE or "lightgun"))
         if CFG.GAME_TYPE ~= "racing" and CFG.GAME_TYPE ~= "both" then CFG.GAME_TYPE = "lightgun" end
 
@@ -1093,14 +1098,14 @@ function stateoutput.startplugin()
             _MemConfig[key] = { tag = t, space = s }
         end
 
-        -- P*_Clip is DERIVED rather than read from a memory address, so databases predating v9.0.1
+        -- P*_Clip is DERIVED rather than read from a memory address, so an older database may
         -- carry no OUTPUT_SUFFIXES entry for it. Default one in here - after the game/_default merge
         -- but before the names are pre-compiled - so the output exists without needing a database
         -- rebuild. A game that defines its own CLIP suffix still wins.
         CFG.OUTPUT_SUFFIXES = CFG.OUTPUT_SUFFIXES or {}
         if CFG.OUTPUT_SUFFIXES.CLIP == nil then CFG.OUTPUT_SUFFIXES.CLIP = "Clip" end
 
-        -- GAME_TYPE filter (v9.2.0): precompile only the vocabulary this game's
+        -- GAME_TYPE filter: precompile only the vocabulary this game's
         -- genre can actually drive, so the warmup zero-flush and the relay never
         -- carry names the ROM will never use ("racing" = FFB_* only, "lightgun" =
         -- everything except FFB_*, "both" = all). Globals are genre-neutral and
@@ -1322,7 +1327,7 @@ function stateoutput.startplugin()
 
         if not proxy then
             Try_Legacy_Set_Value(out_handle, name, 0)
-            -- Pass-through (v9.0.4): a name that isn't there YET may appear once its device
+            -- Pass-through: a name that isn't there YET may appear once its device
             -- finishes starting, so don't poison the cache with a permanent false.
             if _RetryMissingProxies then return false end
         end
@@ -1442,8 +1447,8 @@ function stateoutput.startplugin()
         Sync_Global("GLOBAL_ATTRACT_STATUS", 0)
         -- Plugin identity comes from THIS script's constants, not the
         -- database: CFG.LUA_VERSION/LUA_DATE describe the database release
-        -- (8.3.3 published them as MSOP_LuaVersion/LuaDate, so a 2026.07.01
-        -- database reported 831/20260701 no matter which plugin was running).
+        -- (older releases published them AS the plugin identity, so the database's
+        -- values were reported no matter which plugin was actually running).
         Sync_Global("GLOBAL_LUA_VERSION", PLUGIN_VERSION_NUM)
         Sync_Global("GLOBAL_LUA_DATE", PLUGIN_DATE_NUM)
         Sync_Global("GLOBAL_LUA_ROM_ID", _RomIdNum)
@@ -1874,7 +1879,7 @@ function stateoutput.startplugin()
         local any_player_active = false
         local aggregated_credits = 0
         local using_individual_credits = false
-        -- GAME_TYPE (v9.2.0): "racing" profiles skip the whole per-player gun
+        -- GAME_TYPE: "racing" profiles skip the whole per-player gun
         -- pipeline - every address guard inside would evaluate false anyway,
         -- so a zero-iteration loop saves that conditional sweep each frame.
         -- The post-loop logic runs on the initialized defaults above. Use
@@ -2533,7 +2538,7 @@ function stateoutput.startplugin()
     -- script's own output). That list is always honoured, whichever discovery
     -- route below supplied the rest.
     --
-    -- v9.1.0: _NativeForwards is an array of RECORDS, not bare names:
+    -- _NativeForwards is an array of RECORDS, not bare names:
     --     { dev = <device or nil>, name = "lamp0", wire = "lamp0", proxy = ... }
     --   * dev   - the device that owns the output, when it was discovered by
     --             enumeration. nil for a name that came from a database or from
@@ -2544,7 +2549,7 @@ function stateoutput.startplugin()
     --             matching what MAME's -output network module would broadcast.
     --             For a root-device output (every arcade driver in practice)
     --             the qualified name IS the relative name, so payloads are
-    --             byte-identical to v9.0.4's.
+    --             byte-identical to the scraped-fallback path's.
     --   * proxy - resolved lazily on first use and cached in the record; false
     --             once a miss is known to be permanent. See _RetryMissingProxies.
     -- -------------------------------------------------------------------------
@@ -2604,7 +2609,7 @@ function stateoutput.startplugin()
     -- numbers at load (convert_hex_strings_to_numbers), so a number is an
     -- emulated MEMORY ADDRESS (bound via _MemHandles["FFB"], the same
     -- acquisition model as the gun games) and a string is a NATIVE OUTPUT
-    -- name. Native names resolve through v9.1.0 enumeration first (exact,
+    -- name. Native names resolve through live enumeration first (exact,
     -- and the only route to a subdevice-owned output), then the root-device
     -- probe. First hit wins and is logged. Retries every frame until
     -- something resolves - driver outputs may not exist on frame 1.
@@ -2946,12 +2951,19 @@ function stateoutput.startplugin()
         -- reasoning as the _ProxyCache reset in on_start.
         _NativeForwards = {}
 
-        -- No game is running now, so a relay that (re)connects after this must NOT re-announce
-        -- a stale ROM. Clear it before the stop ping goes out.
-        _ActiveMameStart = nil
-
-        -- ALWAYS broadcast mame_stop so hookers know to sleep
+        -- ALWAYS broadcast mame_stop so hookers know to sleep. Sent while _ActiveMameStart still
+        -- holds the dying game, DELIBERATELY: broadcast_native_event may open the relay
+        -- connection just-in-time right here (its opportunistic dial), and connect_socket announces
+        -- _ActiveMameStart on every connect - so a listener whose FIRST connection happens at game
+        -- exit still receives the correct "mame_start -> final values -> mame_stop" sequence.
+        -- Clearing _ActiveMameStart BEFORE this broadcast was exactly the flaw that produced
+        -- unidentifiable exit bursts (values + mame_stop with no session announcement).
         broadcast_native_event("mame_stop = 1\r\n")
+
+        -- No game is running from here on, so a relay that (re)connects AFTER this point must not
+        -- re-announce a stale ROM. Cleared after the stop ping above - the session's last
+        -- announce-worthy moment - which preserves the original stale-ROM guarantee.
+        _ActiveMameStart = nil
         
         -- Safely restore modified memory values before shutting down
         if CFG and CFG.SCREEN_FLASH then
@@ -2998,7 +3010,7 @@ function stateoutput.startplugin()
         dbg_print("on_start triggered. Current MAME Phase: " .. tostring(manager.machine.phase))
         if not manager or not manager.machine then return end
 
-        -- Pass 38: settle the relay decision from MAME's live version + -output mode
+        -- Settle the relay decision from MAME's live version + -output mode
         -- BEFORE the first relay use below (one-shot; no-ops on subsequent resets).
         -- Settle the create-capability question BEFORE the relay decision: resolve_relay_mode's
         -- capability gate needs the answer, and left to the first real write it would arrive too
@@ -3019,7 +3031,7 @@ function stateoutput.startplugin()
         -- connect - MAME is already loading, so the stall hides in work the player is
         -- waiting on anyway - and it is exactly when a relay is most likely to have
         -- appeared (MESH launched between games, or launching the game itself).
-        -- v9.1.1: this is also the primary re-arm cue for the no-listener give-up - a new
+        -- This is also the primary re-arm cue for the no-listener give-up - a new
         -- ROM (or soft reset) restarts the whole never-answered schedule from scratch.
         next_retry_at = 0
         retry_backoff = 0
@@ -3212,7 +3224,7 @@ function stateoutput.startplugin()
             _ProxyCache = {}
             _FFB.Reset() -- an unsupported ROM never computes FFB, but its predecessor's proxy is stale
             _RetryMissingProxies = true
-            _PassThroughOnly = true -- v9.1.1: this ROM's relay value is mirrored natives only
+            _PassThroughOnly = true -- this ROM's relay value is mirrored natives only
             _NativeForwards = {}
             do
                 local seen = {}
@@ -3254,7 +3266,7 @@ function stateoutput.startplugin()
                 end
             end
 
-            -- SPLIT-PORT (v9.0.4): when the relay has been moved off 8000, MAME's OWN output
+            -- SPLIT-PORT: when the relay has been moved off 8000, MAME's OWN output
             -- server is running there and already broadcasting every native output of every
             -- game - including these. Forwarding them again over the relay would deliver each
             -- one twice to anything reading both sockets, so pass-through stands down and lets
@@ -3279,7 +3291,7 @@ function stateoutput.startplugin()
                 dbg_print("DISABLED - ROM [" .. rom_name .. "] not supported in database"
                           .. (_UseRelay and " (no scraped native outputs to forward)" or ""))
                 dbg_osd("DISABLED - ROM " .. rom_name .. " not supported")
-                -- v9.1.1: NOTHING TO DELIVER. The one free ROM-start dial above already gave a
+                -- NOTHING TO DELIVER. The one free ROM-start dial above already gave a
                 -- running MESH its mame_start (game tracking / unknown-game recording); if even
                 -- that found nobody - or from here on the connection drops - there is no payload
                 -- that could ever justify another stall, so retries stop outright for this ROM.
@@ -3311,7 +3323,7 @@ function stateoutput.startplugin()
         
         if emu.add_machine_resume_notifier then
             exports.subscriptions.resume = emu.add_machine_resume_notifier(function()
-                -- v9.1.1 re-arm cue: unpausing is a deliberate player action and the natural
+                -- Re-arm cue: unpausing is a deliberate player action and the natural
                 -- moment for "pause the game, start MESH, unpause" to be picked up instantly.
                 -- Clearing the give-up + deadline grants exactly ONE immediate dial (via the
                 -- broadcast below, through the usual relay_retry_due gate); if nobody answers,

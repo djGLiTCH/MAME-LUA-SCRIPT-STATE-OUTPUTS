@@ -1,0 +1,32 @@
+{
+    "LUA_GAME": "Evil Night",
+    "ENABLE_ROM": true,
+    "GAME_TYPE": "lightgun",
+    "OFFSCREEN_RELOAD": true,
+    "SCREEN_FLASH": true,
+    "SCREEN_FLASH_MEMORY_ADDRESS": false,
+    "SCREEN_FLASH_DISABLE_VALUE": false,
+    "SCREEN_FLASH_RESTORE_VALUE": false,
+    "CPU_TAG": ":ppc1",
+    "STARTUP_DELAY_MS": 18000,
+    "MAX_PLAYERS": 3,
+    "PLAYER_MEMORY_OFFSET": "0x38",
+    "CREDITS": "0x4012CADD",
+    "GAME_STATUS": "0x4012CC2D",
+    "P1": {
+        "STATUS": "0x4012CC3D",
+        "AMMO": "0x4012CC6B",
+        "LIFE": "0x4012CC41"
+    },
+    "P2": {
+        "STATUS_comment": "P2 Status = 0x4012CC75",
+        "AMMO_comment": "P2 Ammo = 0x4012CCA3",
+        "LIFE_comment": "P2 Life = 0x4012CC79"
+    },
+    "P3": {
+        "STATUS_comment": "P3 Status = 0x4012CCAD",
+        "AMMO_comment": "P3 Ammo = 0x4012CCDB",
+        "LIFE_comment": "P3 Life = 0x4012CCB1"
+    },
+    "ADDITIONAL_OUTPUT_FORWARDS": []
+}
