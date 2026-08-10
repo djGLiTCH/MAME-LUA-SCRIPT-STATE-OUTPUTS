@@ -3,7 +3,7 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.3.0
+Plugin Version: 9.3.1
 Plugin Date:    2026.08.10
 Database Date:  2026.08.10
 Created By:     Jacob Simpson (DJ GLiTCH)
@@ -121,15 +121,17 @@ HOW MSOP FINDS A GAME'S NATIVE OUTPUTS TO FORWARD
   always prefers the first:
 
   1. LIVE ENUMERATION (preferred; MAME builds that expose the 'device.outputs'
-     property). MSOP asks the running machine which outputs it has actually created and
-     forwards exactly those - no lookup tables, always current, and correct even for a
-     game nobody ever pre-scanned. This uses MAME's read-only 'device.outputs' property,
-     proposed upstream as mamedev/mame PR #15745. It only READS the output list and
-     creates nothing. On any build without it, MSOP silently falls back to (2), so
-     nothing changes on today's stock MAME.
+     property - stock MAME 0.290 and later, where the feature proposed as
+     mamedev/mame PR #15745 landed upstream). MSOP asks the running machine which
+     outputs it has actually created and forwards exactly those - no lookup tables,
+     always current, and correct even for a game nobody ever pre-scanned. It only
+     READS the output list and creates nothing. On any build without it, MSOP
+     silently falls back to (2).
 
-  2. SHIPPED LOOKUP FILES (fallback; every current stock MAME, since #15745 is not yet
-     merged). Two optional files sit in the stateoutput folder beside database.lua:
+  2. SHIPPED LOOKUP FILES (fallback; MAME 0.289 and earlier - note that official
+     0.289, despite removing output creation, does not yet provide the
+     'device.outputs' property, so it relies on these files). Two optional files
+     sit in the stateoutput folder beside database.lua:
        * native_outputs_by_rom.lua    - native output names keyed by ROM, scanned for
                                         the games MSOP supports. The more specific of the
                                         two (it can include layout-derived names).
@@ -361,7 +363,7 @@ Note 2: MSOP currently supports up to 4 players, so the above outputs extend to 
 Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
 Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
 
-RACING / FORCE FEEDBACK OUTPUTS (NEW IN v9.2.0):
+RACING / FORCE FEEDBACK OUTPUTS:
 
 Racing-genre games emit a dedicated force feedback vocabulary instead of the
 gun set. The plugin reads the game's raw force-feedback command (a native

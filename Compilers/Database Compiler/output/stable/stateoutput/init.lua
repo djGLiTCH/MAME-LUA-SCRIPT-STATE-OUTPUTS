@@ -1,7 +1,7 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.3.0
+-- Plugin Version: 9.3.1
 -- Plugin Date: 2026.08.10
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
@@ -34,7 +34,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.3.0",
+    version = "9.3.1",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -160,9 +160,12 @@ function stateoutput.startplugin()
     local _RetryMissingProxies = false
 
     -- Can this build ENUMERATE a device's outputs (the read-only device.outputs
-    -- property)? Probed once per session, lazily, by Enumerate_Native_Outputs;
-    -- nil means "not yet asked". When absent, native-output discovery falls back
-    -- to the scraped database files, so the plugin runs unchanged on stock MAME.
+    -- property: a container of live output proxies keyed by name)? The feature
+    -- lands in stock MAME 0.290 - official 0.289, despite being the release that
+    -- removed output creation, does NOT have it. Probed once per session, lazily,
+    -- by Enumerate_Native_Outputs; nil means "not yet asked". When absent (MAME
+    -- 0.289 and earlier), native-output discovery falls back to the scraped
+    -- database files, so the plugin runs unchanged on older stock MAME.
     local _EnumerateOutputsSupported = nil
 
     -- Whether the deprecated output.set_value() can still AUTO-CREATE an output (true on
@@ -193,7 +196,7 @@ function stateoutput.startplugin()
     -- KEEP IN SYNC with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 930
+    local PLUGIN_VERSION_NUM = 931
     local PLUGIN_DATE_NUM    = 20260810
     
     -- -------------------------------------------------------------------------
@@ -2416,7 +2419,7 @@ function stateoutput.startplugin()
     -- -------------------------------------------------------------------------
     -- Driver_Source_Key()
     -- The running machine's DRIVER basename, lowercased, no directories, no
-    -- extension: "…/src/mame/namco/namcos12.cpp" -> "namcos12". That is how
+    -- extension: ".../src/mame/namco/namcos12.cpp" -> "namcos12". That is how
     -- native_outputs_by_driver.lua is keyed, and the same key MAME itself uses
     -- for its source/<name>.ini. game_driver.source_file is a compile-time
     -- __FILE__, so the separator can be either slash depending on the build
@@ -2468,7 +2471,17 @@ function stateoutput.startplugin()
             local root = manager.machine.devices[":"]
             return root and root.outputs or nil
         end)
-        _EnumerateOutputsSupported = (ok and type(val) == "table") and true or false
+        -- device.outputs (stock MAME 0.290+; official 0.289 does NOT have it) is
+        -- a userdata container of live output proxies keyed by name - not a plain
+        -- Lua table, so don't test type names. Confirm the one property every
+        -- caller relies on instead: that pairs() can iterate it. Builds without
+        -- the feature return nil (property absent), which fails the nil check
+        -- before pairs is ever attempted.
+        local usable = false
+        if ok and val ~= nil then
+            usable = pcall(function() for _ in pairs(val) do break end end)
+        end
+        _EnumerateOutputsSupported = usable and true or false
 
         if _EnumerateOutputsSupported then
             dbg_print("Native output discovery: ENUMERATED from the running machine "
@@ -2487,15 +2500,23 @@ function stateoutput.startplugin()
         local ok = pcall(function()
             for _, dev in pairs(manager.machine.devices) do
                 local list = dev.outputs
-                if type(list) == "table" then
-                    for _, item in ipairs(list) do
-                        local rel = item.name
-                        if type(rel) == "string" and not Is_MSOP_Output_Name(rel) then
-                            local qualified = item.qualified_name
+                if list ~= nil then
+                    local is_root = not dev.owner
+                    -- device.outputs iterates as (name, live output proxy). The proxy is
+                    -- kept on the record so Forward_Native_Outputs never has to re-resolve
+                    -- it. The wire name is MAME's qualified output name - the exact format
+                    -- the -output modules put on the wire, so hooker payloads stay
+                    -- byte-identical: root-device outputs are unqualified; otherwise the
+                    -- owning device's tag minus its leading colon, then ':', then the name
+                    -- (the formula from osd::output_item's constructor, and the same
+                    -- reconstruction the maintainer posted on PR #15745).
+                    for name, proxy in pairs(list) do
+                        if type(name) == "string" and not Is_MSOP_Output_Name(name) then
                             records[#records + 1] = {
-                                dev  = dev,
-                                name = rel,
-                                wire = (type(qualified) == "string") and qualified or rel,
+                                dev   = dev,
+                                name  = name,
+                                wire  = is_root and name or (dev.tag:sub(2) .. ":" .. name),
+                                proxy = proxy,
                             }
                         end
                     end

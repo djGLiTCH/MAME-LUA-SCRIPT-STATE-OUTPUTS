@@ -15,7 +15,7 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 930,
+        ["LUA_VERSION"] = 931,
         ["LUA_DATE"] = 20260810,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,

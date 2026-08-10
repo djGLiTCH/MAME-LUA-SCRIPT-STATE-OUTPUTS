@@ -1,7 +1,7 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.3.0
+- **Plugin Version:** 9.3.1
 - **Plugin Date:** 2026.08.10
 - **Database Date:** 2026.08.10
 - **Created By:** Jacob Simpson (DJ GLiTCH)
@@ -190,7 +190,7 @@ output MSOP produces, global or per-player.
 - **Note 3:** Recoil can be `PX_Recoil` or `PX_CtmRecoil` (with DemulShooter compatibility).
 - **Note 4:** Damage can be `PX_Damage` or `PX_Damaged` (with DemulShooter compatibility).
 
-### Racing / Force Feedback outputs (new in v9.2.0)
+### Racing / Force Feedback outputs
 
 Racing-genre games emit a dedicated **force feedback vocabulary** instead of the gun set. The
 plugin reads the game's raw force-feedback command (a native driver output, or an emulated

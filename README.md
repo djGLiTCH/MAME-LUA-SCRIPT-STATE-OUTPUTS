@@ -17,7 +17,7 @@
 
 MAME 0.289 removed the ability for a Lua plugin to create state outputs. MAME can therefore no longer hold - and no longer broadcast - any of MSOP's custom outputs on 0.289 and above, in any `-output` mode. This was a deliberate change by the MAME development team, and it is not something a plugin can work around on its own. From v9, MSOP delivers its outputs over its own relay instead, which the MESH app hosts - and that is why the two are released together.
 
-| | MAME 0.200 – 0.288 | MAME 0.289 and later |
+| | MAME 0.200 - 0.288 | MAME 0.289 and later |
 | :--- | :--- | :--- |
 | **MSOP Plugin v8** (current release) | ✅ Supported | ❌ Not supported |
 | **MSOP Plugin v9 + MESH v1** (upcoming) | ✅ Supported | ✅ Supported |
