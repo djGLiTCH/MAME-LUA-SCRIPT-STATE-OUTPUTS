@@ -1,13 +1,13 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.2.1
-- **Plugin Date:** 2026.08.04
-- **Database Date:** 2026.08.04
+- **Plugin Version:** 9.3.0
+- **Plugin Date:** 2026.08.10
+- **Database Date:** 2026.08.10
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
-- **Contributors:** Muggins (tester), Hexxed (ideas), Bandicoot (tester), PolybiusExtreme (feedback), Argon (inspiration)
+- **Contributors:** Muggins (tester), Hexxed (ideas), Bandicoot (tester), EndProdukt (tester), PolybiusExtreme (feedback), Argon (inspiration)
 
 ---
 
@@ -58,6 +58,27 @@ generates and maintains their per-game INI command files automatically from your
 profiles - no hand-written INIs required. MESH can also drive light guns and LED lighting itself
 (its built-in Player Hardware Commands and Native LED Control engines), so an external hooker
 program is entirely optional.
+
+## How Outputs Are Delivered
+
+MAME 0.289 removed the ability for a Lua plugin to create state outputs, so on those builds MAME can
+no longer hold - and therefore no longer broadcast - anything MSOP produces. How MSOP's outputs leave
+MAME depends on the build:
+
+- **MAME 0.289 and later (and any relay setup):** MSOP streams its outputs over its own TCP relay
+  connection to **MESH's dedicated MSOP ingest port (127.0.0.1:8004)**. MESH must be running to
+  receive them. Port **8000** remains what it has always been - MAME's own `-output network` server,
+  or the hooker-facing side that MESH manages - and MSOP never binds or dials it in any mode. Hooker
+  programs keep connecting to 8000 exactly as they always have.
+- **MAME 0.200 - 0.288 with `-output network` or `-output windows`:** MAME creates and broadcasts
+  every output itself, MSOP's included, and MSOP opens no socket at all.
+- **MAME 0.200 - 0.288 with `-output none` or `-output console`:** the outputs exist but MAME never
+  broadcasts them, so MSOP delivers them over the relay as above.
+
+The plugin works all of this out at runtime by asking the running MAME build what it can do - there
+is nothing to configure. For the full delivery-model reference (port arrangement, native-output
+forwarding, reconnect behaviour, and what happens when nothing is listening), see the included
+`readme.txt`.
 
 ## Output Mappings (MAMEhooker, OutputHooker, and QMamehook)
 

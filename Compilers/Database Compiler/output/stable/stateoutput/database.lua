@@ -3,7 +3,7 @@
 -- MSOP DATABASE LUA
 -- Script Version: 3.4.2
 -- Script Date: 2026.07.20
--- Compiled Date: 2026.08.04
+-- Compiled Date: 2026.08.10
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,10 +15,12 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 921,
-        ["LUA_DATE"] = 20260804,
+        ["LUA_VERSION"] = 930,
+        ["LUA_DATE"] = 20260810,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
+        ["GAME_TYPE"] = "lightgun",
+        ["GAME_TYPE_comment"] = "Genre gate (v9.2.0): lightgun (default) | racing | both. Controls which per-player output vocabulary is compiled/zero-flushed for the ROM (racing = FFB_* only, lightgun = everything except FFB_*, both = all) and whether the per-player gun pipeline runs each frame (racing skips it). Globals (Credits/GameStatus/AttractStatus) always apply. Unknown values degrade to lightgun, so existing profiles are unaffected.",
         ["OFFSCREEN_RELOAD"] = false,
         ["LIGHTGUN_PATCH"] = false,
         ["SCREEN_FLASH"] = false,

@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.2.1
--- Plugin Date: 2026.08.04
+-- Plugin Version: 9.3.0
+-- Plugin Date: 2026.08.10
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -34,7 +34,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.2.1",
+    version = "9.3.0",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -105,8 +105,8 @@ function stateoutput.startplugin()
     -- RELAY MODE (per-INSTANCE, stamped by the MSOP Configurator)
     -- ---------------------------------------------------------------------
     -- Whether THIS MAME install should deliver its state outputs through the
-    -- MSOP Configurator's TCP relay (127.0.0.1:8000) instead of relying on
-    -- MAME's own output module. The Configurator decides this per instance
+    -- MESH ingest relay (127.0.0.1:8004 by default - see _RelayPort) instead of
+    -- relying on MAME's own output module. The app decides this per instance
     -- from the MAME VERSION and the chosen `-output` mode and stamps it into
     -- THIS PLUGIN'S OWN MANIFEST after every install/update - plugin.json's
     -- "plugin" object gains a `"relay": true/false` member (MAME's loader
@@ -118,10 +118,9 @@ function stateoutput.startplugin()
     --       * MAME >= 0.289 (Lua can no longer create outputs at all), OR
     --       * MAME <= 0.288 with -output none / console (outputs are created
     --         but MAME never broadcasts them to hookers).
-    --   relay = FALSE when MAME broadcasts them itself and the relay must
-    --       stay off the port:
-    --       * MAME <= 0.288 with -output network (MAME's own server owns 8000
-    --         - the plugin must NOT dial it, or it becomes a stray client), or
+    --   relay = FALSE when MAME broadcasts them itself and no socket is needed:
+    --       * MAME <= 0.288 with -output network (MAME's own server delivers
+    --         everything on 8000), or
     --       * -output windows (MAME's Windows-message broadcast).
     --
     -- The stamp is only a FALLBACK. _UseRelay is AUTHORITATIVELY derived at
@@ -175,22 +174,27 @@ function stateoutput.startplugin()
     local _LegacyCreateProbed = false
     local _LegacyCreateWorks = true
 
-    -- Which TCP port the relay dials. 8000 is the protocol's own port and stays the
-    -- default, so a manual install behaves exactly as before. MESH moves it (per install, via
-    -- plugin.json's "relayport") when it wants MAME's -output network server to own 8000
-    -- instead - see Resolve_Relay_Port. MAME's port is hard-coded and its protocol is
-    -- broadcast-only, so moving OURS is the only way the two can run side by side.
-    local _RelayPort = 8000
-    -- True only when plugin.json pinned the port explicitly. A stamp is authoritative;
-    -- without one the port is derived from MAME's -output mode (see Resolve_Relay_Port).
+    -- Which TCP port the relay dials: MESH's dedicated MSOP ingest listener, default 8004.
+    -- This is a PRIVATE port nothing else contests - deliberately NOT 8000, which belongs to
+    -- MAME's own -output network server and to whatever MESH arbitrates there for hooker
+    -- programs. The plugin never binds or dials 8000 in any mode. MESH can move the ingest
+    -- port per install via plugin.json's "relayport" member - see Resolve_Relay_Port.
+    local _RelayPort = 8004
+    -- True only when plugin.json pinned the port explicitly. A stamp is authoritative and
+    -- always wins over the default (see Resolve_Relay_Port).
     local _RelayPortStamped = false
+    -- True when MAME's resolved -output mode is "network", i.e. MAME's OWN output server is
+    -- broadcasting every native output on 8000. Settled once in resolve_relay_mode; the
+    -- pass-through standdown keys on this (NOT on the relay port - the relay lives on its
+    -- own port always, which says nothing about whether MAME's server is running).
+    local _MameServesNetwork = false
 
     -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
     -- KEEP IN SYNC with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do NOT come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 921
-    local PLUGIN_DATE_NUM    = 20260804
+    local PLUGIN_VERSION_NUM = 930
+    local PLUGIN_DATE_NUM    = 20260810
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -433,9 +437,8 @@ function stateoutput.startplugin()
     -- Resync_Relay_State() is what actually forces a resend of everything
     -- else (see its own comment for why that's necessary).
     local function connect_socket()
-        -- Relay disabled for this install (old MAME delivering natively): never dial
-        -- 8000. On <= 0.288 + network that port is MAME's OWN output server, and
-        -- connecting to it would make this plugin a stray client of MAME itself.
+        -- Relay disabled for this install (old MAME delivering natively): open no
+        -- socket at all - MAME's own output modules are carrying everything.
         if not _UseRelay then return end
         sock = emu.file("w")
         -- Time the dial on the real clock. This is the whole basis of the
@@ -759,7 +762,8 @@ function stateoutput.startplugin()
     -- Resolve_Relay_Port()
     -- Reads plugin.json's optional "relayport" member (written per install by MESH,
     -- exactly like the "relay" flag) and adopts it for this session. Absent/invalid
-    -- leaves the stock 8000, so a MANUAL install is unaffected and the shipped zip
+    -- leaves the stock default (8004), so a MANUAL install relies on runtime
+    -- self-detection plus that default and the shipped zip
     -- carries no port stamp at all. Walks pluginspath the same way the relay stamp
     -- lookup does - entries may be ';'-separated and relative, as MAME resolves them.
     -- Called once, before the first connect attempt.
@@ -795,8 +799,8 @@ function stateoutput.startplugin()
     --   * emu.app_version() >= 0.289  -> Lua can't create outputs at all -> relay REQUIRED.
     --   * -output none / console      -> outputs created but MAME never broadcasts them ->
     --                                    relay REQUIRED.
-    --   * -output network / windows   -> MAME self-delivers -> relay OFF (the plugin must
-    --                                    stay off port 8000 or it becomes a stray client).
+    --   * -output network / windows   -> MAME self-delivers -> relay OFF (no socket is
+    --                                    opened at all).
     -- Both facts are read straight from MAME (emu.app_version + the resolved -output
     -- option, verified against luaengine.cpp: core_options.entries[name]:value()). It is
     -- authoritative whenever it can read either fact; when it can't (option not exposed on
@@ -822,34 +826,19 @@ function stateoutput.startplugin()
             if ok_out and type(m) == "string" then out_mode = m:lower() end
         end
 
-        -- DERIVED PORT. MAME's own -output network server binds a hard-coded 8000, so
-        -- when it is running we must not be there: dialling 8000 in that state makes this plugin
-        -- a stray client of MAME, whose protocol discards everything but "mame_message". Step
-        -- aside to 8001 and let MAME have its port.
-        --
-        -- Every other mode leaves 8000 free, and 8000 is the port every hooker program looks
-        -- for, so we take it - that way whatever is listening on 8000 is always the richest
-        -- stream available. NOTE that -output windows is NOT network: it delivers over Win32
-        -- registered window messages and binds no socket at all, so 8000 stays ours.
-        --
-        -- An explicit stamp always wins (MESH pinning a port, or a hand-edited manifest).
-        if not _RelayPortStamped and out_mode == "network" then
-            _RelayPort = 8001
-            dbg_print("Relay port: 8001 (derived - MAME's own -output network server owns 8000)")
-        end
+        -- Remember whether MAME's own network output server is broadcasting this session
+        -- (it binds a hard-coded 8000). The pass-through standdown reads this: when MAME is
+        -- already broadcasting every native output on 8000, forwarding them again over the
+        -- relay would deliver each one twice to anything reading both ports.
+        _MameServesNetwork = (out_mode == "network")
 
-        -- SPLIT-PORT. Being on a port other than 8000 - stamped by MESH, or derived above
-        -- because MAME's own network server owns 8000 - means the two are running side by
-        -- side. That outranks BOTH gates below, in particular the -output network branch,
-        -- which would otherwise switch the relay off on the assumption that MAME
-        -- self-delivers. On 0.289+ it cannot: MAME is unable to create (and therefore
-        -- broadcast) MSOP's outputs at all, which is exactly why we are on our own port.
-        if _RelayPort ~= 8000 then
-            _UseRelay = true
-            dbg_print("Relay mode: ENABLED (split-port - MSOP on " .. _RelayPort
-                      .. ", MAME's own output server free to use 8000)")
-            return
-        end
+        -- NOTE the port is NEVER derived from the -output mode. The relay dials MESH's
+        -- dedicated ingest listener (default 8004, or the plugin.json "relayport" stamp),
+        -- which cannot collide with MAME's own network server on 8000 - so there is nothing
+        -- to step aside from. Earlier revisions shared MAME's 8000 and had to move to 8001
+        -- whenever MAME's server ran, which coupled the port to the mode and (in one
+        -- revision) wrongly coupled the RELAY DECISION to the port. The port says WHERE the
+        -- relay lives; the gates below alone decide WHETHER it is used.
 
         -- CAPABILITY GATE. Ground truth - it outranks both inferences below. Ask this
         -- build whether it can hold a custom output at all (the deprecated
@@ -3133,8 +3122,19 @@ function stateoutput.startplugin()
             -- either way: it exists for names no discovery route can see, e.g. another
             -- script's own output. Deduped by wire name; every part may be absent with
             -- no error. See Forward_Native_Outputs for the record shape.
+            --
+            -- STANDDOWN (same rule as pass-through): while MAME's OWN -output network
+            -- server is running it is already broadcasting every readable output on 8000
+            -- - this ROM's natives AND anything ADDITIONAL_OUTPUT_FORWARDS names (all of
+            -- them live in MAME's output system, which is exactly what that server
+            -- broadcasts). Forwarding them again over the relay would deliver each one
+            -- twice to anything reading both ports, so forward nothing; MSOP's own
+            -- outputs still travel over the relay as normal.
             _NativeForwards = {}
-            do
+            if _MameServesNetwork then
+                dbg_print("Native forwards skipped - MAME's own -output network server on "
+                          .. "8000 is already broadcasting this ROM's native outputs")
+            else
                 local seen = {}
                 local function add_name(name)
                     if type(name) == "string" and not seen[name] then
@@ -3266,14 +3266,16 @@ function stateoutput.startplugin()
                 end
             end
 
-            -- SPLIT-PORT: when the relay has been moved off 8000, MAME's OWN output
-            -- server is running there and already broadcasting every native output of every
-            -- game - including these. Forwarding them again over the relay would deliver each
-            -- one twice to anything reading both sockets, so pass-through stands down and lets
+            -- STANDDOWN: when MAME's OWN network output server is running (-output network)
+            -- it is already broadcasting every native output of every game on 8000 -
+            -- including these. Forwarding them again over the relay would deliver each one
+            -- twice to anything reading both ports, so pass-through stands down and lets
             -- MAME do the job it is doing better (no scraped list, no missing names).
-            if _RelayPort ~= 8000 then
+            -- Keyed on the resolved -output mode, NOT on the relay port: the relay always
+            -- lives on its own ingest port, which says nothing about MAME's server.
+            if _MameServesNetwork then
                 _NativeForwards = {}
-                dbg_print("PASS-THROUGH skipped - split-port: MAME's own server on 8000 is "
+                dbg_print("PASS-THROUGH skipped - MAME's own -output network server on 8000 is "
                           .. "already broadcasting this ROM's native outputs")
             end
 
@@ -3295,9 +3297,9 @@ function stateoutput.startplugin()
                 -- running MESH its mame_start (game tracking / unknown-game recording); if even
                 -- that found nobody - or from here on the connection drops - there is no payload
                 -- that could ever justify another stall, so retries stop outright for this ROM.
-                -- Covers both the no-forwards case and the split-port standdown (where dialling
-                -- 8001 for a game with no MSOP outputs bought nothing at all). Re-armed by the
-                -- usual cues: next ROM start, soft reset, or unpause.
+                -- Covers both the no-forwards case and the network standdown (where dialling
+                -- the relay for a game with no MSOP outputs bought nothing at all). Re-armed by
+                -- the usual cues: next ROM start, soft reset, or unpause.
                 if not connected then
                     relay_given_up = true
                     dbg_print("Relay: no MSOP payload exists for this ROM - no further dials this session")

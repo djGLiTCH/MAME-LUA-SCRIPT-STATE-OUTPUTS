@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.2.1
-Plugin Date:    2026.08.04
-Database Date:  2026.08.04
+Plugin Version: 9.3.0
+Plugin Date:    2026.08.10
+Database Date:  2026.08.10
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -93,39 +93,29 @@ WITH MESH (recommended)
   * MESH can also drive your hardware directly (its Native LED Control and
     Native Peripheral Control engines), so a hooker program is optional.
   * MESH compiles and distributes each hooker's per-game ini files for you.
-  * Two delivery modes (Settings -> MESH):
-      - Hooker Compatible (default): MESH's relay owns port 8000. Hookers get
-        MSOP's outputs plus the native outputs MSOP forwards for unsupported
-        games. Set MAME to '-output none' or '-output console'.
-      - Maximum Coverage: MAME runs '-output network' and owns 8000, so EVERY
-        native output of EVERY game flows with no lookup tables; MESH moves its
-        relay to 8001 for MSOP's outputs and reads both. External hookers are
-        not supported in this mode (see the trade-off below).
+  * MESH receives MSOP's outputs on its own dedicated, private ingest port and
+    manages port 8000 for everything else - reading it when MAME's own network
+    server is broadcasting there, and serving hooker programs on it whenever a
+    relay session is live. Hooker programs keep connecting to 8000 exactly as
+    they always have; nothing about the hooker changes.
 
-WHICH PORT MSOP USES (AUTOMATIC)
-  MSOP chooses its relay port from MAME's own '-output' setting, with nothing to
-  configure - this applies to a hand-installed plugin as much as a MESH-managed one.
-  As a rule of thumb by version: MAME 0.288 and earlier can broadcast MSOP's outputs
-  itself, so '-output network' works alone; MAME 0.289 and later cannot, so the relay
-  carries them and '-output none' or 'console' keeps everything on one port:
-      -output none / console  -> port 8000. MAME is not using it, and 8000 is where
-                                 every hooker program looks, so whatever is on 8000
-                                 is always the richest stream available.
-      -output network         -> port 8001. MAME's own server owns 8000; staying
-                                 there would make MSOP a stray client of MAME, whose
-                                 protocol discards everything sent to it.
-      -output windows         -> port 8000. Windows output uses Win32 messages and
-                                 binds no socket, so 8000 remains free for MSOP.
+WHICH PORT MSOP USES
+  When the relay is in use, MSOP dials MESH's MSOP ingest listener on
+  127.0.0.1:8004. That is a private port dedicated to this one job - MSOP never
+  binds or dials port 8000 in any mode. Port 8000 stays exactly what it has
+  always been: MAME's own '-output network' server (on builds that broadcast
+  natively), or the hooker-facing side that MESH manages. MESH can move the
+  ingest port per install by writing a "relayport" member into this plugin's
+  plugin.json; that stamp always wins over the 8004 default. A hand-installed
+  plugin needs no configuration at all - the default just works.
 
-  IMPORTANT: a hooker program can only connect to ONE port. Whichever program owns
-  8000 decides what that hooker sees - so with '-output network' it will receive
-  MAME's own native outputs and NONE of MSOP's (those are on 8001). If you are
-  using a hooker program, prefer '-output none' or '-output console' so everything
-  arrives on 8000 together.
+  When the relay is NOT in use (MAME 0.288 or earlier set to '-output network'
+  or '-output windows'), MSOP opens no socket of any kind: MAME itself creates
+  and broadcasts every output, MSOP's included.
 
 HOW MSOP FINDS A GAME'S NATIVE OUTPUTS TO FORWARD
-  Under the relay MAME runs '-output none' or '-output console', so MAME's own output
-  modules never broadcast the game's native outputs (lamp0, Player1_Gun_Recoil,
+  With '-output none' or '-output console' (the recommended relay setup), MAME's own
+  output modules never broadcast the game's native outputs (lamp0, Player1_Gun_Recoil,
   P1_Start_lamp, ...). MSOP forwards them itself over the relay so nothing is lost -
   including for games MSOP has no profile for. It gets the list of names two ways, and
   always prefers the first:
@@ -153,16 +143,17 @@ HOW MSOP FINDS A GAME'S NATIVE OUTPUTS TO FORWARD
      - never hand-edit them. If they are absent, nothing breaks: MSOP still delivers its
      own outputs, and unsupported games simply produce nothing extra.
 
-  Either way the result is the same stream: one connection to 127.0.0.1:8000 carries BOTH
-  the custom MSOP_ outputs and the game's native ones - so MSOP can be the single source
-  of every state output. To forward a name no discovery route can see (e.g. another
+  Either way the result is the same stream: the one relay connection carries BOTH the
+  custom MSOP_ outputs and the game's native ones - so MSOP can be the single source
+  of every state output, and MESH serves the merged stream to hooker programs on port
+  8000 as usual. To forward a name no discovery route can see (e.g. another
   script's own output), list it per game in the database's ADDITIONAL_OUTPUT_FORWARDS; it
   is always honoured on top, whichever route above supplied the rest.
 
-  Native forwarding is deliberately NOT done when MSOP is on its own port (MAME set to
-  '-output network', MSOP on 8001): MAME is already broadcasting those same natives on
-  8000, so forwarding them again would deliver each one twice to anything reading both
-  sockets.
+  Native forwarding is deliberately NOT done while MAME's own '-output network' server
+  is running: MAME is already broadcasting those same natives on 8000, so forwarding
+  them again over the relay would deliver each one twice to anything reading both
+  ports.
 
   Cost: negligible. Forwarding is a cached read per known name per frame with no
   allocation, and a value is only ever put on the wire when it CHANGES. Measured on
@@ -248,12 +239,13 @@ WITHOUT MESH (MSOP + a hooker program only)
   * You also give up the per-game ini generation, the supported-games list, the
     plugin/database updater, and the diagnostics MESH provides.
 
-THE TRADE-OFF, IN ONE LINE
-  Port 8000 can host MAME's own output server OR a relay carrying MSOP's
-  outputs - not both. MAME's port is hard-coded and its protocol only ever
-  broadcasts outward, so nothing can merge the two streams back together for a
-  single hooker connection. Whichever program owns 8000 decides what a hooker
-  can see; MESH exists so that program can be one that carries BOTH.
+THE PORT ARRANGEMENT, IN ONE LINE
+  MSOP feeds MESH on a private ingest port (8004) that nothing else contests;
+  port 8000 remains what every hooker program expects it to be - MAME's own
+  output server when MAME is broadcasting, or MESH serving the merged stream
+  (MSOP's outputs plus forwarded natives) whenever a relay session is live.
+  Whoever connects to 8000 always sees the richest stream available; MESH
+  exists to make sure of it.
 
 --------------------------------------------------------------------------------
 OUTPUT MAPPINGS (MAMEhooker, OutputHooker, and QMamehook)
@@ -368,6 +360,46 @@ Note 1: PX = Player Number (e.g. P1 = Player 1)
 Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
 Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
 Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
+
+RACING / FORCE FEEDBACK OUTPUTS (NEW IN v9.2.0):
+
+Racing-genre games emit a dedicated force feedback vocabulary instead of the
+gun set. The plugin reads the game's raw force-feedback command (a native
+driver output, or an emulated memory address - the same acquisition model as
+the gun games), decodes the game-specific encoding inside the plugin, and
+re-emits it as standardized effect channels that any consumer (MESH, or a
+hooker program) can map onto real hardware with zero game knowledge:
+
+MSOP_P1_FFB_Constant=
+MSOP_P1_FFB_Spring=
+MSOP_P1_FFB_Friction=
+MSOP_P1_FFB_Damper=
+MSOP_P1_FFB_Sine=
+MSOP_P1_FFB_Rumble=
+MSOP_P1_FFB_Raw=
+MSOP_P1_FFB_Collision=
+MSOP_P1_FFB_GearChange=
+MSOP_P1_FFB_SurfaceRumble=
+MSOP_P1_FFB_TyreSlip=
+MSOP_P1_FFB_EngineRumble=
+
+* Stream channels persist until changed; an explicit 0 releases them.
+  FFB_Constant is signed -255..+255 (positive = force from the right, i.e.
+  wheel pushed left); FFB_Spring, FFB_Friction, FFB_Damper, FFB_Sine, and
+  FFB_Rumble are 0..255. FFB_Raw is the undecoded source value (diagnostics).
+* Semantic events (FFB_Collision, FFB_GearChange, FFB_SurfaceRumble,
+  FFB_TyreSlip, FFB_EngineRumble; 0..255, pulse/level style) are optional per
+  game, read from separate per-game memory addresses, and appear only for
+  games whose database entry configures them.
+* FFB_Rumble is a CONTINUOUS force-correlated motor level and deliberately
+  coexists with the pulse-style PX_Rumble - a consumer with a single rumble
+  path should mix the two by MAX, never sum.
+* Every game's database entry now carries a GAME_TYPE (lightgun default /
+  racing / both): racing games emit only the FFB vocabulary (plus the global
+  outputs) and skip the gun pipeline entirely, and gun games never emit FFB
+  names. Supported racing ROMs in this release: thrilld (Thrill Drive),
+  gticlub (GTI Club), raverace (Rave Racer - enable feedback in its service
+  menu), overrev (Over Rev - change output mode in its service menu).
 
 --------------------------------------------------------------------------------
 MESH APP (FORMERLY MSOP CONFIGURATOR): TUTORIAL & USAGE

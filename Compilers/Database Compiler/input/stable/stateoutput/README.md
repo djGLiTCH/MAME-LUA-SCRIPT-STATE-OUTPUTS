@@ -1,13 +1,13 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.2.1
-- **Plugin Date:** 2026.08.04
-- **Database Date:** 2026.08.04
+- **Plugin Version:** 9.3.0
+- **Plugin Date:** 2026.08.10
+- **Database Date:** 2026.08.10
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
-- **Contributors:** Muggins (tester), Hexxed (ideas), Bandicoot (tester), PolybiusExtreme (feedback), Argon (inspiration)
+- **Contributors:** Muggins (tester), Hexxed (ideas), Bandicoot (tester), EndProdukt (tester), PolybiusExtreme (feedback), Argon (inspiration)
 
 ---
 
@@ -58,6 +58,27 @@ generates and maintains their per-game INI command files automatically from your
 profiles - no hand-written INIs required. MESH can also drive light guns and LED lighting itself
 (its built-in Player Hardware Commands and Native LED Control engines), so an external hooker
 program is entirely optional.
+
+## How Outputs Are Delivered
+
+MAME 0.289 removed the ability for a Lua plugin to create state outputs, so on those builds MAME can
+no longer hold - and therefore no longer broadcast - anything MSOP produces. How MSOP's outputs leave
+MAME depends on the build:
+
+- **MAME 0.289 and later (and any relay setup):** MSOP streams its outputs over its own TCP relay
+  connection to **MESH's dedicated MSOP ingest port (127.0.0.1:8004)**. MESH must be running to
+  receive them. Port **8000** remains what it has always been - MAME's own `-output network` server,
+  or the hooker-facing side that MESH manages - and MSOP never binds or dials it in any mode. Hooker
+  programs keep connecting to 8000 exactly as they always have.
+- **MAME 0.200 - 0.288 with `-output network` or `-output windows`:** MAME creates and broadcasts
+  every output itself, MSOP's included, and MSOP opens no socket at all.
+- **MAME 0.200 - 0.288 with `-output none` or `-output console`:** the outputs exist but MAME never
+  broadcasts them, so MSOP delivers them over the relay as above.
+
+The plugin works all of this out at runtime by asking the running MAME build what it can do - there
+is nothing to configure. For the full delivery-model reference (port arrangement, native-output
+forwarding, reconnect behaviour, and what happens when nothing is listening), see the included
+`readme.txt`.
 
 ## Output Mappings (MAMEhooker, OutputHooker, and QMamehook)
 
@@ -168,6 +189,47 @@ output MSOP produces, global or per-player.
 - **Note 2:** MSOP currently supports up to 4 players, so the above outputs extend to P4.
 - **Note 3:** Recoil can be `PX_Recoil` or `PX_CtmRecoil` (with DemulShooter compatibility).
 - **Note 4:** Damage can be `PX_Damage` or `PX_Damaged` (with DemulShooter compatibility).
+
+### Racing / Force Feedback outputs (new in v9.2.0)
+
+Racing-genre games emit a dedicated **force feedback vocabulary** instead of the gun set. The
+plugin reads the game's raw force-feedback command (a native driver output, or an emulated
+memory address - the same acquisition model as the gun games), decodes the game-specific
+encoding inside the plugin, and re-emits it as standardized effect channels that any consumer
+(MESH, or a hooker program) can map onto real hardware with zero game knowledge:
+
+```ini
+[Output]
+MSOP_P1_FFB_Constant=
+MSOP_P1_FFB_Spring=
+MSOP_P1_FFB_Friction=
+MSOP_P1_FFB_Damper=
+MSOP_P1_FFB_Sine=
+MSOP_P1_FFB_Rumble=
+MSOP_P1_FFB_Raw=
+MSOP_P1_FFB_Collision=
+MSOP_P1_FFB_GearChange=
+MSOP_P1_FFB_SurfaceRumble=
+MSOP_P1_FFB_TyreSlip=
+MSOP_P1_FFB_EngineRumble=
+```
+
+- **Stream channels** persist until changed and an explicit `0` releases them:
+  `FFB_Constant` is signed -255..+255 (**positive = force from the right**, i.e. wheel pushed
+  left); `FFB_Spring`, `FFB_Friction`, `FFB_Damper`, `FFB_Sine`, and `FFB_Rumble` are 0..255.
+  `FFB_Raw` is the undecoded source value (diagnostics / new-game analysis).
+- **Semantic events** (`FFB_Collision`, `FFB_GearChange`, `FFB_SurfaceRumble`, `FFB_TyreSlip`,
+  `FFB_EngineRumble`; 0..255, pulse/level style) are optional per game, read from separate
+  per-game memory addresses. They appear only for games whose database entry configures them.
+- `FFB_Rumble` is a **continuous** force-correlated motor level and deliberately coexists with
+  the pulse-style `PX_Rumble` - a consumer with a single rumble path should mix the two by
+  **MAX**, never sum.
+- Every game's database entry now carries a **`GAME_TYPE`** (`lightgun` default / `racing` /
+  `both`): racing games emit only the FFB vocabulary (plus the global outputs) and skip the gun
+  pipeline entirely, and gun games never emit FFB names - so your hooker mappings only ever see
+  the names each ROM can actually drive. Supported racing ROMs in this release: `thrilld`
+  (Thrill Drive), `gticlub` (GTI Club), `raverace` (Rave Racer - enable feedback in its service
+  menu), `overrev` (Over Rev - change output mode in its service menu).
 
 ## MESH App (formerly MSOP Configurator) - Tutorial & Usage
 
