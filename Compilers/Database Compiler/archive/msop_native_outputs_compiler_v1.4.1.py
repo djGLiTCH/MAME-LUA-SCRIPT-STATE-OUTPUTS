@@ -86,8 +86,8 @@ from datetime import datetime
 # KEEP IN SYNC with the header comment above - stamped into
 # native_outputs_by_rom.lua's own generated header so a compiled file can be
 # traced back to the exact compiler version that produced it.
-COMPILER_VERSION = "1.4.0"
-COMPILER_DATE = "2026.07.20"
+COMPILER_VERSION = "1.4.1"
+COMPILER_DATE = "2026.08.24"
 COMPILED_DATE = datetime.now().strftime("%Y.%m.%d")
 
 # PROJECT PATHS (root-anchored via __file__: scripts/ -> parent is the project root, matching

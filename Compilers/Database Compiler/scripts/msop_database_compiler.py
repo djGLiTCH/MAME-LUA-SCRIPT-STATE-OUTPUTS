@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP DATABASE COMPILER
-# Compiler Version: 3.4.3
-# Compiler Date: 2026.07.28
+# Compiler Version: 3.5.0
+# Compiler Date: 2026.08.24
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
