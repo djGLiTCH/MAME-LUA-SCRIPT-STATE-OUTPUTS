@@ -1,9 +1,9 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.3.1
-- **Plugin Date:** 2026.08.10
-- **Database Date:** 2026.08.10
+- **Plugin Version:** 9.3.2
+- **Plugin Date:** 2026.08.24
+- **Database Date:** 2026.08.24
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -75,10 +75,16 @@ MAME depends on the build:
 - **MAME 0.200 - 0.288 with `-output none` or `-output console`:** the outputs exist but MAME never
   broadcasts them, so MSOP delivers them over the relay as above.
 
+If MESH is not running when the relay is needed, MSOP makes a strictly bounded number of connection
+attempts (three at cold start, one after a mid-game disconnect - never a repeating timer), announces
+each problem with a one-shot on-screen message ("MESH IS NOT RUNNING", "MESH DISCONNECTED", ...), and
+then stops dialling until you pause and unpause the game, soft reset, load a new ROM, or restart MAME.
+The on-screen half of these messages can be disabled via `ENABLE_OSD_CONNECTION_STATUS` in the
+database's `_default` block; the console messages always print.
+
 The plugin works all of this out at runtime by asking the running MAME build what it can do - there
 is nothing to configure. For the full delivery-model reference (port arrangement, native-output
-forwarding, reconnect behaviour, and what happens when nothing is listening), see the included
-`readme.txt`.
+forwarding, retry behaviour, and the on-screen messages), see the included `readme.txt`.
 
 ## Output Mappings (MAMEhooker, OutputHooker, and QMamehook)
 
