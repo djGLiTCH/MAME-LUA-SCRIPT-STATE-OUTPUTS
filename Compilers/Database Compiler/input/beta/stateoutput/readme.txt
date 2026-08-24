@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.3.1
-Plugin Date:    2026.08.10
-Database Date:  2026.08.10
+Plugin Version: 9.3.2
+Plugin Date:    2026.08.24
+Database Date:  2026.08.24
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -181,50 +181,53 @@ WHEN IS THE RELAY USED AT ALL?
   MAME 0.288 and earlier the test passes quietly and no such error appears.
 
 IF NOTHING IS LISTENING ON THE RELAY PORT
-  MSOP dials the relay; it never waits for one. If nothing answers, it retries on a
-  back-off rather than every frame, because a REFUSED connection is not always cheap:
+  MSOP dials the relay; it never waits for one. A FAILED dial is not always cheap:
   on a machine that answers properly it is refused in well under a millisecond, but
   where local firewall or security software silently drops loopback connection
   attempts instead of refusing them outright, the operating system waits out its
-  retransmit first - about 2 seconds, measured. MAME's socket open is a plain
+  retransmit first - about 2 seconds, measured - and MAME's socket open is a plain
   blocking call with no timeout setting, so that pause freezes emulation until it
-  returns, and MAME is not something this plugin can change.
+  returns. For that reason the number of attempts is strictly BOUNDED, timed on a
+  real clock, with every attempt after the first announced on screen:
 
-  The schedule, timed on a real clock rather than on frames:
-      one free attempt at every ROM start, where the pause is hidden inside loading
-      after losing a relay that WAS there   -> 2s, 4s, 8s, then every 15s
-      when nothing has ever answered        -> 5s, 10s, then the adaptive cap below
+  COLD START (MESH has never answered this session):
+      attempt 1  at ROM start, where the pause is hidden inside loading  - silent
+      attempt 2  10 seconds later - if it fails, "MESH IS NOT RUNNING" appears and
+                 announces one final attempt
+      attempt 3  30 seconds after that - if it fails, "MESH NOT FOUND - STATE
+                 OUTPUTS PAUSED" appears and MSOP stops dialling for the session
 
-  A SUCCESSFUL connect costs nothing, which is why the lost-relay case retries
-  eagerly: a relay that was up moments ago (the MESH app restarting, typically) is
-  very likely to answer, and it always keeps the responsive 15s cap.
+  LOST CONNECTION (MESH was connected and disconnected mid-game):
+      "MESH DISCONNECTED" appears the moment the drop is detected, announcing one
+      reconnect attempt 30 seconds later - if it fails, "MESH RECONNECT FAILED -
+      STATE OUTPUTS PAUSED" appears and MSOP stops dialling for the session
 
-  ADAPTIVE BEHAVIOUR WHEN NOBODY EVER ANSWERS (v9.1.1). Every dial is timed. On a
-  machine that refuses a dead port instantly (the healthy case) retries stay at the
-  15s cap - they cost nothing worth avoiding. On a machine where each dial stalls
-  (loopback connects silently dropped), never-answered retries slow to every 60s
-  instead. And once the initial schedule is exhausted with nothing ever answering:
-      * a game MSOP has NO profile for (pass-through only) STOPS dialling for the
-        rest of that session - its relay traffic would only be mirrored native
-        outputs, which is not worth freezing the game for on a repeating timer.
-        A ROM with no native outputs to mirror at all stops after the single
-        ROM-start attempt.
-      * a SUPPORTED game keeps trying at the adaptive cap - its real MSOP outputs
-        (recoil, ammo, life) are worth one dial per interval.
-  Dialling re-arms wherever a listener plausibly just appeared, each costing at
-  most one deliberate dial: every ROM start or soft reset (the pause hides inside
-  loading), and UNPAUSING the machine - so "pause the game, start MESH, unpause"
-  connects instantly.
+  Reconnecting after MSOP has stopped dialling costs one deliberate action: after
+  starting MESH, pause and unpause the game (dialling never happens while paused -
+  the attempt runs at the moment of unpause), perform a soft reset, load a new ROM,
+  or simply restart MAME. Cold start versus lost connection is judged per MAME
+  session, not per ROM: until MESH has connected once, every ROM start begins a
+  fresh cold sequence; once MESH has connected, any later failure - in any ROM -
+  follows the lost-connection path with its single announced reconnect attempt. A
+  successful connection at any point shows "MESH CONNECTED" if a problem was
+  previously reported, and a game MSOP has nothing to deliver for (no profile and
+  no native outputs to mirror) stops silently after the single ROM-start attempt.
 
-  THE ON-SCREEN WARNING. The first time a session concludes nobody is listening,
-  MSOP prints a warning to the console AND puts a one-shot message on MAME's OSD:
-  nothing is connected to the MSOP Relay, and MESH (or another hooker tool reading
-  the relay) must be running BEFORE launching a ROM for state outputs to be
-  delivered. When the give-up applies (a game MSOP has no profile for), the same
-  message also states that no further connection attempts will be made this
-  session, and how to reconnect: after starting MESH, pause and unpause the game
-  (or reset / load a new ROM). For supported games it instead notes that MSOP
-  will keep retrying occasionally.
+  All of these on-screen (OSD) messages - including the "INCORRECT OUTPUT MODE"
+  notice described below - can be disabled by setting ENABLE_OSD_CONNECTION_STATUS
+  to false in the database's _default block; the matching console messages always
+  print regardless, so logs stay complete. They are deliberately separate from the
+  debug-gated diagnostics messages: connection problems are shown to every user,
+  diagnostics only when enabled.
+
+  INCORRECT OUTPUT MODE. On a MAME build that cannot create MSOP's outputs (0.289
+  and above), the relay is the only delivery path in EVERY '-output' mode - so if
+  such a build is set to '-output network' or '-output windows', MSOP shows a
+  one-shot notice recommending '-output none', since those modes only deliver
+  MSOP's outputs natively on MAME 0.200 - 0.288 and external hooker programs may
+  otherwise not receive them. Note that '-output auto' (MAME's factory default) is
+  resolved by MAME itself to the "none" output module - MSOP treats it as "none",
+  it uses the relay as normal, and it never triggers this notice.
 
   If you are not using the relay at all, set '-output network' on MAME 0.288 or
   earlier and MSOP will not dial anything.

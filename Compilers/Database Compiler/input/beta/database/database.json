@@ -1,11 +1,13 @@
 {
     "_default": {
-        "LUA_VERSION": 931,
-        "LUA_DATE": 20260810,
+        "LUA_VERSION": 932,
+        "LUA_DATE": 20260824,
         "LUA_GAME": "Default MSOP Plugin Values",
         "ENABLE_ROM": false,
         "GAME_TYPE": "lightgun",
         "GAME_TYPE_comment": "Genre gate (v9.2.0): lightgun (default) | racing | both. Controls which per-player output vocabulary is compiled/zero-flushed for the ROM (racing = FFB_* only, lightgun = everything except FFB_*, both = all) and whether the per-player gun pipeline runs each frame (racing skips it). Globals (Credits/GameStatus/AttractStatus) always apply. Unknown values degrade to lightgun, so existing profiles are unaffected.",
+        "ENABLE_OSD_CONNECTION_STATUS": true,
+        "ENABLE_OSD_CONNECTION_STATUS_comment": "Shows on-screen (OSD) messages for genuine MESH connection problems - MESH not running, MESH disconnected, reconnect failed, the connected confirmation, and the incorrect output mode notice. Set false to silence the OSD half only; the matching console messages always print. Absent = true. Deliberately separate from the debug-gated diagnostics OSD messages.",
         "OFFSCREEN_RELOAD": false,
         "LIGHTGUN_PATCH": false,
         "SCREEN_FLASH": false,
