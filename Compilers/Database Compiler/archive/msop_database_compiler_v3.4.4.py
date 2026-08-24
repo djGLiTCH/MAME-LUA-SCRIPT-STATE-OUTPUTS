@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP DATABASE COMPILER
-# Compiler Version: 3.4.3
-# Compiler Date: 2026.07.28
+# Compiler Version: 3.4.4
+# Compiler Date: 2026.08.24
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -70,7 +70,7 @@ from datetime import datetime
 # KEEP IN SYNC with the header comment above - stamped into database.lua's
 # own generated header so a compiled file can be traced back to the exact
 # compiler version that produced it.
-COMPILER_VERSION = "3.5.0"
+COMPILER_VERSION = "3.4.4"
 COMPILER_DATE = "2026.08.24"
 
 # ==========================================
@@ -443,37 +443,6 @@ def print_summary(op_name, default_status, stats, sync_stats, json_export_status
             print(f" Database Lua Export      : {lua_export_status}")
     print("=" * 70 + "\n")
 
-def find_game_files(input_dir):
-    """Every game JSON under games/ RECURSIVELY - the root plus any subfolders (such as
-    games/lightgun/ and games/racing/). Yields sorted (rom_key, relpath, abspath); any
-    _-prefixed stem is skipped wherever it sits (_default.json is handled from the root
-    explicitly). Sorted by ROM key so the compile order - and therefore database.json -
-    is identical no matter how the files are foldered."""
-    found = []
-    for dirpath, dirnames, filenames in os.walk(input_dir):
-        dirnames.sort()
-        for filename in filenames:
-            if not filename.endswith(".json"):
-                continue
-            stem = filename[:-5]
-            if stem.startswith("_"):
-                continue
-            abspath = os.path.join(dirpath, filename)
-            found.append((stem, os.path.relpath(abspath, input_dir).replace(os.sep, "/"), abspath))
-    found.sort(key=lambda t: (t[0], t[1]))
-    return found
-
-def game_type_relpath(rom_key, rom_data):
-    """Where mode 2 places a game: games/<GAME_TYPE>/<rom>.json, with missing/unknown
-    values degrading to 'lightgun' exactly as init.lua resolves them. _default.json
-    always stays at the games/ root - it holds the defaults for every type."""
-    if rom_key == "_default":
-        return f"{rom_key}.json"
-    game_type = str((rom_data or {}).get("GAME_TYPE", "") or "").strip().lower()
-    if game_type not in ("racing", "both"):
-        game_type = "lightgun"
-    return f"{game_type}/{rom_key}.json"
-
 def compile_from_folder(channel_override=None):
     """Mode 1: reads every *.json in games/ (validating each one for
     duplicate keys via reject_duplicate_keys), merges them into a single
@@ -504,31 +473,21 @@ def compile_from_folder(channel_override=None):
             print(f" [ERROR]   _default.json -> Parse Error: {e}")
             print(f"           File: {default_path}")
 
-    # Process all other JSON files - RECURSIVELY: game files may live directly in
-    # games/ or in any subfolder (e.g. games/lightgun/, games/racing/ - see mode 2,
-    # which sorts by GAME_TYPE). The folder a file sits in is organisational only;
-    # the ROM key is always the file name. The same ROM appearing in two places is
-    # a hard error (which of the two would be authoritative?), and counts as a
-    # normal per-file error so the build reports INCOMPLETE and exits non-zero.
-    seen_from = {}
-    for rom_key, relpath, filepath in find_game_files(INPUT_DIR):
-        stats["total"] += 1
-        if rom_key in seen_from:
-            stats["error"] += 1
-            print(f" [ERROR]   {relpath} -> Duplicate ROM '{rom_key}' (already loaded from {seen_from[rom_key]})")
-            print(f"           File: {filepath}")
-            continue
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                # Intercept duplicate keys during JSON parsing
-                master_db[rom_key] = json.load(f, object_pairs_hook=reject_duplicate_keys)
-                stats["success"] += 1
-                seen_from[rom_key] = relpath
-                print(f" [SUCCESS] {relpath}")
-        except Exception as e:
-            stats["error"] += 1
-            print(f" [ERROR]   {relpath} -> {e}")
-            print(f"           File: {filepath}")
+    # Process all other JSON files
+    for filename in sorted(os.listdir(INPUT_DIR)):
+        if filename.endswith(".json") and filename != "_default.json":
+            stats["total"] += 1
+            filepath = os.path.join(INPUT_DIR, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    # Intercept duplicate keys during JSON parsing
+                    master_db[filename[:-5]] = json.load(f, object_pairs_hook=reject_duplicate_keys)
+                    stats["success"] += 1
+                    print(f" [SUCCESS] {filename}")
+            except Exception as e:
+                stats["error"] += 1
+                print(f" [ERROR]   {filename} -> {e}")
+                print(f"           File: {filepath}")
 
     # Inject Meta-Data Updates
     master_db, sync_stats = sync_project_metadata(master_db, channel_override)
@@ -587,30 +546,19 @@ def split_from_master():
     # Inject Meta-Data Updates BEFORE splitting, so extracted files carry the fresh date/version
     master_db, sync_stats = sync_project_metadata(master_db)
 
-    # Each game is written into its GAME_TYPE subfolder (games/lightgun/, games/racing/,
-    # games/both/; _default.json stays at the root), and any copy of the same ROM at a
-    # different location under games/ is removed afterwards - otherwise the next folder
-    # compile would find the same ROM twice and correctly refuse to build.
-    relocated = 0
     for rom_key, rom_data in master_db.items():
-        filepath = os.path.join(INPUT_DIR, game_type_relpath(rom_key, rom_data))
+        filepath = os.path.join(INPUT_DIR, f"{rom_key}.json")
         try:
-            os.makedirs(os.path.dirname(filepath) or INPUT_DIR, exist_ok=True)
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(rom_data, f, indent=4)
-            print(f" [SUCCESS] {os.path.relpath(filepath, INPUT_DIR).replace(os.sep, '/')}")
-
+            print(f" [SUCCESS] {rom_key}.json")
+            
             if rom_key == "_default":
                 default_status = "Successfully Extracted"
             else:
                 stats["success"] += 1
                 stats["total"] += 1
-                for _, other_rel, other_abs in find_game_files(INPUT_DIR):
-                    if _ == rom_key and os.path.abspath(other_abs) != os.path.abspath(filepath):
-                        os.remove(other_abs)
-                        relocated += 1
-                        print(f" [MOVED]   {other_rel} -> {os.path.relpath(filepath, INPUT_DIR).replace(os.sep, '/')}")
-
+                
         except Exception as e:
             print(f" [ERROR]   {rom_key}.json -> {e}")
             print(f"           File: {filepath}")
@@ -619,8 +567,6 @@ def split_from_master():
             else:
                 stats["error"] += 1
                 stats["total"] += 1
-    if relocated > 0:
-        print(f"\n Relocated {relocated} game file(s) into their GAME_TYPE subfolder.")
 
     # Export
     if stats["success"] > 0 or default_status == "Successfully Extracted":
