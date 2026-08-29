@@ -1,0 +1,27 @@
+{
+    "LUA_GAME": "OutRunners (Japan)",
+    "LUA_GAME_comment": "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "ENABLE_ROM": true,
+    "GAME_TYPE": "racing",
+    "STARTUP_DELAY_MS": 5000,
+    "MAX_PLAYERS": 1,
+    "SIMULTANEOUS_PLAY": false,
+    "FFB": {
+        "ENABLED": true,
+        "SOURCES": [
+            "mainpcb:MA_Steering_Wheel_motor",
+            "mainpcb:MB_Steering_Wheel_motor",
+            "MA_Steering_Wheel_motor",
+            "upright_wheel_motor",
+            "Vibration_motor",
+            "Wheel_vibration",
+            "Wheel_Vibration",
+            "genout2"
+        ],
+        "SOURCES_comment": "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
+        "DECODE": "flag_shake",
+        "SCALE": 255,
+        "PLAYER": 1
+    },
+    "ADDITIONAL_OUTPUT_FORWARDS": []
+}

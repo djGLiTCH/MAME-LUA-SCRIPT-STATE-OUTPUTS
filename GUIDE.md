@@ -161,11 +161,18 @@ force-feedback command lives and how to decode it into the standardized effect c
   emulated **memory addresses**, read via `CPU_TAGS.FFB` / `MEMORY_SPACES.FFB` /
   `DATA_WIDTHS.FFB` - the same acquisition model as the gun games' Ammo/Life.
 * **`DECODE`**: The per-game encoding translator - `passthrough`, `signed8` (two's-complement
-  full-value, e.g. the Midway Cruis'n/Rush family), `konami_dir4` (bits 0-3 = force level,
-  bit 4 = direction; Thrill Drive/GTI Club family), `model2_bands` (Sega Model 2 banded
-  drive-board protocol; multi-channel), or `namco_lut_rr` (Rave Racer's scrambled MCU byte via a
-  256-entry lookup table). Decoders update only the channels a command addresses; other channels
-  persist until changed, and an explicit 0 releases.
+  full-value, e.g. the Midway Cruis'n/Rush family and Gaelco's Speed Up), `konami_dir4` (bits
+  0-3 = force level, bit 4 = direction; Thrill Drive/GTI Club family), `model2_bands` (Sega
+  Model 2 banded drive-board protocol; multi-channel), `namco_lut_rr` (Rave Racer's scrambled
+  MCU byte via a 256-entry lookup table), `sega_rally_bands` (Sega Rally's two 32-step bands),
+  `hng64_bands` (Hyper Neo Geo 64 racers), `sidebs_5bit` (Taito Side by Side), `virtua_racing`
+  (Model 1 banded protocol), `pdrift_8step` (Power Drift's bank-motor byte), `flag_shake`
+  (on/off shaker-only cabinets), or `harddrivin_serial` (Hard/Race Drivin's stateful 4-byte
+  serial frame). Decoders update only the channels a command addresses; other channels persist
+  until changed, and an explicit 0 releases.
+* **`INVERT`** *(optional)*: `true` flips the signed `FFB_Constant` channel for cabinets whose
+  wheel encoding runs opposite to their family norm (e.g. the Cruis'n / SF Rush ROMs vs the
+  otherwise identical California Speed / Cart Fury group). Magnitude channels are unaffected.
 * **`SCALE`**: Full-scale output value (255 = Signed255/Unsigned255, the standard).
 * **`PLAYER`**: Which player index emits the FFB outputs (1-4).
 * **`EVENTS`** *(optional)*: Address-sourced semantic events - keys `COLLISION`, `GEARCHANGE`,
@@ -174,8 +181,8 @@ force-feedback command lives and how to decode it into the standardized effect c
   `nonzero` is level-style (STRENGTH while the flag byte is non-zero), `change`/`increase` pulse
   for `DURATION_MS`, and `value` scales the raw read against `MAX`.
 
-See `Compilers/Database Compiler/FFB-TESTING.md` for the full vocabulary contract, testing
-procedure, and how to profile a new racing game.
+See `Compilers/Database Compiler/FFB-GAME-STATUS.md` for the per-game readiness matrix,
+testing procedure, and how to profile a new racing game.
 
 ## 3. Tutorial Examples (JSON Format)
 

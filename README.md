@@ -135,6 +135,18 @@ The latest source code and release includes support for the following MAME ROMs 
 | `vcop` | Virtua Cop | Working |
 | `vcop2` | Virtua Cop 2 | Working |
 
+### Racing / Force Feedback (Beta)
+
+The beta channel additionally carries **racing force-feedback profiles** for 146 games
+(151 ROMs) across 12 decoder families - every title the FFB Arcade Plugin projects drive
+through a decodable MAME output, from Thrill Drive and Daytona USA to Cruis'n USA and Hard
+Drivin'. These decode each game's raw drive-board command into the standardized
+`MSOP_P1_FFB_*` output vocabulary (constant force, spring, friction, damper, sine, rumble)
+for consumers like MESH. None are hardware-validated yet; see
+[FFB-GAME-STATUS](Compilers/Database%20Compiler/FFB-GAME-STATUS.md) for the full per-game
+readiness matrix, per-game prerequisites, and what is still missing (e.g. game-state memory
+addresses have not been researched for any racing title yet).
+
 If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 
 ---
