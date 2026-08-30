@@ -1671,7 +1671,10 @@ function stateoutput.startplugin()
         probe_frames = 0,    -- frames spent probing, for the one-shot warning
         warned = false,
         events_rt = {},      -- per-event runtime state (last value, pulse tick)
-        hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0, last=0 },
+        hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0 },
+        enum = false,        -- cached native-output enumeration for this ROM...
+        enum_done = false,   -- ...nil is a real answer, so this says it was fetched
+        exhausted = false,   -- probing gave up: no configured SOURCE exists here
         channels = { "CONSTANT", "SPRING", "FRICTION", "DAMPER", "SINE", "RUMBLE" },
 
         -- Rave Racer / Namco Super System 22 wheel LUT: the MCU's scrambled
@@ -1716,6 +1719,12 @@ function stateoutput.startplugin()
         -- so each side reaches exactly +/-scale at its extreme. Round half
         -- away from zero symmetrically (floor for positives, ceil for
         -- negatives - floor(x-0.5) would over-round negatives).
+        -- KNOWN DIVERGENCE from the older reference releases, which scale both
+        -- halves by /126 with a clamp and test the negative half as
+        -- "raw > 0x80" - excluding 0x80 itself, so it falls through to release.
+        -- Here 0x80 is the largest negative magnitude a two's-complement byte
+        -- can carry and decodes to full force. Elsewhere the two differ by at
+        -- most 2 counts at scale 255. Revisit if a game is seen idling at 0x80.
         signed8 = function(raw, scale)
             local v = raw & 0xFF
             if v > 127 then
@@ -1854,7 +1863,7 @@ function stateoutput.startplugin()
         -- the driver writes a 4-byte FRAME serially through the same output, so this
         -- decoder is STATEFUL (state in _FFB.hd, cleared by _FFB.Reset). Compute's
         -- change gate means it is fed value TRANSITIONS, not every write - the best
-        -- a frame-sampled reader can do with a serial line (see FFB-TESTING.md).
+        -- a frame-sampled reader can do with a serial line (see FFB-GAME-STATUS.md).
         --   * an alternating 0xE0/0x00 run is the idle/sync pattern - it resets the
         --     frame cursor and is never treated as data;
         --   * vals[0] must stay < 200 and vals[1] > 200, else the frame is garbage
@@ -2769,13 +2778,18 @@ function stateoutput.startplugin()
         _FFB.mode = false
         _FFB.probe_frames = 0
         _FFB.warned = false
+        _FFB.exhausted = false
+        -- The next machine has its own output table, so the cached enumeration
+        -- from the last one must not be reused.
+        _FFB.enum = false
+        _FFB.enum_done = false
         _FFB.events_rt = {}
         -- Per-ROM decode caches: the resolved decoder/scale (they cannot change
         -- mid-ROM) and the last decoded command value (Compute's change gate).
         _FFB.decoder = nil
         _FFB.scale = nil
         _FFB.last_raw = nil
-        _FFB.hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0, last=0 }
+        _FFB.hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0 }
     end
 
     -- Walks CFG.FFB.SOURCES in order: hex strings were already converted to
@@ -2788,8 +2802,6 @@ function stateoutput.startplugin()
     -- something resolves - driver outputs may not exist on frame 1.
     function _FFB.Resolve()
         local cfgF = CFG.FFB
-        local enumerated = nil
-        local enumerated_fetched = false
         for _, src in ipairs(cfgF.SOURCES) do
             if type(src) == "number" then
                 if _MemHandles["FFB"] then
@@ -2799,10 +2811,18 @@ function stateoutput.startplugin()
                     return true
                 end
             elseif type(src) == "string" then
-                if not enumerated_fetched then
-                    enumerated = Enumerate_Native_Outputs()
-                    enumerated_fetched = true
+                -- Enumeration is cached for the whole ROM session (cleared by
+                -- _FFB.Reset). A machine's output table is a static part of its
+                -- configuration, so the answer cannot change between frames -
+                -- and this function retries every frame until something
+                -- resolves, so re-walking every device each time would allocate
+                -- a record per output, 60 times a second, for nothing. Fetched
+                -- lazily still: an address-first profile never enumerates at all.
+                if not _FFB.enum_done then
+                    _FFB.enum = Enumerate_Native_Outputs()
+                    _FFB.enum_done = true
                 end
+                local enumerated = _FFB.enum
                 if enumerated then
                     for _, rec in ipairs(enumerated) do
                         if rec.name == src or rec.wire == src then
@@ -2831,7 +2851,12 @@ function stateoutput.startplugin()
         _FFB.probe_frames = _FFB.probe_frames + 1
         if not _FFB.warned and _FFB.probe_frames == 600 then
             _FFB.warned = true
-            dbg_print("FFB WARNING: no source found after 600 frames - none of the configured SOURCES exist for this ROM")
+            -- Give up for the rest of the ROM session. The enumeration is already
+            -- cached above, so retrying costs little, but ten seconds of misses on
+            -- a static output table is a settled answer - keep walking the source
+            -- list every frame and it never becomes anything else.
+            _FFB.exhausted = true
+            dbg_print("FFB WARNING: no source found after 600 frames - none of the configured SOURCES exist for this ROM; probing stopped")
         end
         return false
     end
@@ -2933,7 +2958,7 @@ function stateoutput.startplugin()
 
         -- STREAM CHANNELS (skipped cleanly when no SOURCES are configured)
         if type(cfgF.SOURCES) == "table" and #cfgF.SOURCES > 0
-           and (_FFB.mode ~= false or _FFB.Resolve()) then
+           and (_FFB.mode ~= false or (not _FFB.exhausted and _FFB.Resolve())) then
             local raw
             if _FFB.mode == "output" then
                 raw = _FFB.proxy:get()

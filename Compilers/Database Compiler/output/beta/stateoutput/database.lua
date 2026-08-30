@@ -318,7 +318,7 @@ local database = {
             ["EVENTS"] = {
             }
         },
-        ["FFB_comment"] = "Force feedback state outputs (racing genre) - contract: MESH docs FFB-MSOP-CONTRACT.md. SOURCES: probed in order; plain strings = NATIVE OUTPUT names the driver creates (e.g. wheel), 0x-prefixed hex strings = emulated MEMORY ADDRESSES read via CPU_TAGS.FFB / MEMORY_SPACES.FFB / DATA_WIDTHS.FFB. DECODE: passthrough | signed8 | konami_dir4 | model2_bands | namco_lut_rr. SCALE 255 = Signed255/Unsigned255. Stream channels (persist until changed): MSOP_P<PLAYER>_FFB_Constant (signed, positive = force from the right), FFB_Spring, FFB_Friction, FFB_Damper, FFB_Sine, FFB_Rumble (UNSIGNED continuous motor level; coexists with pulse-style P<n>_Rumble - consumers mix by MAX), FFB_Raw (diagnostics). EVENTS (semantic, address-only): keys COLLISION | GEARCHANGE | SURFACERUMBLE | TYRESLIP | ENGINERUMBLE, each { SOURCE: 0x-address (required), MODE: nonzero|change|increase|value, STRENGTH, DURATION_MS, MAX, WIDTH }. Decoders update only the channels a command addresses; others persist.",
+        ["FFB_comment"] = "Force feedback state outputs (racing genre) - contract: MESH docs FFB-MSOP-CONTRACT.md. SOURCES: probed in order; plain strings = NATIVE OUTPUT names the driver creates (e.g. wheel), 0x-prefixed hex strings = emulated MEMORY ADDRESSES read via CPU_TAGS.FFB / MEMORY_SPACES.FFB / DATA_WIDTHS.FFB. DECODE: passthrough | signed8 | konami_dir4 | model2_bands | namco_lut_rr | sega_rally_bands | hng64_bands | sidebs_5bit | virtua_racing | pdrift_8step | flag_shake | harddrivin_serial. INVERT (optional, true): flips the signed FFB_Constant channel for cabinets whose wheel encoding runs opposite to their family norm; magnitude channels are unaffected. SCALE 255 = Signed255/Unsigned255. Stream channels (persist until changed): MSOP_P<PLAYER>_FFB_Constant (signed, positive = force from the right), FFB_Spring, FFB_Friction, FFB_Damper, FFB_Sine, FFB_Rumble (UNSIGNED continuous motor level; coexists with pulse-style P<n>_Rumble - consumers mix by MAX), FFB_Raw (diagnostics). EVENTS (semantic, address-only): keys COLLISION | GEARCHANGE | SURFACERUMBLE | TYRESLIP | ENGINERUMBLE, each { SOURCE: 0x-address (required), MODE: nonzero|change|increase|value, STRENGTH, DURATION_MS, MAX, WIDTH }. Decoders update only the channels a command addresses; others persist.",
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
     },
@@ -506,8 +506,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -529,8 +528,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -552,8 +550,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -597,8 +594,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -738,8 +734,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -761,8 +756,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -784,8 +778,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -807,8 +800,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -830,8 +822,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -853,8 +844,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -876,8 +866,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -899,8 +888,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -922,8 +910,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -1788,8 +1775,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -2229,8 +2215,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -2252,8 +2237,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -2275,8 +2259,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -2298,8 +2281,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3480,8 +3462,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3503,8 +3484,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3526,8 +3506,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3548,8 +3527,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3571,8 +3549,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3594,8 +3571,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3617,8 +3593,7 @@ local database = {
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
-                "wheel",
-                "m_wheel_motor"
+                "wheel"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3842,8 +3817,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3865,8 +3839,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3888,8 +3861,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3911,8 +3883,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3934,8 +3905,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -3957,8 +3927,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -4651,8 +4620,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
@@ -4674,8 +4642,7 @@ local database = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
                 "wheel",
-                "wheel_motor",
-                "m_wheel_motor"
+                "wheel_motor"
             },
             ["SOURCES_comment"] = "Native output name candidates, probed in order at runtime; the first name the running machine actually created wins (logged to the MSOP debug console). Replace with a 0x-prefixed emulated RAM address if the driver exposes no suitable output on your MAME build.",
             ["DECODE"] = "signed8",
