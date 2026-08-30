@@ -1660,9 +1660,11 @@ function stateoutput.startplugin()
     -- RESOLUTION + COMPUTE" section further down. That is safe because
     -- Frame_Logic only CALLS _FFB.Compute at frame time, long after load.
     --
-    -- Decoders take (raw, scale) and return a partial {CHANNEL = value} table
-    -- (or nil for "no change"). Encodings cross-referenced against the FFB
-    -- Arcade Plugin (GPLv3, Boomslangnz et al.) - MSOP is GPLv3 as well.
+    -- Decoders take (raw, scale) and return a partial {CHANNEL = value} table,
+    -- or nil for "no change". A command only ever addresses the channels it
+    -- names; every other channel holds its last value until re-commanded, and
+    -- an explicit 0 is a release. Each decoder is a pure function of the
+    -- command byte except harddrivin_serial, which assembles a frame.
     -- =========================================================================
     local _FFB = {
         proxy = false,       -- resolved native-output proxy (output mode)
@@ -1679,8 +1681,10 @@ function stateoutput.startplugin()
 
         -- Rave Racer / Namco Super System 22 wheel LUT: the MCU's scrambled
         -- force byte -> linear force index 1..123 (-1 = code never emitted).
-        -- Index the array with (raw & 0xFF) + 1. Derived from the FFB Arcade
-        -- Plugin's empirically-built table (GPLv3).
+        -- Index the array with (raw & 0xFF) + 1. The scramble has no closed
+        -- form, so the mapping is a fixed 256-entry table: each of 1..123
+        -- appears exactly once, all at even byte values, and every odd byte
+        -- is a code the MCU never sends.
         rr_map = {
             -1,-1,62,-1,30,-1,94,-1,  46,-1,78,-1,14,-1,110,-1,
             54,-1,70,-1,22,-1,102,-1, 38,-1,86,-1,6,-1,118,-1,
@@ -1713,21 +1717,17 @@ function stateoutput.startplugin()
         -- Raw value straight onto the Constant channel (analysis/bring-up).
         passthrough = function(raw, scale) return { CONSTANT = raw } end,
 
-        -- Two's-complement byte -> signed Constant. Divisors follow the FFB
-        -- Arcade Plugin's corrected RacingFullValue math (2026): the negative
-        -- half spans 128 steps (0x80 = full force) and the positive half 127,
-        -- so each side reaches exactly +/-scale at its extreme. Round half
-        -- away from zero symmetrically (floor for positives, ceil for
-        -- negatives - floor(x-0.5) would over-round negatives).
-        -- Matches upstream FFBPluginRacerMAME commit 2d71094 "RacingFullValue
-        -- Updates" (2026-08-29), which replaced the older /126-with-clamp math
-        -- and widened the negative test from "raw > 0x80" to "raw >= 0x80" -
-        -- 0x80 had been falling through to release even though it is the
-        -- largest negative magnitude the byte can carry. That commit changed
-        -- RacingFullValueActive1 only; the direction-swapped Active2 half of
-        -- the family (this decoder plus FFB.INVERT) still reads /126 upstream.
-        -- The two blocks are otherwise identical, so the corrected math is
-        -- applied to both here rather than keeping a stale second copy.
+        -- Two's-complement byte -> signed Constant, for cabinets that send the
+        -- wheel force as a full-range signed value (the Midway/Atari and
+        -- Gaelco racers). The two halves are deliberately asymmetric because
+        -- the encoding is: 0x80..0xFF is 128 steps of negative force with 0x80
+        -- the hardest lock, while 0x01..0x7F is 127 steps of positive, so each
+        -- side divides by its own span and reaches exactly +/-scale at its
+        -- extreme. 0x00 is neutral. Round half away from zero symmetrically -
+        -- floor for positives, ceil for negatives, since floor(x-0.5) would
+        -- over-round the negative side (-0.79 must become -1, not -2).
+        -- Cabinets in this family that wire the wheel the other way round set
+        -- FFB.INVERT in their profile rather than getting a second decoder.
         signed8 = function(raw, scale)
             local v = raw & 0xFF
             if v > 127 then
@@ -1869,8 +1869,8 @@ function stateoutput.startplugin()
         -- a frame-sampled reader can do with a serial line (see FFB-GAME-STATUS.md).
         --   * an alternating 0xE0/0x00 run is the idle/sync pattern - it resets the
         --     frame cursor and is never treated as data;
-        --   * vals[0] must stay < 200 and vals[1] > 200, else the frame is garbage
-        --     and collection restarts (mirrors the plugin's validity guard);
+        --   * v0 must stay < 200 and v1 > 200; anything else means the cursor has
+        --     slipped out of phase with the frame, so collection restarts;
         --   * on the 5th write the frame decodes to a signed force:
         --       f = (v0 & 15) + ((v3 & 7) << 5), |0x10 when v1's high nibble is F,
         --       negated when v2's high nibble is F, clamped to +/-100 and rescaled.
