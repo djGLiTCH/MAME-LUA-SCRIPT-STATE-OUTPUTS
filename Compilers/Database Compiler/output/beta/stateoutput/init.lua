@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.3.2
--- Plugin Date: 2026.08.24
+-- Plugin Version: 9.3.3
+-- Plugin Date: 2026.08.30
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -34,7 +34,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.3.2",
+    version = "9.3.3",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -202,8 +202,8 @@ function stateoutput.startplugin()
     -- Keep in sync with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do not come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 932
-    local PLUGIN_DATE_NUM    = 20260824
+    local PLUGIN_VERSION_NUM = 933
+    local PLUGIN_DATE_NUM    = 20260830
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
