@@ -1719,12 +1719,15 @@ function stateoutput.startplugin()
         -- so each side reaches exactly +/-scale at its extreme. Round half
         -- away from zero symmetrically (floor for positives, ceil for
         -- negatives - floor(x-0.5) would over-round negatives).
-        -- KNOWN DIVERGENCE from the older reference releases, which scale both
-        -- halves by /126 with a clamp and test the negative half as
-        -- "raw > 0x80" - excluding 0x80 itself, so it falls through to release.
-        -- Here 0x80 is the largest negative magnitude a two's-complement byte
-        -- can carry and decodes to full force. Elsewhere the two differ by at
-        -- most 2 counts at scale 255. Revisit if a game is seen idling at 0x80.
+        -- Matches upstream FFBPluginRacerMAME commit 2d71094 "RacingFullValue
+        -- Updates" (2026-08-29), which replaced the older /126-with-clamp math
+        -- and widened the negative test from "raw > 0x80" to "raw >= 0x80" -
+        -- 0x80 had been falling through to release even though it is the
+        -- largest negative magnitude the byte can carry. That commit changed
+        -- RacingFullValueActive1 only; the direction-swapped Active2 half of
+        -- the family (this decoder plus FFB.INVERT) still reads /126 upstream.
+        -- The two blocks are otherwise identical, so the corrected math is
+        -- applied to both here rather than keeping a stale second copy.
         signed8 = function(raw, scale)
             local v = raw & 0xFF
             if v > 127 then
