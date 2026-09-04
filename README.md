@@ -43,8 +43,8 @@ This repository remains the home of the MSOP Plugin, the game database, and the 
 
 Previously, this project was known as the "Universal MAME Lua Script for State Outputs". It relied on standalone Lua scripts for each game / ROM to monitor memory addresses and output states. While effective, as the list of supported games grew, we needed a more robust and integrated solution.
 
-We have since migrated to a **native MAME Plugin architecture** to establish a centralized state output framework. This transition allows us to:
-* Optimize background performance and reduce overhead.
+We have since migrated to a **native MAME Plugin architecture** to establish a centralised state output framework. This transition allows us to:
+* Optimise background performance and reduce overhead.
 * Seamlessly integrate with MAME's built-in plugin ecosystem.
 * Automate the generation of configuration files.
 * Easily add support for new games / ROMs by updating a single file (database.lua).
@@ -140,7 +140,7 @@ The latest source code and release includes support for the following MAME ROMs 
 The beta channel additionally carries **racing force-feedback profiles** for 146 games
 (151 ROMs) across 12 decoder families - every title the FFB Arcade Plugin projects drive
 through a decodable MAME output, from Thrill Drive and Daytona USA to Cruis'n USA and Hard
-Drivin'. These decode each game's raw drive-board command into the standardized
+Drivin'. These decode each game's raw drive-board command into the standardised
 `MSOP_P1_FFB_*` output vocabulary (constant force, spring, friction, damper, sine, rumble)
 for consumers like MESH. None are hardware-validated yet, some
 games need an in-game service menu setting before any output appears, and game-state
@@ -384,9 +384,9 @@ The plugin monitors four key memory addresses (Credits, Game Status, Ammo, Life)
 To ensure reliable performance across all titles and prevent "phantom" hardware triggers, the plugin relies on a unified variable naming convention and strict evaluation logic:
 
 1. **Player State Priority:** The plugin evaluates activity using a strict hierarchy: player-specific STATUS > player-specific LIFE > global GAME_STATUS > fallback logic.
-2. **Active Player Tracking:** It utilizes a dedicated gamestatus variable to accurately track active players, which prevents unwanted force feedback during attract mode when nobody is playing a game.
+2. **Active Player Tracking:** It utilises a dedicated gamestatus variable to accurately track active players, which prevents unwanted force feedback during attract mode when nobody is playing a game.
 
-By funneling all game events through this standardised logic flow, external tools only have to listen for simple, consistent commands (e.g., PX_Life = 1), taking the pressure off the Output Program(s) to decipher complex game states.
+By funnelling all game events through this standardised logic flow, external tools only have to listen for simple, consistent commands (e.g., PX_Life = 1), taking the pressure off the Output Program(s) to decipher complex game states.
 
 ---
 
