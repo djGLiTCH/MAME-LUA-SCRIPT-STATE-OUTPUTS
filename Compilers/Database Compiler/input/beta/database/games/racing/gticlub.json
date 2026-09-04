@@ -4,8 +4,16 @@
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,
+    "STARTUP_DELAY_MS_comment": "This could be 70000 if you want to skip the calibration of the wheel step during startup",
+    "COINS_PER_CREDIT": 2,
     "MAX_PLAYERS": 1,
     "SIMULTANEOUS_PLAY": false,
+    "CREDITS": "0x000878FA",
+    "CREDITS_comment": "0x000878FB is the partial credit (first coin per credit), 0x000878FA is the full credit (all coins per credit)",
+    "GAME_STATUS": "0x00087998",
+    "GAME_STATUS_comment": "The following could be used 0x00080DB8, 0x00087998, 0x00087B98, 0x00088398 (need more testing to narrow down)",
+    "GAME_STATUS_ACTIVE_VALUE": 2,
+    "GAME_STATUS_ACTIVE_VALUE_comment": "1 = Attract Mode, 2 = Game Mode",
     "FFB": {
         "ENABLED": true,
         "SOURCES": [

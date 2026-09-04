@@ -3,7 +3,7 @@
 -- MSOP DATABASE LUA
 -- Script Version: 3.5.0
 -- Script Date: 2026.08.24
--- Compiled Date: 2026.08.30
+-- Compiled Date: 2026.09.02
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -16,7 +16,7 @@
 local database = {
     ["_default"] = {
         ["LUA_VERSION"] = 933,
-        ["LUA_DATE"] = 20260830,
+        ["LUA_DATE"] = 20260902,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
         ["GAME_TYPE"] = "lightgun",
@@ -496,7 +496,7 @@ local database = {
     },
     ["calspeed"] = {
         ["LUA_GAME"] = "California Speed",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -519,7 +519,7 @@ local database = {
     },
     ["calspeeda"] = {
         ["LUA_GAME"] = "California Speed (Rev A)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -542,7 +542,7 @@ local database = {
     },
     ["calspeedb"] = {
         ["LUA_GAME"] = "California Speed (Rev B)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -587,7 +587,7 @@ local database = {
     },
     ["cartfury"] = {
         ["LUA_GAME"] = "Cart Fury: Championship Racing",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -610,7 +610,7 @@ local database = {
     },
     ["cbombers"] = {
         ["LUA_GAME"] = "Chase Bombers",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -636,7 +636,7 @@ local database = {
     },
     ["cbombersj"] = {
         ["LUA_GAME"] = "Chase Bombers (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -662,7 +662,7 @@ local database = {
     },
     ["cbombersp"] = {
         ["LUA_GAME"] = "Chase Bombers (prototype)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -688,7 +688,7 @@ local database = {
     },
     ["cischeat"] = {
         ["LUA_GAME"] = "Cisco Heat",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker exposed on the led2 output: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker exposed on the led2 output: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -729,7 +729,7 @@ local database = {
     },
     ["crusnusa"] = {
         ["LUA_GAME"] = "Cruis'n USA",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -752,7 +752,7 @@ local database = {
     },
     ["crusnusa21"] = {
         ["LUA_GAME"] = "Cruis'n USA (v2.1)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -775,7 +775,7 @@ local database = {
     },
     ["crusnusa40"] = {
         ["LUA_GAME"] = "Cruis'n USA (v4.0)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -798,7 +798,7 @@ local database = {
     },
     ["crusnwld"] = {
         ["LUA_GAME"] = "Cruis'n World",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -821,7 +821,7 @@ local database = {
     },
     ["crusnwld17"] = {
         ["LUA_GAME"] = "Cruis'n World (v1.7)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -844,7 +844,7 @@ local database = {
     },
     ["crusnwld19"] = {
         ["LUA_GAME"] = "Cruis'n World (v1.9)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -867,7 +867,7 @@ local database = {
     },
     ["crusnwld20"] = {
         ["LUA_GAME"] = "Cruis'n World (v2.0)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -890,7 +890,7 @@ local database = {
     },
     ["crusnwld23"] = {
         ["LUA_GAME"] = "Cruis'n World (v2.3)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -913,7 +913,7 @@ local database = {
     },
     ["crusnwld24"] = {
         ["LUA_GAME"] = "Cruis'n World (v2.4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -963,7 +963,7 @@ local database = {
     },
     ["daytona"] = {
         ["LUA_GAME"] = "Daytona USA",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -984,7 +984,7 @@ local database = {
     },
     ["daytonas"] = {
         ["LUA_GAME"] = "Daytona USA (Saturn Ads)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1005,7 +1005,7 @@ local database = {
     },
     ["daytonase"] = {
         ["LUA_GAME"] = "Daytona USA (Special Edition)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1026,7 +1026,7 @@ local database = {
     },
     ["dblaxle"] = {
         ["LUA_GAME"] = "Double Axle",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1052,7 +1052,7 @@ local database = {
     },
     ["dblaxleu"] = {
         ["LUA_GAME"] = "Double Axle (USA)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1207,7 +1207,7 @@ local database = {
     },
     ["f1gpstar"] = {
         ["LUA_GAME"] = "F-1 Grand Prix Star",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker exposed on the led2 output: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker exposed on the led2 output: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1228,7 +1228,7 @@ local database = {
     },
     ["f1gpstr2"] = {
         ["LUA_GAME"] = "F-1 Grand Prix Star II",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker exposed on the led2 output: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker exposed on the led2 output: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1253,8 +1253,16 @@ local database = {
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
+        ["STARTUP_DELAY_MS_comment"] = "This could be 70000 if you want to skip the calibration of the wheel step during startup",
+        ["COINS_PER_CREDIT"] = 2,
         ["MAX_PLAYERS"] = 1,
         ["SIMULTANEOUS_PLAY"] = false,
+        ["CREDITS"] = "0x000878FA",
+        ["CREDITS_comment"] = "0x000878FB is the partial credit (first coin per credit), 0x000878FA is the full credit (all coins per credit)",
+        ["GAME_STATUS"] = "0x00087998",
+        ["GAME_STATUS_comment"] = "The following could be used 0x00080DB8, 0x00087998, 0x00087B98, 0x00088398 (need more testing to narrow down)",
+        ["GAME_STATUS_ACTIVE_VALUE"] = 2,
+        ["GAME_STATUS_ACTIVE_VALUE_comment"] = "1 = Attract Mode, 2 = Game Mode",
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
@@ -1274,7 +1282,7 @@ local database = {
     },
     ["gticluba"] = {
         ["LUA_GAME"] = "GTI Club (Asia)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1299,7 +1307,7 @@ local database = {
     },
     ["gticlubj"] = {
         ["LUA_GAME"] = "GTI Club (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1324,7 +1332,7 @@ local database = {
     },
     ["gticlubu"] = {
         ["LUA_GAME"] = "GTI Club (USA)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1349,7 +1357,7 @@ local database = {
     },
     ["harddriv"] = {
         ["LUA_GAME"] = "Hard Drivin'",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1370,7 +1378,7 @@ local database = {
     },
     ["harddriv1"] = {
         ["LUA_GAME"] = "Hard Drivin' (rev 1)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1391,7 +1399,7 @@ local database = {
     },
     ["harddriv2"] = {
         ["LUA_GAME"] = "Hard Drivin' (rev 2)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1412,7 +1420,7 @@ local database = {
     },
     ["harddriv3"] = {
         ["LUA_GAME"] = "Hard Drivin' (rev 3)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1433,7 +1441,7 @@ local database = {
     },
     ["harddrivb"] = {
         ["LUA_GAME"] = "Hard Drivin' (British)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1454,7 +1462,7 @@ local database = {
     },
     ["harddrivb6"] = {
         ["LUA_GAME"] = "Hard Drivin' (British, rev 6)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1475,7 +1483,7 @@ local database = {
     },
     ["harddrivc"] = {
         ["LUA_GAME"] = "Hard Drivin' (compact)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1496,7 +1504,7 @@ local database = {
     },
     ["harddrivc1"] = {
         ["LUA_GAME"] = "Hard Drivin' (compact, rev 1)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1517,7 +1525,7 @@ local database = {
     },
     ["harddrivcb"] = {
         ["LUA_GAME"] = "Hard Drivin' (compact, British)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1538,7 +1546,7 @@ local database = {
     },
     ["harddrivcg"] = {
         ["LUA_GAME"] = "Hard Drivin' (compact, German)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1559,7 +1567,7 @@ local database = {
     },
     ["harddrivg"] = {
         ["LUA_GAME"] = "Hard Drivin' (German)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1580,7 +1588,7 @@ local database = {
     },
     ["harddrivg4"] = {
         ["LUA_GAME"] = "Hard Drivin' (German, rev 4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1601,7 +1609,7 @@ local database = {
     },
     ["harddrivj"] = {
         ["LUA_GAME"] = "Hard Drivin' (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1622,7 +1630,7 @@ local database = {
     },
     ["harddrivj6"] = {
         ["LUA_GAME"] = "Hard Drivin' (Japan, rev 6)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1643,7 +1651,7 @@ local database = {
     },
     ["hdrivair"] = {
         ["LUA_GAME"] = "Hard Drivin's Airborne",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1736,7 +1744,7 @@ local database = {
     },
     ["hyprdriv"] = {
         ["LUA_GAME"] = "Hyperdrive",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1759,7 +1767,7 @@ local database = {
     },
     ["indy500"] = {
         ["LUA_GAME"] = "Indianapolis 500",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1780,7 +1788,7 @@ local database = {
     },
     ["indy500d"] = {
         ["LUA_GAME"] = "Indianapolis 500 (Deluxe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -1801,7 +1809,7 @@ local database = {
     },
     ["indy500to"] = {
         ["LUA_GAME"] = "Indianapolis 500 (Twin, older rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2078,7 +2086,7 @@ local database = {
     },
     ["midnrun"] = {
         ["LUA_GAME"] = "Midnight Run",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2103,7 +2111,7 @@ local database = {
     },
     ["midnruna"] = {
         ["LUA_GAME"] = "Midnight Run (Asia)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2128,7 +2136,7 @@ local database = {
     },
     ["midnruna2"] = {
         ["LUA_GAME"] = "Midnight Run (Asia, alt)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2153,7 +2161,7 @@ local database = {
     },
     ["midnrunj"] = {
         ["LUA_GAME"] = "Midnight Run (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2178,7 +2186,7 @@ local database = {
     },
     ["offroadc"] = {
         ["LUA_GAME"] = "Off Road Challenge",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2201,7 +2209,7 @@ local database = {
     },
     ["offroadc1"] = {
         ["LUA_GAME"] = "Off Road Challenge (v1.10)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2224,7 +2232,7 @@ local database = {
     },
     ["offroadc3"] = {
         ["LUA_GAME"] = "Off Road Challenge (v1.30)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2247,7 +2255,7 @@ local database = {
     },
     ["offroadc4"] = {
         ["LUA_GAME"] = "Off Road Challenge (v1.40)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2327,7 +2335,7 @@ local database = {
     },
     ["orunners"] = {
         ["LUA_GAME"] = "OutRunners",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2355,7 +2363,7 @@ local database = {
     },
     ["orunnersj"] = {
         ["LUA_GAME"] = "OutRunners (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2383,7 +2391,7 @@ local database = {
     },
     ["orunnersu"] = {
         ["LUA_GAME"] = "OutRunners (USA)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2434,7 +2442,7 @@ local database = {
     },
     ["overrev"] = {
         ["LUA_GAME"] = "Over Rev",
-        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - Sega Model 2 banded-protocol demonstration (multi-channel: one command byte per frame selects spring / friction / centering / shake / roll bands - exercises FFB_Spring, FFB_Friction, FFB_Sine and FFB_Constant with persist-until-changed semantics). NOTE: output mode must be changed in the service menu (per the FFB Arcade Plugin's documentation).",
+        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - Sega Model 2 banded-protocol demonstration (multi-channel: one command byte per frame selects spring / friction / centering / shake / roll bands - exercises FFB_Spring, FFB_Friction, FFB_Sine and FFB_Constant with persist-until-changed semantics). NOTE: output mode must be changed in the service menu.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2455,7 +2463,7 @@ local database = {
     },
     ["overrevb"] = {
         ["LUA_GAME"] = "Over Rev (Model 2B)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: The cabinet's output mode must be changed in the game's service menu.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: The cabinet's output mode must be changed in the game's service menu.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2476,7 +2484,7 @@ local database = {
     },
     ["overrevba"] = {
         ["LUA_GAME"] = "Over Rev (Model 2B, Rev A)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: The cabinet's output mode must be changed in the game's service menu.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: The cabinet's output mode must be changed in the game's service menu.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2497,7 +2505,7 @@ local database = {
     },
     ["pdrift"] = {
         ["LUA_GAME"] = "Power Drift",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2518,7 +2526,7 @@ local database = {
     },
     ["pdrifta"] = {
         ["LUA_GAME"] = "Power Drift (Rev A)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2539,7 +2547,7 @@ local database = {
     },
     ["pdrifte"] = {
         ["LUA_GAME"] = "Power Drift (Europe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2560,7 +2568,7 @@ local database = {
     },
     ["pdriftj"] = {
         ["LUA_GAME"] = "Power Drift (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2581,7 +2589,7 @@ local database = {
     },
     ["pdriftl"] = {
         ["LUA_GAME"] = "Power Drift (link version)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Y-board (Power Drift): the bank-motor position byte doubles as the steering command (0x01-0x03 from the left, 0x05-0x07 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2674,7 +2682,7 @@ local database = {
     },
     ["racedriv"] = {
         ["LUA_GAME"] = "Race Drivin'",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2695,7 +2703,7 @@ local database = {
     },
     ["racedriv1"] = {
         ["LUA_GAME"] = "Race Drivin' (rev 1)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2716,7 +2724,7 @@ local database = {
     },
     ["racedriv2"] = {
         ["LUA_GAME"] = "Race Drivin' (rev 2)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2737,7 +2745,7 @@ local database = {
     },
     ["racedriv3"] = {
         ["LUA_GAME"] = "Race Drivin' (rev 3)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2758,7 +2766,7 @@ local database = {
     },
     ["racedriv4"] = {
         ["LUA_GAME"] = "Race Drivin' (rev 4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2779,7 +2787,7 @@ local database = {
     },
     ["racedrivb"] = {
         ["LUA_GAME"] = "Race Drivin' (British)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2800,7 +2808,7 @@ local database = {
     },
     ["racedrivb1"] = {
         ["LUA_GAME"] = "Race Drivin' (British, rev 1)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2821,7 +2829,7 @@ local database = {
     },
     ["racedrivb4"] = {
         ["LUA_GAME"] = "Race Drivin' (British, rev 4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2842,7 +2850,7 @@ local database = {
     },
     ["racedrivc"] = {
         ["LUA_GAME"] = "Race Drivin' (compact)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2863,7 +2871,7 @@ local database = {
     },
     ["racedrivc2"] = {
         ["LUA_GAME"] = "Race Drivin' (compact, rev 2)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2884,7 +2892,7 @@ local database = {
     },
     ["racedrivc4"] = {
         ["LUA_GAME"] = "Race Drivin' (compact, rev 4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2905,7 +2913,7 @@ local database = {
     },
     ["racedrivcb"] = {
         ["LUA_GAME"] = "Race Drivin' (compact, British)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2926,7 +2934,7 @@ local database = {
     },
     ["racedrivcb4"] = {
         ["LUA_GAME"] = "Race Drivin' (compact, British, rev 4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2947,7 +2955,7 @@ local database = {
     },
     ["racedrivcg"] = {
         ["LUA_GAME"] = "Race Drivin' (compact, German)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2968,7 +2976,7 @@ local database = {
     },
     ["racedrivcg4"] = {
         ["LUA_GAME"] = "Race Drivin' (compact, German, rev 4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -2989,7 +2997,7 @@ local database = {
     },
     ["racedrivg"] = {
         ["LUA_GAME"] = "Race Drivin' (German)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3010,7 +3018,7 @@ local database = {
     },
     ["racedrivg1"] = {
         ["LUA_GAME"] = "Race Drivin' (German, rev 1)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3031,7 +3039,7 @@ local database = {
     },
     ["racedrivg4"] = {
         ["LUA_GAME"] = "Race Drivin' (German, rev 4)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3052,7 +3060,7 @@ local database = {
     },
     ["racedrivpan"] = {
         ["LUA_GAME"] = "Race Drivin' Panorama",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3073,7 +3081,7 @@ local database = {
     },
     ["racingj"] = {
         ["LUA_GAME"] = "Racing Jam",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3098,7 +3106,7 @@ local database = {
     },
     ["racingj2"] = {
         ["LUA_GAME"] = "Racing Jam: Chapter 2",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3123,7 +3131,7 @@ local database = {
     },
     ["racingj2a"] = {
         ["LUA_GAME"] = "Racing Jam: Chapter 2 (Asia)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3148,7 +3156,7 @@ local database = {
     },
     ["racingj2e"] = {
         ["LUA_GAME"] = "Racing Jam: Chapter 2 (Europe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3173,7 +3181,7 @@ local database = {
     },
     ["racingj2j"] = {
         ["LUA_GAME"] = "Racing Jam: Chapter 2 (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3198,7 +3206,7 @@ local database = {
     },
     ["racingja"] = {
         ["LUA_GAME"] = "Racing Jam (Asia)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3223,7 +3231,7 @@ local database = {
     },
     ["racingje"] = {
         ["LUA_GAME"] = "Racing Jam (Europe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3248,7 +3256,7 @@ local database = {
     },
     ["racingjj"] = {
         ["LUA_GAME"] = "Racing Jam (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3273,7 +3281,7 @@ local database = {
     },
     ["raverace"] = {
         ["LUA_GAME"] = "Rave Racer",
-        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - Namco LUT decode demonstration. NOTE: feedback must be activated in the game's service menu first (per the FFB Arcade Plugin's documentation). The scrambled MCU byte is descrambled through the rr_map lookup table in init.lua, then mapped to signed FFB_Constant + FFB_Rumble.",
+        ["LUA_GAME_comment"] = "FFB STATE OUTPUTS - Namco LUT decode demonstration. NOTE: feedback must be activated in the game's service menu first (the cabinet ships with it disabled). The scrambled MCU byte is descrambled through the rr_map lookup table in init.lua, then mapped to signed FFB_Constant + FFB_Rumble.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3294,7 +3302,7 @@ local database = {
     },
     ["raveracej"] = {
         ["LUA_GAME"] = "Rave Racer (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Namco Super System 22: the wheel MCU byte is scrambled, so it is descrambled through a 256-entry lookup table before scaling. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Force feedback must be enabled in the game's service menu before any output appears.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Namco Super System 22: the wheel MCU byte is scrambled, so it is descrambled through a 256-entry lookup table before scaling. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Force feedback must be enabled in the game's service menu before any output appears.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3315,7 +3323,7 @@ local database = {
     },
     ["raveraceja"] = {
         ["LUA_GAME"] = "Rave Racer (Japan, alt)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Namco Super System 22: the wheel MCU byte is scrambled, so it is descrambled through a 256-entry lookup table before scaling. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Force feedback must be enabled in the game's service menu before any output appears.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Namco Super System 22: the wheel MCU byte is scrambled, so it is descrambled through a 256-entry lookup table before scaling. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Force feedback must be enabled in the game's service menu before any output appears.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3336,7 +3344,7 @@ local database = {
     },
     ["roadedge"] = {
         ["LUA_GAME"] = "Roads Edge",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Hyper Neo Geo 64 drive board: two 63-step force bands (193-255 from the left, 129-191 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Hyper Neo Geo 64 drive board: two 63-step force bands (193-255 from the left, 129-191 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3357,7 +3365,7 @@ local database = {
     },
     ["sf2049"] = {
         ["LUA_GAME"] = "San Francisco Rush 2049",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3380,7 +3388,7 @@ local database = {
     },
     ["sf2049se"] = {
         ["LUA_GAME"] = "San Francisco Rush 2049 (Special Edition)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3403,7 +3411,7 @@ local database = {
     },
     ["sf2049te"] = {
         ["LUA_GAME"] = "San Francisco Rush 2049 (Tournament Edition)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3426,7 +3434,7 @@ local database = {
     },
     ["sfrush"] = {
         ["LUA_GAME"] = "San Francisco Rush",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3449,7 +3457,7 @@ local database = {
     },
     ["sfrushrk"] = {
         ["LUA_GAME"] = "San Francisco Rush: The Rock",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3472,7 +3480,7 @@ local database = {
     },
     ["sfrushrkw"] = {
         ["LUA_GAME"] = "San Francisco Rush: The Rock (Wavenet)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3495,7 +3503,7 @@ local database = {
     },
     ["sfrushrkwo"] = {
         ["LUA_GAME"] = "San Francisco Rush: The Rock (Wavenet)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3518,7 +3526,7 @@ local database = {
     },
     ["sgt24h"] = {
         ["LUA_GAME"] = "Super GT 24h",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: The driver's analog input handling is incomplete in MAME; the force output itself still works.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: The driver's analog input handling is incomplete in MAME; the force output itself still works.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3635,7 +3643,7 @@ local database = {
     },
     ["sidebs"] = {
         ["LUA_GAME"] = "Side by Side",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME; the FFB Arcade Plugin project does not consider them playable without a large CPU overclock, so treat this profile as untested scaffolding.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME and are not playable without a large CPU overclock, so treat this profile as untested scaffolding.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3656,7 +3664,7 @@ local database = {
     },
     ["sidebs2"] = {
         ["LUA_GAME"] = "Side by Side 2",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME; the FFB Arcade Plugin project does not consider them playable without a large CPU overclock, so treat this profile as untested scaffolding.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME and are not playable without a large CPU overclock, so treat this profile as untested scaffolding.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3677,7 +3685,7 @@ local database = {
     },
     ["sidebs2j"] = {
         ["LUA_GAME"] = "Side by Side 2 (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME; the FFB Arcade Plugin project does not consider them playable without a large CPU overclock, so treat this profile as untested scaffolding.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME and are not playable without a large CPU overclock, so treat this profile as untested scaffolding.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3698,7 +3706,7 @@ local database = {
     },
     ["sidebs2ja"] = {
         ["LUA_GAME"] = "Side by Side 2 (Japan, alt)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME; the FFB Arcade Plugin project does not consider them playable without a large CPU overclock, so treat this profile as untested scaffolding.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Taito Side by Side drive board: the low 5 bits carry the command, odd values push from the right, and a LOW command byte means a HIGH force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: These drivers are heavily under-clocked in MAME and are not playable without a large CPU overclock, so treat this profile as untested scaffolding.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3719,7 +3727,7 @@ local database = {
     },
     ["speedup"] = {
         ["LUA_GAME"] = "Speed Up",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte (RacingFullValue family in the FFB Arcade Plugin, added upstream 2026). signed8 decode onto FFB_Constant. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte; signed8 decode onto FFB_Constant. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3742,7 +3750,7 @@ local database = {
     },
     ["speedup10"] = {
         ["LUA_GAME"] = "Speed Up",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte (RacingFullValue family in the FFB Arcade Plugin, added upstream 2026). signed8 decode onto FFB_Constant. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte; signed8 decode onto FFB_Constant. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3765,7 +3773,7 @@ local database = {
     },
     ["speedup12"] = {
         ["LUA_GAME"] = "Speed Up",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte (RacingFullValue family in the FFB Arcade Plugin, added upstream 2026). signed8 decode onto FFB_Constant. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte; signed8 decode onto FFB_Constant. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3788,7 +3796,7 @@ local database = {
     },
     ["speedup20"] = {
         ["LUA_GAME"] = "Speed Up",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte (RacingFullValue family in the FFB Arcade Plugin, added upstream 2026). signed8 decode onto FFB_Constant. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte; signed8 decode onto FFB_Constant. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3811,7 +3819,7 @@ local database = {
     },
     ["speedup20a"] = {
         ["LUA_GAME"] = "Speed Up",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte (RacingFullValue family in the FFB Arcade Plugin, added upstream 2026). signed8 decode onto FFB_Constant. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte; signed8 decode onto FFB_Constant. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3834,7 +3842,7 @@ local database = {
     },
     ["speedup21"] = {
         ["LUA_GAME"] = "Speed Up",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte (RacingFullValue family in the FFB Arcade Plugin, added upstream 2026). signed8 decode onto FFB_Constant. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte; signed8 decode onto FFB_Constant. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3857,7 +3865,7 @@ local database = {
     },
     ["srallyc"] = {
         ["LUA_GAME"] = "Sega Rally Championship",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3878,7 +3886,7 @@ local database = {
     },
     ["srallycb"] = {
         ["LUA_GAME"] = "Sega Rally Championship (Rev B)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3899,7 +3907,7 @@ local database = {
     },
     ["srallycdx"] = {
         ["LUA_GAME"] = "Sega Rally Championship (Deluxe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3920,7 +3928,7 @@ local database = {
     },
     ["srallycdxa"] = {
         ["LUA_GAME"] = "Sega Rally Championship (Deluxe, Rev A)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3941,7 +3949,7 @@ local database = {
     },
     ["stcc"] = {
         ["LUA_GAME"] = "Sega Touring Car Championship",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3962,7 +3970,7 @@ local database = {
     },
     ["stcca"] = {
         ["LUA_GAME"] = "Sega Touring Car Championship (Rev A)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -3983,7 +3991,7 @@ local database = {
     },
     ["stccb"] = {
         ["LUA_GAME"] = "Sega Touring Car Championship (Rev B)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4067,7 +4075,7 @@ local database = {
     },
     ["thrillda"] = {
         ["LUA_GAME"] = "Thrill Drive (Rev A)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4092,7 +4100,7 @@ local database = {
     },
     ["thrillde"] = {
         ["LUA_GAME"] = "Thrill Drive (Europe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4117,7 +4125,7 @@ local database = {
     },
     ["thrilldgej"] = {
         ["LUA_GAME"] = "Thrill Drive (Japan, GE Rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4142,7 +4150,7 @@ local database = {
     },
     ["thrilldgeu"] = {
         ["LUA_GAME"] = "Thrill Drive (USA, GE Rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4167,7 +4175,7 @@ local database = {
     },
     ["thrilldgke"] = {
         ["LUA_GAME"] = "Thrill Drive (Europe, GK Rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4192,7 +4200,7 @@ local database = {
     },
     ["thrilldgkee"] = {
         ["LUA_GAME"] = "Thrill Drive (Europe, GK Rev, alt)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4217,7 +4225,7 @@ local database = {
     },
     ["thrilldgkk"] = {
         ["LUA_GAME"] = "Thrill Drive (Korea, GK Rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4242,7 +4250,7 @@ local database = {
     },
     ["thrilldgmj"] = {
         ["LUA_GAME"] = "Thrill Drive (Japan, GM Rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4267,7 +4275,7 @@ local database = {
     },
     ["thrilldgnj"] = {
         ["LUA_GAME"] = "Thrill Drive (Japan, GN Rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4292,7 +4300,7 @@ local database = {
     },
     ["thrilldgpj"] = {
         ["LUA_GAME"] = "Thrill Drive (Japan, GP Rev)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4317,7 +4325,7 @@ local database = {
     },
     ["thrilldj"] = {
         ["LUA_GAME"] = "Thrill Drive (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4424,7 +4432,7 @@ local database = {
     },
     ["toutrun"] = {
         ["LUA_GAME"] = "Turbo OutRun",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4450,7 +4458,7 @@ local database = {
     },
     ["toutrund"] = {
         ["LUA_GAME"] = "Turbo OutRun (deluxe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4476,7 +4484,7 @@ local database = {
     },
     ["toutrunj"] = {
         ["LUA_GAME"] = "Turbo OutRun (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4502,7 +4510,7 @@ local database = {
     },
     ["toutrunjd"] = {
         ["LUA_GAME"] = "Turbo OutRun (Japan, deluxe)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4528,7 +4536,7 @@ local database = {
     },
     ["vaportrx"] = {
         ["LUA_GAME"] = "Vapor TRX",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4551,7 +4559,7 @@ local database = {
     },
     ["vaportrxp"] = {
         ["LUA_GAME"] = "Vapor TRX (Apr 1998 prototype)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4629,12 +4637,16 @@ local database = {
     },
     ["vr"] = {
         ["LUA_GAME"] = "Virtua Racing",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 1 (Virtua Racing): discrete command values on digit0 select spring, friction, centering, shake or roll. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Set the cabinet type to UPRIGHT in the game's service menu.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Sega Model 1 (Virtua Racing): discrete command values on digit0 select spring, friction, centering, shake or roll. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Set the cabinet type to UPRIGHT in the game's service menu.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
         ["MAX_PLAYERS"] = 1,
         ["SIMULTANEOUS_PLAY"] = false,
+        ["CREDITS"] = "0x0040DD00",
+        ["CREDITS_comment"] = "The following could be used 0x0040DD00, 0x0040E818, 0x0040E918 (need more testing to narrow down)",
+        ["GAME_STATUS"] = "0x004010F2",
+        ["GAME_STATUS_comment"] = "The following could be used 0x004010F2, 0x00401372, 0x0040135F2, 0x00401872, 0x00401AF2, 0x00401D72, 0x00401FF2, and many more (need more testing to narrow down)",
         ["FFB"] = {
             ["ENABLED"] = true,
             ["SOURCES"] = {
@@ -4650,7 +4662,7 @@ local database = {
     },
     ["windheat"] = {
         ["LUA_GAME"] = "Winding Heat",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4675,7 +4687,7 @@ local database = {
     },
     ["windheata"] = {
         ["LUA_GAME"] = "Winding Heat (Asia)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4700,7 +4712,7 @@ local database = {
     },
     ["windheatj"] = {
         ["LUA_GAME"] = "Winding Heat (Japan)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4725,7 +4737,7 @@ local database = {
     },
     ["windheatu"] = {
         ["LUA_GAME"] = "Winding Heat (USA)",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,
@@ -4750,7 +4762,7 @@ local database = {
     },
     ["xrally"] = {
         ["LUA_GAME"] = "Xtreme Rally",
-        ["LUA_GAME_comment"] = "Racing force feedback profile. Hyper Neo Geo 64 drive board: two 63-step force bands (193-255 from the left, 129-191 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+        ["LUA_GAME_comment"] = "Racing force feedback profile. Hyper Neo Geo 64 drive board: two 63-step force bands (193-255 from the left, 129-191 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
         ["ENABLE_ROM"] = true,
         ["GAME_TYPE"] = "racing",
         ["STARTUP_DELAY_MS"] = 5000,

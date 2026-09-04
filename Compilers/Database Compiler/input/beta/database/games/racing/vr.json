@@ -1,11 +1,15 @@
 {
     "LUA_GAME": "Virtua Racing",
-    "LUA_GAME_comment": "Racing force feedback profile. Sega Model 1 (Virtua Racing): discrete command values on digit0 select spring, friction, centering, shake or roll. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Set the cabinet type to UPRIGHT in the game's service menu.",
+    "LUA_GAME_comment": "Racing force feedback profile. Sega Model 1 (Virtua Racing): discrete command values on digit0 select spring, friction, centering, shake or roll. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Set the cabinet type to UPRIGHT in the game's service menu.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,
     "MAX_PLAYERS": 1,
     "SIMULTANEOUS_PLAY": false,
+    "CREDITS": "0x0040DD00",
+    "CREDITS_comment": "The following could be used 0x0040DD00, 0x0040E818, 0x0040E918 (need more testing to narrow down)",
+    "GAME_STATUS": "0x004010F2",
+    "GAME_STATUS_comment": "The following could be used 0x004010F2, 0x00401372, 0x0040135F2, 0x00401872, 0x00401AF2, 0x00401D72, 0x00401FF2, and many more (need more testing to narrow down)",
     "FFB": {
         "ENABLED": true,
         "SOURCES": [
