@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.3.3
--- Plugin Date: 2026.08.30
+-- Plugin Version: 9.3.4
+-- Plugin Date: 2026.09.04
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -18,7 +18,7 @@
 -- drive board listens on, what its command bytes mean (band edges, bit masks, sign
 -- conventions), and which games speak which protocol. MSOP's _FFB decoders re-implement
 -- that decoding knowledge in Lua, mapped onto MSOP's own architecture: in-process
--- per-frame sampling, the standardized FFB_* output vocabulary with persist-until-
+-- per-frame sampling, the standardised FFB_* output vocabulary with persist-until-
 -- changed semantics, the TCP relay transport, JSON game profiles, and memory-address
 -- force sourcing - none of which exist in those projects. Without their published
 -- findings, supporting 146 racing games would have required redoing years of
@@ -52,7 +52,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.3.3",
+    version = "9.3.4",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -220,8 +220,8 @@ function stateoutput.startplugin()
     -- Keep in sync with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do not come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 933
-    local PLUGIN_DATE_NUM    = 20260830
+    local PLUGIN_VERSION_NUM = 934
+    local PLUGIN_DATE_NUM    = 20260904
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -237,7 +237,7 @@ function stateoutput.startplugin()
     local _PendingGlobalCreditDrops = 0
     local _RomIdNum = 0 -- numeric ROM identity for MSOP_LuaROMid (see on_start)
     
-    -- Hardware Caching Arrays (Performance Optimization)
+    -- Hardware Caching Arrays (Performance Optimisation)
     -- Instead of searching MAME's entire device tree 60 times a second, we 
     -- find the memory addresses once at boot and store direct pointers here.
     local _MemConfig = {}
@@ -1038,7 +1038,7 @@ function stateoutput.startplugin()
     -- P1's offset math.
     -- -------------------------------------------------------------------------
     local function Resolve_Addresses_And_Strings()
-        -- Normalize logical evaluation strings
+        -- Normalise logical evaluation strings
         CFG.AMMO_DIRECTION             = string.lower(tostring(CFG.AMMO_DIRECTION or ""))
         CFG.AMMO_ALT_DIRECTION         = string.lower(tostring(CFG.AMMO_ALT_DIRECTION or ""))
         CFG.AMMO_GRENADE_DIRECTION     = string.lower(tostring(CFG.AMMO_GRENADE_DIRECTION or ""))
@@ -1244,6 +1244,15 @@ function stateoutput.startplugin()
     -- -------------------------------------------------------------------------
     local _ProxyCache = {}
 
+    -- Named resolver for the pcalls in Get_Output_Proxy and _FFB.Probe_Output:
+    -- the miss path can retry every frame for a name that never appears
+    -- (_RetryMissingProxies keeps misses uncached because an output can be
+    -- created on its first write), and a fresh closure per attempt would be
+    -- per-frame garbage. Same pattern as pcall(sock.write, sock, ...).
+    local function Resolve_Root_Output(dev, name)
+        return dev:output(name)
+    end
+
     -- Whether the deprecated output.set_value() can still auto-create a brand new
     -- output on first use (true on MAME 0.288 and earlier) or only resolves existing
     -- outputs (0.289+ stock). There is no direct way to ask the Lua API, and a version
@@ -1326,7 +1335,7 @@ function stateoutput.startplugin()
         if manager and manager.machine and manager.machine.devices then
             local root_dev = manager.machine.devices[":"]
             if root_dev and root_dev.output then
-                local s2, p = pcall(function() return root_dev:output(name) end)
+                local s2, p = pcall(Resolve_Root_Output, root_dev, name)
 
                 -- Validate that the proxy actually connects to hardware
                 if s2 and p and p:exists() then
@@ -1439,7 +1448,7 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
-    -- Flushes outputs to zero at boot and synchronizes local caches.
+    -- Flushes outputs to zero at boot and synchronises local caches.
     -- Prevents external hardware (like DemulShooter or lighting apps) 
     -- from sticking 'on' if a previous game crashed or ended abruptly.
     -- Forces a true 0-state broadcast over the MAME TCP socket and 
@@ -1632,7 +1641,7 @@ function stateoutput.startplugin()
     -- Racing-genre extension of the gun games' translation-layer model: read the
     -- raw force-feedback command the emulated game produces (a native output the
     -- driver creates, or a stable emulated memory address), decode the
-    -- game-specific encoding, and emit a STANDARDIZED effect-channel vocabulary
+    -- game-specific encoding, and emit a STANDARDISED effect-channel vocabulary
     -- (the set of channels real FFB hardware is typically driven with):
     --
     --   MSOP_P<n>_FFB_Constant  signed -SCALE..+SCALE  directional push force.
@@ -1959,7 +1968,7 @@ function stateoutput.startplugin()
         if not out then return end
         
         -- -------------------------------------------------------------------------
-        -- PERFORMANCE OPTIMIZATION: One-Time Bus Binding Cache
+        -- PERFORMANCE OPTIMISATION: One-Time Bus Binding Cache
         -- Finds the specific MAME context only on frame 1, storing it locally.
         -- If the user configured a memory space as "region", we hook directly into the
         -- physical ROM memory region instead of the CPU address space to allow safe patching.
@@ -1978,13 +1987,13 @@ function stateoutput.startplugin()
         end
         
         -- -------------------------------------------------------------------------
-        -- PHASE 0: WARMUP & INITIALIZATION FLUSH
+        -- PHASE 0: WARMUP & INITIALISATION FLUSH
         -- Ensures outputs are held silently during startup and perfectly
         -- synced the exact frame the boot delay expires.
         -- -------------------------------------------------------------------------
         local warmup_ok = Is_Warmup_Complete()
         
-        -- Trigger initialization exactly when warmup completes
+        -- Trigger initialisation exactly when warmup completes
         if warmup_ok and not _WarmupFlushed then
             Register_Outputs_Safe(out)
             Seed_Frame_Baselines() -- prime Last* deltas from live values (no phantom "inserted" from NVRAM leftovers)
@@ -2026,13 +2035,27 @@ function stateoutput.startplugin()
         local is_game_active = false
         local global_exists = false
 
-        if CFG.GAME_STATUS and type(CFG.GAME_STATUS) == "number" then 
+        if CFG.GAME_STATUS and type(CFG.GAME_STATUS) == "number" then
             global_exists = true
             if not is_attract_mode then
                 local val = Read_Data_Safe(_MemHandles["GLOBAL_GAME_STATUS"], CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
                 local active = CFG.GAME_STATUS_ACTIVE_VALUE
                 is_game_active = Value_Is_Active(val, active)
             end
+        elseif CFG.GAME_STATUS == "always" then
+            -- No game-status address is known for this game, but the profile
+            -- declares the game active whenever it is running (warmed up and
+            -- not held in an address-backed attract mode). Without this, a
+            -- profile with no per-player activity signals can never raise
+            -- GLOBAL_GAME_STATUS at all - any_player_active stays false -
+            -- leaving status-gated consumers dark and derived attract stuck
+            -- on for the whole session. The shared debounce below still
+            -- applies, so activation timing matches the address-backed path,
+            -- and the warmup gate on emission is unchanged. Any other
+            -- non-address value is ignored (status unknown), exactly as
+            -- before.
+            global_exists = true
+            is_game_active = not is_attract_mode
         end
         
         if is_game_active then
@@ -2053,7 +2076,7 @@ function stateoutput.startplugin()
         -- GAME_TYPE: "racing" profiles skip the whole per-player gun
         -- pipeline - every address guard inside would evaluate false anyway,
         -- so a zero-iteration loop saves that conditional sweep each frame.
-        -- The post-loop logic runs on the initialized defaults above. Use
+        -- The post-loop logic runs on the initialised defaults above. Use
         -- "both" for a hybrid that needs the gun pipeline as well.
         local player_loop_max = (CFG.GAME_TYPE == "racing") and 0 or CFG.MAX_PLAYERS
         for i = 1, player_loop_max do
@@ -2190,7 +2213,7 @@ function stateoutput.startplugin()
                 -- Check 2: Did life reset while Player Status remained active (for player continues)?
                 -- The p.WasActive guard is what makes "remained active" real. Without it,
                 -- an idle player whose offset-derived life byte happens to move (vcop2:
-                -- P2's auto address = P1+4 initializes the instant Start is pressed)
+                -- P2's auto address = P1+4 initialises the instant Start is pressed)
                 -- spawn-steals the pending credit drop from the player who actually
                 -- started - the log showed MSOP_P2_CreditsConsumed=1 on a P1-only game.
                 elseif cfg.LIFE and p.WasActive then
@@ -2712,10 +2735,10 @@ function stateoutput.startplugin()
         return records
     end
 
-    -- Named resolver for the pcall in Forward_Native_Outputs: the resolution path
-    -- can retry every frame for a name whose device never creates the output
-    -- (_RetryMissingProxies), and a fresh closure per attempt would be per-frame
-    -- garbage. Same pattern as pcall(sock.write, sock, ...).
+    -- Named resolver for the enumerated-record pcalls (Forward_Native_Outputs
+    -- and _FFB.Resolve): the resolution paths can retry every frame for a name
+    -- whose device never creates the output, and a fresh closure per attempt
+    -- would be per-frame garbage. Same pattern as pcall(sock.write, sock, ...).
     local function Resolve_Device_Output(fwd)
         return fwd.dev:output(fwd.name)
     end
@@ -2751,6 +2774,13 @@ function stateoutput.startplugin()
     --             once a miss is known to be permanent. See _RetryMissingProxies.
     -- -------------------------------------------------------------------------
     local function Forward_Native_Outputs()
+        -- msop_out drops every write while the relay is down (and on a
+        -- native-delivery install), so walking the records in that state
+        -- would only pay for proxy reads - and missing-proxy resolution
+        -- retries - that nobody can receive. Skipping loses nothing: a
+        -- (re)connect wipes last_state, so the first connected frame
+        -- re-sends every current value anyway.
+        if not (_UseRelay and connected) then return end
         for _, fwd in ipairs(_NativeForwards) do
             local proxy = fwd.proxy
             if proxy == nil then
@@ -2788,7 +2818,7 @@ function stateoutput.startplugin()
         if not (manager and manager.machine and manager.machine.devices) then return false end
         local root = manager.machine.devices[":"]
         if not (root and root.output) then return false end
-        local ok, p = pcall(function() return root:output(name) end)
+        local ok, p = pcall(Resolve_Root_Output, root, name)
         if ok and p and p:exists() then return p end
         return false
     end
@@ -2847,7 +2877,7 @@ function stateoutput.startplugin()
                 if enumerated then
                     for _, rec in ipairs(enumerated) do
                         if rec.name == src or rec.wire == src then
-                            local ok, p = pcall(function() return rec.dev:output(rec.name) end)
+                            local ok, p = pcall(Resolve_Device_Output, rec)
                             if ok and p and p:exists() then
                                 _FFB.proxy = p
                                 _FFB.source = src
@@ -2910,19 +2940,28 @@ function stateoutput.startplugin()
             if type(ev) == "table" and type(ev.SOURCE) == "number" then
                 local rt = _FFB.events_rt[key]
                 if not rt then
-                    rt = { last = false, tick = false,
-                           dur = emu.attotime.from_msec(tonumber(ev.DURATION_MS) or 150) }
-                    _FFB.events_rt[key] = rt
-                end
-                local raw = Read_Data_Safe(mem, ev.SOURCE, ev.WIDTH or def_width)
-                local mode = string.lower(tostring(ev.MODE or "nonzero"))
-                local strength = tonumber(ev.STRENGTH) or scale
-                local out_key = "FFB_" .. key
-
-                if mode == "value" then
+                    -- Event config is static for the ROM session (events_rt is
+                    -- cleared by _FFB.Reset), so normalise it all once here -
+                    -- re-lowercasing MODE, tonumber-ing STRENGTH/MAX and
+                    -- rebuilding the "FFB_" name were two string allocations
+                    -- plus conversions per event, per frame, for nothing.
                     local max = tonumber(ev.MAX) or scale
                     if max < 1 then max = 1 end
-                    local v = math.floor(raw * scale / max + 0.5)
+                    rt = { last = false, tick = false,
+                           dur = emu.attotime.from_msec(tonumber(ev.DURATION_MS) or 150),
+                           mode = string.lower(tostring(ev.MODE or "nonzero")),
+                           strength = tonumber(ev.STRENGTH) or scale,
+                           max = max,
+                           width = ev.WIDTH or def_width,
+                           out_key = "FFB_" .. key }
+                    _FFB.events_rt[key] = rt
+                end
+                local raw = Read_Data_Safe(mem, ev.SOURCE, rt.width)
+                local mode = rt.mode
+                local out_key = rt.out_key
+
+                if mode == "value" then
+                    local v = math.floor(raw * scale / rt.max + 0.5)
                     if v < 0 then v = 0 elseif v > scale then v = scale end
                     Set_Output(out, p_idx, out_key, v)
                 elseif mode == "change" or mode == "increase" then
@@ -2933,13 +2972,13 @@ function stateoutput.startplugin()
                     end
                     if fire then
                         rt.tick = current_time
-                        Set_Output(out, p_idx, out_key, strength)
+                        Set_Output(out, p_idx, out_key, rt.strength)
                     elseif rt.tick and (current_time - rt.tick) > rt.dur then
                         rt.tick = false
                         Set_Output(out, p_idx, out_key, 0)
                     end
                 else -- "nonzero" (default): level-style flag held by the game
-                    Set_Output(out, p_idx, out_key, (raw ~= 0) and strength or 0)
+                    Set_Output(out, p_idx, out_key, (raw ~= 0) and rt.strength or 0)
                 end
 
                 rt.last = raw
@@ -3242,7 +3281,7 @@ function stateoutput.startplugin()
     -- =========================================================================
     -- the BOOT HOOK (on_start)
     -- This fires exactly once when a specific ROM finishes launching.
-    -- Initializes arrays, validates DB config, and sets up timers.
+    -- Initialises arrays, validates DB config, and sets up timers.
     -- =========================================================================
     local function on_start()
         dbg_print("on_start triggered. Current MAME Phase: " .. tostring(manager.machine.phase))

@@ -1,9 +1,9 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.3.3
-- **Plugin Date:** 2026.08.30
-- **Database Date:** 2026.09.02
+- **Plugin Version:** 9.3.4
+- **Plugin Date:** 2026.09.04
+- **Database Date:** 2026.09.04
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -202,11 +202,11 @@ output MSOP produces, global or per-player.
 Racing-genre games emit a dedicated **force feedback vocabulary** instead of the gun set. The
 plugin reads the game's raw force-feedback command (a native driver output, or an emulated
 memory address - the same acquisition model as the gun games), decodes the game-specific
-encoding inside the plugin, and re-emits it as standardized effect channels that any consumer
+encoding inside the plugin, and re-emits it as standardised effect channels that any consumer
 (MESH, or a hooker program) can map onto real hardware with zero game knowledge. The
 game-specific decoding draws on protocol research from the FFB Arcade Plugin projects (see
 Special Thanks above); the vocabulary, delivery and acquisition model are MSOP's own. The
-standardized channels are:
+standardised channels are:
 
 ```ini
 [Output]

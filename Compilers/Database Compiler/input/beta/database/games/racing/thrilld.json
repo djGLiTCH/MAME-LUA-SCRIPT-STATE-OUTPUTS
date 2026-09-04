@@ -3,6 +3,7 @@
     "LUA_GAME_comment": "FFB STATE OUTPUTS - PRIMARY TEST GAME. Konami hardware; the driver publishes the wheel-motor command byte as a native output. konami_dir4 decode: bits 0-3 = force level 0-15, bit 4 = direction (set = from-left). Emits FFB_Constant + FFB_Rumble.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
+    "GAME_STATUS": "always",
     "STARTUP_DELAY_MS": 5000,
     "MAX_PLAYERS": 1,
     "SIMULTANEOUS_PLAY": false,
@@ -15,7 +16,6 @@
             "pcboutput0",
             "wheel0"
         ],
-        "SOURCES_comment": "Native output name candidates probed in order at runtime via enumeration (device.outputs); the first name the running machine actually created wins (logged to the MSOP debug console). Covers the names used across Konami racing drivers. Memory-address alternative: put a 0x-prefixed hex string first once the RAM location of the motor command is identified with the MAME debugger.",
         "DECODE": "konami_dir4",
         "SCALE": 255,
         "PLAYER": 1

@@ -13,7 +13,7 @@ Because MAME Lua plugins require a `.lua` array for high-performance reading, th
 * You must have **Python 3.x** installed on your system.
 
 ### Folder Structure
-Ensure your files are organized correctly. The compiler resolves all of its paths relative to the project root (so it can be run from anywhere) and expects your individual `.json` game profiles in the `input/stable/database/games` folder. The `_default` game profile must exist in order for this to work properly, as this is used to fill in all the non-mentioned settings and logic for each game profile.
+Ensure your files are organised correctly. The compiler resolves all of its paths relative to the project root (so it can be run from anywhere) and expects your individual `.json` game profiles in the `input/stable/database/games` folder. The `_default` game profile must exist in order for this to work properly, as this is used to fill in all the non-mentioned settings and logic for each game profile.
 
 > The tool builds per **release channel**. **`stable`** is the normal channel (and the only one that ships in the downloadable Database Compiler). A parallel **`beta`** channel - `input/beta/...` > `output/beta/...` - is kept by the maintainer for new/untested games, so a beta plugin is always paired with beta Hook Of The Reaper / MAMEhooker files generated from that *same* beta database.
 
@@ -151,7 +151,7 @@ These variables protect physical arcade hardware from burning out.
 ### Force Feedback (`FFB` block) *(plugin v9.2.0+, racing/both game types)*
 
 Racing-genre profiles configure an `FFB` block that tells the plugin where the game's raw
-force-feedback command lives and how to decode it into the standardized effect channels
+force-feedback command lives and how to decode it into the standardised effect channels
 (`MSOP_P<n>_FFB_Constant` / `_Spring` / `_Friction` / `_Damper` / `_Sine` / `_Rumble` / `_Raw`):
 
 * **`ENABLED`**: Master switch for the FFB engine on this ROM.
@@ -180,6 +180,13 @@ force-feedback command lives and how to decode it into the standardized effect c
   "nonzero|change|increase|value", "STRENGTH": ..., "DURATION_MS": ..., "MAX": ..., "WIDTH": ... }`.
   `nonzero` is level-style (STRENGTH while the flag byte is non-zero), `change`/`increase` pulse
   for `DURATION_MS`, and `value` scales the raw read against `MAX`.
+
+Most racing games have no researched game-state memory address yet. When none is known, the
+top-level `"GAME_STATUS": "always"` *(plugin v9.3.4+)* declares the game active whenever it is
+running: the `MSOP_GameStatus` output raises once warmup completes (still respecting an
+address-backed `ATTRACT_STATUS` if one is configured) instead of staying at 0 for the whole
+session, which racing profiles otherwise do because they skip the per-player activity pipeline.
+Replace it with the real address once one is found.
 
 No racing profile is hardware-validated yet - readiness is being verified game by game,
 and several games need an in-game service menu setting before any output appears.

@@ -3,6 +3,7 @@
     "LUA_GAME_comment": "FFB STATE OUTPUTS - Namco LUT decode demonstration. NOTE: feedback must be activated in the game's service menu first (the cabinet ships with it disabled). The scrambled MCU byte is descrambled through the rr_map lookup table in init.lua, then mapped to signed FFB_Constant + FFB_Rumble.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
+    "GAME_STATUS": "always",
     "STARTUP_DELAY_MS": 5000,
     "MAX_PLAYERS": 1,
     "SIMULTANEOUS_PLAY": false,
