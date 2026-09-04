@@ -8,6 +8,24 @@
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 -- =========================================================================================
 --
+-- SPECIAL THANKS:
+-- The racing force feedback support in this plugin stands on protocol research from the
+-- FFB Arcade Plugin family of projects by Boomslangnz, and its MAME racing fork
+-- FFBPluginRacerMAME by Endprodukt (both GPL v3.0):
+--   https://github.com/Boomslangnz/FFBArcadePlugin
+--   https://github.com/Endprodukt/FFBPluginRacerMAME
+-- Those projects did the hardware-level detective work: which output ports each arcade
+-- drive board listens on, what its command bytes mean (band edges, bit masks, sign
+-- conventions), and which games speak which protocol. MSOP's _FFB decoders re-implement
+-- that decoding knowledge in Lua, mapped onto MSOP's own architecture: in-process
+-- per-frame sampling, the standardized FFB_* output vocabulary with persist-until-
+-- changed semantics, the TCP relay transport, JSON game profiles, and memory-address
+-- force sourcing - none of which exist in those projects. Without their published
+-- findings, supporting 146 racing games would have required redoing years of
+-- per-cabinet reverse engineering. Thank you.
+--
+-- =========================================================================================
+--
 -- ARCHITECTURE OVERVIEW:
 -- This script operates as a native MAME plugin: loaded once when MAME starts, it runs in
 -- the background and hooks into MAME's event system. A machine's output table is a static

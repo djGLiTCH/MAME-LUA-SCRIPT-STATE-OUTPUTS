@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Double Axle (USA)",
-    "LUA_GAME_comment": "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Cabinet with an ON/OFF shaker rather than a proportional wheel motor: any non-zero command means vibrate, so the strength is a consumer-side tuning choice. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

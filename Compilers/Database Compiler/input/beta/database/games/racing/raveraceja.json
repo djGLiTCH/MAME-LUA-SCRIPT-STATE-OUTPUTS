@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Rave Racer (Japan, alt)",
-    "LUA_GAME_comment": "Racing force feedback profile. Namco Super System 22: the wheel MCU byte is scrambled, so it is descrambled through a 256-entry lookup table before scaling. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Force feedback must be enabled in the game's service menu before any output appears.",
+    "LUA_GAME_comment": "Racing force feedback profile. Namco Super System 22: the wheel MCU byte is scrambled, so it is descrambled through a 256-entry lookup table before scaling. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated. NOTE: Force feedback must be enabled in the game's service menu before any output appears.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

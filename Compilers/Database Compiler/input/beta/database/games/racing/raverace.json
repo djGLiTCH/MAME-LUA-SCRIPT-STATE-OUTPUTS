@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Rave Racer",
-    "LUA_GAME_comment": "FFB STATE OUTPUTS - Namco LUT decode demonstration. NOTE: feedback must be activated in the game's service menu first (per the FFB Arcade Plugin's documentation). The scrambled MCU byte is descrambled through the rr_map lookup table in init.lua, then mapped to signed FFB_Constant + FFB_Rumble.",
+    "LUA_GAME_comment": "FFB STATE OUTPUTS - Namco LUT decode demonstration. NOTE: feedback must be activated in the game's service menu first (the cabinet ships with it disabled). The scrambled MCU byte is descrambled through the rr_map lookup table in init.lua, then mapped to signed FFB_Constant + FFB_Rumble.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

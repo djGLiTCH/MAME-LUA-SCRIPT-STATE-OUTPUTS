@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Indianapolis 500 (Deluxe)",
-    "LUA_GAME_comment": "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Sega Model 2 banded drive-board protocol: each command byte selects ONE effect band (spring / friction / centering / shake / roll), and the other channels hold their previous value. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

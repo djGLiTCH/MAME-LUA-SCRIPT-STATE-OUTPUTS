@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Vapor TRX (Apr 1998 prototype)",
-    "LUA_GAME_comment": "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Midway/Atari full-value wheel output: a two's-complement byte where 0x01-0x7F pushes from the right and 0x81-0xFF from the left. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

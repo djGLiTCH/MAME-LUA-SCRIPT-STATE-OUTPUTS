@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Race Drivin' (German, rev 1)",
-    "LUA_GAME_comment": "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Atari Hard Drivin' hardware: the wheel force is written as a 4-byte FRAME serially through one output, so the decoder reassembles frames and validates them before emitting a force. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

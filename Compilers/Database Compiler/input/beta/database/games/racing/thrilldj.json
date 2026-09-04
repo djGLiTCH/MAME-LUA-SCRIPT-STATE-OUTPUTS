@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Thrill Drive (Japan)",
-    "LUA_GAME_comment": "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Konami racing hardware: bits 0-3 of the drive-board byte carry the force level (0-15) and bit 4 the direction. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

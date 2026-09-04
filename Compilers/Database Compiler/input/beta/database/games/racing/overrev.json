@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Over Rev",
-    "LUA_GAME_comment": "FFB STATE OUTPUTS - Sega Model 2 banded-protocol demonstration (multi-channel: one command byte per frame selects spring / friction / centering / shake / roll bands - exercises FFB_Spring, FFB_Friction, FFB_Sine and FFB_Constant with persist-until-changed semantics). NOTE: output mode must be changed in the service menu (per the FFB Arcade Plugin's documentation).",
+    "LUA_GAME_comment": "FFB STATE OUTPUTS - Sega Model 2 banded-protocol demonstration (multi-channel: one command byte per frame selects spring / friction / centering / shake / roll bands - exercises FFB_Spring, FFB_Friction, FFB_Sine and FFB_Constant with persist-until-changed semantics). NOTE: output mode must be changed in the service menu.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

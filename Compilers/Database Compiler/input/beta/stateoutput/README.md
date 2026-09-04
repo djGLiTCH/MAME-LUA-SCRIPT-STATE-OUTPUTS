@@ -3,11 +3,12 @@
 
 - **Plugin Version:** 9.3.3
 - **Plugin Date:** 2026.08.30
-- **Database Date:** 2026.08.30
+- **Database Date:** 2026.09.02
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 - **Contributors:** Muggins (tester), Hexxed (ideas), Bandicoot (tester), EndProdukt (tester), PolybiusExtreme (feedback), Argon (inspiration)
+- **Special Thanks:** [Boomslangnz (FFB Arcade Plugin)](https://github.com/Boomslangnz/FFBArcadePlugin) and [Endprodukt (FFBPluginRacerMAME)](https://github.com/Endprodukt/FFBPluginRacerMAME), whose GPL v3.0 drive-board protocol research underpins the racing force feedback decoders
 
 ---
 
@@ -202,7 +203,10 @@ Racing-genre games emit a dedicated **force feedback vocabulary** instead of the
 plugin reads the game's raw force-feedback command (a native driver output, or an emulated
 memory address - the same acquisition model as the gun games), decodes the game-specific
 encoding inside the plugin, and re-emits it as standardized effect channels that any consumer
-(MESH, or a hooker program) can map onto real hardware with zero game knowledge:
+(MESH, or a hooker program) can map onto real hardware with zero game knowledge. The
+game-specific decoding draws on protocol research from the FFB Arcade Plugin projects (see
+Special Thanks above); the vocabulary, delivery and acquisition model are MSOP's own. The
+standardized channels are:
 
 ```ini
 [Output]

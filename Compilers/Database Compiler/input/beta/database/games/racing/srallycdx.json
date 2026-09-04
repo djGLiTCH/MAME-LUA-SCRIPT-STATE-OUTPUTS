@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Sega Rally Championship (Deluxe)",
-    "LUA_GAME_comment": "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Sega Rally drive board: two 32-step force bands (0xC0-0xDF from the right, 0x80-0x9F from the left). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Cruis'n World (v1.9)",
-    "LUA_GAME_comment": "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Midway full-value wheel output with the opposite direction convention to the Cart Fury/California Speed group, so the decoded sign is inverted. Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

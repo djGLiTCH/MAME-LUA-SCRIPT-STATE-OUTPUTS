@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Speed Up",
-    "LUA_GAME_comment": "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte (RacingFullValue family in the FFB Arcade Plugin, added upstream 2026). signed8 decode onto FFB_Constant. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Gaelco 3D hardware; the driver publishes the wheel-motor force as a two's-complement byte; signed8 decode onto FFB_Constant. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,

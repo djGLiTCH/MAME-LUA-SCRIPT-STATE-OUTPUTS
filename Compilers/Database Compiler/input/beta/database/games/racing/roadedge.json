@@ -1,6 +1,6 @@
 {
     "LUA_GAME": "Roads Edge",
-    "LUA_GAME_comment": "Racing force feedback profile. Hyper Neo Geo 64 drive board: two 63-step force bands (193-255 from the left, 129-191 from the right). Decoding mirrors the FFB Arcade Plugin's reader for this hardware family (GPLv3); emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
+    "LUA_GAME_comment": "Racing force feedback profile. Hyper Neo Geo 64 drive board: two 63-step force bands (193-255 from the left, 129-191 from the right). Emitted values follow the standardized MSOP FFB vocabulary. Not yet hardware-validated.",
     "ENABLE_ROM": true,
     "GAME_TYPE": "racing",
     "STARTUP_DELAY_MS": 5000,
