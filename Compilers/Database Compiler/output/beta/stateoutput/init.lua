@@ -1884,7 +1884,7 @@ function stateoutput.startplugin()
         -- the driver writes a 4-byte FRAME serially through the same output, so this
         -- decoder is STATEFUL (state in _FFB.hd, cleared by _FFB.Reset). Compute's
         -- change gate means it is fed value TRANSITIONS, not every write - the best
-        -- a frame-sampled reader can do with a serial line (see FFB-GAME-STATUS.md).
+        -- a frame-sampled reader can do with a serial line.
         --   * an alternating 0xE0/0x00 run is the idle/sync pattern - it resets the
         --     frame cursor and is never treated as data;
         --   * v0 must stay < 200 and v1 > 200; anything else means the cursor has

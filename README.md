@@ -142,10 +142,9 @@ The beta channel additionally carries **racing force-feedback profiles** for 146
 through a decodable MAME output, from Thrill Drive and Daytona USA to Cruis'n USA and Hard
 Drivin'. These decode each game's raw drive-board command into the standardized
 `MSOP_P1_FFB_*` output vocabulary (constant force, spring, friction, damper, sine, rumble)
-for consumers like MESH. None are hardware-validated yet; see
-[FFB-GAME-STATUS](Compilers/Database%20Compiler/FFB-GAME-STATUS.md) for the full per-game
-readiness matrix, per-game prerequisites, and what is still missing (e.g. game-state memory
-addresses have not been researched for any racing title yet).
+for consumers like MESH. None are hardware-validated yet, some
+games need an in-game service menu setting before any output appears, and game-state
+memory addresses have not been researched for most racing titles yet.
 
 If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 

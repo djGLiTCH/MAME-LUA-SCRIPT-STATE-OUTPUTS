@@ -181,8 +181,8 @@ force-feedback command lives and how to decode it into the standardized effect c
   `nonzero` is level-style (STRENGTH while the flag byte is non-zero), `change`/`increase` pulse
   for `DURATION_MS`, and `value` scales the raw read against `MAX`.
 
-See `Compilers/Database Compiler/FFB-GAME-STATUS.md` for the per-game readiness matrix,
-testing procedure, and how to profile a new racing game.
+No racing profile is hardware-validated yet - readiness is being verified game by game,
+and several games need an in-game service menu setting before any output appears.
 
 ## 3. Tutorial Examples (JSON Format)
 
