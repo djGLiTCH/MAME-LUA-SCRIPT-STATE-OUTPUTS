@@ -31,8 +31,8 @@ echo "=== [BETA] HOTR defaultLG Generator (-> output/beta/defaultLG) ==="
 "$PY" "$DIR/msop_hotr_defaultlg_generator.py" --channel beta
 
 echo
-echo "=== [BETA] MAMEhooker INI Generator (--include-driver -> output/beta/ini) ==="
-"$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel beta --include-driver
+echo "=== [BETA] MAMEhooker INI Generator (driver natives by default -> output/beta/ini) ==="
+"$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel beta
 
 echo
 echo "Done - output/beta/ is tagged BETA and ready to ship."

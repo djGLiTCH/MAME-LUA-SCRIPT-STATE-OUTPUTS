@@ -4,7 +4,7 @@
 #   1. database compiler   (input/beta/database/games  ->  output/beta/stateoutput/database.lua/json)
 #   2. drops native_outputs_by_rom.lua + native_outputs_by_driver.lua from the plugin folder (does NOT run the driver compiler)
 #   3. HOTR defaultLG        (beta database  ->  output/beta/defaultLG)         [never uses the driver]
-#   4. MAMEhooker .ini       (beta database  ->  output/beta/ini, --no-driver)  [MSOP outputs only]
+#   4. MAMEhooker .ini       (beta database  ->  output/beta/ini, --exclude-driver)  [MSOP outputs only]
 # The result reflects the plugin's own MSOP state outputs plus each game's curated
 # ADDITIONAL_OUTPUT_FORWARDS - but NOT the scraped MAME native outputs. Use run_beta.* (with MAME_SRC
 # set) instead when you DO want the MAME driver outputs.
@@ -31,8 +31,8 @@ echo "=== [BETA / MSOP-only] HOTR defaultLG Generator (-> output/beta/defaultLG)
 "$PY" "$DIR/msop_hotr_defaultlg_generator.py" --channel beta
 
 echo
-echo "=== [BETA / MSOP-only] MAMEhooker INI Generator (MSOP-only default -> output/beta/ini) ==="
-"$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel beta
+echo "=== [BETA / MSOP-only] MAMEhooker INI Generator (--exclude-driver -> output/beta/ini) ==="
+"$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel beta --exclude-driver
 
 echo
 echo "Done - output/beta/ is a MSOP-ONLY build (no native_outputs_by_rom*.lua, no MAME native outputs)."

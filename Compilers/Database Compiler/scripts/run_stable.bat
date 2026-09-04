@@ -27,8 +27,8 @@ python "%~dp0msop_hotr_defaultlg_generator.py" --channel stable
 if errorlevel 1 goto :error
 
 echo.
-echo === [STABLE] MAMEhooker INI Generator ^(--include-driver -^> output\stable\ini^) ===
-python "%~dp0msop_mamehooker_ini_generator.py" --channel stable --include-driver
+echo === [STABLE] MAMEhooker INI Generator ^(driver natives by default -^> output\stable\ini^) ===
+python "%~dp0msop_mamehooker_ini_generator.py" --channel stable
 if errorlevel 1 goto :error
 
 echo.

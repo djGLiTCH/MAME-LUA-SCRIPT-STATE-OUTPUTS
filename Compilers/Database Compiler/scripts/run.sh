@@ -40,8 +40,8 @@ run_channel() {
   "$PY" "$DIR/msop_hotr_defaultlg_generator.py" --channel "$ch"
 
   echo
-  echo "=== [$ch] MAMEhooker INI Generator (--include-driver -> output/$ch/ini) ==="
-  "$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel "$ch" --include-driver
+  echo "=== [$ch] MAMEhooker INI Generator (driver natives by default -> output/$ch/ini) ==="
+  "$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel "$ch"
   echo
 }
 

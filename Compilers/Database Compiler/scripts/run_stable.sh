@@ -30,8 +30,8 @@ echo "=== [STABLE] HOTR defaultLG Generator (-> output/stable/defaultLG) ==="
 "$PY" "$DIR/msop_hotr_defaultlg_generator.py" --channel stable
 
 echo
-echo "=== [STABLE] MAMEhooker INI Generator (--include-driver -> output/stable/ini) ==="
-"$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel stable --include-driver
+echo "=== [STABLE] MAMEhooker INI Generator (driver natives by default -> output/stable/ini) ==="
+"$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel stable
 
 echo
 echo "Done - output/stable/ is tagged STABLE and ready to ship."

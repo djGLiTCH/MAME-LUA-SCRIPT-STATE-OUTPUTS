@@ -46,8 +46,8 @@ echo === [%~1] HOTR defaultLG Generator ^(-^> output\%~1\defaultLG^) ===
 python "%SCRIPTS%msop_hotr_defaultlg_generator.py" --channel %~1
 if errorlevel 1 exit /b 1
 echo.
-echo === [%~1] MAMEhooker INI Generator ^(--include-driver -^> output\%~1\ini^) ===
-python "%SCRIPTS%msop_mamehooker_ini_generator.py" --channel %~1 --include-driver
+echo === [%~1] MAMEhooker INI Generator ^(driver natives by default -^> output\%~1\ini^) ===
+python "%SCRIPTS%msop_mamehooker_ini_generator.py" --channel %~1
 if errorlevel 1 exit /b 1
 echo.
 exit /b 0

@@ -75,14 +75,15 @@ places is a hard build error in mode 1.
     source checkout (the folder containing `src/mame`); the two template generators always run.
 - **Both channels at once:** `scripts/run.bat` / `scripts/run.sh` - the full pipeline for stable then
   beta (a channel whose `input/<channel>/` is absent is simply skipped).
-- **MSOP-only vs. driver-included:** the ini generator is **MSOP-only by default** - it lists only the
-  plugin's own **MSOP state outputs** (+ each game's curated `ADDITIONAL_OUTPUT_FORWARDS`), not the
-  scraped MAME native outputs. Pass **`--include-driver`** to also fold in the MAME natives from
-  `native_outputs_by_rom.lua`. The full launchers `run_stable.*`/`run_beta.*` (and `run.*`) run the driver
-  compiler and pass `--include-driver`, so their ini includes the MAME natives. The
-  `run_stable_msop_only.*` / `run_beta_msop_only.*` launchers instead **skip the driver compiler** and
-  drop `native_outputs_by_rom.lua` **and `native_outputs_by_driver.lua`** from the plugin folder, so the plugin
-  *and* its ini are both driver-free.
+- **Driver-included vs. MSOP-only:** the ini generator **includes the scraped MAME native outputs by
+  default** (from `native_outputs_by_rom.lua`, matching the shipped full build); if that file is
+  absent, the run header notes it and the natives are simply omitted. Pass **`--exclude-driver`** for
+  a deliberately MSOP-only skeleton: just the plugin's own **MSOP state outputs** (+ each game's
+  curated `ADDITIONAL_OUTPUT_FORWARDS`). The full launchers `run_stable.*`/`run_beta.*` (and `run.*`)
+  run the driver compiler first, so their ini includes the MAME natives. The
+  `run_stable_msop_only.*` / `run_beta_msop_only.*` launchers instead **skip the driver compiler**,
+  drop `native_outputs_by_rom.lua` **and `native_outputs_by_driver.lua`** from the plugin folder, and pass
+  `--exclude-driver` to the ini generator, so the plugin *and* its ini are both driver-free.
   HOTR defaultLG is identical either way (it never uses the driver). (CI still packages a MSOP-only
   stable build - the missing driver is a warning, not a failure.)
 - **Template generators on their own:** `scripts/run_msop_hotr_defaultlg_generator.*` (>
