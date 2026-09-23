@@ -1,0 +1,68 @@
+name: Game Profile Correction
+description: Report a broken memory address, incorrect data width, or flawed logic in an existing game profile.
+title: "[PROFILE FIX] "
+labels: ["bug", "existing-profile"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template if a MAME driver update broke an existing MSOP profile (e.g. shifting memory offsets), or if you found a more accurate memory address for a variable.
+
+        Stable and Beta ship different game databases, so if you are on Stable, please check whether the Beta channel already fixes the problem.
+  - type: input
+    id: rom_name
+    attributes:
+      label: ROM Name
+      description: The exact short name of the broken ROM.
+    validations:
+      required: true
+  - type: input
+    id: plugin_version
+    attributes:
+      label: MSOP Plugin Version
+      description: Shown on MESH's Home page, or as `version` in `plugins/stateoutput/plugin.json` inside your MAME folder.
+      placeholder: e.g. 9.3.4
+    validations:
+      required: true
+  - type: dropdown
+    id: plugin_channel
+    attributes:
+      label: MSOP Release Channel
+      description: Shown on MESH's Home page, or as `channel` in `plugins/stateoutput/plugin.json`.
+      options:
+        - Stable
+        - Beta
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: mame_version
+    attributes:
+      label: MAME Version
+      description: The exact MAME version where the current profile is failing.
+    validations:
+      required: true
+  - type: input
+    id: romset_version
+    attributes:
+      label: ROM Set Version
+      description: The exact ROM set version you are using.
+    validations:
+      required: true
+  - type: textarea
+    id: broken_variables
+    attributes:
+      label: Broken Variables
+      description: Which specific variables are failing? (e.g. P2 `STATUS` isn't dropping to 0 when inactive, `DAMAGE` triggers at the wrong time, `LAMP_START` doesn't fire).
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_fix
+    attributes:
+      label: Proposed Fix / New Addresses
+      description: If you have used MAME's debugger to find the new offsets, provide the corrected JSON configuration or raw addresses here.
+      placeholder: |
+        Old P1 LIFE: 0x00A199E1
+        New P1 LIFE: 0x00B200C4
+    validations:
+      required: false

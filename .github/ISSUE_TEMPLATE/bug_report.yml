@@ -1,0 +1,112 @@
+name: Bug Report (Core Engine & Logic)
+description: Report an issue with the MSOP Lua engine, relay delivery, or hooker integration.
+title: "[BUG] "
+labels: ["bug", "engine"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for core MSOP Lua engine failures, relay transport issues (e.g. port 8004 connections), or systemic logic bugs. If a specific game has the wrong memory addresses, use the **Game Profile Correction** template instead.
+  - type: input
+    id: plugin_version
+    attributes:
+      label: MSOP Plugin Version
+      description: Shown on MESH's Home page, or as `version` in `plugins/stateoutput/plugin.json` inside your MAME folder.
+      placeholder: e.g. 9.3.4
+    validations:
+      required: true
+  - type: dropdown
+    id: plugin_channel
+    attributes:
+      label: MSOP Release Channel
+      description: Stable and Beta ship different plugin and database versions. Shown on MESH's Home page, or as `channel` in `plugins/stateoutput/plugin.json`.
+      options:
+        - Stable
+        - Beta
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: mame_version
+    attributes:
+      label: MAME Version
+      description: Exact MAME version you are running (e.g. 0.288, 0.290). This is critical as MAME 0.289+ requires the MESH relay.
+      placeholder: e.g. 0.288
+    validations:
+      required: true
+  - type: input
+    id: romset_version
+    attributes:
+      label: ROM Set Version
+      description: The MAME ROM set version you are using to test this.
+      placeholder: e.g. 0.288
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: Relay behaviour can differ between systems and firewall setups.
+      placeholder: e.g. Windows 11, Ubuntu 24.04, macOS 15
+    validations:
+      required: true
+  - type: dropdown
+    id: output_mode
+    attributes:
+      label: MAME Output Mode
+      description: What is your `-output` parameter set to in mame.ini or on the command line? If MESH manages this MAME instance with the MSOP plugin enabled, it sets `none` for you.
+      options:
+        - "auto"
+        - "network"
+        - "windows"
+        - "console"
+        - "none"
+        - "Not sure"
+    validations:
+      required: true
+  - type: dropdown
+    id: hooker_app
+    attributes:
+      label: Output/Hooker Program
+      description: Which external program(s) are receiving the state outputs? Select all that apply.
+      multiple: true
+      options:
+        - MESH
+        - MAMEhooker
+        - OutputHooker
+        - QMamehook
+        - Hook of the Reaper (HOTR)
+        - None (plugin tested on its own)
+        - Other (Specify in description)
+    validations:
+      required: true
+  - type: input
+    id: rom_name
+    attributes:
+      label: ROM Name(s)
+      description: The short name of any ROM the bug shows up on (e.g. `alien3`, `timecris`). Leave blank if it affects every game.
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: Describe the issue in detail. If this is a priority logic issue, please note how the fallback logic or global `GAME_STATUS` is misbehaving compared to the player-specific `STATUS`.
+    validations:
+      required: true
+  - type: textarea
+    id: replication
+    attributes:
+      label: Replication Steps
+      description: Provide the exact steps to reproduce the issue.
+      placeholder: |
+        1. Launch MAME with ROM 'xyz'
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: MAME Console Logs
+      description: Launch MAME from a command prompt or terminal so its console stays visible, then paste the lines starting with `[MSOP]` and any errors around them, especially connection or parsing errors. Adding `-verbose` includes MAME's own diagnostics as well.
+      render: shell

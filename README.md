@@ -426,7 +426,9 @@ Run `MSOP_CONFIGURATOR.exe -help` in a terminal to print the full reference. Eve
 
 ## 🤝 Contributing & Credits
 
-This is a community-driven project. If you find a game that isn't supported, please build this out in the latest `database.lua` file to map the memory addresses and submit a Pull Request!
+This is a community-driven project. If you find a game that isn't supported, please map its memory addresses in a JSON game profile and submit a Pull Request! The [GUIDE](GUIDE.md) explains every profile key with worked examples, and the Database Compiler builds the profiles into `database.lua` for you, so there is no need to edit that file by hand.
+
+If you would rather not write the profile yourself, please [open an issue](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new/choose) using the **New Game / ROM Profile Request** template with any memory addresses you have found, or the **Game Profile Correction** template if an existing profile is broken.
 
 **Special Thanks:**
 * **Muggins**, for all of his help and support. Without his tireless efforts in testing each release and suggesting quality of life improvements, it would not be what it is today.

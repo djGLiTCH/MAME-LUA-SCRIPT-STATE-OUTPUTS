@@ -1,0 +1,30 @@
+name: Enhancement / Feature Request
+description: Propose a new feature, FFB decoder, or structural enhancement to the MSOP framework.
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for requesting structural additions to the project, such as new plugin capabilities or profile options, plugin-side relay behaviour, new force feedback decoders, or additions to the Database Compiler and its generators.
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of the proposed enhancement.
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case & Hardware
+      description: How will this feature be used? Does it support a specific piece of external hardware (e.g. Gun4IR, Sinden, specialised arcade drive boards)?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_implementation
+    attributes:
+      label: Proposed Implementation (Optional)
+      description: If you have an idea of how this should be implemented in Lua or Python, outline it here.
+    validations:
+      required: false
