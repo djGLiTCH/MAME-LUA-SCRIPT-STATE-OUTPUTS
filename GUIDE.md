@@ -3,6 +3,12 @@
 
 This guide breaks down the MSOP Plugin database variables by functional category and provides JSON examples for common game archetypes, which are used by the MSOP Compiler to create the required `database.lua` file. Because the master `database.lua` file is compiled from individual game `.json` files or a single `database.json` file, all configurations below are written in pure JSON since this is the source format.
 
+### Two Ways to Build a Game Profile
+Every game profile is a single `.json` file, and there are two ways to create one and compile it into `database.lua`:
+
+* **MESH (Modern Emulator State Hub)** - once it is publicly released, the **MSOP Game Editor** on MESH's Games tab (in Advanced mode) lets you create a new game profile, or adjust an existing one, through a form with validated fields and per-player auto-fill, then compile `database.lua` with a single click - no Python required. Your profiles are saved in MESH's settings folder as the same JSON files described in this guide, kept separate from the official ones so updates never overwrite them, which means a game you add in MESH can also be shared in a pull request.
+* **The MSOP Database Compiler** - the Python tool described below, which builds the whole database, along with the matching Hook Of The Reaper and MAMEhooker files, from a folder of `.json` files. This suits working with the profile files directly, or in bulk.
+
 ---
 
 ## 1. Using the MSOP Database Compiler
@@ -13,7 +19,7 @@ Because MAME Lua plugins require a `.lua` array for high-performance reading, th
 * You must have **Python 3.x** installed on your system.
 
 ### Folder Structure
-Ensure your files are organised correctly. The compiler resolves all of its paths relative to the project root (so it can be run from anywhere) and expects your individual `.json` game profiles in the `input/stable/database/games` folder. The `_default` game profile must exist in order for this to work properly, as this is used to fill in all the non-mentioned settings and logic for each game profile.
+Ensure your files are organised correctly. The compiler resolves all of its paths relative to the project root (so it can be run from anywhere) and reads your individual `.json` game profiles from the `input/stable/database/games` folder. Profiles can sit directly in `games/` or in any subfolder - the shipped profiles are sorted by `GAME_TYPE` into subfolders such as `games/lightgun/` and `games/racing/` - and every tool searches the whole folder tree, so the folder a file sits in is purely organisational. The ROM name always comes from the file name, and the same ROM appearing twice is a build error. The `_default.json` game profile must exist at the root of `games/` in order for this to work properly, as this is used to fill in all the non-mentioned settings and logic for each game profile.
 
 > The tool builds per **release channel**. **`stable`** is the normal channel (and the only one that ships in the downloadable Database Compiler). A parallel **`beta`** channel - `input/beta/...` > `output/beta/...` - is kept by the maintainer for new/untested games, so a beta plugin is always paired with beta Hook Of The Reaper / MAMEhooker files generated from that *same* beta database.
 
@@ -21,29 +27,31 @@ Ensure your files are organised correctly. The compiler resolves all of its path
 Database Compiler/
   ├── scripts/
   │    ├── msop_database_compiler.py          (games *.json  ->  database.lua + database.json)
-  │    ├── msop_native_outputs_compiler.py   (MAME source   ->  native_outputs_by_rom.lua)   [optional]
-  │    ├── msop_hotr_defaultlg_generator.py   (database      ->  Hook Of The Reaper defaultLG/*)
-  │    ├── msop_mamehooker_ini_generator.py   (database      ->  MAMEhooker *.ini skeletons)
+  │    ├── msop_native_outputs_compiler.py    (MAME source   ->  native_outputs_by_rom.lua + native_outputs_by_driver.lua)   [optional]
+  │    ├── msop_hotr_defaultlg_generator.py   (games *.json  ->  Hook Of The Reaper defaultLG/*)
+  │    ├── msop_mamehooker_ini_generator.py   (games *.json  ->  MAMEhooker *.ini skeletons)
   │    ├── msop_output_model.py               (shared helper - not run directly)
   │    ├── run_stable.bat / run_stable.sh     (build the STABLE channel - full pipeline)
   │    ├── run_beta.bat   / run_beta.sh       (build the BETA channel)
   │    ├── run.bat        / run.sh            (build BOTH channels)
-  │    └── ...                                (msop-only + single-generator launchers)
+  │    └── ...                                (msop-only + single-tool launchers)
   ├── input/
   │    └── stable/                            (beta/ mirrors this for the maintainer's beta channel)
   │         ├── stateoutput/   (init.lua, plugin.json, readme.txt)
   │         └── database/
   │              ├── database.json
   │              └── games/
-  │                   ├── _default.json
-  │                   ├── alien3.json
-  │                   ├── area51.json
-  │                   └── ...
-  └── output/                                 (auto-generated - safe to delete, rebuilt on every run)
+  │                   ├── _default.json       (must stay at the games/ root)
+  │                   └── lightgun/           (one subfolder per GAME_TYPE, e.g. racing/ in beta)
+  │                        ├── alien3.json
+  │                        ├── area51.json
+  │                        └── ...
+  └── output/                                 (auto-generated - rebuilt on every run, apart from the optional native output tables)
        └── stable/
-            ├── stateoutput/   (database.lua + native_outputs_by_rom.lua)
+            ├── stateoutput/   (the complete plugin folder: database.lua, the native output tables, and copies of init.lua, plugin.json and readme.txt)
             ├── ini/           (MAMEhooker per-game .ini skeletons)
-            └── defaultLG/     (Hook Of The Reaper per-game templates)
+            ├── defaultLG/     (Hook Of The Reaper per-game templates)
+            └── results/       (native output scrape report)
 ```
 
 ### Compiling Your Database
@@ -56,12 +64,12 @@ Ensure you have Python 3 installed on your Windows system and that it is added t
 
 **Instructions**
 1. Navigate to the `scripts` folder of the extracted MSOP Compiler
-2. Double-click **`run_stable.bat`**. This runs the whole stable pipeline in one go: it compiles your game JSONs into `database.lua`/`database.json`, then regenerates the Hook Of The Reaper `defaultLG` templates and the MAMEhooker `.ini` skeletons. (The optional driver step that scrapes MAME's own native outputs into `native_outputs_by_rom.lua` is skipped unless you set a MAME source path at the top of the launcher.)
+2. Double-click **`run_stable.bat`**. This runs the whole stable pipeline in one go: it compiles your game JSONs into `database.lua`/`database.json`, then regenerates the Hook Of The Reaper `defaultLG` templates and the MAMEhooker `.ini` skeletons. (The optional step that scrapes MAME's own native outputs into `native_outputs_by_rom.lua` and `native_outputs_by_driver.lua` is skipped unless you set `MAME_SRC` at the top of the launcher to a MAME source checkout.)
 3. A Command Prompt window shows each step's progress and a summary when it finishes.
 
 **Alternative:** Open Command Prompt (`cmd`), `cd` to the MSOP Compiler's `scripts` folder, and run `run_stable.bat`.
 
-> **Reverse compile (rebuild per-game JSONs from a single `database.json`):** run `python msop_database_compiler.py` on its own - with no channel argument it shows the interactive menu with **`[ 1 ]`** (per-game JSONs > `database.lua`) and **`[ 2 ]`** (`database.json` > per-game JSONs). The `run_*` launchers always use option 1.
+> **Reverse compile (rebuild per-game JSONs from a single `database.json`):** run `python msop_database_compiler.py` on its own - with no channel argument it shows the interactive menu with **`[ 1 ]`** (per-game JSONs > `database.lua`) and **`[ 2 ]`** (`database.json` > per-game JSONs, each sorted into its `GAME_TYPE` subfolder). The `run_*` launchers always use option 1.
 
 #### Linux or macOS
 
@@ -88,14 +96,14 @@ As on Windows, run `python3 msop_database_compiler.py` on its own for the intera
 #### How The Pipeline Works
 
 Running `run_stable` (or `run_beta` / `run`) executes these steps for that channel, all reading from its `input/...` and writing to its `output/...`:
-1. **Database compile** - reads every individual `.json` in the channel's `games` folder (or the single combined `database.json`), validates each for correct JSON syntax (if there's an error you're told the specific line), keeps the two source formats in sync, and generates a fresh `database.lua` (plus `database.json`).
-2. **Driver compile** *(optional)* - if a MAME source path is set, scrapes MAME's own native output names into `native_outputs_by_rom.lua` so the plugin can re-broadcast them. Skipped otherwise, in which case the plugin simply delivers its MSOP outputs only.
+1. **Database compile** - reads every individual `.json` in the channel's `games` folder tree (or the single combined `database.json`), validates each for correct JSON syntax (if there's an error you're told the specific line), keeps the two source formats in sync, and generates a fresh `database.lua` (plus `database.json`). It also aligns the plugin's version and date across `init.lua`, `plugin.json` and `readme.txt`, and copies them alongside `database.lua` so the output folder is a complete plugin.
+2. **Native output scrape** *(optional)* - if a MAME source path is set, scrapes MAME's own native output names into two lookup tables the plugin uses to re-broadcast them: `native_outputs_by_rom.lua` (per supported ROM) and `native_outputs_by_driver.lua` (per MAME driver, which also covers clones and games MSOP has no profile for). When this step is skipped, any tables already in the output folder are left in place; without them the plugin simply delivers its MSOP outputs only.
 3. **Hook Of The Reaper templates** - generates a `defaultLG` mapping file per supported game into `output/<channel>/defaultLG/`.
-4. **MAMEhooker skeletons** - generates a blank per-game `.ini` into `output/<channel>/ini/`, prepopulated with the MSOP outputs that game emits (and, if the driver ran, the MAME native outputs too).
+4. **MAMEhooker skeletons** - generates a blank per-game `.ini` into `output/<channel>/ini/`, prepopulated with the MSOP outputs that game emits, plus the MAME native outputs from `native_outputs_by_rom.lua` whenever that table is present (the MSOP-only launchers leave them out).
 
-Your new `database.lua` (in `output/stable/stateoutput/`) is now ready to be used in MAME with the MSOP Plugin. For the complete launcher reference - the MSOP-only variants, the single-generator launchers, and how the maintainer builds the beta channel - see the Database Compiler's own `README.md`.
+Your new plugin folder (`output/stable/stateoutput/`) is now complete - `database.lua`, the native output tables and the plugin files together - and ready to copy into MAME's `plugins/stateoutput/` folder for use with the MSOP Plugin. For the complete launcher reference - the MSOP-only variants, the single-tool launchers, and how the maintainer builds the beta channel - see the Database Compiler's own `README.md`.
 
-If you have added support for additional games, sharing this with the community via a pull request on the MSOP GitHub would be greatly appreciated. :)
+If you have added support for additional games, sharing this with the community via a pull request on the MSOP GitHub would be greatly appreciated. :) If you would rather not write the profile yourself, you can also request a game with the **New Game / ROM Profile Request** [issue form](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new/choose).
 
 https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 
@@ -124,9 +132,9 @@ This maps the exact RAM addresses for in-game events. Any variable here can be a
 * **`LIFE` & `LIFE_ALT`**: Tracks the player's health bar. A change in this value can be used to automatically detect `DAMAGE` and log `DAMAGE_TAKEN` and `LIFE_LOST`. The default logic is life will decrease to trigger `DAMAGE`, but this can be changed using `LIFE_DIRECTION`, and `LIFE_ALT_DIRECTION`.
 * **`DAMAGE`**: The memory address that flags when a player takes a hit from an enemy. Triggers the physical damage solenoid/rumble. The default logic is to set this as `auto` which will infer damage using `LIFE` and `LIFE_DIRECTION`.
 * **`RECOIL` & `RELOAD`**: Manual hardware triggers. Used to watch for a physical trigger pull or reload sequence directly in RAM, bypassing the ammo counter. The default logic is to set this as `auto` which will infer recoil and reload using `AMMO` and `AMMO_DIRECTION`.
-* **`LAMPSTART`**: Maps to the physical Start button LEDs on the arcade cabinet.
+* **`LAMP_START`**: Maps to the physical Start button LEDs on the arcade cabinet.
 
-### Behavioral Logic
+### Behavioural Logic
 These variables dictate *how* the plugin interprets the RAM addresses above.
 
 * **`AMMO_DIRECTION` / `LIFE_DIRECTION`**: `"decrease"` (default), `"increase"`, or `"change"`. Most games decrease ammo/life. However, games like *Point Blank* count *up* and start each new round with `AMMO = 0`. Set to `"increase"` so the script knows ammo going UP is a shot/hit.
@@ -169,8 +177,9 @@ force-feedback command lives and how to decode it into the standardised effect c
   (Model 1 banded protocol), `pdrift_8step` (Power Drift's bank-motor byte), `flag_shake`
   (on/off shaker-only cabinets), or `harddrivin_serial` (Hard/Race Drivin's stateful 4-byte
   serial frame). Decoders update only the channels a command addresses; other channels persist
-  until changed, and an explicit 0 releases.
-* **`INVERT`** *(optional)*: `true` flips the signed `FFB_Constant` channel for cabinets whose
+  until changed, and an explicit 0 releases. The decoders after `namco_lut_rr` in this list need
+  plugin v9.3.3+.
+* **`INVERT`** *(optional, plugin v9.3.3+)*: `true` flips the signed `FFB_Constant` channel for cabinets whose
   wheel encoding runs opposite to their family norm (e.g. the Cruis'n / SF Rush ROMs vs the
   otherwise identical California Speed / Cart Fury group). Magnitude channels are unaffected.
 * **`SCALE`**: Full-scale output value (255 = Signed255/Unsigned255, the standard).
@@ -193,7 +202,7 @@ and several games need an in-game service menu setting before any output appears
 
 ## 3. Tutorial Examples (JSON Format)
 
-When adding a new game, you will create a new `.json` file inside the `input/stable/database/games` directory (e.g. `area51.json`).
+When adding a new game, you will create a new `.json` file inside the `input/stable/database/games` directory, normally in the subfolder for its `GAME_TYPE` (e.g. `games/lightgun/area51.json`). If you use MESH's MSOP Game Editor instead, it creates the file for you.
 
 Please note that the following examples are stripped down versions of the .json file used by each game, which helps to highlight the specific differences between each example scenario. Extra features exist in the final .json files for each of the games used in each example.
 

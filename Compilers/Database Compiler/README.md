@@ -30,7 +30,8 @@ Database Compiler/
 │   ├── msop_output_model.py              shared helper (init.lua-mirroring output derivation; not run directly)
 │   ├── run_stable.* / run_beta.*         run the FULL pipeline for ONE channel (db -> driver -> defaultLG -> ini)
 │   ├── run.bat / run.sh                  run the full pipeline for BOTH channels (stable then beta)
-│   └── run_msop_*_generator.*            per-generator launchers (defaultLG only / ini only; take --channel)
+│   ├── run_*_msop_only.*                 the same per-channel pipeline without the MAME native outputs
+│   └── run_msop_*.*                      single-tool launchers (natives compiler / defaultLG / ini; take --channel)
 │
 ├── input/              YOU EDIT THIS  -  split per release channel
 │   ├── stable/         the STABLE source
@@ -41,7 +42,7 @@ Database Compiler/
 │   └── beta/           the BETA source - a fully isolated copy (its own stateoutput/ + database/), so
 │                       experimental games AND plugin code can never touch the shipped stable build
 │
-├── output/             GENERATED  (safe to delete; rebuilt on every run)  -  split per release channel
+├── output/             GENERATED  (rebuilt on every run, apart from the native output tables)  -  split per release channel
 │   ├── stable/
 │   │   ├── stateoutput/    deployable plugin: database.lua + native_outputs_by_rom.lua + native_outputs_by_driver.lua + init.lua/plugin.json/readme.txt
 │   │   ├── defaultLG/      Hook Of The Reaper defaultLG/<rom>.txt templates
@@ -89,7 +90,8 @@ places is a hard build error in mode 1.
 - **Template generators on their own:** `scripts/run_msop_hotr_defaultlg_generator.*` (>
   `output/<channel>/defaultLG/`) and `scripts/run_msop_mamehooker_ini_generator.*` (>
   `output/<channel>/ini/`). Each accepts `--channel stable|beta` (default stable), `--report` (diff
-  every file against the shipped references) and `--rom <name>` (one game).
+  every file against its committed copy in `output/<channel>/` before overwriting it - the files are
+  still written) and `--rom <name>` (one game).
 - **Two driver tables (v1.4.0):** the scrape writes both, and `init.lua` prefers the first.
   - `native_outputs_by_rom.lua` - keyed by **ROM**, scraped only for the ROMs in `input/<channel>/database/games`.
     Includes layout-derived names (a `.lay` belongs to one ROM), so it is the more specific of the two.
@@ -133,7 +135,8 @@ MAMEhooker `.ini` skeletons list exactly the outputs each game emits.
 
 Racing profiles configure an **`FFB`** block (see `_default.json`'s `FFB_comment` for the full
 schema): `SOURCES` (native output names and/or `0x...` memory addresses, probed in order),
-`DECODE` (`passthrough | signed8 | konami_dir4 | model2_bands | namco_lut_rr`), `SCALE` (255 =
+`DECODE` (the per-game decoder, e.g. `passthrough`, `signed8`, `konami_dir4`, `model2_bands`; the
+repository's `GUIDE.md` lists them all), optional `INVERT` *(plugin v9.3.3+)*, `SCALE` (255 =
 Signed255/Unsigned255), `PLAYER`, and optional address-sourced `EVENTS`
 (`COLLISION | GEARCHANGE | SURFACERUMBLE | TYRESLIP | ENGINERUMBLE`). The emitted vocabulary is
 `MSOP_P<n>_FFB_Constant/_Spring/_Friction/_Damper/_Sine/_Rumble/_Raw` plus one output per
@@ -164,8 +167,9 @@ always print).
   if they ever leak in - manual installs must self-detect and use the default relay port.
 
 - **`msop_native_outputs_compiler.py`** - scrapes a MAME source checkout for each supported ROM's
-  native output names and writes `output/<channel>/stateoutput/native_outputs_by_rom.lua` (the companion
-  `init.lua` loads it; missing/stale just degrades to no native forwarding). Takes `--channel` (default
+  native output names and writes `output/<channel>/stateoutput/native_outputs_by_rom.lua` and
+  `native_outputs_by_driver.lua` (see *Two driver tables* above; the companion `init.lua` loads them,
+  and missing/stale tables just degrade to no native forwarding). Takes `--channel` (default
   stable; `--games-dir`/`--output-dir` override). With the scrape report enabled (default;
   `--no-scrape-report` to skip) it also writes
   `output/<channel>/results/mame_driver_native_output_scrape_report.json`.
@@ -182,5 +186,5 @@ always print).
 
 - **`msop_output_model.py`** - a shared helper library (not run directly) holding the per-game output-set
   derivation that mirrors `init.lua`. Both generators import it so that logic lives in one place. **Keep
-  it in sync** with the Hooker Compiler's `msop_plugin_output_generator.py`, which carries its own copy
-  for the plugin JSON pipeline.
+  it in sync** with MESH's plugin output generator (`tools/plugin-output-generator/scripts/plugin_output_generator.py`
+  in the MESH repository), which carries its own copy for MESH's game data.

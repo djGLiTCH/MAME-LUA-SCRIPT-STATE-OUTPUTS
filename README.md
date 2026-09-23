@@ -269,7 +269,7 @@ There are many state output 'hooker' programs that exist, however, support has b
 
 **MAMEhooker, OutputHooker, and QMamehook**
 
-Manual setup documentation for MAMEhooker, OutputHooker, and QMamehook is still being expanded - but the MESH app already generates and distributes their per-game INI command files automatically (Devices > Configuration > Compile Hooker INI Files, plus auto-compile on every game launch), so manual INI authoring is only needed if you skip the app.
+Manual setup documentation for MAMEhooker, OutputHooker, and QMamehook is still being expanded - but the MESH app already generates and distributes their per-game INI command files automatically (on demand, plus auto-compile on every game launch), so manual INI authoring is only needed if you skip the app. For a manual setup, the Database Compiler also generates a starting `.ini` skeleton for every supported game, with its `[Output]` section already listing every output that game emits, ready for your hardware commands (packaged as `Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip`).
 
 For now, you can use the following Outputs in your per game ini file which will work across all supported games.
 
@@ -388,6 +388,14 @@ To ensure reliable performance across all titles and prevent "phantom" hardware 
 
 By funnelling all game events through this standardised logic flow, external tools only have to listen for simple, consistent commands (e.g., PX_Life = 1), taking the pressure off the Output Program(s) to decipher complex game states.
 
+### Building the Game Database
+Every supported game is described by its own JSON game profile. The **MSOP Database Compiler** (`Compilers/Database Compiler/`, also available on its own as `Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip`) is a set of Python scripts that turns those profiles into everything a release ships, for either the Stable or Beta channel:
+* `database.lua` - the compiled game database the plugin reads at runtime.
+* `native_outputs_by_rom.lua` and `native_outputs_by_driver.lua` *(optional, needs a MAME source checkout)* - the lookup tables behind native output forwarding, described above.
+* A Hook Of The Reaper `defaultLG` template and a MAMEhooker `.ini` skeleton for every supported game.
+
+A single launcher (`run_stable.bat` on Windows, `run_stable.sh` on Linux or macOS) runs the whole pipeline, and the [GUIDE](GUIDE.md) covers each step along with every profile key. Once MESH is publicly released, its MSOP Game Editor offers a way to build profiles without Python - see [Contributing & Credits](#-contributing--credits) below.
+
 ---
 
 ## 🤖 Command Line Automation (Headless Mode)
@@ -427,6 +435,8 @@ Run `MSOP_CONFIGURATOR.exe -help` in a terminal to print the full reference. Eve
 ## 🤝 Contributing & Credits
 
 This is a community-driven project. If you find a game that isn't supported, please map its memory addresses in a JSON game profile and submit a Pull Request! The [GUIDE](GUIDE.md) explains every profile key with worked examples, and the Database Compiler builds the profiles into `database.lua` for you, so there is no need to edit that file by hand.
+
+Once **MESH** is publicly released, its **MSOP Game Editor** (on the Games tab, in Advanced mode) offers another way to build a profile: fill in a form with validated fields and per-player auto-fill, and MESH compiles `database.lua` for you with no Python needed. It saves your profiles as the same JSON files, so a game you add in MESH can be shared in a pull request too.
 
 If you would rather not write the profile yourself, please [open an issue](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new/choose) using the **New Game / ROM Profile Request** template with any memory addresses you have found, or the **Game Profile Correction** template if an existing profile is broken.
 
