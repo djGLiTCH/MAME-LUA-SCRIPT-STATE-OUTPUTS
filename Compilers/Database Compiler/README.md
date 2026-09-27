@@ -122,8 +122,9 @@ places is a hard build error in mode 1.
 **Beta is a branch, not a stamp.** To cut a beta: copy `input/stable/` > `input/beta/`, make your
 experimental edits there (new games, or an experimental `init.lua`/`plugin.json`), and run `run_beta`.
 To promote it back: copy `input/beta/` > `input/stable/` (review the diff), bump versions, run
-`run_stable`. A promotion can also be partial - copying only `input/beta/stateoutput/` ships the
-latest plugin in stable while every game stays where it is. Because each channel's plugin, HOTR and
+`run_stable`. A promotion can also be partial - copying only `input/beta/stateoutput/` plus
+`input/beta/database/games/_default.json` (the plugin's defaults, which travel with its code) ships
+the latest plugin in stable while every game stays where it is. Because each channel's plugin, HOTR and
 INI are all generated from that one channel's database, a beta plugin can never be paired with
 stable-suited HOTR/INI. CI packages the STABLE zips automatically and the BETA zips only once you
 commit `output/beta/`; alongside them it publishes each channel's official game profiles on their own

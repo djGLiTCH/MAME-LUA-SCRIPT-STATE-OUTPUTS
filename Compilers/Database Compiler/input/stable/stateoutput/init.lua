@@ -1,11 +1,29 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.3.2
--- Plugin Date: 2026.08.24
+-- Plugin Version: 9.3.4
+-- Plugin Date: 2026.09.04
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
+-- =========================================================================================
+--
+-- SPECIAL THANKS:
+-- The racing force feedback support in this plugin stands on protocol research from the
+-- FFB Arcade Plugin family of projects by Boomslangnz, and its MAME racing fork
+-- FFBPluginRacerMAME by Endprodukt (both GPL v3.0):
+--   https://github.com/Boomslangnz/FFBArcadePlugin
+--   https://github.com/Endprodukt/FFBPluginRacerMAME
+-- Those projects did the hardware-level detective work: which output ports each arcade
+-- drive board listens on, what its command bytes mean (band edges, bit masks, sign
+-- conventions), and which games speak which protocol. MSOP's _FFB decoders re-implement
+-- that decoding knowledge in Lua, mapped onto MSOP's own architecture: in-process
+-- per-frame sampling, the standardised FFB_* output vocabulary with persist-until-
+-- changed semantics, the TCP relay transport, JSON game profiles, and memory-address
+-- force sourcing - none of which exist in those projects. Without their published
+-- findings, supporting 146 racing games would have required redoing years of
+-- per-cabinet reverse engineering. Thank you.
+--
 -- =========================================================================================
 --
 -- ARCHITECTURE OVERVIEW:
@@ -34,7 +52,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.3.2",
+    version = "9.3.4",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -202,8 +220,8 @@ function stateoutput.startplugin()
     -- Keep in sync with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do not come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 932
-    local PLUGIN_DATE_NUM    = 20260824
+    local PLUGIN_VERSION_NUM = 934
+    local PLUGIN_DATE_NUM    = 20260904
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -219,7 +237,7 @@ function stateoutput.startplugin()
     local _PendingGlobalCreditDrops = 0
     local _RomIdNum = 0 -- numeric ROM identity for MSOP_LuaROMid (see on_start)
     
-    -- Hardware Caching Arrays (Performance Optimization)
+    -- Hardware Caching Arrays (Performance Optimisation)
     -- Instead of searching MAME's entire device tree 60 times a second, we 
     -- find the memory addresses once at boot and store direct pointers here.
     local _MemConfig = {}
@@ -1020,7 +1038,7 @@ function stateoutput.startplugin()
     -- P1's offset math.
     -- -------------------------------------------------------------------------
     local function Resolve_Addresses_And_Strings()
-        -- Normalize logical evaluation strings
+        -- Normalise logical evaluation strings
         CFG.AMMO_DIRECTION             = string.lower(tostring(CFG.AMMO_DIRECTION or ""))
         CFG.AMMO_ALT_DIRECTION         = string.lower(tostring(CFG.AMMO_ALT_DIRECTION or ""))
         CFG.AMMO_GRENADE_DIRECTION     = string.lower(tostring(CFG.AMMO_GRENADE_DIRECTION or ""))
@@ -1226,6 +1244,15 @@ function stateoutput.startplugin()
     -- -------------------------------------------------------------------------
     local _ProxyCache = {}
 
+    -- Named resolver for the pcalls in Get_Output_Proxy and _FFB.Probe_Output:
+    -- the miss path can retry every frame for a name that never appears
+    -- (_RetryMissingProxies keeps misses uncached because an output can be
+    -- created on its first write), and a fresh closure per attempt would be
+    -- per-frame garbage. Same pattern as pcall(sock.write, sock, ...).
+    local function Resolve_Root_Output(dev, name)
+        return dev:output(name)
+    end
+
     -- Whether the deprecated output.set_value() can still auto-create a brand new
     -- output on first use (true on MAME 0.288 and earlier) or only resolves existing
     -- outputs (0.289+ stock). There is no direct way to ask the Lua API, and a version
@@ -1308,7 +1335,7 @@ function stateoutput.startplugin()
         if manager and manager.machine and manager.machine.devices then
             local root_dev = manager.machine.devices[":"]
             if root_dev and root_dev.output then
-                local s2, p = pcall(function() return root_dev:output(name) end)
+                local s2, p = pcall(Resolve_Root_Output, root_dev, name)
 
                 -- Validate that the proxy actually connects to hardware
                 if s2 and p and p:exists() then
@@ -1421,7 +1448,7 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
-    -- Flushes outputs to zero at boot and synchronizes local caches.
+    -- Flushes outputs to zero at boot and synchronises local caches.
     -- Prevents external hardware (like DemulShooter or lighting apps) 
     -- from sticking 'on' if a previous game crashed or ended abruptly.
     -- Forces a true 0-state broadcast over the MAME TCP socket and 
@@ -1614,7 +1641,7 @@ function stateoutput.startplugin()
     -- Racing-genre extension of the gun games' translation-layer model: read the
     -- raw force-feedback command the emulated game produces (a native output the
     -- driver creates, or a stable emulated memory address), decode the
-    -- game-specific encoding, and emit a STANDARDIZED effect-channel vocabulary
+    -- game-specific encoding, and emit a STANDARDISED effect-channel vocabulary
     -- (the set of channels real FFB hardware is typically driven with):
     --
     --   MSOP_P<n>_FFB_Constant  signed -SCALE..+SCALE  directional push force.
@@ -1660,9 +1687,11 @@ function stateoutput.startplugin()
     -- RESOLUTION + COMPUTE" section further down. That is safe because
     -- Frame_Logic only CALLS _FFB.Compute at frame time, long after load.
     --
-    -- Decoders take (raw, scale) and return a partial {CHANNEL = value} table
-    -- (or nil for "no change"). Encodings cross-referenced against the FFB
-    -- Arcade Plugin (GPLv3, Boomslangnz et al.) - MSOP is GPLv3 as well.
+    -- Decoders take (raw, scale) and return a partial {CHANNEL = value} table,
+    -- or nil for "no change". A command only ever addresses the channels it
+    -- names; every other channel holds its last value until re-commanded, and
+    -- an explicit 0 is a release. Each decoder is a pure function of the
+    -- command byte except harddrivin_serial, which assembles a frame.
     -- =========================================================================
     local _FFB = {
         proxy = false,       -- resolved native-output proxy (output mode)
@@ -1671,12 +1700,18 @@ function stateoutput.startplugin()
         probe_frames = 0,    -- frames spent probing, for the one-shot warning
         warned = false,
         events_rt = {},      -- per-event runtime state (last value, pulse tick)
+        hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0 },
+        enum = false,        -- cached native-output enumeration for this ROM...
+        enum_done = false,   -- ...nil is a real answer, so this says it was fetched
+        exhausted = false,   -- probing gave up: no configured SOURCE exists here
         channels = { "CONSTANT", "SPRING", "FRICTION", "DAMPER", "SINE", "RUMBLE" },
 
         -- Rave Racer / Namco Super System 22 wheel LUT: the MCU's scrambled
         -- force byte -> linear force index 1..123 (-1 = code never emitted).
-        -- Index the array with (raw & 0xFF) + 1. Derived from the FFB Arcade
-        -- Plugin's empirically-built table (GPLv3).
+        -- Index the array with (raw & 0xFF) + 1. The scramble has no closed
+        -- form, so the mapping is a fixed 256-entry table: each of 1..123
+        -- appears exactly once, all at even byte values, and every odd byte
+        -- is a code the MCU never sends.
         rr_map = {
             -1,-1,62,-1,30,-1,94,-1,  46,-1,78,-1,14,-1,110,-1,
             54,-1,70,-1,22,-1,102,-1, 38,-1,86,-1,6,-1,118,-1,
@@ -1709,14 +1744,25 @@ function stateoutput.startplugin()
         -- Raw value straight onto the Constant channel (analysis/bring-up).
         passthrough = function(raw, scale) return { CONSTANT = raw } end,
 
-        -- Two's-complement byte -> signed Constant. Round half away from zero
-        -- symmetrically (floor for positives, ceil for negatives - floor(x-0.5)
-        -- would over-round negatives: -0.79 must become -1, not -2).
+        -- Two's-complement byte -> signed Constant, for cabinets that send the
+        -- wheel force as a full-range signed value (the Midway/Atari and
+        -- Gaelco racers). The two halves are deliberately asymmetric because
+        -- the encoding is: 0x80..0xFF is 128 steps of negative force with 0x80
+        -- the hardest lock, while 0x01..0x7F is 127 steps of positive, so each
+        -- side divides by its own span and reaches exactly +/-scale at its
+        -- extreme. 0x00 is neutral. Round half away from zero symmetrically -
+        -- floor for positives, ceil for negatives, since floor(x-0.5) would
+        -- over-round the negative side (-0.79 must become -1, not -2).
+        -- Cabinets in this family that wire the wheel the other way round set
+        -- FFB.INVERT in their profile rather than getting a second decoder.
         signed8 = function(raw, scale)
             local v = raw & 0xFF
-            if v > 127 then v = v - 256 end
+            if v > 127 then
+                local scaled = -((256 - v) * scale / 128)
+                return { CONSTANT = math.ceil(scaled - 0.5) }
+            end
             local scaled = v * scale / 127
-            return { CONSTANT = scaled >= 0 and math.floor(scaled + 0.5) or math.ceil(scaled - 0.5) }
+            return { CONSTANT = math.floor(scaled + 0.5) }
         end,
 
         -- Konami racers (Thrill Drive, GTI Club, Midnight Run, Winding Heat,
@@ -1751,6 +1797,146 @@ function stateoutput.startplugin()
             return { CONSTANT = 0 }                    -- neutral / unknown band
         end,
 
+        -- Sega Rally (srallyc family): two 32-step bands on the drive-board byte.
+        -- 0xC0-0xDF = force from the RIGHT, 0x80-0x9F = force from the LEFT.
+        sega_rally_bands = function(raw, scale)
+            if raw == 0x00 then return { CONSTANT = 0, RUMBLE = 0 } end
+            if raw >= 0xC0 and raw <= 0xDF then
+                local f = math.floor(((raw - 0xC0) * scale / 31) + 0.5)
+                return { CONSTANT = f, RUMBLE = f }
+            elseif raw >= 0x80 and raw <= 0x9F then
+                local f = math.floor(((raw - 0x80) * scale / 31) + 0.5)
+                return { CONSTANT = -f, RUMBLE = f }
+            end
+            return nil -- outside both bands: leave the last force in place
+        end,
+
+        -- Hyper Neo Geo 64 racers (Roads Edge, Xtreme Rally): two 63-step bands.
+        -- 193-255 = force from the LEFT, 129-191 = force from the RIGHT.
+        hng64_bands = function(raw, scale)
+            if raw == 0 then return { CONSTANT = 0, RUMBLE = 0 } end
+            if raw >= 193 and raw <= 255 then
+                local f = math.floor(((raw - 193) * scale / 62) + 0.5)
+                if f > scale then f = scale end
+                return { CONSTANT = -f, RUMBLE = f }
+            elseif raw >= 129 and raw <= 191 then
+                local f = math.floor(((raw - 129) * scale / 62) + 0.5)
+                if f > scale then f = scale end
+                return { CONSTANT = f, RUMBLE = f }
+            end
+            return { CONSTANT = 0, RUMBLE = 0 }
+        end,
+
+        -- Side by Side 1/2 (Taito): low 5 bits carry the command. 0x00/0x1E/0x1F
+        -- release; otherwise ODD = force from the right, EVEN = from the left, and
+        -- the step count is INVERTED (a low command byte means a high force).
+        sidebs_5bit = function(raw, scale)
+            local v = raw & 0x1F
+            if v == 0 or v == 0x1E or v == 0x1F then return { CONSTANT = 0, RUMBLE = 0 } end
+            local steps = (v + 1) // 2
+            if steps > 15 then steps = 15 end
+            local f = math.floor((((16 - steps) * scale) / 15) + 0.5)
+            if f > scale then f = scale end
+            if (v & 1) == 1 then return { CONSTANT = f, RUMBLE = f } end
+            return { CONSTANT = -f, RUMBLE = f }
+        end,
+
+        -- Virtua Racing (Sega Model 1): the digit0 command byte selects one effect
+        -- band per frame, like the Model 2 protocol but with a different layout.
+        virtua_racing = function(raw, scale)
+            if raw == 0x03 or raw == 0x07 or raw == 0x09 or raw == 0x10 then
+                return { SPRING = math.floor(scale * 0.8 + 0.5), CONSTANT = 0 }
+            end
+            if raw == 0x20 or raw == 0x28 then
+                return { FRICTION = math.floor(scale * 0.4 + 0.5), CONSTANT = 0 }
+            end
+            if raw > 0x2F and raw < 0x40 then
+                return { SPRING = _FFB.Band(raw, 0x2F, 11, scale), CONSTANT = 0 }
+            end
+            if raw == 0x40 or raw == 0x46 or raw == 0x4A then
+                local f = math.floor(scale * 0.4 + 0.5)
+                return { SINE = f, RUMBLE = f, CONSTANT = 0 }
+            end
+            if raw == 0x50 or raw == 0x5F then
+                local f = math.floor(scale * 0.5 + 0.5)
+                return { CONSTANT = f, RUMBLE = f }   -- roll: force from the RIGHT
+            end
+            if raw == 0x60 or raw == 0x6F then
+                local f = math.floor(scale * 0.5 + 0.5)
+                return { CONSTANT = -f, RUMBLE = f }  -- roll: force from the LEFT
+            end
+            return { CONSTANT = 0 }
+        end,
+
+        -- Power Drift (Sega Y-board): the bank-motor position byte doubles as the
+        -- steering command - 0x01-0x03 = from the LEFT, 0x05-0x07 = from the RIGHT.
+        pdrift_8step = function(raw, scale)
+            if raw > 0x00 and raw < 0x04 then
+                local f = math.floor((((4 - raw) * scale) / 3) + 0.5)
+                return { CONSTANT = -f, RUMBLE = f }
+            elseif raw > 0x04 and raw < 0x08 then
+                local f = math.floor((((raw - 4) * scale) / 3) + 0.5)
+                return { CONSTANT = f, RUMBLE = f }
+            end
+            return { CONSTANT = 0, RUMBLE = 0 }
+        end,
+
+        -- Cabinets whose only feedback line is an ON/OFF shaker (Outrunners, Turbo
+        -- OutRun, Chase Bombers, Double Axle, Cisco Heat, F-1 GP Star): any non-zero
+        -- command means "vibrate", so the strength is a consumer-side tuning choice.
+        flag_shake = function(raw, scale)
+            if raw ~= 0 then return { SINE = scale, RUMBLE = scale } end
+            return { SINE = 0, RUMBLE = 0 }
+        end,
+
+        -- Hard Drivin' / Race Drivin' (Atari): the wheel force is not a single byte -
+        -- the driver writes a 4-byte FRAME serially through the same output, so this
+        -- decoder is STATEFUL (state in _FFB.hd, cleared by _FFB.Reset). Compute's
+        -- change gate means it is fed value TRANSITIONS, not every write - the best
+        -- a frame-sampled reader can do with a serial line.
+        --   * an alternating 0xE0/0x00 run is the idle/sync pattern - it resets the
+        --     frame cursor and is never treated as data;
+        --   * v0 must stay < 200 and v1 > 200; anything else means the cursor has
+        --     slipped out of phase with the frame, so collection restarts;
+        --   * on the 5th write the frame decodes to a signed force:
+        --       f = (v0 & 15) + ((v3 & 7) << 5), |0x10 when v1's high nibble is F,
+        --       negated when v2's high nibble is F, clamped to +/-100 and rescaled.
+        --     A positive frame value drives the wheel FROM THE LEFT, so the sign is
+        --     inverted into MSOP's convention.
+        -- Returns nil on every intermediate write, holding the last force in place.
+        harddrivin_serial = function(raw, scale)
+            local h = _FFB.hd
+            h.s3, h.s2, h.s1, h.s0 = h.s2, h.s1, h.s0, raw
+
+            local sync = (raw == 0xE0 and h.s1 == 0x00 and h.s2 == 0xE0 and h.s3 == 0x00)
+                      or (raw == 0x00 and h.s1 == 0xE0 and h.s2 == 0x00 and h.s3 == 0xE0)
+            if sync then h.frame = 0; return nil end
+
+            if h.frame > 4 then h.frame = 0 end
+            if h.frame > 2 and (h.v0 > 200 or (h.v1 < 200 and h.v1 ~= 0)) then
+                h.frame = 0; h.v1 = 0; h.v2 = 0; h.v3 = 0
+            end
+
+            if h.frame == 0 then h.v0 = raw
+            elseif h.frame == 1 then h.v1 = raw
+            elseif h.frame == 2 then h.v2 = raw
+            elseif h.frame == 3 then h.v3 = raw end
+            h.frame = h.frame + 1
+
+            if h.frame ~= 5 then return nil end   -- frame still assembling
+            h.frame = 0
+
+            local f = (h.v0 & 15) + ((h.v3 & 7) << 5)
+            if (h.v1 & 0xF0) == 0xF0 then f = f | 0x10 end
+            if (h.v2 & 0xF0) == 0xF0 then f = -f end
+            if f > 100 then f = 100 elseif f < -100 then f = -100 end
+
+            local mag = math.floor(((f < 0 and -f or f) * scale / 100) + 0.5)
+            -- plugin: f >= 0 -> DIRECTION_FROM_LEFT, so invert into MSOP's convention
+            if f >= 0 then return { CONSTANT = -mag, RUMBLE = mag } end
+            return { CONSTANT = mag, RUMBLE = mag }
+        end,
+
         -- Rave Racer (Namco): rr_map descrambles the MCU byte to 1..123, then
         -- <=0x3D = force from the right, >0x3D = from the left. -1 = ignore.
         namco_lut_rr = function(raw, scale)
@@ -1782,7 +1968,7 @@ function stateoutput.startplugin()
         if not out then return end
         
         -- -------------------------------------------------------------------------
-        -- PERFORMANCE OPTIMIZATION: One-Time Bus Binding Cache
+        -- PERFORMANCE OPTIMISATION: One-Time Bus Binding Cache
         -- Finds the specific MAME context only on frame 1, storing it locally.
         -- If the user configured a memory space as "region", we hook directly into the
         -- physical ROM memory region instead of the CPU address space to allow safe patching.
@@ -1801,13 +1987,13 @@ function stateoutput.startplugin()
         end
         
         -- -------------------------------------------------------------------------
-        -- PHASE 0: WARMUP & INITIALIZATION FLUSH
+        -- PHASE 0: WARMUP & INITIALISATION FLUSH
         -- Ensures outputs are held silently during startup and perfectly
         -- synced the exact frame the boot delay expires.
         -- -------------------------------------------------------------------------
         local warmup_ok = Is_Warmup_Complete()
         
-        -- Trigger initialization exactly when warmup completes
+        -- Trigger initialisation exactly when warmup completes
         if warmup_ok and not _WarmupFlushed then
             Register_Outputs_Safe(out)
             Seed_Frame_Baselines() -- prime Last* deltas from live values (no phantom "inserted" from NVRAM leftovers)
@@ -1849,13 +2035,27 @@ function stateoutput.startplugin()
         local is_game_active = false
         local global_exists = false
 
-        if CFG.GAME_STATUS and type(CFG.GAME_STATUS) == "number" then 
+        if CFG.GAME_STATUS and type(CFG.GAME_STATUS) == "number" then
             global_exists = true
             if not is_attract_mode then
                 local val = Read_Data_Safe(_MemHandles["GLOBAL_GAME_STATUS"], CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
                 local active = CFG.GAME_STATUS_ACTIVE_VALUE
                 is_game_active = Value_Is_Active(val, active)
             end
+        elseif CFG.GAME_STATUS == "always" then
+            -- No game-status address is known for this game, but the profile
+            -- declares the game active whenever it is running (warmed up and
+            -- not held in an address-backed attract mode). Without this, a
+            -- profile with no per-player activity signals can never raise
+            -- GLOBAL_GAME_STATUS at all - any_player_active stays false -
+            -- leaving status-gated consumers dark and derived attract stuck
+            -- on for the whole session. The shared debounce below still
+            -- applies, so activation timing matches the address-backed path,
+            -- and the warmup gate on emission is unchanged. Any other
+            -- non-address value is ignored (status unknown), exactly as
+            -- before.
+            global_exists = true
+            is_game_active = not is_attract_mode
         end
         
         if is_game_active then
@@ -1876,7 +2076,7 @@ function stateoutput.startplugin()
         -- GAME_TYPE: "racing" profiles skip the whole per-player gun
         -- pipeline - every address guard inside would evaluate false anyway,
         -- so a zero-iteration loop saves that conditional sweep each frame.
-        -- The post-loop logic runs on the initialized defaults above. Use
+        -- The post-loop logic runs on the initialised defaults above. Use
         -- "both" for a hybrid that needs the gun pipeline as well.
         local player_loop_max = (CFG.GAME_TYPE == "racing") and 0 or CFG.MAX_PLAYERS
         for i = 1, player_loop_max do
@@ -2013,7 +2213,7 @@ function stateoutput.startplugin()
                 -- Check 2: Did life reset while Player Status remained active (for player continues)?
                 -- The p.WasActive guard is what makes "remained active" real. Without it,
                 -- an idle player whose offset-derived life byte happens to move (vcop2:
-                -- P2's auto address = P1+4 initializes the instant Start is pressed)
+                -- P2's auto address = P1+4 initialises the instant Start is pressed)
                 -- spawn-steals the pending credit drop from the player who actually
                 -- started - the log showed MSOP_P2_CreditsConsumed=1 on a P1-only game.
                 elseif cfg.LIFE and p.WasActive then
@@ -2535,10 +2735,10 @@ function stateoutput.startplugin()
         return records
     end
 
-    -- Named resolver for the pcall in Forward_Native_Outputs: the resolution path
-    -- can retry every frame for a name whose device never creates the output
-    -- (_RetryMissingProxies), and a fresh closure per attempt would be per-frame
-    -- garbage. Same pattern as pcall(sock.write, sock, ...).
+    -- Named resolver for the enumerated-record pcalls (Forward_Native_Outputs
+    -- and _FFB.Resolve): the resolution paths can retry every frame for a name
+    -- whose device never creates the output, and a fresh closure per attempt
+    -- would be per-frame garbage. Same pattern as pcall(sock.write, sock, ...).
     local function Resolve_Device_Output(fwd)
         return fwd.dev:output(fwd.name)
     end
@@ -2574,6 +2774,13 @@ function stateoutput.startplugin()
     --             once a miss is known to be permanent. See _RetryMissingProxies.
     -- -------------------------------------------------------------------------
     local function Forward_Native_Outputs()
+        -- msop_out drops every write while the relay is down (and on a
+        -- native-delivery install), so walking the records in that state
+        -- would only pay for proxy reads - and missing-proxy resolution
+        -- retries - that nobody can receive. Skipping loses nothing: a
+        -- (re)connect wipes last_state, so the first connected frame
+        -- re-sends every current value anyway.
+        if not (_UseRelay and connected) then return end
         for _, fwd in ipairs(_NativeForwards) do
             local proxy = fwd.proxy
             if proxy == nil then
@@ -2611,7 +2818,7 @@ function stateoutput.startplugin()
         if not (manager and manager.machine and manager.machine.devices) then return false end
         local root = manager.machine.devices[":"]
         if not (root and root.output) then return false end
-        local ok, p = pcall(function() return root:output(name) end)
+        local ok, p = pcall(Resolve_Root_Output, root, name)
         if ok and p and p:exists() then return p end
         return false
     end
@@ -2622,12 +2829,18 @@ function stateoutput.startplugin()
         _FFB.mode = false
         _FFB.probe_frames = 0
         _FFB.warned = false
+        _FFB.exhausted = false
+        -- The next machine has its own output table, so the cached enumeration
+        -- from the last one must not be reused.
+        _FFB.enum = false
+        _FFB.enum_done = false
         _FFB.events_rt = {}
         -- Per-ROM decode caches: the resolved decoder/scale (they cannot change
         -- mid-ROM) and the last decoded command value (Compute's change gate).
         _FFB.decoder = nil
         _FFB.scale = nil
         _FFB.last_raw = nil
+        _FFB.hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0 }
     end
 
     -- Walks CFG.FFB.SOURCES in order: hex strings were already converted to
@@ -2640,8 +2853,6 @@ function stateoutput.startplugin()
     -- something resolves - driver outputs may not exist on frame 1.
     function _FFB.Resolve()
         local cfgF = CFG.FFB
-        local enumerated = nil
-        local enumerated_fetched = false
         for _, src in ipairs(cfgF.SOURCES) do
             if type(src) == "number" then
                 if _MemHandles["FFB"] then
@@ -2651,14 +2862,22 @@ function stateoutput.startplugin()
                     return true
                 end
             elseif type(src) == "string" then
-                if not enumerated_fetched then
-                    enumerated = Enumerate_Native_Outputs()
-                    enumerated_fetched = true
+                -- Enumeration is cached for the whole ROM session (cleared by
+                -- _FFB.Reset). A machine's output table is a static part of its
+                -- configuration, so the answer cannot change between frames -
+                -- and this function retries every frame until something
+                -- resolves, so re-walking every device each time would allocate
+                -- a record per output, 60 times a second, for nothing. Fetched
+                -- lazily still: an address-first profile never enumerates at all.
+                if not _FFB.enum_done then
+                    _FFB.enum = Enumerate_Native_Outputs()
+                    _FFB.enum_done = true
                 end
+                local enumerated = _FFB.enum
                 if enumerated then
                     for _, rec in ipairs(enumerated) do
                         if rec.name == src or rec.wire == src then
-                            local ok, p = pcall(function() return rec.dev:output(rec.name) end)
+                            local ok, p = pcall(Resolve_Device_Output, rec)
                             if ok and p and p:exists() then
                                 _FFB.proxy = p
                                 _FFB.source = src
@@ -2683,7 +2902,12 @@ function stateoutput.startplugin()
         _FFB.probe_frames = _FFB.probe_frames + 1
         if not _FFB.warned and _FFB.probe_frames == 600 then
             _FFB.warned = true
-            dbg_print("FFB WARNING: no source found after 600 frames - none of the configured SOURCES exist for this ROM")
+            -- Give up for the rest of the ROM session. The enumeration is already
+            -- cached above, so retrying costs little, but ten seconds of misses on
+            -- a static output table is a settled answer - keep walking the source
+            -- list every frame and it never becomes anything else.
+            _FFB.exhausted = true
+            dbg_print("FFB WARNING: no source found after 600 frames - none of the configured SOURCES exist for this ROM; probing stopped")
         end
         return false
     end
@@ -2716,19 +2940,28 @@ function stateoutput.startplugin()
             if type(ev) == "table" and type(ev.SOURCE) == "number" then
                 local rt = _FFB.events_rt[key]
                 if not rt then
-                    rt = { last = false, tick = false,
-                           dur = emu.attotime.from_msec(tonumber(ev.DURATION_MS) or 150) }
-                    _FFB.events_rt[key] = rt
-                end
-                local raw = Read_Data_Safe(mem, ev.SOURCE, ev.WIDTH or def_width)
-                local mode = string.lower(tostring(ev.MODE or "nonzero"))
-                local strength = tonumber(ev.STRENGTH) or scale
-                local out_key = "FFB_" .. key
-
-                if mode == "value" then
+                    -- Event config is static for the ROM session (events_rt is
+                    -- cleared by _FFB.Reset), so normalise it all once here -
+                    -- re-lowercasing MODE, tonumber-ing STRENGTH/MAX and
+                    -- rebuilding the "FFB_" name were two string allocations
+                    -- plus conversions per event, per frame, for nothing.
                     local max = tonumber(ev.MAX) or scale
                     if max < 1 then max = 1 end
-                    local v = math.floor(raw * scale / max + 0.5)
+                    rt = { last = false, tick = false,
+                           dur = emu.attotime.from_msec(tonumber(ev.DURATION_MS) or 150),
+                           mode = string.lower(tostring(ev.MODE or "nonzero")),
+                           strength = tonumber(ev.STRENGTH) or scale,
+                           max = max,
+                           width = ev.WIDTH or def_width,
+                           out_key = "FFB_" .. key }
+                    _FFB.events_rt[key] = rt
+                end
+                local raw = Read_Data_Safe(mem, ev.SOURCE, rt.width)
+                local mode = rt.mode
+                local out_key = rt.out_key
+
+                if mode == "value" then
+                    local v = math.floor(raw * scale / rt.max + 0.5)
                     if v < 0 then v = 0 elseif v > scale then v = scale end
                     Set_Output(out, p_idx, out_key, v)
                 elseif mode == "change" or mode == "increase" then
@@ -2739,13 +2972,13 @@ function stateoutput.startplugin()
                     end
                     if fire then
                         rt.tick = current_time
-                        Set_Output(out, p_idx, out_key, strength)
+                        Set_Output(out, p_idx, out_key, rt.strength)
                     elseif rt.tick and (current_time - rt.tick) > rt.dur then
                         rt.tick = false
                         Set_Output(out, p_idx, out_key, 0)
                     end
                 else -- "nonzero" (default): level-style flag held by the game
-                    Set_Output(out, p_idx, out_key, (raw ~= 0) and strength or 0)
+                    Set_Output(out, p_idx, out_key, (raw ~= 0) and rt.strength or 0)
                 end
 
                 rt.last = raw
@@ -2785,7 +3018,7 @@ function stateoutput.startplugin()
 
         -- STREAM CHANNELS (skipped cleanly when no SOURCES are configured)
         if type(cfgF.SOURCES) == "table" and #cfgF.SOURCES > 0
-           and (_FFB.mode ~= false or _FFB.Resolve()) then
+           and (_FFB.mode ~= false or (not _FFB.exhausted and _FFB.Resolve())) then
             local raw
             if _FFB.mode == "output" then
                 raw = _FFB.proxy:get()
@@ -2811,6 +3044,12 @@ function stateoutput.startplugin()
                     local scale = _FFB.scale
                     local set = _FFB.decoder(raw, scale)
                     if type(set) == "table" then
+                        -- INVERT (per profile): some cabinets encode steering direction
+                        -- the opposite way round to the family norm. Only the signed
+                        -- CONSTANT channel flips; magnitudes stay positive.
+                        if cfgF.INVERT == true and set.CONSTANT then
+                            set.CONSTANT = -set.CONSTANT
+                        end
                         for ch, val in pairs(set) do
                             if val > scale then val = scale elseif val < -scale then val = -scale end
                             Set_Output(out, p_idx, "FFB_" .. ch, val)
@@ -3042,7 +3281,7 @@ function stateoutput.startplugin()
     -- =========================================================================
     -- the BOOT HOOK (on_start)
     -- This fires exactly once when a specific ROM finishes launching.
-    -- Initializes arrays, validates DB config, and sets up timers.
+    -- Initialises arrays, validates DB config, and sets up timers.
     -- =========================================================================
     local function on_start()
         dbg_print("on_start triggered. Current MAME Phase: " .. tostring(manager.machine.phase))
