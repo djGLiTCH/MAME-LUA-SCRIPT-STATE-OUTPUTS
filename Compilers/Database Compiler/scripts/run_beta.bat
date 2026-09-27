@@ -4,6 +4,7 @@ REM   1. database compiler   (input\beta\database\games  ->  output\beta\stateou
 REM   2. driver compiler      (MAME source                ->  output\beta\stateoutput\native_outputs_by_rom.lua) [optional]
 REM   3. HOTR defaultLG        (beta database              ->  output\beta\defaultLG)
 REM   4. MAMEhooker .ini       (beta database              ->  output\beta\ini)
+REM   5. games.json sync       (beta database              ->  Updater\JSON\games.json "Channels")  [skipped when games.json is absent]
 REM BETA is intentionally isolated from STABLE (its own input\beta\ tree), so experimental games AND
 REM plugin code can't touch the shipped stable build. See run.bat for both channels, run_stable.bat for stable.
 REM Set MAME_SRC to your MAME source checkout (contains src\mame) to enable the driver step; EMPTY skips it.
@@ -31,6 +32,11 @@ if errorlevel 1 goto :error
 echo.
 echo === [BETA] MAMEhooker INI Generator ^(driver natives by default -^> output\beta\ini^) ===
 python "%~dp0msop_mamehooker_ini_generator.py" --channel beta
+if errorlevel 1 goto :error
+
+echo.
+echo === [BETA] games.json Sync ^(-^> Updater\JSON\games.json Channels^) ===
+python "%~dp0msop_games_json_sync.py" --channel beta
 if errorlevel 1 goto :error
 
 echo.

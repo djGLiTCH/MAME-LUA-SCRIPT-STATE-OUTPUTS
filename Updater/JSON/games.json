@@ -16,7 +16,11 @@
             "NativeStateOutput": true,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.05.22",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.05.22",
+                "beta": "2026.05.22"
+            }
         },
         {
             "ROM": "area51",
@@ -34,7 +38,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "area51mx",
@@ -52,7 +60,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "bbust2",
@@ -70,7 +82,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "bel",
@@ -88,7 +104,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "carnevil",
@@ -106,7 +126,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "crszone",
@@ -124,7 +148,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.5",
             "SupportedDate": "2026.06.29",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.06.29",
+                "beta": "2026.06.29"
+            }
         },
         {
             "ROM": "cryptklr",
@@ -142,7 +170,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "dragngun",
@@ -160,7 +192,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.05.07",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.05.07",
+                "beta": "2026.05.07"
+            }
         },
         {
             "ROM": "dragngunj",
@@ -178,7 +214,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.4",
             "SupportedDate": "2026.06.19",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.06.19",
+                "beta": "2026.06.19"
+            }
         },
         {
             "ROM": "evilngt",
@@ -196,7 +236,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "9.1.2",
             "SupportedDate": "2026.07.26",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.07.26",
+                "beta": "2026.07.26"
+            }
         },
         {
             "ROM": "hellngt",
@@ -214,7 +258,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "9.1.2",
             "SupportedDate": "2026.07.26",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.07.26",
+                "beta": "2026.07.26"
+            }
         },
         {
             "ROM": "hotd",
@@ -232,7 +280,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "invasnab",
@@ -250,7 +302,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "jdredd",
@@ -268,7 +324,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "jpark",
@@ -286,7 +346,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.05.07",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.05.07",
+                "beta": "2026.05.07"
+            }
         },
         {
             "ROM": "jpark3",
@@ -304,7 +368,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "9.1.2",
             "SupportedDate": "2026.07.26",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.07.26",
+                "beta": "2026.07.26"
+            }
         },
         {
             "ROM": "lethalen",
@@ -322,7 +390,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "le2",
@@ -340,7 +412,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "lethalj",
@@ -358,7 +434,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "maxforce",
@@ -376,7 +456,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "opwolf",
@@ -394,7 +478,11 @@
             "NativeStateOutput": true,
             "SupportedVersion": "8.2.3",
             "SupportedDate": "2026.06.12",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.06.12",
+                "beta": "2026.06.12"
+            }
         },
         {
             "ROM": "opwolf3",
@@ -412,7 +500,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.5",
             "SupportedDate": "2026.06.24",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.06.24",
+                "beta": "2026.06.24"
+            }
         },
         {
             "ROM": "othunder",
@@ -430,7 +522,11 @@
             "NativeStateOutput": true,
             "SupportedVersion": "8.2.5",
             "SupportedDate": "2026.06.24",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.06.24",
+                "beta": "2026.06.24"
+            }
         },
         {
             "ROM": "ptblank",
@@ -448,7 +544,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "policetr",
@@ -466,7 +566,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "sgunner",
@@ -484,7 +588,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "sgunnerj",
@@ -502,7 +610,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.4",
             "SupportedDate": "2026.06.19",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.06.19",
+                "beta": "2026.06.19"
+            }
         },
         {
             "ROM": "sgunner2",
@@ -520,7 +632,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.05.07",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.05.07",
+                "beta": "2026.05.07"
+            }
         },
         {
             "ROM": "sgunner2j",
@@ -538,7 +654,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.2.4",
             "SupportedDate": "2026.06.19",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.06.19",
+                "beta": "2026.06.19"
+            }
         },
         {
             "ROM": "terabrst",
@@ -556,7 +676,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "9.1.3",
             "SupportedDate": "2026.07.28",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.07.28",
+                "beta": "2026.07.28"
+            }
         },
         {
             "ROM": "timecris",
@@ -574,7 +698,11 @@
             "NativeStateOutput": true,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "timecrs2",
@@ -592,7 +720,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "totlvice",
@@ -610,7 +742,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "9.1.3",
             "SupportedDate": "2026.07.28",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.07.28",
+                "beta": "2026.07.28"
+            }
         },
         {
             "ROM": "vcop",
@@ -628,7 +764,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "vcop2",
@@ -646,7 +786,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         },
         {
             "ROM": "duckhunt",
@@ -664,7 +808,11 @@
             "NativeStateOutput": false,
             "SupportedVersion": "8.1.6",
             "SupportedDate": "2026.04.05",
-            "SupportAddedBy": "DJ_GLiTCH"
+            "SupportAddedBy": "DJ_GLiTCH",
+            "Channels": {
+                "stable": "2026.04.05",
+                "beta": "2026.04.05"
+            }
         }
     ]
 }

@@ -6,6 +6,7 @@ REM   1. database compiler   (input\<ch>\database\games  ->  output\<ch>\stateou
 REM   2. driver compiler      (MAME source                ->  output\<ch>\stateoutput\native_outputs_by_rom.lua) [optional]
 REM   3. HOTR defaultLG        (<ch> database              ->  output\<ch>\defaultLG)
 REM   4. MAMEhooker .ini       (<ch> database              ->  output\<ch>\ini)
+REM   5. games.json sync       (<ch> database              ->  Updater\JSON\games.json "Channels")  [skipped when games.json is absent]
 REM Single-channel launchers: run_stable.bat / run_beta.bat. %~dp0 = this scripts\ folder.
 REM
 REM Set MAME_SRC below to your MAME source checkout (the folder that contains src\mame) to enable the
@@ -48,6 +49,10 @@ if errorlevel 1 exit /b 1
 echo.
 echo === [%~1] MAMEhooker INI Generator ^(driver natives by default -^> output\%~1\ini^) ===
 python "%SCRIPTS%msop_mamehooker_ini_generator.py" --channel %~1
+if errorlevel 1 exit /b 1
+echo.
+echo === [%~1] games.json Sync ^(-^> Updater\JSON\games.json Channels^) ===
+python "%SCRIPTS%msop_games_json_sync.py" --channel %~1
 if errorlevel 1 exit /b 1
 echo.
 exit /b 0

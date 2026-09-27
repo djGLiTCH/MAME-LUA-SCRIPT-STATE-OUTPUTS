@@ -4,6 +4,7 @@
 #   2. driver compiler      (MAME source                ->  output/beta/stateoutput/native_outputs_by_rom.lua) [optional]
 #   3. HOTR defaultLG        (beta database              ->  output/beta/defaultLG)
 #   4. MAMEhooker .ini       (beta database              ->  output/beta/ini)
+#   5. games.json sync       (beta database              ->  Updater/JSON/games.json "Channels")  [skipped when games.json is absent]
 # BETA is intentionally isolated from STABLE (its own input/beta/ tree), so experimental games AND
 # plugin code can't touch the shipped stable build. See run.sh for both channels, run_stable.sh for stable.
 #
@@ -33,6 +34,10 @@ echo "=== [BETA] HOTR defaultLG Generator (-> output/beta/defaultLG) ==="
 echo
 echo "=== [BETA] MAMEhooker INI Generator (driver natives by default -> output/beta/ini) ==="
 "$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel beta
+
+echo
+echo "=== [BETA] games.json Sync (-> Updater/JSON/games.json Channels) ==="
+"$PY" "$DIR/msop_games_json_sync.py" --channel beta
 
 echo
 echo "Done - output/beta/ is tagged BETA and ready to ship."

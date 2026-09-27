@@ -4,6 +4,7 @@
 #   2. driver compiler      (MAME source                  ->  output/stable/stateoutput/native_outputs_by_rom.lua) [optional]
 #   3. HOTR defaultLG        (stable database              ->  output/stable/defaultLG)
 #   4. MAMEhooker .ini       (stable database              ->  output/stable/ini)
+#   5. games.json sync       (stable database              ->  Updater/JSON/games.json "Channels")  [skipped when games.json is absent]
 # See run.sh to build BOTH channels at once, and run_beta.sh for beta.
 #
 # Set MAME_SRC to your MAME source checkout (the folder that contains src/mame) to enable the driver
@@ -32,6 +33,10 @@ echo "=== [STABLE] HOTR defaultLG Generator (-> output/stable/defaultLG) ==="
 echo
 echo "=== [STABLE] MAMEhooker INI Generator (driver natives by default -> output/stable/ini) ==="
 "$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel stable
+
+echo
+echo "=== [STABLE] games.json Sync (-> Updater/JSON/games.json Channels) ==="
+"$PY" "$DIR/msop_games_json_sync.py" --channel stable
 
 echo
 echo "Done - output/stable/ is tagged STABLE and ready to ship."

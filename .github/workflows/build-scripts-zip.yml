@@ -10,11 +10,16 @@ name: Package Updater ZIPs
 #     Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip  <- output/stable/ini/           (ini/ at zip root)
 #     Updater/HookOfTheReaper/MSOP-HOTR-STABLE.zip   <- output/stable/defaultLG/     (defaultLG/ at zip root)
 #     Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip <- the standalone tool (scripts + STABLE input/output + README)
+#     Updater/GameProfiles/MSOP-GAME-PROFILES-STABLE.zip  <- input/stable/database/games/  (games/ at zip root)
 #
 #   BETA (owner-gated - packaged ONLY when output/beta/ has been committed; skipped otherwise):
 #     Updater/Plugin/MSOP-PLUGIN-BETA.zip            <- output/beta/stateoutput/
 #     Updater/MameHooker/MSOP-MAMEHOOKER-BETA.zip    <- output/beta/ini/
 #     Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip     <- output/beta/defaultLG/
+#     Updater/GameProfiles/MSOP-GAME-PROFILES-BETA.zip <- input/beta/database/games/
+#
+# The GAME-PROFILES zips carry each channel's official game profiles (_default.json plus the GAME_TYPE
+# subfolders) so an app can compile a channel's database with the user's own profiles on top of it.
 #
 # Beta is deliberately manual: each beta channel's plugin/HOTR/INI are generated together from the SAME
 # beta database (input/beta/), so a beta plugin can never be paired with stable-suited HOTR/INI. Run
@@ -64,17 +69,20 @@ jobs:
 
     - name: Package the STABLE Updater ZIPs
       run: |
-        mkdir -p Updater/Plugin Updater/MameHooker Updater/HookOfTheReaper Updater/DatabaseCompiler
+        mkdir -p Updater/Plugin Updater/MameHooker Updater/HookOfTheReaper Updater/DatabaseCompiler Updater/GameProfiles
         rm -f Updater/Plugin/MSOP-PLUGIN-STABLE.zip \
               Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip \
               Updater/HookOfTheReaper/MSOP-HOTR-STABLE.zip \
-              Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip
+              Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip \
+              Updater/GameProfiles/MSOP-GAME-PROFILES-STABLE.zip
         # stateoutput/, ini/, defaultLG/ each sit at their zip's root (the app extracts expecting that).
         (cd "$DBC/output/stable" && zip -rX "$GITHUB_WORKSPACE/Updater/Plugin/MSOP-PLUGIN-STABLE.zip" stateoutput)
         (cd "$DBC/output/stable" && zip -rX "$GITHUB_WORKSPACE/Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip" ini)
         (cd "$DBC/output/stable" && zip -rX "$GITHUB_WORKSPACE/Updater/HookOfTheReaper/MSOP-HOTR-STABLE.zip" defaultLG)
         # The self-contained tool: scripts + STABLE input/output + README; beta stays internal (not shipped).
         (cd "$DBC" && zip -rX "$GITHUB_WORKSPACE/Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip" scripts input/stable output/stable README.md -x '*__pycache__*')
+        # The channel's official game profiles on their own, games/ at the zip root.
+        (cd "$DBC/input/stable/database" && zip -rX "$GITHUB_WORKSPACE/Updater/GameProfiles/MSOP-GAME-PROFILES-STABLE.zip" games)
 
     - name: Package the BETA Updater ZIPs (only if beta output was committed)
       run: |
@@ -82,10 +90,12 @@ jobs:
           echo "beta output present -> packaging BETA zips"
           rm -f Updater/Plugin/MSOP-PLUGIN-BETA.zip \
                 Updater/MameHooker/MSOP-MAMEHOOKER-BETA.zip \
-                Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip
+                Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip \
+                Updater/GameProfiles/MSOP-GAME-PROFILES-BETA.zip
           (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/Plugin/MSOP-PLUGIN-BETA.zip" stateoutput)
           [ -d "$DBC/output/beta/ini" ]       && (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/MameHooker/MSOP-MAMEHOOKER-BETA.zip" ini)
           [ -d "$DBC/output/beta/defaultLG" ] && (cd "$DBC/output/beta" && zip -rX "$GITHUB_WORKSPACE/Updater/HookOfTheReaper/MSOP-HOTR-BETA.zip" defaultLG)
+          [ -d "$DBC/input/beta/database/games" ] && (cd "$DBC/input/beta/database" && zip -rX "$GITHUB_WORKSPACE/Updater/GameProfiles/MSOP-GAME-PROFILES-BETA.zip" games)
           if [ ! -f "$DBC/output/beta/stateoutput/native_outputs_by_rom.lua" ]; then
             echo "::warning::output/beta/ has no native_outputs_by_rom.lua - the BETA plugin will ship without native output forwarding. Run scripts/run_beta.* with MAME_SRC set to include it."
           fi
@@ -97,4 +107,4 @@ jobs:
       uses: stefanzweifel/git-auto-commit-action@v7
       with:
         commit_message: "Auto-package Database Compiler outputs into Updater subfolder zips (per channel)"
-        file_pattern: 'Updater/Plugin/*.zip Updater/MameHooker/*.zip Updater/HookOfTheReaper/*.zip Updater/DatabaseCompiler/*.zip'
+        file_pattern: 'Updater/Plugin/*.zip Updater/MameHooker/*.zip Updater/HookOfTheReaper/*.zip Updater/DatabaseCompiler/*.zip Updater/GameProfiles/*.zip'

@@ -5,6 +5,7 @@ REM   1. database compiler   (input\stable\database\games  ->  output\stable\sta
 REM   2. drops native_outputs_by_rom.lua + native_outputs_by_driver.lua from the plugin folder (does NOT run the driver compiler)
 REM   3. HOTR defaultLG        (stable database  ->  output\stable\defaultLG)         [never uses the driver]
 REM   4. MAMEhooker .ini       (stable database  ->  output\stable\ini, --exclude-driver)  [MSOP outputs only]
+REM   5. games.json sync       (stable database  ->  Updater\JSON\games.json "Channels")  [skipped when games.json is absent]
 REM The result reflects the plugin's own MSOP state outputs (recoil/reload/ammo/life/damage/credits/
 REM lampstart) plus each game's curated ADDITIONAL_OUTPUT_FORWARDS - but NOT the scraped MAME native
 REM outputs. Use run_stable.* (with MAME_SRC set) instead when you DO want the MAME driver outputs.
@@ -30,6 +31,11 @@ if errorlevel 1 goto :error
 echo.
 echo === [STABLE / MSOP-only] MAMEhooker INI Generator ^(--exclude-driver -^> output\stable\ini^) ===
 python "%~dp0msop_mamehooker_ini_generator.py" --channel stable --exclude-driver
+if errorlevel 1 goto :error
+
+echo.
+echo === [STABLE / MSOP-only] games.json Sync ^(-^> Updater\JSON\games.json Channels^) ===
+python "%~dp0msop_games_json_sync.py" --channel stable
 if errorlevel 1 goto :error
 
 echo.

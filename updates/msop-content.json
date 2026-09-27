@@ -51,7 +51,22 @@
         "PackageType": ".zip",
         "AssetUrl": ""
     },
+    "GameProfilesStable": {
+        "_comment": "The stable channel's official game profiles (games/ at the zip root: _default.json plus the GAME_TYPE subfolders), for compiling a stable database with a user's own profiles on top.",
+        "PackageLocation": "Updater/GameProfiles",
+        "PackageName": "MSOP-GAME-PROFILES-STABLE",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
+    "GameProfilesBeta": {
+        "_comment": "The beta channel's official game profiles, in the same layout as GameProfilesStable.",
+        "PackageLocation": "Updater/GameProfiles",
+        "PackageName": "MSOP-GAME-PROFILES-BETA",
+        "PackageType": ".zip",
+        "AssetUrl": ""
+    },
     "Games": {
+        "_comment": "The MSOP supported games list. Each game's Channels object holds, per release channel (stable/beta), the database date (plugin.json datedatabase) of the first build that included it; a missing key means the game is not in that channel. Maintained by the Database Compiler's msop_games_json_sync.py.",
         "PackageLocation": "Updater/JSON",
         "PackageName": "games",
         "PackageType": ".json",

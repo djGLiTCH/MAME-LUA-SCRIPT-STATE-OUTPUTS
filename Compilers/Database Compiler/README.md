@@ -27,11 +27,12 @@ Database Compiler/
 │   ├── msop_native_outputs_compiler.py  MAME source -> native_outputs_by_rom.lua + native_outputs_by_driver.lua (+ scrape report)
 │   ├── msop_hotr_defaultlg_generator.py  games -> output/<channel>/defaultLG/*.txt   (Hook Of The Reaper)
 │   ├── msop_mamehooker_ini_generator.py  games -> output/<channel>/ini/*.ini         (MAMEhooker skeletons)
+│   ├── msop_games_json_sync.py           games -> Updater/JSON/games.json "Channels"  (maintainer step)
 │   ├── msop_output_model.py              shared helper (init.lua-mirroring output derivation; not run directly)
-│   ├── run_stable.* / run_beta.*         run the FULL pipeline for ONE channel (db -> driver -> defaultLG -> ini)
+│   ├── run_stable.* / run_beta.*         run the FULL pipeline for ONE channel (db -> driver -> defaultLG -> ini -> games.json)
 │   ├── run.bat / run.sh                  run the full pipeline for BOTH channels (stable then beta)
 │   ├── run_*_msop_only.*                 the same per-channel pipeline without the MAME native outputs
-│   └── run_msop_*.*                      single-tool launchers (natives compiler / defaultLG / ini; take --channel)
+│   └── run_msop_*.*                      single-tool launchers (natives compiler / defaultLG / ini / games.json sync; take --channel)
 │
 ├── input/              YOU EDIT THIS  -  split per release channel
 │   ├── stable/         the STABLE source
@@ -70,7 +71,8 @@ places is a hard build error in mode 1.
 
 - **One channel, full pipeline (headless, no prompts):**
   - `scripts/run_stable.*` - reads `input/stable/`, runs db compile > driver > HOTR defaultLG >
-    MAMEhooker ini, writing `output/stable/` with `plugin.json` stamped `channel = "stable"`.
+    MAMEhooker ini > games.json sync, writing `output/stable/` with `plugin.json` stamped
+    `channel = "stable"`.
   - `scripts/run_beta.*` - the same for `input/beta/` > `output/beta/`, stamped `"beta"`.
   - The driver step is **skipped** unless you set `MAME_SRC` at the top of the launcher to your MAME
     source checkout (the folder containing `src/mame`); the two template generators always run.
@@ -114,13 +116,18 @@ places is a hard build error in mode 1.
 - **Interactive database editing:** `python scripts/msop_database_compiler.py` with no argument opens
   the mode menu (mode 1 games>lua, mode 2 database.json>games) on the **stable** channel. The database
   and driver compilers also take an explicit `stable`|`beta` / `--channel`.
+- **games.json sync on its own:** `scripts/run_msop_games_json_sync.*` (see *What each does* below);
+  accepts `--channel stable|beta`, `--check` and `--backfill`.
 
 **Beta is a branch, not a stamp.** To cut a beta: copy `input/stable/` > `input/beta/`, make your
 experimental edits there (new games, or an experimental `init.lua`/`plugin.json`), and run `run_beta`.
 To promote it back: copy `input/beta/` > `input/stable/` (review the diff), bump versions, run
-`run_stable`. Because each channel's plugin, HOTR and INI are all generated from that one channel's
-database, a beta plugin can never be paired with stable-suited HOTR/INI. CI packages the STABLE zips
-automatically and the BETA zips only once you commit `output/beta/`.
+`run_stable`. A promotion can also be partial - copying only `input/beta/stateoutput/` ships the
+latest plugin in stable while every game stays where it is. Because each channel's plugin, HOTR and
+INI are all generated from that one channel's database, a beta plugin can never be paired with
+stable-suited HOTR/INI. CI packages the STABLE zips automatically and the BETA zips only once you
+commit `output/beta/`; alongside them it publishes each channel's official game profiles on their own
+(`Updater/GameProfiles/MSOP-GAME-PROFILES-<CHANNEL>.zip`, `games/` at the zip root).
 
 All scripts resolve their paths from the project root via `__file__`, so they run from any directory.
 
@@ -183,6 +190,17 @@ always print).
   skeleton for every supported game: the standard `[General]`/`[KeyStates]`/`[Output]` layout with
   `[Output]` prepopulated by every MSOP output that game emits (values left blank, ready for hardware
   commands).
+
+- **`msop_games_json_sync.py`** - keeps the supported games list (`Updater/JSON/games.json`) aligned with
+  each channel's database. Every row carries `"Channels": { "stable": "<date>", "beta": "<date>" }`, each
+  date being the `datedatabase` of the first build of that channel that included the ROM; a missing key
+  means the game is not in that channel. The sync stamps new ROMs with this build's `datedatabase`, keeps
+  existing dates, and removes the key for ROMs that have left the channel (or have `ENABLE_ROM` false).
+  A ROM in the **stable** database with no `games.json` row is a build error (nothing is written); in
+  **beta** it is a warning. It only ever writes `Channels` - the row metadata stays hand-curated.
+  `--check` reports without writing, and `--backfill` (one-off) seeds missing dates from each row's
+  `SupportedDate`. Runs as the last step of every channel launcher, and is skipped when `games.json` is
+  absent (the standalone Database Compiler download does not include it).
 
 - **`msop_output_model.py`** - a shared helper library (not run directly) holding the per-game output-set
   derivation that mirrors `init.lua`. Both generators import it so that logic lives in one place. **Keep

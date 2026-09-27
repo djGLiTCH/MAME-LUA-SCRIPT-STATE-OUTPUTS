@@ -5,6 +5,7 @@
 #   2. drops native_outputs_by_rom.lua + native_outputs_by_driver.lua from the plugin folder (does NOT run the driver compiler)
 #   3. HOTR defaultLG        (stable database  ->  output/stable/defaultLG)         [never uses the driver]
 #   4. MAMEhooker .ini       (stable database  ->  output/stable/ini, --exclude-driver)  [MSOP outputs only]
+#   5. games.json sync       (stable database  ->  Updater/JSON/games.json "Channels")  [skipped when games.json is absent]
 # The result reflects the plugin's own MSOP state outputs (recoil/reload/ammo/life/damage/credits/
 # lampstart) plus each game's curated ADDITIONAL_OUTPUT_FORWARDS - but NOT the scraped MAME native
 # outputs. Use run_stable.* (with MAME_SRC set) instead when you DO want the MAME driver outputs.
@@ -33,6 +34,10 @@ echo "=== [STABLE / MSOP-only] HOTR defaultLG Generator (-> output/stable/defaul
 echo
 echo "=== [STABLE / MSOP-only] MAMEhooker INI Generator (--exclude-driver -> output/stable/ini) ==="
 "$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel stable --exclude-driver
+
+echo
+echo "=== [STABLE / MSOP-only] games.json Sync (-> Updater/JSON/games.json Channels) ==="
+"$PY" "$DIR/msop_games_json_sync.py" --channel stable
 
 echo
 echo "Done - output/stable/ is a MSOP-ONLY build (no native_outputs_by_rom*.lua, no MAME native outputs)."
