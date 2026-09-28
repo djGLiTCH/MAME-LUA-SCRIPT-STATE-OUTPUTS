@@ -214,6 +214,252 @@
             "layout": []
         }
     },
+    "calspeed": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\calspeed.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "calspeeda": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\calspeed.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "calspeedb": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\calspeed.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
     "carnevil": {
         "driver_file": "src\\mame\\williams\\seattle.cpp",
         "class": "seattle_state",
@@ -286,6 +532,214 @@
             "layout": []
         }
     },
+    "cartfury": {
+        "driver_file": "src\\mame\\williams\\vegas.cpp",
+        "class": "vegas_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_system_led",
+                    "names": [
+                        "system_led"
+                    ]
+                },
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "cbombers": {
+        "driver_file": "src\\mame\\taito\\undrfire.cpp",
+        "class": "undrfire_state",
+        "layout_file": "src\\mame\\layout\\cbombers.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamp_start",
+                    "names": [
+                        "P1_lamp_start",
+                        "P2_lamp_start"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_gun_recoil",
+                        "P2_gun_recoil"
+                    ]
+                },
+                {
+                    "field": "m_lamp",
+                    "names": [
+                        "Lamp_1",
+                        "Lamp_2",
+                        "Lamp_3",
+                        "Lamp_4",
+                        "Lamp_5",
+                        "Lamp_6"
+                    ]
+                },
+                {
+                    "field": "m_wheel_vibration",
+                    "names": [
+                        "Wheel_vibration"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "cbombersj": {
+        "driver_file": "src\\mame\\taito\\undrfire.cpp",
+        "class": "undrfire_state",
+        "layout_file": "src\\mame\\layout\\cbombers.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamp_start",
+                    "names": [
+                        "P1_lamp_start",
+                        "P2_lamp_start"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_gun_recoil",
+                        "P2_gun_recoil"
+                    ]
+                },
+                {
+                    "field": "m_lamp",
+                    "names": [
+                        "Lamp_1",
+                        "Lamp_2",
+                        "Lamp_3",
+                        "Lamp_4",
+                        "Lamp_5",
+                        "Lamp_6"
+                    ]
+                },
+                {
+                    "field": "m_wheel_vibration",
+                    "names": [
+                        "Wheel_vibration"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "cbombersp": {
+        "driver_file": "src\\mame\\taito\\undrfire.cpp",
+        "class": "undrfire_state",
+        "layout_file": "src\\mame\\layout\\cbombers.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamp_start",
+                    "names": [
+                        "P1_lamp_start",
+                        "P2_lamp_start"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_gun_recoil",
+                        "P2_gun_recoil"
+                    ]
+                },
+                {
+                    "field": "m_lamp",
+                    "names": [
+                        "Lamp_1",
+                        "Lamp_2",
+                        "Lamp_3",
+                        "Lamp_4",
+                        "Lamp_5",
+                        "Lamp_6"
+                    ]
+                },
+                {
+                    "field": "m_wheel_vibration",
+                    "names": [
+                        "Wheel_vibration"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "cischeat": {
+        "driver_file": "src\\mame\\jaleco\\cischeat.cpp",
+        "class": "cischeat_state",
+        "layout_file": "src\\mame\\layout\\cischeat.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
     "crszone": {
         "driver_file": "src\\mame\\namco\\namcos23.cpp",
         "class": "crszone_state",
@@ -309,6 +763,357 @@
             "layout": []
         }
     },
+    "crusnusa": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnusa_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnusa21": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnusa_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnusa40": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnusa_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnwld": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnwld17": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnwld19": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnwld20": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnwld23": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "crusnwld24": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
     "cryptklr": {
         "driver_file": "src\\mame\\konami\\konamigq.cpp",
         "class": "konamigq_state",
@@ -316,6 +1121,225 @@
         "candidates": {
             "output_finder": [],
             "layout": []
+        }
+    },
+    "daytona": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2o_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "daytonas": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2o_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "daytonase": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2o_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "dblaxle": {
+        "driver_file": "src\\mame\\taito\\taito_z.cpp",
+        "class": "taitoz_z80_sound_state",
+        "layout_file": "src\\mame\\layout\\dblaxle.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_cpua_out",
+                    "names": [
+                        "genout0",
+                        "genout1",
+                        "genout2",
+                        "genout3",
+                        "genout4",
+                        "genout5",
+                        "genout6",
+                        "genout7"
+                    ]
+                },
+                {
+                    "field": "m_shutter_out",
+                    "names": [
+                        "shutter0",
+                        "shutter1"
+                    ]
+                },
+                {
+                    "field": "m_motor_dir",
+                    "names": [
+                        "Motor_1_Direction",
+                        "Motor_2_Direction",
+                        "Motor_3_Direction"
+                    ]
+                },
+                {
+                    "field": "m_motor_speed",
+                    "names": [
+                        "Motor_1_Speed",
+                        "Motor_2_Speed",
+                        "Motor_3_Speed"
+                    ]
+                },
+                {
+                    "field": "m_motor_debug",
+                    "names": [
+                        "motor_debug"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_recoil",
+                    "names": [
+                        "Player1_Gun_Recoil",
+                        "Player2_Gun_Recoil"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "dblaxleu": {
+        "driver_file": "src\\mame\\taito\\taito_z.cpp",
+        "class": "taitoz_z80_sound_state",
+        "layout_file": "src\\mame\\layout\\dblaxle.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_cpua_out",
+                    "names": [
+                        "genout0",
+                        "genout1",
+                        "genout2",
+                        "genout3",
+                        "genout4",
+                        "genout5",
+                        "genout6",
+                        "genout7"
+                    ]
+                },
+                {
+                    "field": "m_shutter_out",
+                    "names": [
+                        "shutter0",
+                        "shutter1"
+                    ]
+                },
+                {
+                    "field": "m_motor_dir",
+                    "names": [
+                        "Motor_1_Direction",
+                        "Motor_2_Direction",
+                        "Motor_3_Direction"
+                    ]
+                },
+                {
+                    "field": "m_motor_speed",
+                    "names": [
+                        "Motor_1_Speed",
+                        "Motor_2_Speed",
+                        "Motor_3_Speed"
+                    ]
+                },
+                {
+                    "field": "m_motor_debug",
+                    "names": [
+                        "motor_debug"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_recoil",
+                    "names": [
+                        "Player1_Gun_Recoil",
+                        "Player2_Gun_Recoil"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
         }
     },
     "dragngun": {
@@ -345,6 +1369,644 @@
             "layout": []
         }
     },
+    "evilngt": {
+        "driver_file": "src\\mame\\konami\\konamim2.cpp",
+        "class": "konamim2_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "f1gpstar": {
+        "driver_file": "src\\mame\\jaleco\\cischeat.cpp",
+        "class": "cischeat_state",
+        "layout_file": "src\\mame\\layout\\f1gpstar.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "f1gpstr2": {
+        "driver_file": "src\\mame\\jaleco\\cischeat.cpp",
+        "class": "cischeat_state",
+        "layout_file": "src\\mame\\layout\\f1gpstar.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "gticlub": {
+        "driver_file": "src\\mame\\konami\\gticlub.cpp",
+        "class": "gticlub_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "gticluba": {
+        "driver_file": "src\\mame\\konami\\gticlub.cpp",
+        "class": "gticlub_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "gticlubj": {
+        "driver_file": "src\\mame\\konami\\gticlub.cpp",
+        "class": "gticlub_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "gticlubu": {
+        "driver_file": "src\\mame\\konami\\gticlub.cpp",
+        "class": "gticlub_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddriv": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddriv1": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddriv2": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddriv3": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivb": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivb6": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivc": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivc1": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivcb": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivcg": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivg": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivg4": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivj": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "harddrivj6": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "hdrivair": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "hellngt": {
+        "driver_file": "src\\mame\\konami\\konamim2.cpp",
+        "class": "konamim2_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
     "hotd": {
         "driver_file": "src\\mame\\sega\\model2.cpp",
         "class": "model2c_state",
@@ -364,6 +2026,177 @@
                 }
             ],
             "layout": []
+        }
+    },
+    "hyprdriv": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\hyprdriv.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp2",
+                "lamp1",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7",
+                "led4",
+                "led3",
+                "led2",
+                "led1",
+                "led0",
+                "led9",
+                "led8",
+                "led7",
+                "led6",
+                "led5",
+                "led10",
+                "led11",
+                "led12",
+                "led13",
+                "led14",
+                "led15",
+                "led16",
+                "led17",
+                "led18",
+                "led19"
+            ]
+        }
+    },
+    "indy500": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2b_state",
+        "layout_file": "src\\mame\\layout\\vr.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": [
+                "Wide (16:9)"
+            ]
+        }
+    },
+    "indy500d": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2b_state",
+        "layout_file": "src\\mame\\layout\\vr.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": [
+                "Wide (16:9)"
+            ]
+        }
+    },
+    "indy500to": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2b_state",
+        "layout_file": "src\\mame\\layout\\vr.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": [
+                "Wide (16:9)"
+            ]
         }
     },
     "invasnab": {
@@ -594,6 +2427,15 @@
             "layout": []
         }
     },
+    "jpark3": {
+        "driver_file": "src\\mame\\konami\\viper.cpp",
+        "class": "viper_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
     "le2": {
         "driver_file": "src\\mame\\konami\\konamigx.cpp",
         "class": "konamigx_state",
@@ -646,6 +2488,254 @@
             "layout": []
         }
     },
+    "midnrun": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "midnruna": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "midnruna2": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "midnrunj": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "offroadc": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "offroadc1": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "offroadc3": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
+    "offroadc4": {
+        "driver_file": "src\\mame\\williams\\midvunit.cpp",
+        "class": "crusnwld_state",
+        "layout_file": "src\\mame\\layout\\crusnusa.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_optional_drivers",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1",
+                "lamp2",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7"
+            ]
+        }
+    },
     "opwolf": {
         "driver_file": "src\\mame\\taito\\opwolf.cpp",
         "class": "opwolf_state",
@@ -671,6 +2761,447 @@
             "layout": []
         }
     },
+    "orunners": {
+        "driver_file": "src\\mame\\sega\\segas32.cpp",
+        "class": "segas32_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_output_back_lamp",
+                    "names": [
+                        "Back_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_button",
+                    "names": [
+                        "Blue_Button_1P_lamp",
+                        "Blue_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_corner_lamp",
+                    "names": [
+                        "Blue_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_entry_lamp",
+                    "names": [
+                        "Entry_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_p_start",
+                    "names": [
+                        "1P_Start_lamp",
+                        "2P_Start_lamp",
+                        "3P_Start_lamp",
+                        "4P_Start_lamp",
+                        "5P_Start_lamp",
+                        "6P_Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp0",
+                    "names": [
+                        "lamp0"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp1",
+                    "names": [
+                        "lamp1"
+                    ]
+                },
+                {
+                    "field": "m_output_left_lamp",
+                    "names": [
+                        "Left_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_left_winner_lamp",
+                    "names": [
+                        "Left_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lights_lamp",
+                    "names": [
+                        "Lights_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_winner_lamp",
+                    "names": [
+                        "Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_player_gun_recoil",
+                    "names": [
+                        "Player1_Gun_Recoil",
+                        "Player2_Gun_Recoil"
+                    ]
+                },
+                {
+                    "field": "m_output_red_button",
+                    "names": [
+                        "Red_Button_1P_lamp",
+                        "Red_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_red_corner_lamp",
+                    "names": [
+                        "Red_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_lamp",
+                    "names": [
+                        "Right_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_winner_lamp",
+                    "names": [
+                        "Right_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_wiper_lamp",
+                    "names": [
+                        "Wiper_lamp"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "orunnersj": {
+        "driver_file": "src\\mame\\sega\\segas32.cpp",
+        "class": "segas32_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_output_back_lamp",
+                    "names": [
+                        "Back_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_button",
+                    "names": [
+                        "Blue_Button_1P_lamp",
+                        "Blue_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_corner_lamp",
+                    "names": [
+                        "Blue_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_entry_lamp",
+                    "names": [
+                        "Entry_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_p_start",
+                    "names": [
+                        "1P_Start_lamp",
+                        "2P_Start_lamp",
+                        "3P_Start_lamp",
+                        "4P_Start_lamp",
+                        "5P_Start_lamp",
+                        "6P_Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp0",
+                    "names": [
+                        "lamp0"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp1",
+                    "names": [
+                        "lamp1"
+                    ]
+                },
+                {
+                    "field": "m_output_left_lamp",
+                    "names": [
+                        "Left_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_left_winner_lamp",
+                    "names": [
+                        "Left_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lights_lamp",
+                    "names": [
+                        "Lights_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_winner_lamp",
+                    "names": [
+                        "Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_player_gun_recoil",
+                    "names": [
+                        "Player1_Gun_Recoil",
+                        "Player2_Gun_Recoil"
+                    ]
+                },
+                {
+                    "field": "m_output_red_button",
+                    "names": [
+                        "Red_Button_1P_lamp",
+                        "Red_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_red_corner_lamp",
+                    "names": [
+                        "Red_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_lamp",
+                    "names": [
+                        "Right_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_winner_lamp",
+                    "names": [
+                        "Right_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_wiper_lamp",
+                    "names": [
+                        "Wiper_lamp"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "orunnersu": {
+        "driver_file": "src\\mame\\sega\\segas32.cpp",
+        "class": "segas32_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_output_back_lamp",
+                    "names": [
+                        "Back_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_button",
+                    "names": [
+                        "Blue_Button_1P_lamp",
+                        "Blue_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_blue_corner_lamp",
+                    "names": [
+                        "Blue_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_entry_lamp",
+                    "names": [
+                        "Entry_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_p_start",
+                    "names": [
+                        "1P_Start_lamp",
+                        "2P_Start_lamp",
+                        "3P_Start_lamp",
+                        "4P_Start_lamp",
+                        "5P_Start_lamp",
+                        "6P_Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp0",
+                    "names": [
+                        "lamp0"
+                    ]
+                },
+                {
+                    "field": "m_output_lamp1",
+                    "names": [
+                        "lamp1"
+                    ]
+                },
+                {
+                    "field": "m_output_left_lamp",
+                    "names": [
+                        "Left_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_left_winner_lamp",
+                    "names": [
+                        "Left_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_lights_lamp",
+                    "names": [
+                        "Lights_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_winner_lamp",
+                    "names": [
+                        "Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_player_gun_recoil",
+                    "names": [
+                        "Player1_Gun_Recoil",
+                        "Player2_Gun_Recoil"
+                    ]
+                },
+                {
+                    "field": "m_output_red_button",
+                    "names": [
+                        "Red_Button_1P_lamp",
+                        "Red_Button_2P_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_red_corner_lamp",
+                    "names": [
+                        "Red_Corner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_lamp",
+                    "names": [
+                        "Right_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_right_winner_lamp",
+                    "names": [
+                        "Right_Winner_lamp"
+                    ]
+                },
+                {
+                    "field": "m_output_wiper_lamp",
+                    "names": [
+                        "Wiper_lamp"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
     "othunder": {
         "driver_file": "src\\mame\\taito\\othunder.cpp",
         "class": "othunder_state",
@@ -686,6 +3217,664 @@
                 }
             ],
             "layout": []
+        }
+    },
+    "overrev": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2c_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "overrevb": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2b_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "overrevba": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2b_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "pdrift": {
+        "driver_file": "src\\mame\\sega\\segaybd.cpp",
+        "class": "segaybd_state",
+        "layout_file": "src\\mame\\layout\\pdrift.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position",
+                    "names": [
+                        "right_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position_nor",
+                    "names": [
+                        "right_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_speed",
+                    "names": [
+                        "right_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position",
+                    "names": [
+                        "left_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position_nor",
+                    "names": [
+                        "left_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_speed",
+                    "names": [
+                        "left_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_danger_lamp",
+                    "names": [
+                        "danger_lamp"
+                    ]
+                },
+                {
+                    "field": "m_crash_lamp",
+                    "names": [
+                        "crash_lamp"
+                    ]
+                },
+                {
+                    "field": "m_emergency_stop_lamp",
+                    "names": [
+                        "emergency_stop_lamp"
+                    ]
+                },
+                {
+                    "field": "m_bank_data_raw",
+                    "names": [
+                        "bank_data_raw"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_position",
+                    "names": [
+                        "bank_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_upright_wheel_motor",
+                    "names": [
+                        "upright_wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_left_start_lamp",
+                    "names": [
+                        "left_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_start_lamp",
+                    "names": [
+                        "right_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_Gun_Recoil",
+                        "P2_Gun_Recoil"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "pdrifta": {
+        "driver_file": "src\\mame\\sega\\segaybd.cpp",
+        "class": "segaybd_state",
+        "layout_file": "src\\mame\\layout\\pdrift.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position",
+                    "names": [
+                        "right_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position_nor",
+                    "names": [
+                        "right_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_speed",
+                    "names": [
+                        "right_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position",
+                    "names": [
+                        "left_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position_nor",
+                    "names": [
+                        "left_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_speed",
+                    "names": [
+                        "left_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_danger_lamp",
+                    "names": [
+                        "danger_lamp"
+                    ]
+                },
+                {
+                    "field": "m_crash_lamp",
+                    "names": [
+                        "crash_lamp"
+                    ]
+                },
+                {
+                    "field": "m_emergency_stop_lamp",
+                    "names": [
+                        "emergency_stop_lamp"
+                    ]
+                },
+                {
+                    "field": "m_bank_data_raw",
+                    "names": [
+                        "bank_data_raw"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_position",
+                    "names": [
+                        "bank_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_upright_wheel_motor",
+                    "names": [
+                        "upright_wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_left_start_lamp",
+                    "names": [
+                        "left_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_start_lamp",
+                    "names": [
+                        "right_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_Gun_Recoil",
+                        "P2_Gun_Recoil"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "pdrifte": {
+        "driver_file": "src\\mame\\sega\\segaybd.cpp",
+        "class": "segaybd_state",
+        "layout_file": "src\\mame\\layout\\pdrift.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position",
+                    "names": [
+                        "right_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position_nor",
+                    "names": [
+                        "right_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_speed",
+                    "names": [
+                        "right_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position",
+                    "names": [
+                        "left_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position_nor",
+                    "names": [
+                        "left_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_speed",
+                    "names": [
+                        "left_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_danger_lamp",
+                    "names": [
+                        "danger_lamp"
+                    ]
+                },
+                {
+                    "field": "m_crash_lamp",
+                    "names": [
+                        "crash_lamp"
+                    ]
+                },
+                {
+                    "field": "m_emergency_stop_lamp",
+                    "names": [
+                        "emergency_stop_lamp"
+                    ]
+                },
+                {
+                    "field": "m_bank_data_raw",
+                    "names": [
+                        "bank_data_raw"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_position",
+                    "names": [
+                        "bank_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_upright_wheel_motor",
+                    "names": [
+                        "upright_wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_left_start_lamp",
+                    "names": [
+                        "left_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_start_lamp",
+                    "names": [
+                        "right_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_Gun_Recoil",
+                        "P2_Gun_Recoil"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "pdriftj": {
+        "driver_file": "src\\mame\\sega\\segaybd.cpp",
+        "class": "segaybd_state",
+        "layout_file": "src\\mame\\layout\\pdrift.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position",
+                    "names": [
+                        "right_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position_nor",
+                    "names": [
+                        "right_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_speed",
+                    "names": [
+                        "right_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position",
+                    "names": [
+                        "left_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position_nor",
+                    "names": [
+                        "left_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_speed",
+                    "names": [
+                        "left_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_danger_lamp",
+                    "names": [
+                        "danger_lamp"
+                    ]
+                },
+                {
+                    "field": "m_crash_lamp",
+                    "names": [
+                        "crash_lamp"
+                    ]
+                },
+                {
+                    "field": "m_emergency_stop_lamp",
+                    "names": [
+                        "emergency_stop_lamp"
+                    ]
+                },
+                {
+                    "field": "m_bank_data_raw",
+                    "names": [
+                        "bank_data_raw"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_position",
+                    "names": [
+                        "bank_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_upright_wheel_motor",
+                    "names": [
+                        "upright_wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_left_start_lamp",
+                    "names": [
+                        "left_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_start_lamp",
+                    "names": [
+                        "right_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_Gun_Recoil",
+                        "P2_Gun_Recoil"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "pdriftl": {
+        "driver_file": "src\\mame\\sega\\segaybd.cpp",
+        "class": "segaybd_state",
+        "layout_file": "src\\mame\\layout\\pdrift.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position",
+                    "names": [
+                        "right_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_position_nor",
+                    "names": [
+                        "right_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_right_motor_speed",
+                    "names": [
+                        "right_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position",
+                    "names": [
+                        "left_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_position_nor",
+                    "names": [
+                        "left_motor_position_nor"
+                    ]
+                },
+                {
+                    "field": "m_left_motor_speed",
+                    "names": [
+                        "left_motor_speed"
+                    ]
+                },
+                {
+                    "field": "m_danger_lamp",
+                    "names": [
+                        "danger_lamp"
+                    ]
+                },
+                {
+                    "field": "m_crash_lamp",
+                    "names": [
+                        "crash_lamp"
+                    ]
+                },
+                {
+                    "field": "m_emergency_stop_lamp",
+                    "names": [
+                        "emergency_stop_lamp"
+                    ]
+                },
+                {
+                    "field": "m_bank_data_raw",
+                    "names": [
+                        "bank_data_raw"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_position",
+                    "names": [
+                        "bank_motor_position"
+                    ]
+                },
+                {
+                    "field": "m_upright_wheel_motor",
+                    "names": [
+                        "upright_wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_left_start_lamp",
+                    "names": [
+                        "left_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_right_start_lamp",
+                    "names": [
+                        "right_start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_gun_recoil",
+                    "names": [
+                        "P1_Gun_Recoil",
+                        "P2_Gun_Recoil"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
         }
     },
     "policetr": {
@@ -713,6 +3902,1486 @@
         "layout_file": null,
         "candidates": {
             "output_finder": [],
+            "layout": []
+        }
+    },
+    "racedriv": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedriv1": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedriv2": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedriv3": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedriv4": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivb": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivb1": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivb4": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivc": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivc2": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivc4": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivcb": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivcb4": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivcg": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivcg4": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivg": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivg1": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivg4": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racedrivpan": {
+        "driver_file": "src\\mame\\atari\\harddriv.cpp",
+        "class": "harddriv_new_state",
+        "layout_file": "src\\mame\\layout\\racedrivpan.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp1",
+                        "lamp2"
+                    ]
+                },
+                {
+                    "field": "m_sel",
+                    "names": [
+                        "SEL1",
+                        "SEL2",
+                        "SEL3",
+                        "SEL4"
+                    ]
+                },
+                {
+                    "field": "m_wheel",
+                    "names": [
+                        "wheel"
+                    ]
+                }
+            ],
+            "layout": [
+                "Triple Side-by-Side (Panorama)",
+                "Left Screen",
+                "Center Screen",
+                "Right Screen"
+            ]
+        }
+    },
+    "racingj": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racingj2": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racingj2a": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racingj2e": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racingj2j": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racingja": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racingje": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "racingjj": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "raverace": {
+        "driver_file": "src\\mame\\namco\\namcos22.cpp",
+        "class": "namcos22_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_mcu_out",
+                    "names": [
+                        "mcuout0",
+                        "mcuout1",
+                        "mcuout2",
+                        "mcuout3",
+                        "mcuout4",
+                        "mcuout5",
+                        "mcuout6",
+                        "mcuout7",
+                        "mcuout8",
+                        "mcuout9",
+                        "mcuout10",
+                        "mcuout11",
+                        "mcuout12",
+                        "mcuout13",
+                        "mcuout14",
+                        "mcuout15"
+                    ]
+                },
+                {
+                    "field": "m_cpuled_out",
+                    "names": [
+                        "cpuled0",
+                        "cpuled1",
+                        "cpuled2",
+                        "cpuled3",
+                        "cpuled4",
+                        "cpuled5",
+                        "cpuled6",
+                        "cpuled7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "raveracej": {
+        "driver_file": "src\\mame\\namco\\namcos22.cpp",
+        "class": "namcos22_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_mcu_out",
+                    "names": [
+                        "mcuout0",
+                        "mcuout1",
+                        "mcuout2",
+                        "mcuout3",
+                        "mcuout4",
+                        "mcuout5",
+                        "mcuout6",
+                        "mcuout7",
+                        "mcuout8",
+                        "mcuout9",
+                        "mcuout10",
+                        "mcuout11",
+                        "mcuout12",
+                        "mcuout13",
+                        "mcuout14",
+                        "mcuout15"
+                    ]
+                },
+                {
+                    "field": "m_cpuled_out",
+                    "names": [
+                        "cpuled0",
+                        "cpuled1",
+                        "cpuled2",
+                        "cpuled3",
+                        "cpuled4",
+                        "cpuled5",
+                        "cpuled6",
+                        "cpuled7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "raveraceja": {
+        "driver_file": "src\\mame\\namco\\namcos22.cpp",
+        "class": "namcos22_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_mcu_out",
+                    "names": [
+                        "mcuout0",
+                        "mcuout1",
+                        "mcuout2",
+                        "mcuout3",
+                        "mcuout4",
+                        "mcuout5",
+                        "mcuout6",
+                        "mcuout7",
+                        "mcuout8",
+                        "mcuout9",
+                        "mcuout10",
+                        "mcuout11",
+                        "mcuout12",
+                        "mcuout13",
+                        "mcuout14",
+                        "mcuout15"
+                    ]
+                },
+                {
+                    "field": "m_cpuled_out",
+                    "names": [
+                        "cpuled0",
+                        "cpuled1",
+                        "cpuled2",
+                        "cpuled3",
+                        "cpuled4",
+                        "cpuled5",
+                        "cpuled6",
+                        "cpuled7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "roadedge": {
+        "driver_file": "src\\mame\\snk\\hng64.cpp",
+        "class": "hng64_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps_out",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "sf2049": {
+        "driver_file": "src\\mame\\williams\\vegas.cpp",
+        "class": "vegas_state",
+        "layout_file": "src\\mame\\layout\\sf2049.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_system_led",
+                    "names": [
+                        "system_led"
+                    ]
+                },
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp5",
+                "lamp3",
+                "lamp2",
+                "lamp1",
+                "lamp8",
+                "System LED",
+                "system_led"
+            ]
+        }
+    },
+    "sf2049se": {
+        "driver_file": "src\\mame\\williams\\vegas.cpp",
+        "class": "vegas_state",
+        "layout_file": "src\\mame\\layout\\sf2049.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_system_led",
+                    "names": [
+                        "system_led"
+                    ]
+                },
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp5",
+                "lamp3",
+                "lamp2",
+                "lamp1",
+                "lamp8",
+                "System LED",
+                "system_led"
+            ]
+        }
+    },
+    "sf2049te": {
+        "driver_file": "src\\mame\\williams\\vegas.cpp",
+        "class": "vegas_state",
+        "layout_file": "src\\mame\\layout\\sf2049.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_system_led",
+                    "names": [
+                        "system_led"
+                    ]
+                },
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp5",
+                "lamp3",
+                "lamp2",
+                "lamp1",
+                "lamp8",
+                "System LED",
+                "system_led"
+            ]
+        }
+    },
+    "sfrush": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\sfrush.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7",
+                "lamp8",
+                "lamp9"
+            ]
+        }
+    },
+    "sfrushrk": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\sfrush.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7",
+                "lamp8",
+                "lamp9"
+            ]
+        }
+    },
+    "sfrushrkw": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\sfrush.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7",
+                "lamp8",
+                "lamp9"
+            ]
+        }
+    },
+    "sfrushrkwo": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\sfrush.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp3",
+                "lamp4",
+                "lamp5",
+                "lamp6",
+                "lamp7",
+                "lamp8",
+                "lamp9"
+            ]
+        }
+    },
+    "sgt24h": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2b_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
             "layout": []
         }
     },
@@ -880,6 +5549,654 @@
             "layout": []
         }
     },
+    "sidebs": {
+        "driver_file": "src\\mame\\taito\\taitojc.cpp",
+        "class": "taitojc_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_counters",
+                    "names": [
+                        "counter0",
+                        "counter1",
+                        "counter2",
+                        "counter3",
+                        "counter4",
+                        "counter5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "sidebs2": {
+        "driver_file": "src\\mame\\taito\\taitojc.cpp",
+        "class": "taitojc_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_counters",
+                    "names": [
+                        "counter0",
+                        "counter1",
+                        "counter2",
+                        "counter3",
+                        "counter4",
+                        "counter5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "sidebs2j": {
+        "driver_file": "src\\mame\\taito\\taitojc.cpp",
+        "class": "taitojc_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_counters",
+                    "names": [
+                        "counter0",
+                        "counter1",
+                        "counter2",
+                        "counter3",
+                        "counter4",
+                        "counter5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "sidebs2ja": {
+        "driver_file": "src\\mame\\taito\\taitojc.cpp",
+        "class": "taitojc_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_counters",
+                    "names": [
+                        "counter0",
+                        "counter1",
+                        "counter2",
+                        "counter3",
+                        "counter4",
+                        "counter5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "speedup": {
+        "driver_file": "src\\mame\\gaelco\\gaelco3d.cpp",
+        "class": "gaelco3d_state",
+        "layout_file": "src\\mame\\layout\\speedup.lay",
+        "candidates": {
+            "output_finder": [],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "speedup10": {
+        "driver_file": "src\\mame\\gaelco\\gaelco3d.cpp",
+        "class": "gaelco3d_state",
+        "layout_file": "src\\mame\\layout\\speedup.lay",
+        "candidates": {
+            "output_finder": [],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "speedup12": {
+        "driver_file": "src\\mame\\gaelco\\gaelco3d.cpp",
+        "class": "gaelco3d_state",
+        "layout_file": "src\\mame\\layout\\speedup.lay",
+        "candidates": {
+            "output_finder": [],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "speedup20": {
+        "driver_file": "src\\mame\\gaelco\\gaelco3d.cpp",
+        "class": "gaelco3d_state",
+        "layout_file": "src\\mame\\layout\\speedup.lay",
+        "candidates": {
+            "output_finder": [],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "speedup20a": {
+        "driver_file": "src\\mame\\gaelco\\gaelco3d.cpp",
+        "class": "gaelco3d_state",
+        "layout_file": "src\\mame\\layout\\speedup.lay",
+        "candidates": {
+            "output_finder": [],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "speedup21": {
+        "driver_file": "src\\mame\\gaelco\\gaelco3d.cpp",
+        "class": "gaelco3d_state",
+        "layout_file": "src\\mame\\layout\\speedup.lay",
+        "candidates": {
+            "output_finder": [],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "srallyc": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2a_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "srallycb": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2a_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "srallycdx": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2a_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "srallycdxa": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2a_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "stcc": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2c_state",
+        "layout_file": "src\\mame\\layout\\vr.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": [
+                "Wide (16:9)"
+            ]
+        }
+    },
+    "stcca": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2c_state",
+        "layout_file": "src\\mame\\layout\\vr.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": [
+                "Wide (16:9)"
+            ]
+        }
+    },
+    "stccb": {
+        "driver_file": "src\\mame\\sega\\model2.cpp",
+        "class": "model2c_state",
+        "layout_file": "src\\mame\\layout\\vr.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5"
+                    ]
+                }
+            ],
+            "layout": [
+                "Wide (16:9)"
+            ]
+        }
+    },
+    "terabrst": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "terabrst_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilld": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrillda": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrillde": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgej": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgeu": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgke": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgkee": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgkk": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgmj": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgnj": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldgpj": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "hornet_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "thrilldj": {
+        "driver_file": "src\\mame\\konami\\nwk-tr.cpp",
+        "class": "nwktr_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
     "timecris": {
         "driver_file": "src\\mame\\namco\\namcos22.cpp",
         "class": "timecris_state",
@@ -953,6 +6270,351 @@
             "layout": []
         }
     },
+    "totlvice": {
+        "driver_file": "src\\mame\\konami\\konamim2.cpp",
+        "class": "konamim2_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "toutrun": {
+        "driver_file": "src\\mame\\sega\\segaorun.cpp",
+        "class": "segaorun_state",
+        "layout_file": "src\\mame\\layout\\outrun.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_bank_motor_direction",
+                    "names": [
+                        "Bank_Motor_Direction"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_speed",
+                    "names": [
+                        "Bank_Motor_Speed"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "Vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_brake_lamp",
+                    "names": [
+                        "Brake_lamp"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "toutrund": {
+        "driver_file": "src\\mame\\sega\\segaorun.cpp",
+        "class": "segaorun_state",
+        "layout_file": "src\\mame\\layout\\outrun.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_bank_motor_direction",
+                    "names": [
+                        "Bank_Motor_Direction"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_speed",
+                    "names": [
+                        "Bank_Motor_Speed"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "Vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_brake_lamp",
+                    "names": [
+                        "Brake_lamp"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "toutrunj": {
+        "driver_file": "src\\mame\\sega\\segaorun.cpp",
+        "class": "segaorun_state",
+        "layout_file": "src\\mame\\layout\\outrun.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_bank_motor_direction",
+                    "names": [
+                        "Bank_Motor_Direction"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_speed",
+                    "names": [
+                        "Bank_Motor_Speed"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "Vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_brake_lamp",
+                    "names": [
+                        "Brake_lamp"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "toutrunjd": {
+        "driver_file": "src\\mame\\sega\\segaorun.cpp",
+        "class": "segaorun_state",
+        "layout_file": "src\\mame\\layout\\outrun.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_bank_motor_direction",
+                    "names": [
+                        "Bank_Motor_Direction"
+                    ]
+                },
+                {
+                    "field": "m_bank_motor_speed",
+                    "names": [
+                        "Bank_Motor_Speed"
+                    ]
+                },
+                {
+                    "field": "m_vibration_motor",
+                    "names": [
+                        "Vibration_motor"
+                    ]
+                },
+                {
+                    "field": "m_start_lamp",
+                    "names": [
+                        "Start_lamp"
+                    ]
+                },
+                {
+                    "field": "m_brake_lamp",
+                    "names": [
+                        "Brake_lamp"
+                    ]
+                }
+            ],
+            "layout": [
+                "Shifter-R Overlay",
+                "Opaque Shifter",
+                "Shifter-R Off-Screen",
+                "Shifter-L Overlay",
+                "Shifter-L Off-Screen"
+            ]
+        }
+    },
+    "vaportrx": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\vaportrx.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1"
+            ]
+        }
+    },
+    "vaportrxp": {
+        "driver_file": "src\\mame\\williams\\seattle.cpp",
+        "class": "seattle_state",
+        "layout_file": "src\\mame\\layout\\vaportrx.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_driver",
+                    "names": [
+                        "wheel"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7",
+                        "lamp8",
+                        "lamp9",
+                        "lamp10",
+                        "lamp11",
+                        "lamp12",
+                        "lamp13",
+                        "lamp14",
+                        "lamp15"
+                    ]
+                },
+                {
+                    "field": "m_leds",
+                    "names": [
+                        "led0",
+                        "led1",
+                        "led2",
+                        "led3",
+                        "led4",
+                        "led5",
+                        "led6",
+                        "led7",
+                        "led8",
+                        "led9",
+                        "led10",
+                        "led11",
+                        "led12",
+                        "led13",
+                        "led14",
+                        "led15",
+                        "led16",
+                        "led17",
+                        "led18",
+                        "led19",
+                        "led20",
+                        "led21",
+                        "led22",
+                        "led23"
+                    ]
+                }
+            ],
+            "layout": [
+                "Dashboard",
+                "lamp0",
+                "lamp1"
+            ]
+        }
+    },
     "vcop": {
         "driver_file": "src\\mame\\sega\\model2.cpp",
         "class": "model2o_state",
@@ -989,6 +6651,159 @@
                         "lamp3",
                         "lamp4",
                         "lamp5"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "vr": {
+        "driver_file": "src\\mame\\sega\\model1.cpp",
+        "class": "model1_state",
+        "layout_file": "src\\mame\\layout\\vr.lay",
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_digits",
+                    "names": [
+                        "digit0",
+                        "digit1"
+                    ]
+                },
+                {
+                    "field": "m_outs",
+                    "names": [
+                        "out0",
+                        "out1",
+                        "out2",
+                        "out3",
+                        "out4",
+                        "out5",
+                        "out6",
+                        "out7"
+                    ]
+                }
+            ],
+            "layout": [
+                "Wide (16:9)"
+            ]
+        }
+    },
+    "windheat": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "windheata": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "windheatj": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "windheatu": {
+        "driver_file": "src\\mame\\konami\\zr107.cpp",
+        "class": "midnrun_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                },
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
+    "xrally": {
+        "driver_file": "src\\mame\\snk\\hng64.cpp",
+        "class": "hng64_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_wheel_motor",
+                    "names": [
+                        "wheel_motor"
+                    ]
+                },
+                {
+                    "field": "m_lamps_out",
+                    "names": [
+                        "lamp0",
+                        "lamp1",
+                        "lamp2",
+                        "lamp3",
+                        "lamp4",
+                        "lamp5",
+                        "lamp6",
+                        "lamp7"
                     ]
                 }
             ],

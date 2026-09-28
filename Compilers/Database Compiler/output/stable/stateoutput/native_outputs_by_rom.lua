@@ -1,9 +1,9 @@
 --
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP MAME DATABASE DRIVER LUA
--- Script Version: 1.4.0
--- Script Date: 2026.07.20
--- Compiled Date: 2026.07.28
+-- Script Version: 1.4.2
+-- Script Date: 2026.09.04
+-- Compiled Date: 2026.09.28
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -152,6 +152,10 @@ local native_outputs_by_rom = {
     },
     ["duckhunt"] = {
     },
+    ["evilngt"] = {
+    },
+    ["hellngt"] = {
+    },
     ["hotd"] = {
         "lamp0",
         "lamp1",
@@ -252,6 +256,8 @@ local native_outputs_by_rom = {
         "lamp13",
         "lamp14",
         "lamp15"
+    },
+    ["jpark3"] = {
     },
     ["le2"] = {
         "lamp0"
@@ -354,6 +360,10 @@ local native_outputs_by_rom = {
         "gun_recoil0",
         "gun_recoil1"
     },
+    ["terabrst"] = {
+        "pcbdigit0",
+        "pcbdigit1"
+    },
     ["timecris"] = {
         "mcuout0",
         "mcuout1",
@@ -390,6 +400,8 @@ local native_outputs_by_rom = {
         "lamp5",
         "lamp6",
         "lamp7"
+    },
+    ["totlvice"] = {
     },
     ["vcop"] = {
         "lamp0",

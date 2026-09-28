@@ -1,9 +1,9 @@
 --
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP MAME DATABASE DRIVER (BY SOURCE FILE) LUA
--- Script Version: 1.4.0
--- Script Date: 2026.07.20
--- Compiled Date: 2026.07.28
+-- Script Version: 1.4.2
+-- Script Date: 2026.09.04
+-- Compiled Date: 2026.09.28
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -5895,6 +5895,14 @@ local native_outputs_by_driver = {
         "LD234",
         "LD235"
     },
+    ["dgp80"] = {
+        "dg1",
+        "dg2",
+        "dg3",
+        "dg4",
+        "dg5",
+        "dg6"
+    },
     ["didact"] = {
         "led1",
         "digit0",
@@ -10795,6 +10803,17 @@ local native_outputs_by_driver = {
     ["lockon"] = {
         "lamp1"
     },
+    ["lotoplay"] = {
+        "led0",
+        "led1",
+        "led2",
+        "led3",
+        "led4",
+        "led5",
+        "led6",
+        "led7",
+        "digit0"
+    },
     ["ltcasino"] = {
         "button_0",
         "button_1",
@@ -12249,6 +12268,10 @@ local native_outputs_by_driver = {
     ["mpf1p"] = {
         "led0",
         "led1"
+    },
+    ["mpf3kbd"] = {
+        "caps_led",
+        "num_led"
     },
     ["mpu1"] = {
         "lamp0",
@@ -13784,6 +13807,16 @@ local native_outputs_by_driver = {
     },
     ["overdriv"] = {
         "led0"
+    },
+    ["p20"] = {
+        "led0",
+        "led1",
+        "led2",
+        "led3",
+        "led4",
+        "led5",
+        "led6",
+        "led7"
     },
     ["pacland"] = {
         "led0",
@@ -15503,6 +15536,49 @@ local native_outputs_by_driver = {
         "LED3",
         "LED4",
         "LED5"
+    },
+    ["roland_sb55"] = {
+        "digit0",
+        "digit1",
+        "digit2",
+        "led0",
+        "led1",
+        "led2",
+        "led3",
+        "led4",
+        "led5",
+        "led6",
+        "led7",
+        "led_disk"
+    },
+    ["roland_sc88"] = {
+        "led0",
+        "led1",
+        "led2",
+        "led3",
+        "led4",
+        "led5",
+        "led6",
+        "led7",
+        "led8"
+    },
+    ["roland_sc8850"] = {
+        "led0",
+        "led1",
+        "led2",
+        "led3",
+        "led4",
+        "led5",
+        "led6",
+        "led7",
+        "led8",
+        "led9",
+        "led10",
+        "led11",
+        "led12",
+        "led13",
+        "led14",
+        "led15"
     },
     ["roland_tr707"] = {
         "led_cart",
@@ -20730,7 +20806,16 @@ local native_outputs_by_driver = {
         "led9"
     },
     ["xpander"] = {
-        "cassmute"
+        "fm_mdac",
+        "filter_mode",
+        "noise",
+        "pan",
+        "saw1",
+        "saw2",
+        "tri1",
+        "tri2",
+        "vcofm",
+        "sync"
     },
     ["ymdx100"] = {
         "LED"
@@ -20738,6 +20823,40 @@ local native_outputs_by_driver = {
     ["ymdx9"] = {
         "led_0",
         "led_1"
+    },
+    ["ympcs30"] = {
+        "switch0",
+        "switch1",
+        "led0",
+        "led1",
+        "led2",
+        "led3",
+        "led4",
+        "led5",
+        "led6",
+        "led7",
+        "led8",
+        "led9",
+        "led10",
+        "led11",
+        "led12",
+        "led13",
+        "led14",
+        "led15",
+        "led16",
+        "led17",
+        "led18",
+        "led19",
+        "led20",
+        "led21",
+        "led22",
+        "led23",
+        "led24",
+        "led25",
+        "led26",
+        "led27",
+        "led28",
+        "led29"
     },
     ["ympsr11"] = {
         "led"

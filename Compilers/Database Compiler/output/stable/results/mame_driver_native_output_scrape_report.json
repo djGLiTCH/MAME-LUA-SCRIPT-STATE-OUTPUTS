@@ -345,6 +345,24 @@
             "layout": []
         }
     },
+    "evilngt": {
+        "driver_file": "src\\mame\\konami\\konamim2.cpp",
+        "class": "konamim2_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
+    "hellngt": {
+        "driver_file": "src\\mame\\konami\\konamim2.cpp",
+        "class": "konamim2_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
+            "layout": []
+        }
+    },
     "hotd": {
         "driver_file": "src\\mame\\sega\\model2.cpp",
         "class": "model2c_state",
@@ -591,6 +609,15 @@
                     ]
                 }
             ],
+            "layout": []
+        }
+    },
+    "jpark3": {
+        "driver_file": "src\\mame\\konami\\viper.cpp",
+        "class": "viper_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
             "layout": []
         }
     },
@@ -880,6 +907,23 @@
             "layout": []
         }
     },
+    "terabrst": {
+        "driver_file": "src\\mame\\konami\\hornet.cpp",
+        "class": "terabrst_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [
+                {
+                    "field": "m_pcb_digit",
+                    "names": [
+                        "pcbdigit0",
+                        "pcbdigit1"
+                    ]
+                }
+            ],
+            "layout": []
+        }
+    },
     "timecris": {
         "driver_file": "src\\mame\\namco\\namcos22.cpp",
         "class": "timecris_state",
@@ -950,6 +994,15 @@
                     ]
                 }
             ],
+            "layout": []
+        }
+    },
+    "totlvice": {
+        "driver_file": "src\\mame\\konami\\konamim2.cpp",
+        "class": "konamim2_state",
+        "layout_file": null,
+        "candidates": {
+            "output_finder": [],
             "layout": []
         }
     },
