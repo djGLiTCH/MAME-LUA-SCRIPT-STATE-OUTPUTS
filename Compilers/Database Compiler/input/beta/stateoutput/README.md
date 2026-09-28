@@ -3,7 +3,7 @@
 
 - **Plugin Version:** 9.3.4
 - **Plugin Date:** 2026.09.04
-- **Database Date:** 2026.09.04
+- **Database Date:** 2026.09.28
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
