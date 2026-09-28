@@ -11,8 +11,7 @@
 Compiles the per-game MSOP configs into the MSOP Lua plugin's runtime database, (optionally) scrapes
 a MAME source checkout for each game's native output names, and generates the per-game **Hook Of The
 Reaper defaultLG** and **MAMEhooker .ini** starting templates from that same game data. Structured the
-same way as the Hooker Compiler: `scripts/` = run, `input/` = edit, `output/` = generated,
-`archive/` = history.
+same way as the Hooker Compiler: `scripts/` = run, `input/` = edit, `output/` = generated.
 
 ## Folder layout
 
@@ -43,19 +42,17 @@ Database Compiler/
 │   └── beta/           the BETA source - a fully isolated copy (its own stateoutput/ + database/), so
 │                       experimental games AND plugin code can never touch the shipped stable build
 │
-├── output/             GENERATED  (rebuilt on every run, apart from the native output tables)  -  split per release channel
-│   ├── stable/
-│   │   ├── stateoutput/    deployable plugin: database.lua + native_outputs_by_rom.lua + native_outputs_by_driver.lua + init.lua/plugin.json/readme.txt
-│   │   ├── defaultLG/      Hook Of The Reaper defaultLG/<rom>.txt templates
-│   │   ├── ini/            MAMEhooker <rom>.ini skeletons ([Output] prepopulated with the game's MSOP outputs)
-│   │   └── results/        mame_driver_native_output_scrape_report.json (driver audit aid)
-│   └── beta/           same shape as stable/ (only present once you've built beta)
-│
-└── archive/            HISTORY (old script/init versions)
+└── output/             GENERATED  (rebuilt on every run, apart from the native output tables)  -  split per release channel
+    ├── stable/
+    │   ├── stateoutput/    deployable plugin: database.lua + native_outputs_by_rom.lua + native_outputs_by_driver.lua + init.lua/plugin.json/readme.txt
+    │   ├── defaultLG/      Hook Of The Reaper defaultLG/<rom>.txt templates
+    │   ├── ini/            MAMEhooker <rom>.ini skeletons ([Output] prepopulated with the game's MSOP outputs)
+    │   └── results/        mame_driver_native_output_scrape_report.json (driver audit aid)
+    └── beta/           same shape as stable/ (only present once you've built beta)
 ```
 
-At a glance: **`scripts/` = run, `input/<channel>/` = edit, `output/<channel>/` = generated,
-`archive/` = history.** Grab **`output/stable/stateoutput/`** as the finished stable plugin folder to
+At a glance: **`scripts/` = run, `input/<channel>/` = edit, `output/<channel>/` = generated.** Grab
+**`output/stable/stateoutput/`** as the finished stable plugin folder to
 ship in an MSOP Plugin release (`output/beta/stateoutput/` for a beta).
 
 **Game-type subfolders.** Game JSONs may live directly in `games/` or in any subfolder - every tool
