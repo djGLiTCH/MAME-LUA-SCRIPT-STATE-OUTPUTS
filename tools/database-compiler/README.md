@@ -26,7 +26,7 @@ Database Compiler/
 │   ├── msop_native_outputs_compiler.py  MAME source -> native_outputs_by_rom.lua + native_outputs_by_driver.lua (+ scrape report)
 │   ├── msop_hotr_defaultlg_generator.py  games -> output/<channel>/defaultLG/*.txt   (Hook Of The Reaper)
 │   ├── msop_mamehooker_ini_generator.py  games -> output/<channel>/ini/*.ini         (MAMEhooker skeletons)
-│   ├── msop_games_json_sync.py           games -> Updater/JSON/games.json "Channels"  (maintainer step)
+│   ├── msop_games_json_sync.py           games -> updates/msop-games.json "Channels"  (maintainer step)
 │   ├── msop_output_model.py              shared helper (init.lua-mirroring output derivation; not run directly)
 │   ├── run_stable.* / run_beta.*         run the FULL pipeline for ONE channel (db -> driver -> defaultLG -> ini -> games.json)
 │   ├── run.bat / run.sh                  run the full pipeline for BOTH channels (stable then beta)
@@ -125,7 +125,7 @@ the latest plugin in stable while every game stays where it is. Because each cha
 INI are all generated from that one channel's database, a beta plugin can never be paired with
 stable-suited HOTR/INI. CI packages the STABLE zips automatically and the BETA zips only once you
 commit `output/beta/`; alongside them it publishes each channel's official game profiles on their own
-(`Updater/GameProfiles/MSOP-GAME-PROFILES-<CHANNEL>.zip`, `games/` at the zip root).
+(`updates/game-profiles/MSOP-GAME-PROFILES-<CHANNEL>.zip`, `games/` at the zip root).
 
 All scripts resolve their paths from the project root via `__file__`, so they run from any directory.
 
@@ -189,7 +189,7 @@ always print).
   `[Output]` prepopulated by every MSOP output that game emits (values left blank, ready for hardware
   commands).
 
-- **`msop_games_json_sync.py`** - keeps the supported games list (`Updater/JSON/games.json`) aligned with
+- **`msop_games_json_sync.py`** - keeps the supported games list (`updates/msop-games.json`) aligned with
   each channel's database. Every row carries `"Channels": { "stable": "<date>", "beta": "<date>" }`, each
   date being the `datedatabase` of the first build of that channel that included the ROM; a missing key
   means the game is not in that channel. The sync stamps new ROMs with this build's `datedatabase`, keeps

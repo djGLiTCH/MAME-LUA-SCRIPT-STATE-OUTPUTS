@@ -4,7 +4,7 @@ REM   1. database compiler   (input\stable\database\games  ->  output\stable\sta
 REM   2. driver compiler      (MAME source                  ->  output\stable\stateoutput\native_outputs_by_rom.lua) [optional]
 REM   3. HOTR defaultLG        (stable database              ->  output\stable\defaultLG)
 REM   4. MAMEhooker .ini       (stable database              ->  output\stable\ini)
-REM   5. games.json sync       (stable database              ->  Updater\JSON\games.json "Channels")  [skipped when games.json is absent]
+REM   5. games.json sync       (stable database              ->  updates\msop-games.json "Channels")  [skipped when games.json is absent]
 REM See run.bat to build BOTH channels at once, run_beta.bat for beta.
 REM Set MAME_SRC to your MAME source checkout (contains src\mame) to enable the driver step; EMPTY skips it.
 set "MAME_SRC="
@@ -33,7 +33,7 @@ python "%~dp0msop_mamehooker_ini_generator.py" --channel stable
 if errorlevel 1 goto :error
 
 echo.
-echo === [STABLE] games.json Sync ^(-^> Updater\JSON\games.json Channels^) ===
+echo === [STABLE] games.json Sync ^(-^> updates\msop-games.json Channels^) ===
 python "%~dp0msop_games_json_sync.py" --channel stable
 if errorlevel 1 goto :error
 

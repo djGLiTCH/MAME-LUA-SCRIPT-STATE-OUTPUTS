@@ -1,6 +1,6 @@
 @echo off
 REM MSOP games.json Sync - launcher (Windows).
-REM Aligns the "Channels" of Updater\JSON\games.json with a channel's game database. Pass --channel
+REM Aligns the "Channels" of updates\msop-games.json with a channel's game database. Pass --channel
 REM stable|beta (default stable), --check to report without writing, or --backfill (one-off seeding).
 REM The full launchers (run_stable.bat / run_beta.bat / run.bat) already run this as their last step.
 python "%~dp0msop_games_json_sync.py" %*

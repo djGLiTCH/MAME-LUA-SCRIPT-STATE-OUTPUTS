@@ -1,82 +1,89 @@
 {
-    "_comment": "MSOP content manifest - consumed by the MSOP Configurator app and MESH app. Declares where the MSOP-owned packages live: the final MSOP Configurator self-update zip, the MSOP Plugin (stable/beta), Hook Of The Reaper (stable/beta), MAMEhooker (stable/beta), the MSOP Database Compiler, the list of MSOP supported games (games.json), and the MSOP changelog (changelog.json).",
+    "_comment": "MSOP content manifest - consumed by the MSOP Configurator app and MESH app. Declares where the MSOP-owned packages live: the final MSOP Configurator self-update zip, the MSOP Plugin (stable/beta), Hook Of The Reaper (stable/beta), MAMEhooker (stable/beta), the MSOP Database Compiler, the list of MSOP supported games (msop-games.json), the MSOP changelog (msop-changelog.json), and where the final MSOP Configurator looks for MESH (Mesh).",
     "RepositoryUrl": "https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS",
     "RawContentBaseUrl": "https://raw.githubusercontent.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/main/",
     "Configurator": {
-        "_comment": "The final MSOP Configurator (v1.1.0) self-update zip. Present so a hotfix can still be shipped to users who have not yet migrated to MESH: update this location (or set AssetUrl to a Release asset) and existing installs pick it up on the next self-update - no new app build required. Version comparison still uses changelog.json; this only says WHERE the latest Configurator zip lives. MESH ignores this ref.",
-        "PackageLocation": "Updater/Configurator",
+        "_comment": "The final MSOP Configurator (v1.1.0) self-update zip. Present so a hotfix can still be shipped to users who have not yet migrated to MESH: update this location (or set AssetUrl to a Release asset) and existing installs pick it up on the next self-update - no new app build required. Version comparison still uses msop-changelog.json; this only says WHERE the latest Configurator zip lives. MESH ignores this ref.",
+        "PackageLocation": "updates/configurator",
         "PackageName": "MSOP-CONFIGURATOR",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "PluginStable": {
-        "PackageLocation": "Updater/Plugin",
+        "PackageLocation": "updates/plugin",
         "PackageName": "MSOP-PLUGIN-STABLE",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "PluginBeta": {
-        "PackageLocation": "Updater/Plugin",
+        "PackageLocation": "updates/plugin",
         "PackageName": "MSOP-PLUGIN-BETA",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "HookOfTheReaperStable": {
-        "PackageLocation": "Updater/HookOfTheReaper",
+        "PackageLocation": "updates/hook-of-the-reaper",
         "PackageName": "MSOP-HOTR-STABLE",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "HookOfTheReaperBeta": {
-        "PackageLocation": "Updater/HookOfTheReaper",
+        "PackageLocation": "updates/hook-of-the-reaper",
         "PackageName": "MSOP-HOTR-BETA",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "MameHookerStable": {
-        "PackageLocation": "Updater/MameHooker",
+        "PackageLocation": "updates/mamehooker",
         "PackageName": "MSOP-MAMEHOOKER-STABLE",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "MameHookerBeta": {
-        "PackageLocation": "Updater/MameHooker",
+        "PackageLocation": "updates/mamehooker",
         "PackageName": "MSOP-MAMEHOOKER-BETA",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "DatabaseCompiler": {
-        "PackageLocation": "Updater/DatabaseCompiler",
+        "PackageLocation": "updates/database-compiler",
         "PackageName": "MSOP-DATABASE-COMPILER",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "GameProfilesStable": {
         "_comment": "The stable channel's official game profiles (games/ at the zip root: _default.json plus the GAME_TYPE subfolders), for compiling a stable database with a user's own profiles on top.",
-        "PackageLocation": "Updater/GameProfiles",
+        "PackageLocation": "updates/game-profiles",
         "PackageName": "MSOP-GAME-PROFILES-STABLE",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "GameProfilesBeta": {
         "_comment": "The beta channel's official game profiles, in the same layout as GameProfilesStable.",
-        "PackageLocation": "Updater/GameProfiles",
+        "PackageLocation": "updates/game-profiles",
         "PackageName": "MSOP-GAME-PROFILES-BETA",
         "PackageType": ".zip",
         "AssetUrl": ""
     },
     "Games": {
         "_comment": "The MSOP supported games list. Each game's Channels object holds, per release channel (stable/beta), the database date (plugin.json datedatabase) of the first build that included it; a missing key means the game is not in that channel. Maintained by the Database Compiler's msop_games_json_sync.py.",
-        "PackageLocation": "Updater/JSON",
-        "PackageName": "games",
+        "PackageLocation": "updates",
+        "PackageName": "msop-games",
         "PackageType": ".json",
         "AssetUrl": ""
     },
     "Changelog": {
         "_comment": "The MSOP changelog. If used with MESH, this will merge the MSOP related changelog details into the MESH Changelog tab (the app/Configurator history comes from MESH's mesh-changelog.json, so any MSOP Configurator section here is ignored).",
-        "PackageLocation": "Updater/JSON",
-        "PackageName": "changelog",
+        "PackageLocation": "updates",
+        "PackageName": "msop-changelog",
         "PackageType": ".json",
         "AssetUrl": ""
+    },
+    "Mesh": {
+        "_comment": "Read only by the final MSOP Configurator (v1.1.0): where its upgrade prompt looks up MESH's latest full release on GitHub, the release asset it downloads (Arm64AssetName is preferred on Windows on Arm) and the executable it takes out of that zip. Change these if MESH's release names change; a blank value uses the default shown here. MESH ignores this block.",
+        "LatestReleaseUrl": "https://api.github.com/repos/djGLiTCH/MESH/releases/latest",
+        "AssetName": "MESH-win-x64.zip",
+        "Arm64AssetName": "MESH-win-arm64.zip",
+        "ExecutableName": "MESH.exe"
     }
 }

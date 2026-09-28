@@ -5,7 +5,7 @@ REM   1. database compiler   (input\beta\database\games  ->  output\beta\stateou
 REM   2. drops native_outputs_by_rom.lua + native_outputs_by_driver.lua from the plugin folder (does NOT run the driver compiler)
 REM   3. HOTR defaultLG        (beta database  ->  output\beta\defaultLG)         [never uses the driver]
 REM   4. MAMEhooker .ini       (beta database  ->  output\beta\ini, --exclude-driver)  [MSOP outputs only]
-REM   5. games.json sync       (beta database  ->  Updater\JSON\games.json "Channels")  [skipped when games.json is absent]
+REM   5. games.json sync       (beta database  ->  updates\msop-games.json "Channels")  [skipped when games.json is absent]
 REM The result reflects the plugin's own MSOP state outputs plus each game's curated
 REM ADDITIONAL_OUTPUT_FORWARDS - but NOT the scraped MAME native outputs. Use run_beta.* (with MAME_SRC
 REM set) instead when you DO want the MAME driver outputs.
@@ -34,7 +34,7 @@ python "%~dp0msop_mamehooker_ini_generator.py" --channel beta --exclude-driver
 if errorlevel 1 goto :error
 
 echo.
-echo === [BETA / MSOP-only] games.json Sync ^(-^> Updater\JSON\games.json Channels^) ===
+echo === [BETA / MSOP-only] games.json Sync ^(-^> updates\msop-games.json Channels^) ===
 python "%~dp0msop_games_json_sync.py" --channel beta
 if errorlevel 1 goto :error
 

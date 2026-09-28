@@ -1,13 +1,13 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP GAMES JSON SYNC (channel game database -> games.json "Channels")
-# Script Version: 1.0.0
+# Script Version: 1.0.1
 # Script Date: 2026.09.28
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
 #
-# Keeps the MSOP supported games list (Updater/JSON/games.json) aligned with each release channel's
+# Keeps the MSOP supported games list (updates/msop-games.json) aligned with each release channel's
 # game database. Every game row carries a "Channels" object recording, per channel, the database date
 # (plugin.json "datedatabase") of the first build of that channel that included the ROM:
 #
@@ -32,7 +32,7 @@
 # installed plugin's, so two things must hold before publishing:
 #   * at the same plugin version, stable's database is never dated after beta's. Some app versions
 #     move beta users to stable when stable's date is later; run.* builds both channels on one day;
-#   * the channel's first changelog.json entry (PluginStable / PluginBeta, beside games.json) names
+#   * the channel's first msop-changelog.json entry (PluginStable / PluginBeta, beside games.json) names
 #     this plugin's version and database date - the date read from DatabaseReleases[0]
 #     .IncludedDatabaseDate, else ReleaseDatePlugin, as the apps read it. An older date makes every
 #     install read as ahead of its channel; a newer one leaves the update prompt showing.
@@ -47,7 +47,7 @@
 #
 # Options:
 #   --channel stable|beta   the channel database to sync from (default stable)
-#   --games-json <path>     games.json to update (default: <repo>/Updater/JSON/games.json)
+#   --games-json <path>     games.json to update (default: <repo>/updates/msop-games.json)
 #   --check                 report only: write nothing, exit 1 if games.json would change, has errors,
 #                           or a release check fails
 #   --backfill              one-off seeding: a missing date takes the row's SupportedDate instead of
@@ -61,13 +61,13 @@ import re
 import sys
 import textwrap
 
-SCRIPT_VERSION = "1.0.0"
+SCRIPT_VERSION = "1.0.1"
 SCRIPT_DATE = "2026.09.28"
 
-# scripts/ -> the Database Compiler folder -> Compilers/ -> the repository root.
+# scripts/ -> the Database Compiler folder -> tools/ -> the repository root.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
-DEFAULT_GAMES_JSON = os.path.join(REPO_ROOT, "Updater", "JSON", "games.json")
+DEFAULT_GAMES_JSON = os.path.join(REPO_ROOT, "updates", "msop-games.json")
 
 CHANNELS = ("stable", "beta")
 DATE_RE = re.compile(r"^\d{4}\.\d{2}\.\d{2}$")
@@ -139,13 +139,13 @@ def release_checks(channel, plugin, changelog_json):
         key = "PluginStable" if channel == "stable" else "PluginBeta"
         entries = load_json(changelog_json).get(key) or []
         if not entries:
-            problems.append(f"changelog.json has no {key} entries")
+            problems.append(f"msop-changelog.json has no {key} entries")
         else:
             first = entries[0]
             releases = first.get("DatabaseReleases") or [{}]
             date = releases[0].get("IncludedDatabaseDate") or first.get("ReleaseDatePlugin", "")
             if (first.get("Version"), date) != plugin:
-                problems.append(f"changelog.json's first {key} entry reads {first.get('Version')} / {date}, "
+                problems.append(f"msop-changelog.json's first {key} entry reads {first.get('Version')} / {date}, "
                                 f"but the {channel} plugin is {plugin[0]} / {plugin[1]}")
     return problems
 
@@ -245,7 +245,7 @@ def main():
         with open(games_json, "rb") as f:
             raw = f.read()
         games = json.loads(raw.decode("utf-8-sig"))
-        release = release_checks(args.channel, plugin, os.path.join(os.path.dirname(games_json), "changelog.json"))
+        release = release_checks(args.channel, plugin, os.path.join(os.path.dirname(games_json), "msop-changelog.json"))
     except (SyncError, ValueError, OSError) as e:
         print(f" [ERROR] {e}")
         return 1

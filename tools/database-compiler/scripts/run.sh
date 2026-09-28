@@ -5,7 +5,7 @@
 #   2. driver compiler      (MAME source                ->  output/<ch>/stateoutput/native_outputs_by_rom.lua) [optional]
 #   3. HOTR defaultLG        (<ch> database              ->  output/<ch>/defaultLG)
 #   4. MAMEhooker .ini       (<ch> database              ->  output/<ch>/ini)
-#   5. games.json sync       (<ch> database              ->  Updater/JSON/games.json "Channels")  [skipped when games.json is absent]
+#   5. games.json sync       (<ch> database              ->  updates/msop-games.json "Channels")  [skipped when games.json is absent]
 # Single-channel launchers: run_stable.sh / run_beta.sh. Paths resolve from this script's own location.
 #
 # Set MAME_SRC to your MAME source checkout (the folder that contains src/mame) to enable the driver
@@ -45,7 +45,7 @@ run_channel() {
   "$PY" "$DIR/msop_mamehooker_ini_generator.py" --channel "$ch"
 
   echo
-  echo "=== [$ch] games.json Sync (-> Updater/JSON/games.json Channels) ==="
+  echo "=== [$ch] games.json Sync (-> updates/msop-games.json Channels) ==="
   "$PY" "$DIR/msop_games_json_sync.py" --channel "$ch"
   echo
 }

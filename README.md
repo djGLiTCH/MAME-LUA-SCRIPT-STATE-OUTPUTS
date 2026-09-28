@@ -4,7 +4,7 @@
 [![MAME](https://img.shields.io/badge/MAME-Compatible-green.svg)](https://mamedev.org/)
 
 <p align="center">
-  <img src="Images/MAME_State_Output_Project_Transparent_Square_1_1024.png" alt="MAME State Output Project (MSOP) Logo" width="256">
+  <img src="imgs/MAME_State_Output_Project_Transparent_Square_1_1024.png" alt="MAME State Output Project (MSOP) Logo" width="256">
 </p>
 
 **A universal state output plugin framework for MAME designed to enable force feedback (recoil, reload, rumble, lights, display, etc.) for games that lack native state outputs or require additional state output triggers. Currently aimed at light gun games, but other genres can be easily supported as well by the community.**
@@ -269,7 +269,7 @@ There are many state output 'hooker' programs that exist, however, support has b
 
 **MAMEhooker, OutputHooker, and QMamehook**
 
-Manual setup documentation for MAMEhooker, OutputHooker, and QMamehook is still being expanded - but the MESH app already generates and distributes their per-game INI command files automatically (on demand, plus auto-compile on every game launch), so manual INI authoring is only needed if you skip the app. For a manual setup, the Database Compiler also generates a starting `.ini` skeleton for every supported game, with its `[Output]` section already listing every output that game emits, ready for your hardware commands (packaged as `Updater/MameHooker/MSOP-MAMEHOOKER-STABLE.zip`).
+Manual setup documentation for MAMEhooker, OutputHooker, and QMamehook is still being expanded - but the MESH app already generates and distributes their per-game INI command files automatically (on demand, plus auto-compile on every game launch), so manual INI authoring is only needed if you skip the app. For a manual setup, the Database Compiler also generates a starting `.ini` skeleton for every supported game, with its `[Output]` section already listing every output that game emits, ready for your hardware commands (packaged as `updates/mamehooker/MSOP-MAMEHOOKER-STABLE.zip`).
 
 For now, you can use the following Outputs in your per game ini file which will work across all supported games.
 
@@ -389,7 +389,7 @@ To ensure reliable performance across all titles and prevent "phantom" hardware 
 By funnelling all game events through this standardised logic flow, external tools only have to listen for simple, consistent commands (e.g., PX_Life = 1), taking the pressure off the Output Program(s) to decipher complex game states.
 
 ### Building the Game Database
-Every supported game is described by its own JSON game profile. The **MSOP Database Compiler** (`Compilers/Database Compiler/`, also available on its own as `Updater/DatabaseCompiler/MSOP-DATABASE-COMPILER.zip`) is a set of Python scripts that turns those profiles into everything a release ships, for either the Stable or Beta channel:
+Every supported game is described by its own JSON game profile. The **MSOP Database Compiler** (`tools/database-compiler/`, also available on its own as `updates/database-compiler/MSOP-DATABASE-COMPILER.zip`) is a set of Python scripts that turns those profiles into everything a release ships, for either the Stable or Beta channel:
 * `database.lua` - the compiled game database the plugin reads at runtime.
 * `native_outputs_by_rom.lua` and `native_outputs_by_driver.lua` *(optional, needs a MAME source checkout)* - the lookup tables behind native output forwarding, described above.
 * A Hook Of The Reaper `defaultLG` template and a MAMEhooker `.ini` skeleton for every supported game.

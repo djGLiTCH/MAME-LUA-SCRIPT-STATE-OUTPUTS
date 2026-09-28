@@ -3,7 +3,7 @@
         {
             "Version": "1.0.6",
             "ReleaseDate": "2026.07.06",
-            "PackageLocation": "Updater/Configurator",
+            "PackageLocation": "updates/configurator",
             "PackageName": "MSOP-CONFIGURATOR",
             "PackageType": ".zip",
             "FileName": "MSOP_CONFIGURATOR.exe",

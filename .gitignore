@@ -1,2 +1,2 @@
-Updater/Source
-Compilers/Database Compiler/scripts/__pycache__
+/src/
+tools/database-compiler/scripts/__pycache__
