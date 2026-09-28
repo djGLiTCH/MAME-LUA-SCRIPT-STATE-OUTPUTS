@@ -2,7 +2,7 @@
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP GAMES JSON SYNC (channel game database -> games.json "Channels")
 # Script Version: 1.0.0
-# Script Date: 2026.09.27
+# Script Date: 2026.09.28
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -28,6 +28,17 @@
 #     hand-curated - this script only ever writes "Channels".
 # Any error leaves games.json untouched and exits 1.
 #
+# Release checks - apps compare each channel's published plugin version and database date with the
+# installed plugin's, so two things must hold before publishing:
+#   * at the same plugin version, stable's database is never dated after beta's. Some app versions
+#     move beta users to stable when stable's date is later; run.* builds both channels on one day;
+#   * the channel's first changelog.json entry (PluginStable / PluginBeta, beside games.json) names
+#     this plugin's version and database date - the date read from DatabaseReleases[0]
+#     .IncludedDatabaseDate, else ReleaseDatePlugin, as the apps read it. An older date makes every
+#     install read as ahead of its channel; a newer one leaves the update prompt showing.
+# They are warnings in a normal run (the changelog is written at release time) and errors under
+# --check, the pre-publish check.
+#
 # games.json is a maintainer file that lives outside the Database Compiler folder, so the standalone
 # Database Compiler download does not include it; when it cannot be found this step is skipped.
 #
@@ -37,7 +48,8 @@
 # Options:
 #   --channel stable|beta   the channel database to sync from (default stable)
 #   --games-json <path>     games.json to update (default: <repo>/Updater/JSON/games.json)
-#   --check                 report only: write nothing, exit 1 if games.json would change or has errors
+#   --check                 report only: write nothing, exit 1 if games.json would change, has errors,
+#                           or a release check fails
 #   --backfill              one-off seeding: a missing date takes the row's SupportedDate instead of
 #                           this build's date (never later than this build's datedatabase)
 #
@@ -47,9 +59,10 @@ import json
 import os
 import re
 import sys
+import textwrap
 
 SCRIPT_VERSION = "1.0.0"
-SCRIPT_DATE = "2026.09.27"
+SCRIPT_DATE = "2026.09.28"
 
 # scripts/ -> the Database Compiler folder -> Compilers/ -> the repository root.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -101,12 +114,40 @@ def channel_database(channel):
     return roms
 
 
-def channel_database_date(channel):
+def channel_plugin(channel):
+    """(version, datedatabase) from the channel's plugin.json, or None when the channel is absent."""
     plugin_json = os.path.join(BASE_DIR, "input", channel, "stateoutput", "plugin.json")
-    date = str(load_json(plugin_json).get("plugin", {}).get("datedatabase", ""))
+    if not os.path.isfile(plugin_json):
+        return None
+    plugin = load_json(plugin_json).get("plugin", {})
+    version, date = str(plugin.get("version", "")), str(plugin.get("datedatabase", ""))
     if not DATE_RE.match(date):
         raise SyncError(f"{plugin_json} has no valid datedatabase (found '{date}')")
-    return date
+    return version, date
+
+
+def release_checks(channel, plugin, changelog_json):
+    """The problems that would mislead apps if this build were published (see the header)."""
+    problems = []
+    stable, beta = (plugin if channel == "stable" else channel_plugin("stable")), \
+                   (plugin if channel == "beta" else channel_plugin("beta"))
+    if stable and beta and stable[0] == beta[0] and stable[1] > beta[1]:
+        problems.append(f"stable's database ({stable[1]}) is dated after beta's ({beta[1]}) at plugin "
+                        f"{stable[0]} - rebuild beta before publishing (run.* builds both channels)")
+
+    if os.path.isfile(changelog_json):
+        key = "PluginStable" if channel == "stable" else "PluginBeta"
+        entries = load_json(changelog_json).get(key) or []
+        if not entries:
+            problems.append(f"changelog.json has no {key} entries")
+        else:
+            first = entries[0]
+            releases = first.get("DatabaseReleases") or [{}]
+            date = releases[0].get("IncludedDatabaseDate") or first.get("ReleaseDatePlugin", "")
+            if (first.get("Version"), date) != plugin:
+                problems.append(f"changelog.json's first {key} entry reads {first.get('Version')} / {date}, "
+                                f"but the {channel} plugin is {plugin[0]} / {plugin[1]}")
+    return problems
 
 
 def ordered_channels(channels):
@@ -163,9 +204,10 @@ def sync(games, channel, rom_set, build_date, backfill):
         new_rows.append(new_row)
 
     missing = sorted(rom_set - set(listed))
-    for rom in missing:
-        line = f"ROM '{rom}' is in the {channel} database but has no games.json row"
-        (errors if channel == "stable" else warnings).append(line)
+    if channel == "stable":
+        errors.extend(f"ROM '{rom}' is in the stable database but has no games.json row" for rom in missing)
+    elif missing:
+        warnings.append(f"{len(missing)} ROM(s) in the {channel} database have no games.json row: " + ", ".join(missing))
 
     new_games = {k: (new_rows if k == "SupportedGames" else v) for k, v in games.items()}
     return new_games, changes, warnings, errors
@@ -179,7 +221,8 @@ def main():
     ap = argparse.ArgumentParser(description="Sync games.json Channels from a channel's game database.")
     ap.add_argument("--channel", choices=CHANNELS, default="stable")
     ap.add_argument("--games-json", default=DEFAULT_GAMES_JSON)
-    ap.add_argument("--check", action="store_true", help="report only; exit 1 if games.json would change or has errors")
+    ap.add_argument("--check", action="store_true",
+                    help="report only; exit 1 if games.json would change, has errors, or a release check fails")
     ap.add_argument("--backfill", action="store_true", help="seed missing dates from SupportedDate (one-off)")
     args = ap.parse_args()
 
@@ -195,26 +238,30 @@ def main():
 
     try:
         rom_set = channel_database(args.channel)
-        build_date = channel_database_date(args.channel)
+        plugin = channel_plugin(args.channel)
+        if plugin is None:
+            raise SyncError(f"the {args.channel} channel has no stateoutput/plugin.json")
+        build_date = plugin[1]
         with open(games_json, "rb") as f:
             raw = f.read()
         games = json.loads(raw.decode("utf-8-sig"))
+        release = release_checks(args.channel, plugin, os.path.join(os.path.dirname(games_json), "changelog.json"))
     except (SyncError, ValueError, OSError) as e:
         print(f" [ERROR] {e}")
         return 1
 
     new_games, changes, warnings, errors = sync(games, args.channel, rom_set, build_date, args.backfill)
+    (errors if args.check else warnings).extend(f"release check: {p}" for p in release)
     print(f" games.json      : {games_json}")
-    print(f" {args.channel:<6} database : {len(rom_set)} enabled ROM(s), datedatabase {build_date}")
+    print(f" {args.channel:<6} database : {len(rom_set)} enabled ROM(s), plugin {plugin[0]}, datedatabase {build_date}")
     if args.backfill:
         print(" mode            : backfill (missing dates seeded from SupportedDate)")
     print("-" * 70)
     for line in changes:
         print(line)
-    for line in warnings:
-        print(f" [WARNING] {line}")
-    for line in errors:
-        print(f" [ERROR]   {line}")
+    for tag, lines in ((" [WARNING] ", warnings), (" [ERROR]   ", errors)):
+        for line in lines:
+            print(textwrap.fill(line, width=100, initial_indent=tag, subsequent_indent=" " * len(tag)))
 
     if errors:
         print("-" * 70)

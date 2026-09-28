@@ -202,6 +202,13 @@ always print).
   `--check` reports without writing, and `--backfill` (one-off) seeds missing dates from each row's
   `SupportedDate`. Runs as the last step of every channel launcher, and is skipped when `games.json` is
   absent (the standalone Database Compiler download does not include it).
+  It also runs two **release checks**, because apps compare each channel's published version and
+  database date with the installed plugin's: at the same plugin version, stable's database must never
+  be dated after beta's (run `run.*`, which builds both, rather than `run_stable.*` alone), and each
+  channel's first `changelog.json` entry must name its plugin version and database date
+  (`DatabaseReleases[0].IncludedDatabaseDate`, else `ReleaseDatePlugin`). They are warnings in a build
+  and errors under `--check` - run `run_msop_games_json_sync.* --check` for each channel before
+  publishing.
 
 - **`msop_output_model.py`** - a shared helper library (not run directly) holding the per-game output-set
   derivation that mirrors `init.lua`. Both generators import it so that logic lives in one place. **Keep
