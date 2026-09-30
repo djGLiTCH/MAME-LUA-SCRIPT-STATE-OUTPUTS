@@ -1,6 +1,6 @@
-name: Game Profile Correction
+name: Existing Game / ROM Profile Correction
 description: Report a broken memory address, incorrect data width, or flawed logic in an existing game profile.
-title: "[PROFILE FIX] "
+title: "[EXISTING PROFILE] "
 labels: ["bug", "existing-profile"]
 body:
   - type: markdown

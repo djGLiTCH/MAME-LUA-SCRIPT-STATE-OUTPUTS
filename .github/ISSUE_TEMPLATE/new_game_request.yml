@@ -1,6 +1,6 @@
 name: New Game / ROM Profile Request
 description: Request MSOP support for a new MAME game.
-title: "[NEW ROM] "
+title: "[NEW PROFILE] "
 labels: ["enhancement", "new-profile"]
 body:
   - type: markdown
