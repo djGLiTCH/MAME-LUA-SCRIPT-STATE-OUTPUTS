@@ -108,13 +108,13 @@ The latest source code and release includes support for the following MAME ROMs 
 | `dragngun` | Dragon Gun | Working |
 | `dragngunj` | Dragon Gun (Japan) | Working |
 | `duckhunt` | Vs. Duck Hunt | Working |
-| `evilngt` | Evil Night | Work-in-progress |
-| `hellngt` | Hell Night | Work-in-progress |
+| `evilngt` | Evil Night | Working |
+| `hellngt` | Hell Night | Working |
 | `hotd` | The House of the Dead | Working |
 | `invasnab` | Invasion: The Abductors | Working |
 | `jdredd` | Judge Dredd | Working |
 | `jpark` | Jurassic Park | Working<br>Life and Ammo are disabled due to memory addresses shifting with new player life.<br>Recoil, Status, and Lamp Start are enabled. |
-| `jpark3` | Jurassic Park III | Work-in-progress |
+| `jpark3` | Jurassic Park III | Working |
 | `le2` | Lethal Enforcers II: Gun Fighters | Working |
 | `lethalen` | Lethal Enforcers | Working |
 | `lethalj` | Lethal Justice | Working |
@@ -128,23 +128,16 @@ The latest source code and release includes support for the following MAME ROMs 
 | `sgunnerj` | Steel Gunner (Japan) | Working |
 | `sgunner2` | Steel Gunner 2 | Working |
 | `sgunner2j` | Steel Gunner 2 (Japan) | Working |
-| `terabrst` | Teraburst | Work-in-progress |
+| `terabrst` | Teraburst | Working |
 | `timecris` | Time Crisis | Working |
 | `timecrs2` | Time Crisis II | Working |
-| `totlvice` | Total Vice | Work-in-progress |
+| `totlvice` | Total Vice | Working |
 | `vcop` | Virtua Cop | Working |
 | `vcop2` | Virtua Cop 2 | Working |
 
 ### Racing / Force Feedback (Beta)
 
-The beta channel additionally carries **racing force-feedback profiles** for 146 games
-(151 ROMs) across 12 decoder families - every title the FFB Arcade Plugin projects drive
-through a decodable MAME output, from Thrill Drive and Daytona USA to Cruis'n USA and Hard
-Drivin'. These decode each game's raw drive-board command into the standardised
-`MSOP_P1_FFB_*` output vocabulary (constant force, spring, friction, damper, sine, rumble)
-for consumers like MESH. None are hardware-validated yet, some
-games need an in-game service menu setting before any output appears, and game-state
-memory addresses have not been researched for most racing titles yet.
+The beta channel additionally carries **racing force-feedback profiles** for 146 games (151 ROMs) across 12 decoder families (every title the FFB Arcade Plugin projects drive through a decodable MAME output). These decode each game's raw drive-board command into the standardised `MSOP_P1_FFB_*` output vocabulary (constant force, spring, friction, damper, sine, rumble) for consumers like MESH. None are hardware-validated yet, some games need an in-game service menu setting before any output appears, and game-state memory addresses have not been researched for most racing titles yet.
 
 If you encounter a new issue that isn't documented, please create a new issue on GitHub [here](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues).
 
