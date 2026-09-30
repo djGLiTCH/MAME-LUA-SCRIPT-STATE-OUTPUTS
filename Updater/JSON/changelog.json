@@ -1,0 +1,451 @@
+{
+    "_comment": "Outdated legacy file, frozen. Kept only so MSOP Configurator v1.0.6 and earlier, which read this fixed address, are offered the upgrade to v1.1.0. The current changelog is updates/msop-changelog.json.",
+    "Configurator": [
+        {
+            "Version": "1.1.0",
+            "ReleaseDate": "2026.09.30",
+            "PackageLocation": "updates/configurator",
+            "PackageName": "MSOP-CONFIGURATOR",
+            "PackageType": ".zip",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Important: The MSOP download files have moved, so MSOP Configurator v1.0.6 and earlier can no longer download MSOP Plugin, Hook Of The Reaper or MAMEhooker updates, or the list of supported games. MSOP Configurator v1.1.0, or MESH v1.0.0 and newer, is required to download and install new versions of MSOP released after 30 September 2026 (2026.09.30). Please update to keep receiving MSOP updates.",
+                "General: This is the final release of the MSOP Configurator, which is being replaced by MESH (Modern Emulator State Hub). Once MESH is released, the MSOP Configurator will offer the upgrade every time it starts: it downloads MESH into the same folder and opens it, and MESH then removes the MSOP Configurator and its settings and walks you through a fresh setup. Your MAME installs and the MSOP Plugin are left as they are. The MSOP project itself (the MSOP Plugin for MAME) continues, and will be distributed via MESH moving forward. MESH GitHub: https://github.com/djGLiTCH/MESH",
+                "Compatibility: The MSOP Configurator supports MAME 0.200 to 0.288. MAME 0.289 removed the ability for plugins to register custom state outputs, so MAME 0.289 and newer need MESH, which supports MAME 0.200 and newer. Any MAME instance detected as version 0.289 or newer is now marked 'Requires MESH' and is skipped when installing or updating the MSOP Plugin.",
+                "Architectural Overhaul: All online content locations (MSOP Plugin, changelog, games database, Hooker Program files, and the Configurator's own updates) are now resolved from a single content manifest hosted on GitHub, so files can be reorganised in the repository in the future without breaking this final release.",
+                "Architectural Overhaul: The MSOP Plugin package is now plugin-only. Hook Of The Reaper defaultLG files and MAMEhooker-style INI files are downloaded as separate component packages, and only when a matching Hooker Program path is configured.",
+                "Architectural Overhaul: Component downloads now follow the selected plugin channel, so a Beta plugin is always paired with the Hooker Program files generated from the same Beta database (and likewise for Stable).",
+                "Architectural Overhaul: Upgraded Avalonia UI to v12.1.3.",
+                "Bug Fix: Existing Hook Of The Reaper defaultLG files and Hooker Program INI folders are now always backed up to a zip file before an update overwrites them (previously INI folders could be overwritten without a backup being created)."
+            ]
+        },
+        {
+            "Version": "1.0.6",
+            "ReleaseDate": "2026.07.06",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "General: Please note that MSOP Configurator v1.0.6 and MSOP Plugin v8.4.0 and all versions of these below are only compatible with MAME 0.200 to MAME 0.288 (unless MAME PR 15639 is applied to a custom MAME build). The upcoming official MAME 0.289+ release requires a new version of MSOP to work, as there is a fundamental change being implemented by the MAME devs that will prevent custom state outputs from being registered with MAME moving forward (and no code that enables this function will be allowed back into MAME). A new version of MSOP will be released in the near future that works around this limitation without the need for a custom MAME fork or build, and a working prototype is already undergoing testing.",
+                "Feature Added: Added support for Diagnostics page to automatically identify MSOP Plugin state outputs both with and without 'MSOP_' prefix on state outputs from MAME. This is an early feature preview that will be required for the upcoming changes to MSOP in the next major release.",
+                "UI Polish: Renamed the toggle for Sniffer/Hooker to Diagnostics in Diagnostics page. This should make more sense to most users regardless of the terms they're familiar with."
+            ]
+        },
+        {
+            "Version": "1.0.5",
+            "ReleaseDate": "2026.06.30",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: Renamed the latest zip files that are stored and downloaded from GitHub. Only MSOP Configurator v1.0.5+ will have access to MSOP Plugin v8.3.0+.",
+                "Feature Added: Added the ability to change the IP Address and Port in the Diagnostics page for the sniffer / hooker function. This means you can use MSOP Configurator to easily monitor other TCP Servers for debugging purposes (e.g. Sinden).",
+                "UI Polish: Changed Settings for MSOP Configurator to be radio buttons instead of a pill toggle. This should make things clearer to users since radio buttons are more appropriate for different options. Required rewrite of many functions to make this transition.",
+                "UI Polish: General tidy up of UI for consistency and neatness, such as resizing grids, adjusting corner radius, colours used for interactive elements, prevention of overflow when adjusting width, etc. There are many changes, and unfortunately too many to list out individually.",
+                "UI Polish: Enforced editable fields in the Diagnostics page (UI Refresh Rate, IP Address, and Port) to have validation checks performed. This prevents incorrect values entered by a user causing any potential issues.",
+                "UI Polish: Remade the Home page so that the layout is more condensed, informative, and optimised.",
+                "UI Polish: Renamed the toggle for Sniffer to Hooker in Diagnostics page since this is the term most users are familiar with.",
+                "UI Polish: Reordered the tabs and sub-tabs so that pages are easier to use and more predictable to locate.",
+                "UI Polish: Revised JSON syntax error notifications to make the issue clearer to the user so it can be easily identified and fixed."
+            ]
+        },
+        {
+            "Version": "1.0.4",
+            "ReleaseDate": "2026.06.25",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: Minor changes to the changelog.json structure for the MSOP Database Compiler.",
+                "Architectural Overhaul: Upgraded to the latest Avalonia UI release (v12.0.5).",
+                "UI Polish: Renamed the Compiler sub-tab in Changelog to be Database Compiler (as there may be additional compilers released in future updates).",
+                "UI Polish: Restructured and reformatted the Help tab, which now includes sub-tabs for About MSOP, Configurator, Database, Database Compiler, Plugin, Credits, and Disclaimer."
+            ]
+        },
+        {
+            "Version": "1.0.3",
+            "ReleaseDate": "2026.06.24",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: Transitioned to a new relational JSON database structure for changelog.json to eliminate duplicate update notes across the app. MSOP Configurator v1.0.3+ is now needed to view MSOP Plugin changelog release notes.",
+                "Bug Fix: Prevented race condition where MSOP Configurator app update check was not being performed first and the pop-up window could be hidden behind other messages.",
+                "Bug Fix: ROM Launch icon now appears correctly after opening MSOP Configurator (previously a dropdown selection change was required to reveal the launch icon).",
+                "Feature Added: Added changelog for new MSOP Configurator app version in the pop-up window when notifying the user of a new version being available.",
+                "Feature Added: Added new MSOP Compiler sub-tab to the Changelog tab. This will make it easier for the community to find the necessary files to add support for new games that use the MSOP Plugin.",
+                "UI Polish: Added the ability to copy and paste directly from the MAME State Output Log in the Diagnostics page.",
+                "UI Polish: Created a general Settings tab that now stores MAME, Hooker Programs, and MSOP Configurator sub-tabs. This gives the app a much cleaner appearance.",
+                "UI Polish: Rearranged the tab order so that tabs are ordered based on which tabs are most likely to be accessed and used.",
+                "UI Polish: Reformatted the layout of each Changelog sub-tab [Compiler, Configurator, Plugin (Stable), Plugin (Beta)] so that they are easier to read and the Manual Download button is more neatly aligned to the relevant release.",
+                "UI Polish: Revised the footer layout.",
+                "UI Polish: Revised the Hooker Programs page to be consistent with other pages in background colours.",
+                "UI Polish: Revised various pages in the Help tab so that text is clearer and information reads clearer to the user."
+            ]
+        },
+        {
+            "Version": "1.0.2",
+            "ReleaseDate": "2026.06.23",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: Reworked the code for Offline Mode support, which now correctly reverts to the local cached files so MSOP Configurator can install and manage MSOP even when offline.",
+                "Feature Added: Added new enable and disable buttons in the Supported Games page.",
+                "Feature Added: Added new filter dropdown options in Supported Games page.",
+                "Feature Added: Added new ROM Folder path in the MAME page.",
+                "Feature Added: Added new ROM Launch options and buttons in the Supported Games page.",
+                "UI Polish: Added tooltips to hyperlinks as appropriate, so the user can see where the hyperlink will take them before clicking.",
+                "UI Polish: Fixed issues with the MSOP Plugin Beta previous versions showing up in the Changelog page.",
+                "UI Polish: Improved the search function in the Supported Games page.",
+                "UI Polish: Migrated MSOP Configurator app setting toggles out of the footer and into a dedicated Settings page.",
+                "UI Polish: Remade all buttons in the user interface so that they are consistent and easily identifiable as buttons (previously they appeared more like hyperlinks).",
+                "UI Polish: Renamed the 'About' tab to be 'Help'.",
+                "UI Polish: Renamed the 'Configurator App' sub-tab in the Changelog page to be 'MSOP Configurator'.",
+                "UI Polish: Reworded the paragraphs in the 'More Information' section of the MAME page.",
+                "UI Polish: Reworded the wording in the 'Off-Screen Reload' section of the MAME page."
+            ]
+        },
+        {
+            "Version": "1.0.1",
+            "ReleaseDate": "2026.06.21",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Bug Fix: Resolved multiple Portable storage mode reliability issues by implementing accurate path resolution, adding smart directory wiping to protect nested configurations (like when storing MSOP_CONFIGURATOR.exe inside MAME > plugins > stateoutput), and introducing fail-safe rollbacks for interrupted storage migrations."
+            ]
+        },
+        {
+            "Version": "1.0.0",
+            "ReleaseDate": "2026.06.19",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: When an update is performed or the MSOP Configurator app is opened, all MAME instances will be instantaneously updated to ensure alignment with the 'enable' toggle in the Supported Games page.",
+                "Bug Fix: Checkbox options in the MAME page were not being saved correctly in config.json after interactions. This affected the 'MAME Output Mode' and 'MAME Off-Screen Reload Compatibility' options, but these have now been fixed and work as expected.",
+                "Feature Added: Added new 'enable' toggle in the Supported Games page so users can manually enable or disable supported games within the MSOP Plugin. This is only intended for use if you are using your own custom script or build that causes a conflict with the MSOP Plugin for a specific game / ROM, and so there should be no other reason you need to use this, but it's always nice to have options.",
+                "Feature Added: Replaced old 'legacy' file detection for ini files and Lua scripts, and replaced it with more advanced logic that allows the user to keep detected ini files and Lua scripts if they opt out of the file removal, but if file removal is denied then no support can be provided for the MSOP Plugin as there is the potential for conflicts with those existing ini files and / or Lua scripts being kept.",
+                "UI Polish: Updated the About > Database Guide page to be a little clearer. This is still not a complete list of functions, but it does cover the basics for general community contributions using MSOP for now."
+            ]
+        },
+        {
+            "Version": "0.9.9",
+            "ReleaseDate": "2026.06.12",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Bug Fix: When using 'Portable' Storage Mode, this could sometimes mistakenly show up with the incorrect toggle value during app startup, which would result in the local folder being mistakenly deleted when the user toggles from 'Standard' back to 'Portable' storage mode. This issue has now been fixed.",
+                "UI Polish: Allowed users to manually toggle on the Player State Output Summary tables for games that aren't supported (options 1, 2, 3, 4) in the Diagnostics page. If set to 'Auto', this will automatically reveal active players for supported games, but if the game is not supported then no active players will be revealed. If set to 'Off', no Player State Output Summary tables will be shown for any player regardless of whether they are supported or not supported.",
+                "UI Polish: Fixed the MAME State Output Log in the Diagnostics page so that it doesn't continue moving your scroll position if you scroll down to read old events. This was only half working before, but has now been fully fixed.",
+                "UI Polish: If an active ROM is supported by MSOP, it will be coloured green in the Diagnostics page. If an active ROM is not supported by MSOP, it will be coloured red in the Diagnostics page."
+            ]
+        },
+        {
+            "Version": "0.9.8",
+            "ReleaseDate": "2026.06.10",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Bug Fix: Added 'mame_start' state output value back into the Diagnostics page Log after the Log resets.",
+                "Bug Fix: Fixed logic with Session Timer in Diagnostics page so that it only counts when the ROM is not paused ('pause = 0') and/or 'mame_stop = 1' was not the last state output received.",
+                "Bug Fix: MSOP Plugin Beta now correctly identifies the release date for the Beta.",
+                "Bug Fix: Removed redundant total credit logic from backend code that would add individual player credits to create a total player credits number, but this is now implemented within the MSOP Plugin instead.",
+                "Feature Added: New 'About' page sub-tabs with more details and information. This has been expanded to include 'About MSOP', 'Configurator Guide', 'Database Guide', 'Credits & Community', 'Disclaimer'.",
+                "Feature Added: New 'Compact View' toggle added to Diagnostics page, which helps to keep the Log visible in compact resolution displays (such as arcade cabinet digital marquees).",
+                "UI Polish: Cleaned up the Home page for the 'Latest Plugin' section.",
+                "UI Polish: Fixed clash between state output values in the Diagnostics Log window and the scrollbar.",
+                "UI Polish: Fixed clipping of 'Number of MAME Instances' button border.",
+                "UI Polish: Fixed colours being inconsistent when swapping between dark and light themes or when booting up in light theme without switching themes.",
+                "UI Polish: Fixed some inconsistencies in the Changelog page for Plugins.",
+                "UI Polish: Relocated 'Player State Output Summary' dropdown to be left of the new 'Compact View' toggle. Also added an 'Off' dropdown option to maximise UI real estate if the Log is needed as the priority.",
+                "UI Polish: Removed 'Alavonia UI Test' from the Home page. This was accidentally left in to easily distinguish between WPF and Avalonia UI builds."
+            ]
+        },
+        {
+            "Version": "0.9.7",
+            "ReleaseDate": "2026.06.09",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architecture Overhaul: Completely rewrote the UI backend code to now utilise Avalonia UI instead of WPF, which will improve performance, consistency, and enable cross compatibility with other OS (i.e. Linux and macOS) for future builds using the same underlying code. This is a massive change, so if you identify any issues please raise an issue on GitHub.",
+                "Feature Added: Added new toggle in footer for 'Storage Mode'. If set to Standard (default), this will use your AppData > Roaming > MSOPsettings folder, which enables the MSOP Configurator to be opened from anywhere on your PC while keeping the exact same saved settings intact. If set to Portable, this will use the local MSOPsettings subfolder that is located within the same directory as your MSOP Configurator app, which is useful for backups of existing builds (useful if sharing a build that utilises MSOP).",
+                "Feature Added: Added new toggle in footer for 'Icon Type'. If set to Square (default), this will utilise the square variant of the MSOP icon and logo. If set to Round, this will utilise the round variant of the MSOP icon and logo.",
+                "UI Polish: Added 'Release Date' into the Changelog page for each Plugin version, so now this neatly mirrors the changelog format used across Plugins and Configurator.",
+                "UI Polish: Minor tweaks to layout, format, and colour of the Diagnostics page so that things are more tightly organised.",
+                "UI Polish: Minor tweaks to layout on the Changelog page for greater consistency across the app.",
+                "UI Polish: Removed toggle colours where appropriate for instances where there should be no preference for a setting (such as Dark or Light).",
+                "UI Polish: Revised all UI elements to make use of rounded edges instead of square edges.",
+                "UI Polish: Revised text descriptions to be more concise and/or appropriate as needed.",
+                "UI Polish: When a data entry field is highlighted, clicking away or pressing Enter will now save the settings and lose focus of the data entry field."
+            ]
+        },
+        {
+            "Version": "0.9.6",
+            "ReleaseDate": "2026.06.04",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architecture Overhaul: Renamed the 'date' field to 'dateplugin', added 'datedatabase', and added 'channel' in plugin.json. This change will mean that older versions of the Configurator app will report a blank value when trying to determine the latest release date on GitHub (v0.9.5 and below).",
+                "System Change: Cleaned up file headers to make it clearer what each file is used for, what version each file is, and what date it was last changed.",
+                "System Change: If version or release date are corrupted or missing in JSON files, then an 'UPDATE' will be prompted to try and fix the issue.",
+                "System Change: Renamed the state output log generated by the Diagnostics page to be 'MSOP_MAME_State_Output_Log_ACTIVEROM_yyyMMdd_HHmmss.txt'.",
+                "UI Expansion: Adjusted Configurator app UI to make use of clearer distinction between Plugin Version, Plugin Release Date, and Database Release Date.",
+                "UI Polish: Made it clearer on the Home page for whether a 'Stable' or 'Beta' plugin release has been installed.",
+                "UI Polish: Renamed all instances of 'MAME State Output Project' to be MSOP, which tidies up the user interface. The full text was left in the header and footer."
+            ]
+        },
+        {
+            "Version": "0.9.5",
+            "ReleaseDate": "2026.06.02",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Bug Fix: Popup prompt for plugin stable release being newer than beta would appear at app startup, but this should have only appeared after the local cached files had been refreshed.",
+                "UI Polish: Rename 'Plugin Release Date' to be 'Database Release' which is more appropriate. The same Plugin version may be used for multiple Database Release dates, and this makes it clearer to the user. The database is used to add support for each game in the Plugin.",
+                "UI Polish: Renamed the Configurator app executable file from 'MAME_STATE_OUTPUT_CONFIGURATOR.exe' to 'MSOP_CONFIGURATOR.exe'."
+            ]
+        },
+        {
+            "Version": "0.9.4",
+            "ReleaseDate": "2026.06.02",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+            "Changes": [
+                "Architecture Overhaul: Added command line support into the Configurator app. Three options currently exist, 1. -update which will update the configurator app (if appropriate) and then update the plugin (or reinstall if no update is available), 2. -updateconfigurator or -updateapp which will update the configurator app (if appropriate), 3. -updateplugin which will update the plugin (or reinstall if no update is available).",
+                "Architecture Overhaul: Reworked the framework for downloading the latest version of MAME State Output Plugin. This has changed from the single previous 'LATEST' zip folder and is now split into two separate zip folders, 'STABLE' and 'BETA'.",
+                "Feature Added: Toggle for Stable Plugin or Beta Plugin has been added to the bottom of the Home page. This will allow community testers to quickly and easily install new beta versions of the MAME State Output Plugin and check for any bugs in upcoming games-ROMs and new logic or features that have been added to the underlying plugin framework.",
+                "Feature Added: Detailed debug pop-up prompts will now appear for invalid JSON files and/or corrupted zip folders. These files will now be checked after being downloaded from GitHub, and if an issue exists it will flag it in the UI before failing to process them.",
+                "Optimisation: Added check to prevent multiple instances of the Configurator app from being run simultaneously. Only one instance of the Configurator app can be open at once.",
+                "Optimisation: Added fallback logic for downloading latest versions of files from GitHub and prioritising GitHub over local cached files, however, if no internet connection is available or GitHub is offline then local cached files will be used.",
+                "Optimisation: Added fallback logic and pop-up prompt for occassions where Beta Plugin is toggled on but no Beta Plugin zip folder exists for download.",
+                "Optimisation: Added fallback logic and pop-up prompt for when a Beta release has an older version than the current Stable release. This prompt will advise the user to switch back to the Stable release instead.",
+                "Optimisation: Added fallback logic for supported games list so that if no plugin is installed then the supported games list will show all supported games in the latest version rather than show an empty list.",
+                "UI Expansion: Added 'Open Directory' button next to each folder location so that a user can quickly open a folder in their native OS file explorer.",
+                "UI Expansion: Added Plugin Beta sub-tab to the Changelog page when Beta Plugin is toggled on thee Home page.",
+                "UI Polish: Adjusted colour logic for Stable Plugin (green) or Beta Plugin (orange) toggle.",
+                "UI Polish: Adjusted colour logic for 'Browse' and 'Open' buttons in MAME page.",
+                "UI Polish: Refined transparent background to be consistently transparent during Configurator app update and refreshing of local cached files."
+            ]
+        },
+        {
+            "Version": "0.9.3",
+            "ReleaseDate": "2026.06.01",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+            "Changes": [
+                "Bug Fix: Auto-update feature was broken in the previous update (v0.9.2), and the pop-up prompt to accept the Configurator app update was being hidden. This has now been fixed.",
+                "Bug Fix: Prevented 'Refreshing Local Files...' from appearing on top of the auto-update progress bar while the Configurator app is updating to a newer version.",
+                "UI Polish: Revised Configurator app to match Windows theme colour on first launch. This can still be manually changed using the Dark / Light mode toggle in the footer of the Configurator app.",
+                "UI Polish: Updated project logo to use 'SOP' instead of 'Lua' in the icon and image."
+            ]
+        },
+        {
+            "Version": "0.9.2",
+            "ReleaseDate": "2026.06.01",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+            "Changes": [
+                "Note: This release (v0.9.2) is broken, and breaks the auto-update feature for the Configurator app. Please do not use this version, as you will need to manually update to a newer version later.",
+                "Bug Fix: Prevented pop-up prompts from appearing while the Configurator app is updating to a newer version."
+            ]
+        },
+        {
+            "Version": "0.9.1",
+            "ReleaseDate": "2026.06.01",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+            "Changes": [
+                "Architecture Overhaul: Configurator app will now automatically download all updated MAME State Output Plugin files, changelog files, and supported game files into the local roaming folder. This will ensure that you can always uninstall or install the last version of the plugin that was downloaded, as well as access the changelog and list of supported games, regardless of current internet connectivity.",
+                "Architecture Overhaul: Renamed array within 'changelog.json' from 'Updater' to 'Configurator'. This will break the auto-update function in older versions of Configurator app (v0.9.0 and below), so I will leave the old auto-update method enabled on the server up until v1.0.0 is officially released.",
+                "Feature Added: Uninstall button has been added to the Home page, which will remove MAME State Output Plugin from all configured MAME instances and safely adjust all relevant configuration files.",
+                "Optimisation: Cleaned up config.json file stored in AppData > Roaming > MameStateOutputConfigurator folder.",
+                "Optimisation: Enabled background processing while dialog prompts are open where appropriate (i.e. while downloading/installing/updating files after user confirmation).",
+                "Optimisation: Improved network sniffing resource utilisation in the Diagnostics page when enabled. This includes thread optimisations for network management, brush assignment, memory allocation, message queue for displaying state output log in app UI, better handling for large exports, etc.",
+                "Optimisation: Removed redundant code and technical debt that was used in earlier beta releases but is no longer required. and cleaned up config.json file stored in AppData > Roaming > MameStateOutputConfigurator folder.",
+                "Optimisation: Removed 'stateoutput 1' from being added to mame.ini for new installs. This will now only be added to plugin.ini as it should have to begin with.",
+                "UI Polish: Added colour coding and expanded information regarding cases where 'Multiple Found' is encountered for installed versions.",
+                "UI Polish: Added expand / collapse button ('Show Information') to MAME and Hooker Program pages to reduce cluttered default view.",
+                "UI Polish: Adjusted the top grid layout and 'Sniffing' toggle colours in the Diagnostics page.",
+                "UI Polish: Clarified help text for RetroBat MAME instances.",
+                "UI Polish: Implemented offline mode to improve user experience for arcade cabinet users. Please note that an internet connection is required the first time the Configurator app is launched, and any subsequent launch will use locally cached plugin files if no internet connection is available.",
+                "UI Polish: Logic changed for clearing the MAME State Output Log in the Diagnostics page so that if 'Continuous Log' is off (default), then any time a ROM is closed it will not clear the log history until a new ROM is launched. This assists in preventing accidental clearing of log history during testing of a specific ROM.",
+                "UI Polish: Renamed 'Continuous' to 'Continuous Log' in the Diagnostics page. This is disabled by default, which will result in the MAME State Output Log resetting when the active ROM is changed in MAME (which helps to keep the log clean). If this is enabled, the MAME State Output Log will keep a log of every state output value change across all ROMs encountered during the sniffing session.",
+                "UI Polish: Renamed 'Installed MAME State Output' to 'Installed', and renamed 'Latest MAME State Output' to 'Latest'.",
+                "UI Polish: Renamed 'Polling (ms)' to 'UI Refresh Rate (ms)' in the Diagnostics page, since this is only applicable to the speed at which the MAME State Output Log is updated in the UI of the app (not the speed at which messages are being read from MAME)."
+            ]
+        },
+        {
+            "Version": "0.9.0",
+            "ReleaseDate": "2026.05.31",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MAME_STATE_OUTPUT_CONFIGURATOR.exe",
+            "Changes": [
+                "Architecture Overhaul: Renamed the folder in AppData/Roaming from 'MameStateOutputUpdater' to 'MameStateOutputConfigurator'",
+                "Bug Fix: Fixed typo in logic for individual player state output values relating to 'Shots Fired Primary'. This was previously referencing the total 'Shots Fired' value, but it should have been referencing shots fired by the primary weapon only.",
+                "Bug Fix: Improved network protocol to only automatically reveal individual player state output summary tables if the active ROM is in the list of supported games.",
+                "Bug Fix: RetroBat specific changes to ensure this is correctly configured for the MAME State Output Plugin and enabled in EmulationStation UI.",
+                "Featured Added: When the app is started, it will download a local copy of changelog.json and games.json from GitHub, but if GitHub can't be reached then the last local copy that was downloaded will be used instead. If no local json files exist, then the app will load empty UI lists instead of getting stuck."
+            ]
+        },
+        {
+            "Version": "0.8.2",
+            "ReleaseDate": "2026.05.29",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MAME-STATE-OUTPUT-CONFIGURATOR.exe",
+            "Changes": [
+                "Bug Fix: Improved network protocol to prevent dropped/missed state output event changes when using 'Diagnostics' sniffer."
+            ]
+        },
+        {
+            "Version": "0.8.1",
+            "ReleaseDate": "2026.05.29",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "MAME-STATE-OUTPUT-CONFIGURATOR.exe",
+            "Changes": [
+                "Bug Fix: RetroBat now works correctly for installing MAME State Output Plugin and configuring all relevant files based on MAME instance selections.",
+                "UI Polish: Added 'RELOAD' to the individual player state output triggers."
+            ]
+        },
+        {
+            "Version": "0.8.0",
+            "ReleaseDate": "2026.05.29",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "configurator.exe",
+            "Changes": [
+                "Bug Fix: Miscellaneous bug fixes and logic improvements.",
+                "UI Expansion: Added a dedicated 'Diagnostics' tab featuring a complete state output monitoring suite that can be used to check if your MAME State Output Plugin is working correctly (turned off by default to save on system resources). This is also useful for checking state outputs from other MAME games too, with the ability to export the log for use with other software and tools.",
+                "UI Polish: Relocated the dark mode toggle into the footer, which improves the user interface when adjusting the app window size.",
+                "UI Polish: Split Changelog release notes into two separate sub tabs (plugin and configurator)."
+            ]
+        },
+        {
+            "Version": "0.7.1",
+            "ReleaseDate": "2026.05.28",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "configurator.exe",
+            "Changes": [
+                "Bug Fix: Renamed a few old instances of 'Updater' and replaced with 'Configurator'.",
+                "UI Expansion: Added a dedicated 'Changelog' tab featuring release notes for each MAME State Output Plugin and Configurator App. This also includes manual downloads for each release, where applicable.",
+                "UI Expansion: Added a dedicated 'Games' tab featuring a list of supported games / ROMs based on the currently installed MAME State Output Plugin.",
+                "UI Polish: Fixed scrollbar theme to suit dark mode better.",
+                "UI Polish: Configurator app starts wider to better fit text within the app window."
+            ]
+        },
+        {
+            "Version": "0.7.0",
+            "ReleaseDate": "2026.05.28",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "configurator.exe",
+            "Changes": [
+                "App Renamed: Officially rebranded from 'Updater' to 'MAME State Output Plugin Configurator' to better reflect its comprehensive feature set.",
+                "Architecture Overhaul: Migrated the background update engine to use a centralized master changelog.json, separating deployment metadata from UI data.",
+                "Bug Fix: Patched a routing trap where selecting a deep RetroBat subfolder manually would cause the engine to double-append the mame path",
+                "UI Expansion: Added a dedicated 'About' tab featuring version tracking, clickable GitHub repository links, and comprehensive community credits.",
+                "Memory Optimization: Replaced localized HTTP clients with a global static instance, permanently sealing network socket memory leaks.",
+                "Logic Refinement: Rebuilt the local MAME plugin scanner to use a highly optimized JSON Document reader, bypassing bloated data models."
+            ]
+        },
+        {
+            "Version": "0.6.0",
+            "ReleaseDate": "2026.05.27",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "updater.exe",
+            "Changes": [
+                "Bug Fix: Fixed a major XAML/C# race condition where saving custom directory paths via the 'Browse Folder' button would fail due to file-locking conflicts.",
+                "UI Polish: Increased the width of the directory configuration grid columns to prevent 'Browse Folder...' text from being cut off."
+            ]
+        },
+        {
+            "Version": "0.5.2",
+            "ReleaseDate": "2026.05.26",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "updater.exe",
+            "Changes": [
+                "Bug Fix: Enforced strict unchecking and graying out of the Output Mode (Network/Windows) radio buttons if the local MAME version is missing or explicitly unsupported (pre-v0.200).",
+                "Validation Failsafe: Added logic to ensure all Off-Screen Reload toggles are forcefully disabled if mame.exe cannot be read or verified."
+            ]
+        },
+        {
+            "Version": "0.5.0",
+            "ReleaseDate": "2026.05.26",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "updater.exe",
+            "Changes": [
+                "Feature Added: Implemented the automatic INI Sync Engine. The app now seamlessly reads and modifies mame.ini and plugin.ini to ensure output configurations match the user's UI selections.",
+                "Feature Added: Introduced the Self-Updating engine with real-time UI overlay, progress bars, batch-script executable swapping, and extraction loops.",
+                "Feature Added: Added version detection logic to intelligently disable 'Plugin Helper' off-screen reloads for any MAME version older than v0.285."
+            ]
+        },
+        {
+            "Version": "0.4.1",
+            "ReleaseDate": "2026.05.25",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "updater.exe",
+            "Changes": [
+                "Feature Added: Implemented the 'Legacy Architecture' conflict detector. The app now actively scans for old LUA scripts and prompts users to upgrade and migrate to the new plugin architecture.",
+                "UX Improvement: Added dynamic instructional text to the Root Directory textbox that changes based on the selected directory structure."
+            ]
+        },
+        {
+            "Version": "0.4.0",
+            "ReleaseDate": "2026.05.24",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
+            "FileName": "updater.exe",
+            "Changes": [
+                "Feature Added: Introduced the Multi-Instance MAME configuration framework, allowing users to route and manage multiple distinct MAME installations simultaneously.",
+                "UI Overhaul: Replaced basic text fields with the dynamic, color-coded Validation Table (Green/Orange/Red) to give users instant visual feedback on their configuration status.",
+                "Feature Added: Added real-time GitHub version checking to compare local installations against the online repository.",
+                "Versions prior v0.4.0 were early alpha so changelog details were not recorded in detail."
+            ]
+        }
+    ]
+}

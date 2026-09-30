@@ -13,7 +13,7 @@
 
 ## 📅 MAME Compatibility & Release Status
 
-> **In short:** the current release, **MSOP Plugin v8**, supports **MAME 0.200 to 0.288**. Support for **MAME 0.289 and later** arrives with **MSOP Plugin v9 combined with MESH v1**, both targeted for release around **late-August to early-September 2026**.
+> **In short:** the current release, **MSOP Plugin v8**, supports **MAME 0.200 to 0.288**. Support for **MAME 0.289 and later** arrives with **MSOP Plugin v9 combined with MESH v1**, both targeted for release in **early October 2026**.
 
 MAME 0.289 removed the ability for a Lua plugin to create state outputs. MAME can therefore no longer hold - and no longer broadcast - any of MSOP's custom outputs on 0.289 and above, in any `-output` mode. This was a deliberate change by the MAME development team, and it is not something a plugin can work around on its own. From v9, MSOP delivers its outputs over its own relay instead, which the MESH app hosts - and that is why the two are released together.
 

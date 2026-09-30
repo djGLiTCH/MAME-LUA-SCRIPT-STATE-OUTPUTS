@@ -1,11 +1,29 @@
 {
     "Configurator": [
         {
-            "Version": "1.0.6",
-            "ReleaseDate": "2026.07.06",
+            "Version": "1.1.0",
+            "ReleaseDate": "2026.09.30",
             "PackageLocation": "updates/configurator",
             "PackageName": "MSOP-CONFIGURATOR",
             "PackageType": ".zip",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Important: MSOP Configurator v1.1.0, or MESH v1.0.0 and newer, is required to download and install new versions of MSOP released after 30 September 2026 (2026.09.30). Please update to keep receiving MSOP updates.",
+                "General: This is the final release of the MSOP Configurator, which is being replaced by MESH (Modern Emulator State Hub). Once MESH is released, the MSOP Configurator will offer the upgrade every time it starts: it downloads MESH into the same folder and opens it, and MESH then removes the MSOP Configurator and its settings and walks you through a fresh setup. Your MAME installs and the MSOP Plugin are left as they are. The MSOP project itself (the MSOP Plugin for MAME) continues, and will be distributed via MESH moving forward. MESH GitHub: https://github.com/djGLiTCH/MESH",
+                "Compatibility: The MSOP Configurator supports MAME 0.200 to 0.288. MAME 0.289 removed the ability for plugins to register custom state outputs, so MAME 0.289 and newer need MESH, which supports MAME 0.200 and newer. Any MAME instance detected as version 0.289 or newer is now marked 'Requires MESH' and is skipped when installing or updating the MSOP Plugin.",
+                "Architectural Overhaul: All online content locations (MSOP Plugin, changelog, games database, Hooker Program files, and the Configurator's own updates) are now resolved from a single content manifest hosted on GitHub, so files can be reorganised in the repository in the future without breaking this final release.",
+                "Architectural Overhaul: The MSOP Plugin package is now plugin-only. Hook Of The Reaper defaultLG files and MAMEhooker-style INI files are downloaded as separate component packages, and only when a matching Hooker Program path is configured.",
+                "Architectural Overhaul: Component downloads now follow the selected plugin channel, so a Beta plugin is always paired with the Hooker Program files generated from the same Beta database (and likewise for Stable).",
+                "Architectural Overhaul: Upgraded Avalonia UI to v12.1.3.",
+                "Bug Fix: Existing Hook Of The Reaper defaultLG files and Hooker Program INI folders are now always backed up to a zip file before an update overwrites them (previously INI folders could be overwritten without a backup being created)."
+            ]
+        },
+        {
+            "Version": "1.0.6",
+            "ReleaseDate": "2026.07.06",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
             "FileName": "MSOP_CONFIGURATOR.exe",
             "Changes": [
                 "General: Please note that MSOP Configurator v1.0.6 and MSOP Plugin v8.4.0 and all versions of these below are only compatible with MAME 0.200 to MAME 0.288 (unless MAME PR 15639 is applied to a custom MAME build). The upcoming official MAME 0.289+ release requires a new version of MSOP to work, as there is a fundamental change being implemented by the MAME devs that will prevent custom state outputs from being registered with MAME moving forward (and no code that enables this function will be allowed back into MAME). A new version of MSOP will be released in the near future that works around this limitation without the need for a custom MAME fork or build, and a working prototype is already undergoing testing.",
@@ -216,14 +234,14 @@
                 "Architecture Overhaul: Added command line support into the Configurator app. Three options currently exist, 1. -update which will update the configurator app (if appropriate) and then update the plugin (or reinstall if no update is available), 2. -updateconfigurator or -updateapp which will update the configurator app (if appropriate), 3. -updateplugin which will update the plugin (or reinstall if no update is available).",
                 "Architecture Overhaul: Reworked the framework for downloading the latest version of MAME State Output Plugin. This has changed from the single previous 'LATEST' zip folder and is now split into two separate zip folders, 'STABLE' and 'BETA'.",
                 "Feature Added: Toggle for Stable Plugin or Beta Plugin has been added to the bottom of the Home page. This will allow community testers to quickly and easily install new beta versions of the MAME State Output Plugin and check for any bugs in upcoming games-ROMs and new logic or features that have been added to the underlying plugin framework.",
-                "Feature Added: Detailed debug pop-up prompts will now appear for invalid JSON files and/or corrupted ZIP folders. These files will now be checked after being downloaded from GitHub, and if an issue exists it will flag it in the UI before failing to process them.",
+                "Feature Added: Detailed debug pop-up prompts will now appear for invalid JSON files and/or corrupted zip folders. These files will now be checked after being downloaded from GitHub, and if an issue exists it will flag it in the UI before failing to process them.",
                 "Optimisation: Added check to prevent multiple instances of the Configurator app from being run simultaneously. Only one instance of the Configurator app can be open at once.",
                 "Optimisation: Added fallback logic for downloading latest versions of files from GitHub and prioritising GitHub over local cached files, however, if no internet connection is available or GitHub is offline then local cached files will be used.",
                 "Optimisation: Added fallback logic and pop-up prompt for occassions where Beta Plugin is toggled on but no Beta Plugin zip folder exists for download.",
                 "Optimisation: Added fallback logic and pop-up prompt for when a Beta release has an older version than the current Stable release. This prompt will advise the user to switch back to the Stable release instead.",
                 "Optimisation: Added fallback logic for supported games list so that if no plugin is installed then the supported games list will show all supported games in the latest version rather than show an empty list.",
                 "UI Expansion: Added 'Open Directory' button next to each folder location so that a user can quickly open a folder in their native OS file explorer.",
-                "UI Expansion: Added Plugin BETA sub-tab to the Changelog page when Beta Plugin is toggled on thee Home page.",
+                "UI Expansion: Added Plugin Beta sub-tab to the Changelog page when Beta Plugin is toggled on thee Home page.",
                 "UI Polish: Adjusted colour logic for Stable Plugin (green) or Beta Plugin (orange) toggle.",
                 "UI Polish: Adjusted colour logic for 'Browse' and 'Open' buttons in MAME page.",
                 "UI Polish: Refined transparent background to be consistently transparent during Configurator app update and refreshing of local cached files."
@@ -431,6 +449,13 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.09.28",
+            "ChangesDatabase": [
+                "General: Native output tables re-scraped from current MAME. The racing force feedback games (beta) now forward their native outputs, and evilngt, hellngt, jpark3, terabrst and totlvice gain table entries (terabrst forwards pcbdigit0 and pcbdigit1). The MAMEhooker .ini skeletons list the added outputs.",
+                "General: Stable rebuilt with the MSOP Plugin v9.3.4 defaults (the force feedback defaults, switched off, and ENABLE_OSD_CONNECTION_STATUS). Stable's lightgun game profiles are unchanged, and beta's database only changes date."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.07.03",
             "ChangesDatabase": [
                 "General: No changes. Updated to suit last run date by MSOP Database Compiler."
@@ -523,6 +548,232 @@
         }
     ],
     "PluginStable": [
+        {
+            "Version": "9.3.4",
+            "ReleaseDatePlugin": "2026.09.04",
+            "ChangesPlugin": [
+                "Note: Brings the stable channel up to the latest MSOP Plugin, so both channels now ship the same plugin. Stable's database stays lightgun only; the racing force feedback profiles remain in the beta channel while they are tested.",
+                "init.lua: Includes the v9.3.3 and v9.3.4 plugin changes from the beta channel - the expanded racing force feedback decoders and per-profile INVERT, the GAME_STATUS 'always' option, and the native-output forwarding, force feedback event and output-proxy optimisations.",
+                "database: The _default block gains the plugin's force feedback defaults (switched off) and the ENABLE_OSD_CONNECTION_STATUS flag. The lightgun game profiles are unchanged.",
+                "readme.txt: Updated to the v9.3.4 text, including the Special Thanks credit for the force feedback protocol research."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.09.28",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-STABLE",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
+            "Version": "9.3.2",
+            "ReleaseDatePlugin": "2026.08.24",
+            "ChangesPlugin": [
+                "init.lua: Reworked the relay retry policy from ongoing paced retries to a strictly bounded sequence, to stop the freezes reported on machines where security software silently drops loopback connection attempts (each failed connect blocks MAME for about 2 seconds, and the old schedule kept dialling for the whole session). Cold start (MESH never answered): one silent attempt at ROM start, one silent retry 10 seconds later, then an announced final attempt 30 seconds after that - and no further dialling for the session. Lost connection (MESH disconnected mid-game): one announced reconnect attempt 30 seconds after the drop, then no further dialling. Reconnecting afterwards costs one deliberate action: pause and unpause the game, soft reset, load a new ROM, or restart MAME - dialling never happens while paused, so recovery runs at the moment of unpause.",
+                "init.lua: Added clear on-screen (OSD) connection status messages, each shown at most once per session: 'MESH IS NOT RUNNING' (announcing the final cold attempt), 'MESH NOT FOUND - STATE OUTPUTS PAUSED' (cold attempts exhausted, with recovery steps), 'MESH DISCONNECTED' (the moment a live connection drops), 'MESH RECONNECT FAILED - STATE OUTPUTS PAUSED', and a 'MESH CONNECTED' confirmation once delivery is restored after any problem was reported. The OSD half is controlled by a new ENABLE_OSD_CONNECTION_STATUS flag in the database's _default block (enabled by default; absent = enabled) so genuine connection problems stay separate from the debug-gated diagnostics messages; the matching console messages always print regardless.",
+                "init.lua: Added an 'INCORRECT OUTPUT MODE DETECTED' notice for MAME builds that cannot create MSOP's outputs (0.289 and above) running with '-output network' or '-output windows' - modes that only deliver MSOP's outputs natively on MAME 0.200 - 0.288. The notice recommends '-output none', the setup where MESH can serve external hooker programs the complete stream.",
+                "init.lua: '-output auto' (MAME's factory default) is now treated as 'none', which is exactly how MAME itself resolves it - verified in the source of MAME 0.200, 0.286, and current master alike. Previously 'auto' fell through to the per-install stamp fallback, which a hand-installed plugin does not have, leaving a default-configured MAME 0.288 or earlier silently undelivered.",
+                "init.lua: Removed the adaptive dial-cost machinery (the 60-second escalating cap and per-dial timing) and the supported-versus-pass-through retry distinction - the bounded sequence makes both redundant, and every game now follows the same schedule.",
+                "database: _default.json gains ENABLE_OSD_CONNECTION_STATUS (default true) - set it to false to silence the connection status OSD messages while keeping the console messages.",
+                "readme.txt: Rewrote the 'IF NOTHING IS LISTENING ON THE RELAY PORT' section for the bounded retry policy, the new status messages and their toggle, the incorrect output mode notice, and the '-output auto' behaviour.",
+                "init.lua: Optimised the per-frame paths. For racing games, the force feedback decoder and scale are now resolved once per ROM load instead of every frame, and the decoder only runs when the raw command value actually changes (identical values decode to identical outputs, which were already deduplicated). Native-output proxy resolution no longer allocates a closure per attempt."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.24",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.3.1",
+            "ReleaseDatePlugin": "2026.08.10",
+            "ChangesPlugin": [
+                "init.lua: Live native-output enumeration now works on stock MAME 0.290+, the first official release to carry the feature MSOP proposed upstream (mamedev/mame PR #15745). It landed in MAME in a different, more efficient form than the original proposal: 'device.outputs' is a container of live output proxies keyed by name, rather than a plain list of name pairs. MSOP's discovery was written against the proposal's shape and would have silently fallen back to the shipped lookup files; it now targets the accepted upstream form exclusively, and the live proxies are kept from discovery so per-output resolution is never repeated later. Note that official MAME 0.289 does not include the property - on 0.289 and earlier, native-output discovery continues to use the shipped lookup files.",
+                "init.lua: Each enumerated output's wire name is reconstructed exactly as MAME's own output modules format it (root-device outputs are unqualified; otherwise the owning device's tag, minus its leading colon, then ':', then the name) - so hooker payloads stay byte-identical to MAME's own broadcasts.",
+                "readme.txt: Updated the native-output discovery section - live enumeration becomes the stock behaviour on MAME 0.290 and later, with the shipped lookup files serving MAME 0.289 and earlier (official 0.289 does not provide 'device.outputs')."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.10",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.3.0",
+            "ReleaseDatePlugin": "2026.08.10",
+            "ChangesPlugin": [
+                "Note: MSOP Plugin v9.3.0 pairs with the port-split MESH release. MESH's health check will flag relay-path instances running an older plugin once the split ships. MESH-managed installs self-correct on their next plugin update in either order, because MESH stamps the relay port explicitly into plugin.json and the plugin honours that stamp.",
+                "init.lua: The relay now dials MESH's dedicated MSOP ingest listener on 127.0.0.1:8004 (previously 8000). Port 8000 is the port MAME's own '-output network' server binds and every hooker program hard-codes, so sharing it meant a mixed fleet (an older MAME broadcasting natively beside a relay-path instance) fought over one port and whichever bound first silently won. The ingest port is private to MSOP and MESH - the plugin now never binds or dials port 8000 in any mode. An explicit 'relayport' value in plugin.json still wins over the default, exactly as before.",
+                "init.lua: Removed the '-output network' port derivation (the old step-aside to 8001). It existed only because the relay used to share MAME's port 8000; the dedicated ingest port cannot collide with MAME's server, so there is nothing to step aside from. The relay on/off decision itself is unchanged: capability first, then MAME version, then output mode - and with '-output network' or '-output windows' on MAME 0.288 or earlier, MSOP still opens no socket at all.",
+                "init.lua: Native-output pass-through for unsupported games now stands down based on MAME's resolved '-output' mode (network = MAME is already broadcasting those natives on 8000) rather than on the relay port - the previous port-based test would have wrongly disabled pass-through everywhere once the relay moved to its own port.",
+                "readme.txt: Documented the port split - the relay dials the MESH ingest port (default 8004, overridable via plugin.json's 'relayport'), while port 8000 remains MAME's own network output server and the hooker-facing side that MESH manages."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.10",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.2.2",
+            "ReleaseDatePlugin": "2026.08.09",
+            "ChangesPlugin": [
+                "init.lua: Fixed the relay wrongly switching on for MAME 0.288 and earlier set to '-output network'. The derived relay port (8001, chosen to stay clear of MAME's own network server on 8000) was feeding a rule that treated any non-8000 port as a deliberate side-by-side arrangement and enabled the relay before the real decision gates ran - so a build that was already broadcasting everything itself also dialled 8001, producing pointless connection attempts, a misleading 'MESH is not running' warning, and (with a listener present) every MSOP output delivered twice. The port now only says where the relay lives; whether it runs is decided solely by the capability, version, and output-mode gates, which already force the relay on wherever it is genuinely required.",
+                "init.lua: With '-output network' or '-output windows' on MAME 0.288 and earlier, MSOP now opens no socket at all, as originally intended - MAME creates and broadcasts every output itself, MSOP's included, and MESH (or any hooker) reads that stream directly from MAME."
+            ]
+        },
+        {
+            "Version": "9.2.1",
+            "ReleaseDatePlugin": "2026.08.04",
+            "ChangesPlugin": [
+                "init.lua: Fixed a listener whose first relay connection happens at game exit never learning which ROM the session was. The 'mame_stop' broadcast can open the relay connection just-in-time, but the stored game announcement was cleared before that broadcast - so the new listener received the dying game's final values and 'mame_stop' with no 'mame_start', an unidentifiable session. The stop notice is now sent while the announcement still holds the running game (so a just-in-time connection receives the correct 'mame_start -> final values -> mame_stop' sequence), and the announcement is cleared afterwards - preserving the guarantee that a connection made after the game has ended never re-announces a stale ROM.",
+                "init.lua: On (re)connect, the full state resync is now skipped when no game is announced - with no session identity on the wire, a fresh listener could not attribute the replayed values to any ROM.",
+                "init.lua: Tidied the code documentation throughout and removed version-specific references from comments."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.04",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.2.0",
+            "ReleaseDatePlugin": "2026.07.31",
+            "ChangesPlugin": [
+                "init.lua: Added a new GAME_TYPE field to the game database ('lightgun', 'racing', or 'both'; per game, with a database-wide default). 'lightgun' - the default, and the behaviour of every existing profile - runs the classic per-player gun pipeline and compiles the gun output vocabulary. 'racing' skips the per-player gun pipeline entirely and compiles only the FFB_ force feedback vocabulary. 'both' does it all, for hybrid games. Unknown values degrade to 'lightgun', so existing game profiles are untouched by the new field.",
+                "init.lua: Added the FFB_ force feedback output vocabulary for racing-genre games, decoded from each game's own native MAME outputs.",
+                "database: Added racing game support covering the games the FFB Arcade Plugin project drives through a decodable MAME output."
+            ]
+        },
+        {
+            "Version": "9.1.3",
+            "ReleaseDatePlugin": "2026.07.28",
+            "ChangesPlugin": [
+                "init.lua: Made it obvious - in both MAME's console and the on-screen display (OSD) - that MESH must be running whenever the relay is the delivery path. When the relay is in use (MAME 0.289+, or '-output none'/'console'), MSOP now prints an up-front console banner stating that MSOP is sending its state outputs to the relay and MESH must be running to receive and forward them. Previously this was only in the debug log, which most users never see, so a missing MESH looked like a fault with no explanation.",
+                "init.lua: The 'nothing is listening on the relay' warning now names MESH directly and appears promptly. For a supported game it is shown after about 5 seconds (one retry of grace for a MESH that is still starting) instead of only after the full retry schedule (~30 seconds), so a player whose force feedback is silent is told the reason - MESH is not running - almost immediately, on both the console and the OSD. The successful-connection message likewise now confirms MESH is receiving MSOP's outputs."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.28",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.1.2",
+            "ReleaseDatePlugin": "2026.07.26",
+            "ChangesPlugin": [
+                "init.lua: Fixed a listener that connects mid-game not learning which ROM is running. The running game's 'mame_start' announcement is now stored and re-sent on every relay (re)connect, so MESH (or a hooker) that attaches a moment after the ROM has started still receives the game name and loads the correct profile. Previously the output values were replayed on reconnect but the game announcement was not, so a slightly-late listener saw the outputs yet never learned the game. The mame_stop and pause notices remain deliberately one-shot."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.28",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                },
+                {
+                    "IncludedDatabaseDate": "2026.07.27",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.1.1",
+            "ReleaseDatePlugin": "2026.07.23",
+            "ChangesPlugin": [
+                "init.lua: Added resilience for when nothing is listening on the relay. Reconnect attempts are now adaptive to how expensive a failed connection is on the machine: where local firewall or security software silently drops loopback connection attempts (making each failed dial cost a couple of seconds rather than failing instantly), the never-answered retry interval backs off further - up to 60 seconds - so a missing listener no longer holds emulation at reduced speed for the whole session.",
+                "init.lua: For an unsupported (pass-through) game, MSOP now stops dialling the relay after a few failed attempts when nothing has ever answered, since such a game carries only mirrored native outputs and is not worth stalling emulation for. It re-arms automatically on the next ROM start, soft reset, or unpause, so starting MESH later still connects.",
+                "init.lua: Added a one-time on-screen (OSD) and console warning the first time a session concludes that nothing is listening on the relay, so the absence of force feedback is explained rather than mysterious."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.23",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.1.0",
+            "ReleaseDatePlugin": "2026.07.22",
+            "ChangesPlugin": [
+                "init.lua: Added live enumeration of a game's own native MAME outputs via MAME's read-only 'device.outputs' property. For a game MSOP has no profile for, this forwards that game's real native outputs over the relay whether or not its driver was ever scraped into a lookup file - exact coverage, and preferred over the scraped-file fallback when the running build supports it.",
+                "native_outputs_by_rom.lua / native_outputs_by_driver.lua: Renamed the optional scraped native-output databases so their names describe their contents - 'database_driver.lua' is now 'native_outputs_by_rom.lua' (ROM-keyed) and 'database_mame_driver.lua' is now 'native_outputs_by_driver.lua' (driver-source-keyed, one entry covering every ROM a driver builds).",
+                "init.lua: Simplified the output-creation capability check to the single route that still exists on an official build (the deprecated set_value probe, tested for real), removing the obsolete 'register_output' detection that never applies to a stock MAME."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.22",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.0.4",
+            "ReleaseDatePlugin": "2026.07.21",
+            "ChangesPlugin": [
+                "init.lua: The relay is now enabled from capability rather than from the MAME version string. MSOP asks the running build whether it can create a custom output, by both the modern route (register_output) and the deprecated one (output.set_value, tested for real), and switches the relay on only when neither works. Custom and pre-release builds can report a version that does not match their behaviour, and guessing from the number alone left '-output windows' silently undelivered.",
+                "init.lua: The relay port is now derived from MAME's own '-output' setting, with nothing to configure. MAME's network output server binds a hard-coded port 8000, so MSOP uses 8001 with '-output network' and 8000 with none, console or windows - 8000 being where every hooker program looks. An explicit 'relayport' value in plugin.json still wins.",
+                "init.lua: Added optional pass-through of a game driver's own native state outputs over the relay, for ROMs MSOP has no profile for. Requires the new optional database_mame_driver.lua lookup (see below) and applies only with '-output none' or '-output console'; with '-output network' MAME already broadcasts those itself.",
+                "init.lua: Reworked relay reconnect pacing. Retries were counted in frames, which is not a wall-clock cadence at all - roughly one attempt per second at normal speed and far more with throttling off. That matters because a refused connection is not always cheap: where local firewall or security software silently drops loopback connection attempts rather than refusing them, the operating system waits out its retransmit first, measured at about 2 seconds, and MAME's socket open is a plain blocking call with no timeout setting. With nothing listening on the relay port this held MAME at roughly 45% of full speed. Retries are now timed on a real monotonic clock and backed off: one free attempt at every ROM start where the pause hides inside loading, then 2s / 4s / 8s / 15s after losing a relay that was there, or 5s / 10s / 15s when nothing has ever answered, capped at 15 seconds. Measured on Point Blank 2 with nothing listening, this restored 44% to 377% of full speed, against 429% with a relay present. Retries never stop, so starting the MESH app after MAME still connects on its own.",
+                "database_mame_driver.lua: New optional database of the native output names MAME's own game drivers create (lamp0, Player1_Gun_Recoil, P1_Start_lamp and so on), keyed by driver source file so a single entry covers every ROM that driver builds. Place it in the stateoutput folder beside database.lua to have MSOP carry both its own outputs and the game's native ones over one connection to 127.0.0.1:8000, including for games MSOP does not support. Without the file nothing breaks and unsupported games simply produce nothing, as before. Measured cost with the file present was within about 1% of running without it.",
+                "readme.txt: Documented the two-port arrangement, the version rule of thumb for official builds, the optional database_mame_driver.lua file, and the reconnect back-off."
+            ]
+        },
+        {
+            "Version": "9.0.2",
+            "ReleaseDatePlugin": "2026.07.20",
+            "ChangesPlugin": [
+                "init.lua: Added pass-through mode for games MSOP has no profile for. Under the relay (with '-output none'/'console') MAME's own network output server never runs, so an unsupported game's native lamps/LEDs/etc. would otherwise reach nothing; MSOP now mirrors that game's known native outputs (from the optional scraped database_driver.lua) over the relay so an unsupported game still delivers them. A ROM with no scraped entry simply forwards nothing, as before.",
+                "init.lua: Fixed an unsupported game neither forwarding anything nor flushing the relay at all - the frame handler now runs for pass-through games instead of returning early whenever there was no MSOP profile."
+            ]
+        },
+        {
+            "Version": "9.0.1",
+            "ReleaseDatePlugin": "2026.07.20",
+            "ChangesPlugin": [
+                "init.lua: Added a new derived P*_Clip output - 1 while a player still has ammo, 0 the moment the clip empties (a reload is needed). It is published only for games with a genuinely depleting ammo clip (AMMO_DIRECTION 'decrease'), because that is the only reading where 0 unambiguously means empty; a game whose ammo counts up (a shots-fired counter) or can swap weapons with an unknown capacity does not expose it, rather than risk publishing an inverted reload signal. Being derived from ammo rather than read from a memory address, it needs no database rebuild to appear."
+            ]
+        },
+        {
+            "Version": "9.0.0",
+            "ReleaseDatePlugin": "2026.07.14",
+            "ChangesPlugin": [
+                "Note: MSOP Plugin v9.0.0+ works with official MAME 0.289 and later, with no custom fork or patched build required. MAME 0.289 removed the ability for a Lua plugin to create state outputs, so MAME can no longer hold - and therefore no longer broadcast - any of MSOP's outputs. From v9.0.0 those outputs are delivered over MSOP's own relay (a loopback TCP connection provided by the MSOP Configurator / MESH) instead. MAME 0.200 to 0.288 are unaffected and continue to deliver natively.",
+                "init.lua: Introduced the relay delivery path. When the running MAME build cannot broadcast MSOP's outputs (MAME 0.289+, or '-output none'/'console'), MSOP connects to the relay as a TCP client and streams its state outputs there instead of relying on MAME's own output modules; on older builds that still deliver natively the relay stays off. The relay decision is resolved at runtime from MAME's version and '-output' mode, with a per-install fallback flag stamped into plugin.json by the MSOP Configurator / MESH.",
+                "init.lua: On every relay (re)connect MSOP resends the full current value of every output, so a listener that starts - or restarts - after the game is already running immediately receives the complete state rather than only the values that happen to change afterwards.",
+                "readme.txt: Documented the relay-based delivery model and MAME 0.289+ compatibility."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.14",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
         {
             "Version": "8.4.0",
             "ReleaseDatePlugin": "2026.07.03",
@@ -745,6 +996,269 @@
     ],
     "PluginBeta": [
         {
+            "Version": "9.3.4",
+            "ReleaseDatePlugin": "2026.09.04",
+            "ChangesPlugin": [
+                "init.lua: Added a new 'always' value for the game profile GAME_STATUS field. A game with no known game-state memory address can now declare the game active whenever it is running - after warmup, and still respecting an address-backed ATTRACT_STATUS where one is configured. Without it, a profile with no per-player activity signals could never raise the MSOP_GameStatus output, leaving status-gated consumers dark and the derived attract flag stuck on for the whole session. Profiles carrying a real address are unaffected, and any other non-address value is ignored exactly as before.",
+                "init.lua: Native-output forwarding now returns immediately while the relay cannot deliver. The per-record proxy reads and missing-proxy resolution retries were paying every frame for writes the relay layer was already discarding; nothing is lost by skipping, because a (re)connect re-sends every current value.",
+                "init.lua: Semantic force feedback events (FFB.EVENTS) now normalise their per-event configuration once per ROM session instead of re-deriving the mode, strength, scale clamp, read width and output name every frame.",
+                "init.lua: Removed the last per-frame closure allocation from the output-proxy retry path - the root-device and enumerated-device lookups now share named resolvers, matching the pattern used everywhere else in the hot path.",
+                "database: All 144 racing profiles without a researched game-state address now set GAME_STATUS 'always'. The generic boilerplate comments were removed from the racing profiles - only game-specific notes remain (such as Rave Racer's service menu requirement).",
+                "GUIDE.md: Documented the GAME_STATUS 'always' option in the racing force feedback section.",
+                "Documentation prose converted to British English across the plugin, readmes and project guides."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.09.28",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-BETA",
+                    "PackageType": ".zip"
+                },
+                {
+                    "IncludedDatabaseDate": "2026.09.04",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.3.3",
+            "ReleaseDatePlugin": "2026.08.30",
+            "ChangesPlugin": [
+                "init.lua: Racing force feedback decoding expanded to every game the FFB Arcade Plugin projects drive through a decodable MAME output - 146 games (151 ROMs) across 12 decoder families, including the stateful harddrivin_serial decoder that reassembles the 4-byte frame Hard Drivin' / Race Drivin' write serially through a single output.",
+                "init.lua: Corrected the signed8 two's-complement decode (128 negative steps / 127 positive, rounded half away from zero on each side) and added a per-profile FFB INVERT flag for cabinets whose wheel direction encoding runs opposite to their family norm.",
+                "init.lua: The force feedback source resolver now caches the native-output enumeration for the ROM session and stops probing after 600 frames with a one-shot warning - previously a profile whose sources never resolve re-walked every device's outputs each frame for the whole session.",
+                "init.lua: Added a Special Thanks notice crediting the FFB Arcade Plugin projects by Boomslangnz and Endprodukt (both GPL v3.0), whose published drive-board protocol research underpins the racing decoders; the acquisition, decoding and delivery architecture is MSOP's own.",
+                "database: Added the racing game profiles (GAME_TYPE, per-family DECODE, INVERT and native-output SOURCES per game), plus first game-state and credit addresses for GTI Club and Virtua Racing. _default's FFB contract now documents all 12 decoders and INVERT.",
+                "readme.txt: Added the Special Thanks credit and the racing force feedback outputs listing."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.09.02",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.3.2",
+            "ReleaseDatePlugin": "2026.08.24",
+            "ChangesPlugin": [
+                "init.lua: Reworked the relay retry policy from ongoing paced retries to a strictly bounded sequence, to stop the freezes reported on machines where security software silently drops loopback connection attempts (each failed connect blocks MAME for about 2 seconds, and the old schedule kept dialling for the whole session). Cold start (MESH never answered): one silent attempt at ROM start, one silent retry 10 seconds later, then an announced final attempt 30 seconds after that - and no further dialling for the session. Lost connection (MESH disconnected mid-game): one announced reconnect attempt 30 seconds after the drop, then no further dialling. Reconnecting afterwards costs one deliberate action: pause and unpause the game, soft reset, load a new ROM, or restart MAME - dialling never happens while paused, so recovery runs at the moment of unpause.",
+                "init.lua: Added clear on-screen (OSD) connection status messages, each shown at most once per session: 'MESH IS NOT RUNNING' (announcing the final cold attempt), 'MESH NOT FOUND - STATE OUTPUTS PAUSED' (cold attempts exhausted, with recovery steps), 'MESH DISCONNECTED' (the moment a live connection drops), 'MESH RECONNECT FAILED - STATE OUTPUTS PAUSED', and a 'MESH CONNECTED' confirmation once delivery is restored after any problem was reported. The OSD half is controlled by a new ENABLE_OSD_CONNECTION_STATUS flag in the database's _default block (enabled by default; absent = enabled) so genuine connection problems stay separate from the debug-gated diagnostics messages; the matching console messages always print regardless.",
+                "init.lua: Added an 'INCORRECT OUTPUT MODE DETECTED' notice for MAME builds that cannot create MSOP's outputs (0.289 and above) running with '-output network' or '-output windows' - modes that only deliver MSOP's outputs natively on MAME 0.200 - 0.288. The notice recommends '-output none', the setup where MESH can serve external hooker programs the complete stream.",
+                "init.lua: '-output auto' (MAME's factory default) is now treated as 'none', which is exactly how MAME itself resolves it - verified in the source of MAME 0.200, 0.286, and current master alike. Previously 'auto' fell through to the per-install stamp fallback, which a hand-installed plugin does not have, leaving a default-configured MAME 0.288 or earlier silently undelivered.",
+                "init.lua: Removed the adaptive dial-cost machinery (the 60-second escalating cap and per-dial timing) and the supported-versus-pass-through retry distinction - the bounded sequence makes both redundant, and every game now follows the same schedule.",
+                "database: _default.json gains ENABLE_OSD_CONNECTION_STATUS (default true) - set it to false to silence the connection status OSD messages while keeping the console messages.",
+                "readme.txt: Rewrote the 'IF NOTHING IS LISTENING ON THE RELAY PORT' section for the bounded retry policy, the new status messages and their toggle, the incorrect output mode notice, and the '-output auto' behaviour.",
+                "init.lua: Optimised the per-frame paths. For racing games, the force feedback decoder and scale are now resolved once per ROM load instead of every frame, and the decoder only runs when the raw command value actually changes (identical values decode to identical outputs, which were already deduplicated). Native-output proxy resolution no longer allocates a closure per attempt."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.24",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.3.1",
+            "ReleaseDatePlugin": "2026.08.10",
+            "ChangesPlugin": [
+                "init.lua: Live native-output enumeration now works on stock MAME 0.290+, the first official release to carry the feature MSOP proposed upstream (mamedev/mame PR #15745). It landed in MAME in a different, more efficient form than the original proposal: 'device.outputs' is a container of live output proxies keyed by name, rather than a plain list of name pairs. MSOP's discovery was written against the proposal's shape and would have silently fallen back to the shipped lookup files; it now targets the accepted upstream form exclusively, and the live proxies are kept from discovery so per-output resolution is never repeated later. Note that official MAME 0.289 does not include the property - on 0.289 and earlier, native-output discovery continues to use the shipped lookup files.",
+                "init.lua: Each enumerated output's wire name is reconstructed exactly as MAME's own output modules format it (root-device outputs are unqualified; otherwise the owning device's tag, minus its leading colon, then ':', then the name) - so hooker payloads stay byte-identical to MAME's own broadcasts.",
+                "readme.txt: Updated the native-output discovery section - live enumeration becomes the stock behaviour on MAME 0.290 and later, with the shipped lookup files serving MAME 0.289 and earlier (official 0.289 does not provide 'device.outputs')."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.10",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.3.0",
+            "ReleaseDatePlugin": "2026.08.10",
+            "ChangesPlugin": [
+                "Note: MSOP Plugin v9.3.0 pairs with the port-split MESH release. MESH's health check will flag relay-path instances running an older plugin once the split ships. MESH-managed installs self-correct on their next plugin update in either order, because MESH stamps the relay port explicitly into plugin.json and the plugin honours that stamp.",
+                "init.lua: The relay now dials MESH's dedicated MSOP ingest listener on 127.0.0.1:8004 (previously 8000). Port 8000 is the port MAME's own '-output network' server binds and every hooker program hard-codes, so sharing it meant a mixed fleet (an older MAME broadcasting natively beside a relay-path instance) fought over one port and whichever bound first silently won. The ingest port is private to MSOP and MESH - the plugin now never binds or dials port 8000 in any mode. An explicit 'relayport' value in plugin.json still wins over the default, exactly as before.",
+                "init.lua: Removed the '-output network' port derivation (the old step-aside to 8001). It existed only because the relay used to share MAME's port 8000; the dedicated ingest port cannot collide with MAME's server, so there is nothing to step aside from. The relay on/off decision itself is unchanged: capability first, then MAME version, then output mode - and with '-output network' or '-output windows' on MAME 0.288 or earlier, MSOP still opens no socket at all.",
+                "init.lua: Native-output pass-through for unsupported games now stands down based on MAME's resolved '-output' mode (network = MAME is already broadcasting those natives on 8000) rather than on the relay port - the previous port-based test would have wrongly disabled pass-through everywhere once the relay moved to its own port.",
+                "readme.txt: Documented the port split - the relay dials the MESH ingest port (default 8004, overridable via plugin.json's 'relayport'), while port 8000 remains MAME's own network output server and the hooker-facing side that MESH manages."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.10",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.2.2",
+            "ReleaseDatePlugin": "2026.08.09",
+            "ChangesPlugin": [
+                "init.lua: Fixed the relay wrongly switching on for MAME 0.288 and earlier set to '-output network'. The derived relay port (8001, chosen to stay clear of MAME's own network server on 8000) was feeding a rule that treated any non-8000 port as a deliberate side-by-side arrangement and enabled the relay before the real decision gates ran - so a build that was already broadcasting everything itself also dialled 8001, producing pointless connection attempts, a misleading 'MESH is not running' warning, and (with a listener present) every MSOP output delivered twice. The port now only says where the relay lives; whether it runs is decided solely by the capability, version, and output-mode gates, which already force the relay on wherever it is genuinely required.",
+                "init.lua: With '-output network' or '-output windows' on MAME 0.288 and earlier, MSOP now opens no socket at all, as originally intended - MAME creates and broadcasts every output itself, MSOP's included, and MESH (or any hooker) reads that stream directly from MAME."
+            ]
+        },
+        {
+            "Version": "9.2.1",
+            "ReleaseDatePlugin": "2026.08.04",
+            "ChangesPlugin": [
+                "init.lua: Fixed a listener whose first relay connection happens at game exit never learning which ROM the session was. The 'mame_stop' broadcast can open the relay connection just-in-time, but the stored game announcement was cleared before that broadcast - so the new listener received the dying game's final values and 'mame_stop' with no 'mame_start', an unidentifiable session. The stop notice is now sent while the announcement still holds the running game (so a just-in-time connection receives the correct 'mame_start -> final values -> mame_stop' sequence), and the announcement is cleared afterwards - preserving the guarantee that a connection made after the game has ended never re-announces a stale ROM.",
+                "init.lua: On (re)connect, the full state resync is now skipped when no game is announced - with no session identity on the wire, a fresh listener could not attribute the replayed values to any ROM.",
+                "init.lua: Tidied the code documentation throughout and removed version-specific references from comments."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.08.04",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.2.0",
+            "ReleaseDatePlugin": "2026.07.31",
+            "ChangesPlugin": [
+                "init.lua: Added a new GAME_TYPE field to the game database ('lightgun', 'racing', or 'both'; per game, with a database-wide default). 'lightgun' - the default, and the behaviour of every existing profile - runs the classic per-player gun pipeline and compiles the gun output vocabulary. 'racing' skips the per-player gun pipeline entirely and compiles only the FFB_ force feedback vocabulary. 'both' does it all, for hybrid games. Unknown values degrade to 'lightgun', so existing game profiles are untouched by the new field.",
+                "init.lua: Added the FFB_ force feedback output vocabulary for racing-genre games, decoded from each game's own native MAME outputs.",
+                "database: Added racing game support covering the games the FFB Arcade Plugin project drives through a decodable MAME output."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.31",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.1.3",
+            "ReleaseDatePlugin": "2026.07.28",
+            "ChangesPlugin": [
+                "init.lua: Made it obvious - in both MAME's console and the on-screen display (OSD) - that MESH must be running whenever the relay is the delivery path. When the relay is in use (MAME 0.289+, or '-output none'/'console'), MSOP now prints an up-front console banner stating that MSOP is sending its state outputs to the relay and MESH must be running to receive and forward them. Previously this was only in the debug log, which most users never see, so a missing MESH looked like a fault with no explanation.",
+                "init.lua: The 'nothing is listening on the relay' warning now names MESH directly and appears promptly. For a supported game it is shown after about 5 seconds (one retry of grace for a MESH that is still starting) instead of only after the full retry schedule (~30 seconds), so a player whose force feedback is silent is told the reason - MESH is not running - almost immediately, on both the console and the OSD. The successful-connection message likewise now confirms MESH is receiving MSOP's outputs."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.28",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.1.2",
+            "ReleaseDatePlugin": "2026.07.26",
+            "ChangesPlugin": [
+                "init.lua: Fixed a listener that connects mid-game not learning which ROM is running. The running game's 'mame_start' announcement is now stored and re-sent on every relay (re)connect, so MESH (or a hooker) that attaches a moment after the ROM has started still receives the game name and loads the correct profile. Previously the output values were replayed on reconnect but the game announcement was not, so a slightly-late listener saw the outputs yet never learned the game. The mame_stop and pause notices remain deliberately one-shot."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.28",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                },
+                {
+                    "IncludedDatabaseDate": "2026.07.27",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.1.1",
+            "ReleaseDatePlugin": "2026.07.23",
+            "ChangesPlugin": [
+                "init.lua: Added resilience for when nothing is listening on the relay. Reconnect attempts are now adaptive to how expensive a failed connection is on the machine: where local firewall or security software silently drops loopback connection attempts (making each failed dial cost a couple of seconds rather than failing instantly), the never-answered retry interval backs off further - up to 60 seconds - so a missing listener no longer holds emulation at reduced speed for the whole session.",
+                "init.lua: For an unsupported (pass-through) game, MSOP now stops dialling the relay after a few failed attempts when nothing has ever answered, since such a game carries only mirrored native outputs and is not worth stalling emulation for. It re-arms automatically on the next ROM start, soft reset, or unpause, so starting MESH later still connects.",
+                "init.lua: Added a one-time on-screen (OSD) and console warning the first time a session concludes that nothing is listening on the relay, so the absence of force feedback is explained rather than mysterious."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.23",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.1.0",
+            "ReleaseDatePlugin": "2026.07.22",
+            "ChangesPlugin": [
+                "init.lua: Added live enumeration of a game's own native MAME outputs via MAME's read-only 'device.outputs' property. For a game MSOP has no profile for, this forwards that game's real native outputs over the relay whether or not its driver was ever scraped into a lookup file - exact coverage, and preferred over the scraped-file fallback when the running build supports it.",
+                "native_outputs_by_rom.lua / native_outputs_by_driver.lua: Renamed the optional scraped native-output databases so their names describe their contents - 'database_driver.lua' is now 'native_outputs_by_rom.lua' (ROM-keyed) and 'database_mame_driver.lua' is now 'native_outputs_by_driver.lua' (driver-source-keyed, one entry covering every ROM a driver builds).",
+                "init.lua: Simplified the output-creation capability check to the single route that still exists on an official build (the deprecated set_value probe, tested for real), removing the obsolete 'register_output' detection that never applies to a stock MAME."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.22",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
+            "Version": "9.0.4",
+            "ReleaseDatePlugin": "2026.07.21",
+            "ChangesPlugin": [
+                "init.lua: The relay is now enabled from capability rather than from the MAME version string. MSOP asks the running build whether it can create a custom output, by both the modern route (register_output) and the deprecated one (output.set_value, tested for real), and switches the relay on only when neither works. Custom and pre-release builds can report a version that does not match their behaviour, and guessing from the number alone left '-output windows' silently undelivered.",
+                "init.lua: The relay port is now derived from MAME's own '-output' setting, with nothing to configure. MAME's network output server binds a hard-coded port 8000, so MSOP uses 8001 with '-output network' and 8000 with none, console or windows - 8000 being where every hooker program looks. An explicit 'relayport' value in plugin.json still wins.",
+                "init.lua: Added optional pass-through of a game driver's own native state outputs over the relay, for ROMs MSOP has no profile for. Requires the new optional database_mame_driver.lua lookup (see below) and applies only with '-output none' or '-output console'; with '-output network' MAME already broadcasts those itself.",
+                "init.lua: Reworked relay reconnect pacing. Retries were counted in frames, which is not a wall-clock cadence at all - roughly one attempt per second at normal speed and far more with throttling off. That matters because a refused connection is not always cheap: where local firewall or security software silently drops loopback connection attempts rather than refusing them, the operating system waits out its retransmit first, measured at about 2 seconds, and MAME's socket open is a plain blocking call with no timeout setting. With nothing listening on the relay port this held MAME at roughly 45% of full speed. Retries are now timed on a real monotonic clock and backed off: one free attempt at every ROM start where the pause hides inside loading, then 2s / 4s / 8s / 15s after losing a relay that was there, or 5s / 10s / 15s when nothing has ever answered, capped at 15 seconds. Measured on Point Blank 2 with nothing listening, this restored 44% to 377% of full speed, against 429% with a relay present. Retries never stop, so starting the MESH app after MAME still connects on its own.",
+                "database_mame_driver.lua: New optional database of the native output names MAME's own game drivers create (lamp0, Player1_Gun_Recoil, P1_Start_lamp and so on), keyed by driver source file so a single entry covers every ROM that driver builds. Place it in the stateoutput folder beside database.lua to have MSOP carry both its own outputs and the game's native ones over one connection to 127.0.0.1:8000, including for games MSOP does not support. Without the file nothing breaks and unsupported games simply produce nothing, as before. Measured cost with the file present was within about 1% of running without it.",
+                "readme.txt: Documented the two-port arrangement, the version rule of thumb for official builds, the optional database_mame_driver.lua file, and the reconnect back-off."
+            ]
+        },
+        {
+            "Version": "9.0.2",
+            "ReleaseDatePlugin": "2026.07.20",
+            "ChangesPlugin": [
+                "init.lua: Added pass-through mode for games MSOP has no profile for. Under the relay (with '-output none'/'console') MAME's own network output server never runs, so an unsupported game's native lamps/LEDs/etc. would otherwise reach nothing; MSOP now mirrors that game's known native outputs (from the optional scraped database_driver.lua) over the relay so an unsupported game still delivers them. A ROM with no scraped entry simply forwards nothing, as before.",
+                "init.lua: Fixed an unsupported game neither forwarding anything nor flushing the relay at all - the frame handler now runs for pass-through games instead of returning early whenever there was no MSOP profile."
+            ]
+        },
+        {
+            "Version": "9.0.1",
+            "ReleaseDatePlugin": "2026.07.20",
+            "ChangesPlugin": [
+                "init.lua: Added a new derived P*_Clip output - 1 while a player still has ammo, 0 the moment the clip empties (a reload is needed). It is published only for games with a genuinely depleting ammo clip (AMMO_DIRECTION 'decrease'), because that is the only reading where 0 unambiguously means empty; a game whose ammo counts up (a shots-fired counter) or can swap weapons with an unknown capacity does not expose it, rather than risk publishing an inverted reload signal. Being derived from ammo rather than read from a memory address, it needs no database rebuild to appear."
+            ]
+        },
+        {
+            "Version": "9.0.0",
+            "ReleaseDatePlugin": "2026.07.14",
+            "ChangesPlugin": [
+                "Note: MSOP Plugin v9.0.0+ works with official MAME 0.289 and later, with no custom fork or patched build required. MAME 0.289 removed the ability for a Lua plugin to create state outputs, so MAME can no longer hold - and therefore no longer broadcast - any of MSOP's outputs. From v9.0.0 those outputs are delivered over MSOP's own relay (a loopback TCP connection provided by the MSOP Configurator / MESH) instead. MAME 0.200 to 0.288 are unaffected and continue to deliver natively.",
+                "init.lua: Introduced the relay delivery path. When the running MAME build cannot broadcast MSOP's outputs (MAME 0.289+, or '-output none'/'console'), MSOP connects to the relay as a TCP client and streams its state outputs there instead of relying on MAME's own output modules; on older builds that still deliver natively the relay stays off. The relay decision is resolved at runtime from MAME's version and '-output' mode, with a per-install fallback flag stamped into plugin.json by the MSOP Configurator / MESH.",
+                "init.lua: On every relay (re)connect MSOP resends the full current value of every output, so a listener that starts - or restarts - after the game is already running immediately receives the complete state rather than only the values that happen to change afterwards.",
+                "readme.txt: Documented the relay-based delivery model and MAME 0.289+ compatibility."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.07.14",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
+        {
             "Version": "8.4.0",
             "ReleaseDatePlugin": "2026.07.03",
             "ChangesPlugin": [
@@ -860,6 +1374,58 @@
         }
     ],
     "DatabaseCompiler": [
+        {
+            "Version": "3.5.0",
+            "ReleaseDateDatabaseCompiler": "2026.08.24",
+            "ChangesDatabaseCompiler": [
+                "msop_database_compiler.py: Game JSONs may now be organised into subfolders under database/games/ (e.g. games/lightgun/ and games/racing/). Mode 1 ingests the games tree recursively - the folder a file sits in is organisational only, the ROM key is always the file name, and the same ROM appearing in two places is a build error (reported with both locations, and the build exits non-zero).",
+                "msop_database_compiler.py: Mode 2 (splitting database.json back into per-game files) now sorts each game into its game-type subfolder - games/lightgun/, games/racing/, or games/both/ per the game's GAME_TYPE, with missing or unknown values placed in lightgun/ exactly as the plugin resolves them. _default.json stays at the games/ root, and any stale copy of a ROM at a different location is removed and reported as moved, so the same ROM can never exist twice.",
+                "msop_output_model.py: The shared output model (used by the HOTR defaultLG and MAMEhooker INI generators) now discovers game files recursively, so both generators work unchanged with game-type subfolders.",
+                "msop_native_outputs_compiler.py: The supported-games list is now gathered recursively for the same reason."
+            ]
+        },
+        {
+            "Version": "3.4.4",
+            "ReleaseDateDatabaseCompiler": "2026.08.24",
+            "ChangesDatabaseCompiler": [
+                "msop_database_compiler.py: The metadata sync now also strips a stray 'relayport' member from plugin.json, alongside the existing 'relay' strip. Both are deploy-time stamps the MESH app writes into installed copies; the shipped plugin must stay pristine so a manual install self-detects its relay mode and uses the default relay port."
+            ]
+        },
+        {
+            "Version": "3.4.2",
+            "ReleaseDateDatabaseCompiler": "2026.07.20",
+            "ChangesDatabaseCompiler": [
+                "msop_database_compiler.py: Fixed a fatal startup error introduced in 3.4.1 - print_banner referenced an undefined 'date_str' variable, so every run aborted with a NameError before compiling anything. Anyone on 3.4.1 must update to 3.4.2 for the compiler to run at all.",
+                "msop_database_compiler.py: The compiled database date is no longer attempted in the startup banner (it is not resolved until part-way through a run); it continues to be reported as 'Database Date' in the end-of-run summary."
+            ]
+        },
+        {
+            "Version": "3.4.1",
+            "ReleaseDateDatabaseCompiler": "2026.07.20",
+            "ChangesDatabaseCompiler": [
+                "Per-channel builds: input/ and output/ are now split into stable/ and beta/ trees, each holding its own stateoutput/ plugin source and database/games/ folder, so a beta database (new or untested games, or an experimental init.lua) can never contaminate the stable build.",
+                "msop_database_compiler.py: Added --channel stable|beta so the compiler reads and writes only that channel's tree; the existing headless stable/beta argument now selects the tree as well as stamping plugin.json.",
+                "msop_database_driver_compiler.py: Added --channel stable|beta, with the games, output and scrape-report paths all defaulting to that channel's tree.",
+                "msop_hotr_defaultlg_generator.py: New generator that builds a Hook Of The Reaper defaultLG mapping file for every supported game directly from the database - recoil and reload are always driven by the dedicated MSOP commands, and ammo is used for display only.",
+                "msop_mamehooker_ini_generator.py: New generator that builds a blank MAMEhooker-style .ini for every supported game, with its [Output] section prepopulated with exactly the outputs that game emits.",
+                "msop_mamehooker_ini_generator.py: The .ini skeletons are MSOP-only by default (the plugin's own state outputs plus each game's curated ADDITIONAL_OUTPUT_FORWARDS); pass --include-driver to also fold in the MAME native outputs scraped into database_driver.lua.",
+                "msop_output_model.py: New shared helper library holding the authoritative per-game output derivation (mirroring init.lua's own emission rules), so both generators always resolve the same output set.",
+                "Launchers: run_stable.* and run_beta.* now run the full per-channel pipeline (database compile, optional driver compile, HOTR templates, then MAMEhooker INIs), and run.* builds both channels in one pass.",
+                "Launchers: Added run_stable_msop_only.* and run_beta_msop_only.* to build a driver-free channel (no database_driver.lua, MSOP-only INIs), plus single-purpose launchers for each template generator.",
+                "Launchers: Added run_msop_database_driver_compiler.* to run only the MAME native-output scrape and refresh database_driver.lua without rebuilding anything else.",
+                "duckhunt.json: MAX_PLAYERS set to 1 so this single-player-only game no longer generates Player 2 outputs or templates."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedPluginVersion": "9.0.0",
+                    "IncludedPluginDate": "2026.07.14",
+                    "IncludedDatabaseDate": "2026.07.14",
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
+                }
+            ]
+        },
         {
             "Version": "3.0.3",
             "ReleaseDateDatabaseCompiler": "2026.06.29",
