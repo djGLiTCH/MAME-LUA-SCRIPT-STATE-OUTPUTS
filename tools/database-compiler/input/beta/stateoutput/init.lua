@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.3.4
--- Plugin Date: 2026.09.04
+-- Plugin Version: 9.3.5
+-- Plugin Date: 2026.10.07
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -52,7 +52,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.3.4",
+    version = "9.3.5",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -220,8 +220,8 @@ function stateoutput.startplugin()
     -- Keep in sync with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do not come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 934
-    local PLUGIN_DATE_NUM    = 20260904
+    local PLUGIN_VERSION_NUM = 935
+    local PLUGIN_DATE_NUM    = 20261007
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -3474,6 +3474,14 @@ function stateoutput.startplugin()
 			-- Safety clamp: prevent machine-gun freeze by forcing interval > duration
 			if _MinRecoilInterval <= _RecoilDuration then _MinRecoilInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
 			if _RecoilHoldInterval <= _RecoilDuration then _RecoilHoldInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
+            -- Optional recoil safety delay (off by default, absent = off): widens the pulse interval
+            -- (MIN_RECOIL_INTERVAL_MS) and the hold interval (RECOIL_HOLD_MS) to at least
+            -- RECOIL_SAFETY_DELAY_MS. Pulse lengths (RECOIL_*_DURATION_MS) are never changed.
+            if CFG.ENABLE_RECOIL_SAFETY_DELAY == true then
+                local safety_delay = emu.attotime.from_msec(tonumber(CFG.RECOIL_SAFETY_DELAY_MS) or 100)
+                if _MinRecoilInterval < safety_delay then _MinRecoilInterval = safety_delay end
+                if _RecoilHoldInterval < safety_delay then _RecoilHoldInterval = safety_delay end
+            end
             _ReloadDuration = emu.attotime.from_msec(CFG.RELOAD_DURATION_MS or 40)
             _DamageDuration = emu.attotime.from_msec(CFG.DAMAGE_DURATION_MS or 250)
             _RumbleDuration = emu.attotime.from_msec(CFG.RUMBLE_DURATION_MS or CFG.DAMAGE_DURATION_MS or 250)

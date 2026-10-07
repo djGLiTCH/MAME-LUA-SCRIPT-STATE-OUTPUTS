@@ -1,7 +1,7 @@
 {
     "_default": {
-        "LUA_VERSION": 934,
-        "LUA_DATE": 20260928,
+        "LUA_VERSION": 935,
+        "LUA_DATE": 20261007,
         "LUA_GAME": "Default MSOP Plugin Values",
         "ENABLE_ROM": false,
         "GAME_TYPE": "lightgun",
@@ -154,6 +154,10 @@
         "RELOAD_DURATION_MS": 40,
         "MIN_RECOIL_INTERVAL_MS": 100,
         "RECOIL_HOLD_MS": 100,
+        "ENABLE_RECOIL_SAFETY_DELAY": false,
+        "ENABLE_RECOIL_SAFETY_DELAY_comment": "Recoil safety delay (v9.3.5). false (default) = recoil outputs follow each game's own timing, and the program driving the lightgun is responsible for protecting its solenoid. true = no game sends recoil pulses closer together than RECOIL_SAFETY_DELAY_MS: MIN_RECOIL_INTERVAL_MS and RECOIL_HOLD_MS are both raised to at least that value. Absent = false.",
+        "RECOIL_SAFETY_DELAY_MS": 100,
+        "RECOIL_SAFETY_DELAY_MS_comment": "Shortest gap between recoil pulses while ENABLE_RECOIL_SAFETY_DELAY is true. 100 = at most ten pulses a second.",
         "DAMAGE_DURATION_MS": 250,
         "RUMBLE_DURATION_MS": 250,
         "AMMO_OFFSET": false,
@@ -676,6 +680,10 @@
         "COINS_PER_CREDIT_comment": "First credit requires 2 coins, but only 1 credit required to continue playing",
         "MAX_PLAYERS": 1,
         "SIMULTANEOUS_PLAY": false,
+        "RECOIL_DURATION_MS": 30,
+        "RECOIL_DURATION_MS_comment": "Shots land every 50ms (3 frames); the pulse must end by frame 2 (33ms) so each shot gets its own kick",
+        "MIN_RECOIL_INTERVAL_MS": 40,
+        "MIN_RECOIL_INTERVAL_MS_comment": "Below the 48ms shortest shot gap so no shot is skipped, and above RECOIL_DURATION_MS",
         "CREDITS": "0x003BAB5B",
         "GAME_STATUS": "0x003BAB63",
         "P1": {
@@ -1775,10 +1783,10 @@
             "LAMP_START": "output"
         },
         "LIFE_MAX": 104,
-        "MIN_RECOIL_INTERVAL_MS": 100,
-        "MIN_RECOIL_INTERVAL_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
-        "RECOIL_HOLD_MS": 100,
-        "RECOIL_HOLD_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
+        "MIN_RECOIL_INTERVAL_MS": 66,
+        "MIN_RECOIL_INTERVAL_MS_comment": "Appears to be 66ms for jpark. Set ENABLE_RECOIL_SAFETY_DELAY true in _default to restrict this to RECOIL_SAFETY_DELAY_MS",
+        "RECOIL_HOLD_MS": 66,
+        "RECOIL_HOLD_MS_comment": "Appears to be 66ms for jpark. Set ENABLE_RECOIL_SAFETY_DELAY true in _default to restrict this to RECOIL_SAFETY_DELAY_MS",
         "CREDITS": "0x0020F1E2",
         "GAME_STATUS": "0x0020F5AC",
         "P1": {

@@ -7,6 +7,10 @@
     "COINS_PER_CREDIT_comment": "First credit requires 2 coins, but only 1 credit required to continue playing",
     "MAX_PLAYERS": 1,
     "SIMULTANEOUS_PLAY": false,
+    "RECOIL_DURATION_MS": 30,
+    "RECOIL_DURATION_MS_comment": "Shots land every 50ms (3 frames); the pulse must end by frame 2 (33ms) so each shot gets its own kick",
+    "MIN_RECOIL_INTERVAL_MS": 40,
+    "MIN_RECOIL_INTERVAL_MS_comment": "Below the 48ms shortest shot gap so no shot is skipped, and above RECOIL_DURATION_MS",
     "CREDITS": "0x003BAB5B",
     "GAME_STATUS": "0x003BAB63",
     "P1": {

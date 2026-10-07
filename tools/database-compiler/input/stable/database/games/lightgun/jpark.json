@@ -9,10 +9,10 @@
         "LAMP_START": "output"
     },
     "LIFE_MAX": 104,
-    "MIN_RECOIL_INTERVAL_MS": 100,
-    "MIN_RECOIL_INTERVAL_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
-    "RECOIL_HOLD_MS": 100,
-    "RECOIL_HOLD_MS_comment": "Appears to be 66ms for jpark but restricted to 100ms to prevent light gun solenoid from overheating",
+    "MIN_RECOIL_INTERVAL_MS": 66,
+    "MIN_RECOIL_INTERVAL_MS_comment": "Appears to be 66ms for jpark. Set ENABLE_RECOIL_SAFETY_DELAY true in _default to restrict this to RECOIL_SAFETY_DELAY_MS",
+    "RECOIL_HOLD_MS": 66,
+    "RECOIL_HOLD_MS_comment": "Appears to be 66ms for jpark. Set ENABLE_RECOIL_SAFETY_DELAY true in _default to restrict this to RECOIL_SAFETY_DELAY_MS",
     "CREDITS": "0x0020F1E2",
     "GAME_STATUS": "0x0020F5AC",
     "P1": {

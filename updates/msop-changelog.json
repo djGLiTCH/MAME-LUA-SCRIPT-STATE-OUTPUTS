@@ -449,6 +449,14 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.10.07",
+            "ChangesDatabase": [
+                "crszone: Recoil outputs now match ammo consumption in-game, with one recoil pulse for every shot (RECOIL_DURATION_MS 30 and MIN_RECOIL_INTERVAL_MS 40). Crisis Zone fires about 20 shots a second, so take care that this rate of recoil does not overheat your lightgun solenoid if it is not rated for this output speed.",
+                "jpark: Recoil now follows the game's own 66ms rate (MIN_RECOIL_INTERVAL_MS and RECOIL_HOLD_MS 66, previously restricted to 100). The same caution applies.",
+                "General: Added ENABLE_RECOIL_SAFETY_DELAY (default false) and RECOIL_SAFETY_DELAY_MS (default 100) to the _default profile for MSOP Plugin v9.3.5."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.09.28",
             "ChangesDatabase": [
                 "General: Native output tables re-scraped from current MAME. The racing force feedback games (beta) now forward their native outputs, and evilngt, hellngt, jpark3, terabrst and totlvice gain table entries (terabrst forwards pcbdigit0 and pcbdigit1). The MAMEhooker .ini skeletons list the added outputs.",
@@ -549,6 +557,24 @@
     ],
     "PluginStable": [
         {
+            "Version": "9.3.5",
+            "ReleaseDatePlugin": "2026.10.07",
+            "ChangesPlugin": [
+                "Important: Recoil outputs now follow each game's own timing, so some games send recoil faster than ten pulses a second (Crisis Zone about 20 a second, Jurassic Park about 15). The program driving your lightgun is responsible for protecting its solenoid. If nothing in your setup limits the rate, set ENABLE_RECOIL_SAFETY_DELAY to true in the database's _default block.",
+                "init.lua: Added the ENABLE_RECOIL_SAFETY_DELAY setting (default false) and RECOIL_SAFETY_DELAY_MS (default 100). While enabled, the pulse interval (MIN_RECOIL_INTERVAL_MS) and the hold interval (RECOIL_HOLD_MS) are both raised to at least the safety delay for every game. Pulse lengths are not changed.",
+                "database: Added ENABLE_RECOIL_SAFETY_DELAY and RECOIL_SAFETY_DELAY_MS to the _default profile.",
+                "GUIDE.md, README.md and readme.txt: Documented the recoil safety delay."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.07",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-STABLE",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "9.3.4",
             "ReleaseDatePlugin": "2026.09.04",
             "ChangesPlugin": [
@@ -560,9 +586,9 @@
             "DatabaseReleases": [
                 {
                     "IncludedDatabaseDate": "2026.09.28",
-                    "PackageLocation": "updates/plugin",
-                    "PackageName": "MSOP-PLUGIN-STABLE",
-                    "PackageType": ".zip"
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
                 }
             ]
         },
@@ -996,6 +1022,24 @@
     ],
     "PluginBeta": [
         {
+            "Version": "9.3.5",
+            "ReleaseDatePlugin": "2026.10.07",
+            "ChangesPlugin": [
+                "Important: Recoil outputs now follow each game's own timing, so some games send recoil faster than ten pulses a second (Crisis Zone about 20 a second, Jurassic Park about 15). The program driving your lightgun is responsible for protecting its solenoid. If nothing in your setup limits the rate, set ENABLE_RECOIL_SAFETY_DELAY to true in the database's _default block.",
+                "init.lua: Added the ENABLE_RECOIL_SAFETY_DELAY setting (default false) and RECOIL_SAFETY_DELAY_MS (default 100). While enabled, the pulse interval (MIN_RECOIL_INTERVAL_MS) and the hold interval (RECOIL_HOLD_MS) are both raised to at least the safety delay for every game. Pulse lengths are not changed.",
+                "database: Added ENABLE_RECOIL_SAFETY_DELAY and RECOIL_SAFETY_DELAY_MS to the _default profile.",
+                "GUIDE.md, README.md and readme.txt: Documented the recoil safety delay."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.07",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-BETA",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "9.3.4",
             "ReleaseDatePlugin": "2026.09.04",
             "ChangesPlugin": [
@@ -1010,9 +1054,9 @@
             "DatabaseReleases": [
                 {
                     "IncludedDatabaseDate": "2026.09.28",
-                    "PackageLocation": "updates/plugin",
-                    "PackageName": "MSOP-PLUGIN-BETA",
-                    "PackageType": ".zip"
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
                 },
                 {
                     "IncludedDatabaseDate": "2026.09.04",

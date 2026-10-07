@@ -1,9 +1,9 @@
 # MAME State Output Project (MSOP)
 ## MSOP Plugin
 
-- **Plugin Version:** 9.3.4
-- **Plugin Date:** 2026.09.04
-- **Database Date:** 2026.09.28
+- **Plugin Version:** 9.3.5
+- **Plugin Date:** 2026.10.07
+- **Database Date:** 2026.10.07
 - **Created By:** Jacob Simpson (DJ GLiTCH)
 - **License:** GNU General Public License GPL-v3.0
 - **Repository:** https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -82,6 +82,12 @@ each problem with a one-shot on-screen message ("MESH IS NOT RUNNING", "MESH DIS
 then stops dialling until you pause and unpause the game, soft reset, load a new ROM, or restart MAME.
 The on-screen half of these messages can be disabled via `ENABLE_OSD_CONNECTION_STATUS` in the
 database's `_default` block; the console messages always print.
+
+MSOP sends recoil outputs at each game's own rate, which for some games is faster than ten pulses a
+second. The program driving your lightgun is responsible for protecting its solenoid. If nothing in
+your setup limits the rate, set `ENABLE_RECOIL_SAFETY_DELAY` to `true` in the database's `_default`
+block, and no game will send recoil pulses closer together than `RECOIL_SAFETY_DELAY_MS` (100 by
+default).
 
 The plugin works all of this out at runtime by asking the running MAME build what it can do - there
 is nothing to configure. For the full delivery-model reference (port arrangement, native-output

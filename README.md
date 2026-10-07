@@ -79,6 +79,9 @@ This plugin handles the logic, while your external Output Program handles the co
 * Sinden
 * X-Gunner
 
+> [WARNING]  
+> **Recoil rate and your solenoid.** From MSOP Plugin v9.3.5, recoil outputs follow each game's own timing, and some games fire faster than 10 shots a second (e.g. Crisis Zone fires about 20 shots a second). MSOP reports what the game does; the program driving your light gun is responsible for protecting its solenoid. If nothing in your setup limits the recoil rate, set `ENABLE_RECOIL_SAFETY_DELAY` to `true` in the database's `_default` block, and no game will send recoil pulses closer together than `RECOIL_SAFETY_DELAY_MS` (100 by default, which is 10 shots a second). Use fast recoil at your own risk if your solenoid is not rated for it.
+
 Automatic configuration for your light guns can be made today using the **MSOP Configurator**, and once it is publicly released, with **MESH (Modern Emulator State Hub)** - my new project that builds upon what was created in MSOP.
 
 ---

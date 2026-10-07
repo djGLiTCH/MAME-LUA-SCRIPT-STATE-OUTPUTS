@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.3.4
-Plugin Date:    2026.09.04
-Database Date:  2026.09.28
+Plugin Version: 9.3.5
+Plugin Date:    2026.10.07
+Database Date:  2026.10.07
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -222,6 +222,15 @@ IF NOTHING IS LISTENING ON THE RELAY PORT
   print regardless, so logs stay complete. They are deliberately separate from the
   debug-gated diagnostics messages: connection problems are shown to every user,
   diagnostics only when enabled.
+
+  RECOIL SAFETY DELAY. MSOP sends recoil outputs at each game's own rate, which
+  for some games is faster than ten pulses a second (Crisis Zone fires about 20
+  shots a second). The program driving your lightgun is responsible for
+  protecting its solenoid. If nothing in your setup limits the rate, set
+  ENABLE_RECOIL_SAFETY_DELAY to true in the database's _default block and no game
+  will send recoil pulses closer together than RECOIL_SAFETY_DELAY_MS (100 by
+  default). It applies to both the pulse interval (MIN_RECOIL_INTERVAL_MS) and
+  the hold interval (RECOIL_HOLD_MS).
 
   INCORRECT OUTPUT MODE. On a MAME build that cannot create MSOP's outputs (0.289
   and above), the relay is the only delivery path in EVERY '-output' mode - so if
