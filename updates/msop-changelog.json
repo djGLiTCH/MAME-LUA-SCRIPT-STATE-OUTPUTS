@@ -557,6 +557,21 @@
     ],
     "PluginStable": [
         {
+            "Version": "9.3.6",
+            "ReleaseDatePlugin": "2026.10.09",
+            "ChangesPlugin": [
+                "init.lua: Fixed native outputs not being forwarded for a game without an MSOP profile when it was started from MAME's own game list, or after another game in the same MAME session. Only mame_start and mame_stop were sent. Games started from the command line, and games with an MSOP profile, were not affected."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.09",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-STABLE",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "9.3.5",
             "ReleaseDatePlugin": "2026.10.07",
             "ChangesPlugin": [
@@ -568,9 +583,9 @@
             "DatabaseReleases": [
                 {
                     "IncludedDatabaseDate": "2026.10.07",
-                    "PackageLocation": "updates/plugin",
-                    "PackageName": "MSOP-PLUGIN-STABLE",
-                    "PackageType": ".zip"
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
                 }
             ]
         },
@@ -1022,6 +1037,21 @@
     ],
     "PluginBeta": [
         {
+            "Version": "9.3.6",
+            "ReleaseDatePlugin": "2026.10.09",
+            "ChangesPlugin": [
+                "init.lua: Fixed native outputs not being forwarded for a game without an MSOP profile when it was started from MAME's own game list, or after another game in the same MAME session. Only mame_start and mame_stop were sent. Games started from the command line, and games with an MSOP profile, were not affected."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.09",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-BETA",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "9.3.5",
             "ReleaseDatePlugin": "2026.10.07",
             "ChangesPlugin": [
@@ -1033,9 +1063,9 @@
             "DatabaseReleases": [
                 {
                     "IncludedDatabaseDate": "2026.10.07",
-                    "PackageLocation": "updates/plugin",
-                    "PackageName": "MSOP-PLUGIN-BETA",
-                    "PackageType": ".zip"
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
                 }
             ]
         },

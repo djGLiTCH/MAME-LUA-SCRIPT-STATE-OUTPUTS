@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.3.5
--- Plugin Date: 2026.10.07
+-- Plugin Version: 9.3.6
+-- Plugin Date: 2026.10.09
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -52,7 +52,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.3.5",
+    version = "9.3.6",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -220,8 +220,8 @@ function stateoutput.startplugin()
     -- Keep in sync with the header + exports.version above (the version's digits with the dots removed).
     -- These deliberately do not come from the database: CFG.LUA_VERSION /
     -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 935
-    local PLUGIN_DATE_NUM    = 20261007
+    local PLUGIN_VERSION_NUM = 936
+    local PLUGIN_DATE_NUM    = 20261009
     
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -3286,6 +3286,13 @@ function stateoutput.startplugin()
     local function on_start()
         dbg_print("on_start triggered. Current MAME Phase: " .. tostring(manager.machine.phase))
         if not manager or not manager.machine then return end
+
+        -- A new machine is starting, so the previous machine's shutdown is over. Cleared here
+        -- for every ROM: the pass-through path (a ROM with no profile) never reaches the
+        -- profile branch's own reset, and Compute_Outputs returns at once while this is set.
+        -- Without it, a game picked from MAME's own menu forwards nothing, because the menu
+        -- is itself a machine whose stop sets the flag.
+        _IsShuttingDown = false
 
         -- Settle the relay decision from MAME's live version + -output mode
         -- before the first relay use below (one-shot; no-ops on subsequent resets).
