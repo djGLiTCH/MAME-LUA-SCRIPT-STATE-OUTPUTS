@@ -3,7 +3,7 @@
 -- MSOP MAME DATABASE DRIVER LUA
 -- Script Version: 1.4.2
 -- Script Date: 2026.09.04
--- Compiled Date: 2026.09.28
+-- Compiled Date: 2026.10.09
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.

@@ -560,7 +560,8 @@
             "Version": "9.3.6",
             "ReleaseDatePlugin": "2026.10.09",
             "ChangesPlugin": [
-                "init.lua: Fixed native outputs not being forwarded for a game without an MSOP profile when it was started from MAME's own game list, or after another game in the same MAME session. Only mame_start and mame_stop were sent. Games started from the command line, and games with an MSOP profile, were not affected."
+                "init.lua: Fixed native outputs not being forwarded for a game without an MSOP profile when it was started from MAME's own game list, or after another game in the same MAME session. Only mame_start and mame_stop were sent. Games started from the command line, and games with an MSOP profile, were not affected.",
+                "native outputs: The native output tables are now compiled from the official MAME 0.289 source, the release that relies on them to forward native outputs for games without an MSOP profile. Eight non-arcade drivers that are not part of MAME 0.289 are no longer listed, and no supported game changed."
             ],
             "DatabaseReleases": [
                 {
@@ -1040,7 +1041,8 @@
             "Version": "9.3.6",
             "ReleaseDatePlugin": "2026.10.09",
             "ChangesPlugin": [
-                "init.lua: Fixed native outputs not being forwarded for a game without an MSOP profile when it was started from MAME's own game list, or after another game in the same MAME session. Only mame_start and mame_stop were sent. Games started from the command line, and games with an MSOP profile, were not affected."
+                "init.lua: Fixed native outputs not being forwarded for a game without an MSOP profile when it was started from MAME's own game list, or after another game in the same MAME session. Only mame_start and mame_stop were sent. Games started from the command line, and games with an MSOP profile, were not affected.",
+                "native outputs: The native output tables are now compiled from the official MAME 0.289 source, the release that relies on them to forward native outputs for games without an MSOP profile. Eight non-arcade drivers that are not part of MAME 0.289 are no longer listed, and no supported game changed."
             ],
             "DatabaseReleases": [
                 {
