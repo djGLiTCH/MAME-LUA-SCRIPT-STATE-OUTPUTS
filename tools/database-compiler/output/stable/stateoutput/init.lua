@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.3.6
--- Plugin Date: 2026.10.09
+-- Plugin Version: 9.4.0
+-- Plugin Date: 2026.10.12
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -27,44 +27,31 @@
 -- =========================================================================================
 --
 -- ARCHITECTURE OVERVIEW:
--- This script operates as a native MAME plugin: loaded once when MAME starts, it runs in
--- the background and hooks into MAME's event system. A machine's output table is a static
--- part of its configuration - a plugin cannot add to it - so MSOP's own outputs are
--- delivered over the TCP relay (see RELAY TRANSPORT LAYER), and MAME's native outputs
--- are discovered read-only (see Enumerate_Native_Outputs).
---
--- Per machine session this plugin subscribes to two deliberately different hooks - do
--- not merge them or change which one does what:
+-- A native MAME plugin, loaded once when MAME starts. A machine's output table is fixed, so
+-- MSOP's own outputs are delivered over the TCP relay (see RELAY TRANSPORT LAYER) and MAME's
+-- native outputs are only read (see Enumerate_Native_Outputs). Two hooks run per machine
+-- session and must stay separate:
 --
 --   1. emu.add_machine_reset_notifier -> on_start()
---      Fires on every reset of the current machine (including in-game soft resets,
---      not just the initial boot). Loads the ROM's JSON config, resolves memory
---      addresses, and engages the per-frame loop.
+--      Runs on every reset of the current machine, including a soft reset. Loads the ROM's
+--      profile, resolves the memory addresses and starts the per-frame loop.
 --
 --   2. emu.add_machine_post_load_notifier -> on_post_load()
---      Save-state alignment only. Outputs that are part of the save state (the
---      driver's own natives) snap to their saved values on load; this hook re-seeds
---      the engine's Lua-side delta baselines, counters, and pulse timers to match,
---      so the first frames after a load can't fire phantom recoils/reloads or
---      overwrite freshly restored counters. Never re-resolves config.
+--      Realigns the baselines and pulse timers after a state load. Never reloads the profile.
 --
 -- =========================================================================================
 
 local exports = {
     name = "stateoutput",
-    version = "9.3.6",
+    version = "9.4.0",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
 
-    -- [ Critical MAME concept: Persistent Subscriptions ]
-    -- In MAME's Lua API, event hooks (such as add_machine_reset_notifier) return a 
-    -- "subscription object". If the Lua Garbage Collector clears these objects, MAME 
-    -- will cease triggering the associated callbacks. By storing them in this global 
-    -- `exports.subscriptions` table, we ensure they remain active for the duration 
-    -- of the MAME session.
+    -- MAME stops calling a notifier once its subscription object is garbage collected. Each
+    -- subscription is stored in this table so that it stays alive for the whole MAME session.
 
-    subscriptions = {} 
+    subscriptions = {}
 }
 
 local stateoutput = exports
@@ -72,47 +59,38 @@ local stateoutput = exports
 -- =========================================================================
 -- GENERAL USER SETTINGS
 -- =========================================================================
-local ENABLE_OSD = false -- Toggles "[MSOP]" On-Screen Display (OSD) messages. Console messages are always captured via -verbose command.
+local ENABLE_OSD = false -- shows "[MSOP]" messages on screen; console messages always print
 
 -- =========================================================================
 -- CORE PLUGIN ENGINE
 -- =========================================================================
 function stateoutput.startplugin()
-    
+
     -- -------------------------------------------------------------------------
     -- SAFE MODULE LOADING
-    -- pcall (Protected Call) is used to load the database safely. If the 
-    -- database.lua file is missing or has a syntax error, pcall prevents 
-    -- MAME from crashing and instead gracefully handles the failure.
+    -- database.lua is loaded through pcall. A missing file or a syntax error leaves db as an empty
+    -- table instead of raising an error.
     -- -------------------------------------------------------------------------
     local success, db = pcall(require, "stateoutput/database")
     if not success then
-        success, db = pcall(require, "database") -- Fallback for flat directories
+        success, db = pcall(require, "database") -- fallback for flat directories
         if not success then db = {} end
     end
 
-    -- native_outputs_by_rom.lua is optional and independent of database.lua: it's
-    -- machine-generated by msop_native_outputs_compiler.py scraping a MAME
-    -- source checkout for native outputs (a game driver's own C++-created
-    -- outputs, e.g. "lamp0" - never anything MSOP creates itself), and is
-    -- allowed to be missing entirely (a user who never ran that compiler, or
-    -- a stale/older copy) - native-output forwarding just degrades to
-    -- whatever database.lua's own hand-curated ADDITIONAL_OUTPUT_FORWARDS
-    -- provides, per-game, if this file isn't there. See on_start()'s
-    -- _NativeForwards resolution and Forward_Native_Outputs() below.
+    -- native_outputs_by_rom.lua is optional. msop_native_outputs_compiler.py generates it from a
+    -- MAME source checkout, and it lists each ROM's native outputs (the driver's own outputs, such
+    -- as "lamp0"). It is read only when the build cannot enumerate outputs. Without it, forwarding
+    -- falls back to the profile's ADDITIONAL_OUTPUT_FORWARDS.
     local success_driver, driver_db = pcall(require, "stateoutput/native_outputs_by_rom")
     if not success_driver then
         success_driver, driver_db = pcall(require, "native_outputs_by_rom")
         if not success_driver then driver_db = {} end
     end
 
-    -- native_outputs_by_driver.lua is the driver-keyed companion to the ROM-keyed table
-    -- above, and is equally optional. MAME declares its output_finder<> fields once per driver
-    -- SOURCE FILE and every ROM that file builds shares them, so one entry per driver covers
-    -- every ROM in it - clones, parents that are never launchable in their own right, and any
-    -- ROM MAME adds to an existing driver later. Pass-through mode consults it when a ROM has
-    -- no entry of its own, which is what lets a game MSOP has no profile for still deliver its
-    -- lamps/recoil. Missing file = per-ROM entries only.
+    -- native_outputs_by_driver.lua is the optional driver-keyed companion. MAME declares its
+    -- output_finder<> fields once per driver source file and every ROM built from that file shares
+    -- them, so one entry covers every ROM in the driver. Pass-through mode reads it when a ROM has
+    -- no entry of its own.
     local success_mame_driver, mame_driver_db = pcall(require, "stateoutput/native_outputs_by_driver")
     if not success_mame_driver then
         success_mame_driver, mame_driver_db = pcall(require, "native_outputs_by_driver")
@@ -122,147 +100,119 @@ function stateoutput.startplugin()
     -- ---------------------------------------------------------------------
     -- relay mode (per-instance, stamped by the MSOP Configurator)
     -- ---------------------------------------------------------------------
-    -- Whether this MAME install should deliver its state outputs through the
-    -- MESH ingest relay (127.0.0.1:8004 by default - see _RelayPort) instead of
-    -- relying on MAME's own output module. The app decides this per instance
-    -- from the MAME version and the chosen `-output` mode and stamps it into
-    -- this plugin's own manifest after every install/update - plugin.json's
-    -- "plugin" object gains a `"relay": true/false` member (MAME's loader
-    -- ignores members it doesn't know; this manifest already carries MSOP's
-    -- dateplugin/datedatabase/channel fields the same way). The pristine zip
-    -- ships without the member, so a manual install carries no stale verdict:
-    --
-    --   relay = true  when this build cannot self-deliver custom outputs:
-    --       * MAME >= 0.289 (Lua can no longer create outputs at all), or
-    --       * MAME <= 0.288 with -output none / console (outputs are created
-    --         but MAME never broadcasts them to hookers).
+    -- _UseRelay is true when MSOP outputs go through the MESH relay on port _RelayPort, and false
+    -- (the default) when MAME's own output module delivers them. resolve_relay_mode sets it on the
+    -- first on_start; Probe_Legacy_Set_Value forces it to true when the build cannot create
+    -- outputs. The "relay" member MESH stamps into plugin.json is read only when detection fails:
+    --   relay = true  when this build cannot deliver MSOP outputs itself:
+    --       * MAME 0.289 and later (Lua cannot create outputs at all), or
+    --       * MAME 0.288 and earlier with -output none / console (outputs are created
+    --         but MAME never broadcasts them to hooker programs).
     --   relay = false when MAME broadcasts them itself and no socket is needed:
-    --       * MAME <= 0.288 with -output network (MAME's own server delivers
-    --         everything on 8000), or
+    --       * MAME 0.288 and earlier with -output network (MAME's own server delivers
+    --         everything on port 8000), or
     --       * -output windows (MAME's Windows-message broadcast).
-    --
-    -- The stamp is only a fallback. _UseRelay is authoritatively derived at
-    -- runtime from MAME itself (version + -output mode) the first time
-    -- on_start runs - see resolve_relay_mode() below - so the plugin is
-    -- correct even on a manual install that never got stamped, or if the user
-    -- hand-edited mame.ini's -output after install. The stamp is consulted
-    -- inside resolve_relay_mode, and only when that runtime detection is
-    -- unavailable (an old build not exposing the options API). Nothing
-    -- touches the relay before on_start, so no load-time read is needed at
-    -- all.
-    --
-    -- Default when the stamp is absent and runtime detection is unavailable:
-    -- false (never dial). Old MAME then works natively out of the box, and a
-    -- >= 0.289 build is caught either by resolve_relay_mode()'s version gate
-    -- or, failing that, the empirical safety net in Probe_Legacy_Set_Value
-    -- (which flips this true the moment it confirms output creation is
-    -- impossible) so 0.289 can't silently go dark.
     local _UseRelay = false
     local _RelayModeResolved = false   -- guards the one-time runtime resolution
 
-    -- The currently active game's configuration dictionary
+    -- The active game's merged profile, or nil when the ROM has no enabled profile.
     local CFG = nil
 
-    -- This ROM's resolved native-output forward list (see on_start): the
-    -- union of database.lua's hand-curated ADDITIONAL_OUTPUT_FORWARDS and
-    -- native_outputs_by_rom.lua's auto-scraped entry for this ROM, deduped.
-    -- Resolved once per ROM load, not every frame - see Forward_Native_Outputs.
+    -- The native output forward records for this ROM, resolved once per ROM load in on_start. See
+    -- Forward_Native_Outputs for the record fields.
     local _NativeForwards = {}
 
-    -- Pass-through proxies must not cache a negative result. A driver's outputs are
-    -- created when its output_finder<> fields resolve at device start, which is normally before
-    -- on_start runs - but "normally" is not "always" (a device started late, or an output only
-    -- created on first write). Get_Output_Proxy caches `false` permanently, so one early miss
-    -- would silently kill that name for the whole session. While this is true, misses are left
-    -- uncached and simply retried on a later frame.
+    -- While true, Get_Output_Proxy and Forward_Native_Outputs do not cache a missing output and
+    -- retry it on a later frame. Pass-through mode sets it, because a driver output can be created
+    -- after on_start runs (a device that starts late, or an output created on its first write).
     local _RetryMissingProxies = false
 
-    -- Can this build enumerate a device's outputs (the read-only device.outputs
-    -- property: a container of live output proxies keyed by name)? The feature
-    -- lands in stock MAME 0.290 - official 0.289, despite being the release that
-    -- removed output creation, does not have it. Probed once per session, lazily,
-    -- by Enumerate_Native_Outputs; nil means "not yet asked". When absent (MAME
-    -- 0.289 and earlier), native-output discovery falls back to the scraped
-    -- database files, so the plugin runs unchanged on older stock MAME.
+    -- Whether this build has the read-only device.outputs property (a container of live output
+    -- proxies keyed by name). nil means not yet probed; Enumerate_Native_Outputs probes once per
+    -- session. Stock MAME 0.290 and later has it. MAME 0.289 and earlier does not, and native
+    -- output discovery then falls back to the scraped database files.
     local _EnumerateOutputsSupported = nil
 
-    -- Whether the deprecated output.set_value() can still auto-create an output (true on
-    -- <= 0.288, restricted on 0.289+ stock). This is the version-dependent capability that
-    -- actually decides whether MAME can hold - and therefore broadcast - our outputs.
-    -- Probe_Legacy_Set_Value (defined much further down, next to the setter it belongs to)
-    -- fills these in; they live up here because resolve_relay_mode reads them, and a local
-    -- declared later in the file is not in scope for a function compiled earlier.
+    -- _LegacyCreateWorks says whether the deprecated output.set_value() can still create an output
+    -- (true on MAME 0.288 and earlier, false on stock MAME 0.289 and later). Probe_Legacy_Set_Value
+    -- fills both in. They are declared here because resolve_relay_mode reads them and needs them in
+    -- scope.
     local _LegacyCreateProbed = false
     local _LegacyCreateWorks = true
 
-    -- Which TCP port the relay dials: MESH's dedicated MSOP ingest listener, default 8004.
-    -- This is a private port nothing else contests - deliberately not 8000, which belongs to
-    -- MAME's own -output network server and to whatever MESH arbitrates there for hooker
-    -- programs. The plugin never binds or dials 8000 in any mode. MESH can move the ingest
-    -- port per install via plugin.json's "relayport" member - see Resolve_Relay_Port.
+    -- The TCP port the relay dials: the MESH ingest listener, default 8004. plugin.json's
+    -- "relayport" member overrides it (see resolve_relay_mode). The plugin never binds or dials
+    -- port 8000, which belongs to MAME's own -output network server.
     local _RelayPort = 8004
-    -- True only when plugin.json pinned the port explicitly. A stamp is authoritative and
-    -- always wins over the default (see Resolve_Relay_Port).
-    local _RelayPortStamped = false
-    -- True when MAME's resolved -output mode is "network", i.e. MAME's own output server is
-    -- broadcasting every native output on 8000. Settled once in resolve_relay_mode; the
-    -- pass-through standdown keys on this (not on the relay port - the relay lives on its
-    -- own port always, which says nothing about whether MAME's server is running).
+    -- True when MAME's -output mode is "network", so MAME's own output server is broadcasting every
+    -- native output on port 8000. resolve_relay_mode sets it once. Native output forwarding stands
+    -- down while it is true.
     local _MameServesNetwork = false
-    -- True when the relay is required (this build cannot create outputs) but MAME's
-    -- resolved -output mode is "network" or "windows" - modes that only deliver MSOP's
-    -- outputs natively on MAME 0.288 and earlier. Drives the one-shot "INCORRECT OUTPUT
-    -- MODE" connection-status notice in on_start. "auto" never sets this: MAME itself
-    -- resolves auto to the "none" output module (see resolve_relay_mode).
+    -- True when the relay is required and MAME's -output mode is "network", which only
+    -- delivers MSOP's outputs on MAME 0.288 and earlier. Drives the one-shot "INCORRECT
+    -- OUTPUT MODE" notice in on_start. "windows" and "auto" never set it.
     local _MisconfiguredOutputMode = false
+    -- True when the relay is required and MAME's -output mode is "windows". MAME sends
+    -- the native outputs as Windows messages and MSOP's outputs go over the relay. A
+    -- program that only reads Windows messages receives the native outputs only, which
+    -- the one-shot note in on_start says.
+    local _WindowsOutputWithRelay = false
 
-    -- Plugin identity published as the MSOP_LuaVersion / MSOP_LuaDate outputs.
-    -- Keep in sync with the header + exports.version above (the version's digits with the dots removed).
-    -- These deliberately do not come from the database: CFG.LUA_VERSION /
-    -- CFG.LUA_DATE describe the DATABASE release, not this script.
-    local PLUGIN_VERSION_NUM = 936
-    local PLUGIN_DATE_NUM    = 20261009
-    
+    -- The plugin identity published as the MSOP_LuaVersion and MSOP_LuaDate outputs. Keep both in
+    -- step with the file header and exports.version (the version digits without the dots).
+    -- CFG.LUA_VERSION and CFG.LUA_DATE describe the database release and are not used here.
+    local PLUGIN_VERSION_NUM = 940
+    local PLUGIN_DATE_NUM    = 20261012
+
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
-    -- These variables persist across all 60 frames of a single second, tracking 
-    -- what happened in the past to calculate triggers in the present.
+    -- These variables persist between frames and hold the previous state that each frame's triggers
+    -- are compared against.
     -- -------------------------------------------------------------------------
     local _HasCoinedUp = false
     local _IsShuttingDown = false
+    -- _FrameHookActive is true while Compute_Outputs should run. _LegacyFrameHooked records that
+    -- emu.register_frame_done has been called: that registration cannot be removed, so it is made
+    -- once per MAME session and gated by _FrameHookActive.
+    local _FrameHookActive = false
+    local _LegacyFrameHooked = false
     local _GameActiveTick
+    -- True once the game's status debounce has elapsed, so that the elapsed time is not computed
+    -- again in every active frame. Each player has the same latch in Debounced.
+    local _GameDebounced = false
+    -- Counts of failed frames, by routine. The first failure is logged, then every 600th, so that
+    -- a persistent error does not print in every frame. on_start clears them.
+    local _ErrorCounts = { frame = 0, native = 0 }
     local _GameInactiveTick
     local _LastGlobalCredits = 0
     local _GlobalCreditsInserted = 0
     local _PendingGlobalCreditDrops = 0
     local _RomIdNum = 0 -- numeric ROM identity for MSOP_LuaROMid (see on_start)
-    
-    -- Hardware Caching Arrays (Performance Optimisation)
-    -- Instead of searching MAME's entire device tree 60 times a second, we 
-    -- find the memory addresses once at boot and store direct pointers here.
+
+    -- Memory bindings. Each data type's CPU tag and memory space are resolved once per ROM load,
+    -- and the bound handles are kept here so that no frame searches MAME's device tree.
     local _MemConfig = {}
     local _MemHandles = {}
     local _HardwareBound = false
-    
+
     local _PlayerCFG = {}
     local _OutputNames = {}
+    -- The output keys every player shares with player 1 under alternating play, or false.
+    local _SharedOutputs = false
     local _GlobalOutputs = {}
 
-    -- True only when this game's primary ammo is a real depleting clip, which is the only case where
-    -- the derived P*_Clip output is meaningful. Resolved once per ROM load (Resolve_Addresses_And_Strings).
+    -- True when AMMO_DIRECTION is "decrease", the only case in which the derived P*_Clip output is
+    -- published. Resolve_Addresses_And_Strings sets it once per ROM load.
     local _ClipEnabled = false
-    
-    -- Hardware Timers (FFB active duration tracking)
+
+    -- Pulse durations and intervals as attotime values, set once per ROM load in on_start.
     local _RecoilDuration, _RecoilAltDuration, _RecoilGrenadeDuration, _MinRecoilInterval
     local _RecoilHoldInterval, _ReloadDuration, _DamageDuration, _RumbleDuration
-    local _StartupTime, _ZeroTime
-    -- Per-ROM attotime CONSTANTS, resolved once in on_start (like the durations above).
-    -- Previously these were rebuilt with emu.attotime.from_* on every frame inside
-    -- Frame_Logic (the debounce compare runs once globally + once per player, ~5 fresh
-    -- userdata objects a frame = ~300/sec into the GC), which is exactly the hot-path
-    -- allocation the closure-hoisting elsewhere in this engine set out to eliminate.
+    local _StartupTime, _StartupDelay, _ZeroTime
+    -- Per-ROM attotime constants, set once in on_start so that Frame_Logic allocates no attotime
+    -- objects.
     local _StatusDebounce, _CreditsClearTimeout
-    
+
     local _Player = {}
     local _GlobalLastOutputs = {}
     local _WarmupFlushed = false
@@ -270,49 +220,33 @@ function stateoutput.startplugin()
     -- =========================================================================
     -- MSOP RELAY TRANSPORT LAYER
     -- =========================================================================
-    -- Ships every MSOP_* value change (plus native MAME lifecycle events) to
-    -- the MESH relay service over a plain TCP socket, so hooker software
-    -- (MAMEhooker, QMamehook, HOTR) can consume them without any MAME core
-    -- patch. Stock MAME 0.289+ cannot hold plugin-created outputs, so there
-    -- the relay is the only delivery mechanism - not an optional add-on.
+    -- Sends MSOP output changes, forwarded native outputs and MAME lifecycle events to MESH over a
+    -- plain TCP socket, so that hooker programs receive them without a patched MAME. On stock MAME
+    -- 0.289 and later this is the only delivery path for MSOP's outputs. msop_out does nothing
+    -- while disconnected; Resync_Relay_State resends the tracked values on each connect.
     --
-    -- Three stages, in call order, for a per-output value (Set_Output_Safe
-    -- is this pipeline's only caller):
-    --   1. msop_out()               - per-output change filter -> payload_buffer
-    --   2. (Frame_Logic runs, calling msop_out for whatever it touched)
-    --   3. flush_payload_to_relay() - one write() of the whole frame's diff
-    -- broadcast_native_event() is a separate, parallel path used only for
-    -- the three lifecycle pings (mame_start/mame_stop/pause) - see its own
-    -- comment for why those can't go through the buffered path above.
-    --
-    -- msop_out() is a no-op whenever not connected - there's no flush to ever
-    -- receive whatever it would buffer, and payload_buffer would otherwise
-    -- grow without bound for as long as the relay stays down. Whatever
-    -- changed during a disconnect is never replayed frame-by-frame; instead
-    -- Resync_Relay_State() (defined right after msop_out) pushes every
-    -- currently-tracked output's real current value the moment a (re)connect
-    -- succeeds, so a hooker that connects (or reconnects) mid-session isn't
-    -- left with stale/blank state for anything that simply isn't changing
-    -- right now.
+    -- Stages for an output value, in call order:
+    --   1. msop_out()               - per-output change filter -> payload_buffer. Called from
+    --                                 Set_Output_Safe, Resync_Relay_State and
+    --                                 Forward_Native_Outputs.
+    --   2. (Frame_Logic and Forward_Native_Outputs run, calling msop_out for each value)
+    --   3. flush_payload_to_relay() - one write() of the whole frame's changes
+    -- Lifecycle events, outside the buffered path:
+    --   mame_start        - held in _ActiveMameStart and written on every connect.
+    --   mame_stop, pause  - written at once by broadcast_native_event().
     -- =========================================================================
     local sock = nil
     local connected = false
-    local first_frame_seeded = false
 
-    -- The running game's mame_start line ("mame_start = <rom>\r\n"), set in on_start and
-    -- cleared at mame_stop. Unlike a one-shot broadcast, keeping it here lets connect_socket
-    -- re-announce the game on every (re)connect - so a listener (MESH / a hooker) that attaches
-    -- even a frame after the ROM started still learns which profile to load. Without this, the
-    -- output values survive a late connect (Resync_Relay_State replays them) but mame_start does
-    -- not, so a slightly-late listener sees the outputs yet never gets the game announcement.
+    -- The running game's mame_start line ("mame_start = <rom>\r\n"), set in on_start and cleared at
+    -- mame_stop. connect_socket writes it on every connect, so a listener that attaches after the
+    -- ROM started still learns which game is running.
     local _ActiveMameStart = nil
 
     -- RETRY POLICY --------------------------------------------------------------
-    -- A failed dial blocks the emulation thread: under a millisecond when the port is
-    -- refused, but ~2s (measured) where firewall/security software silently drops
-    -- loopback SYNs - and emu.file's open is a blocking connect() with no timeout
-    -- knob. Attempts are therefore strictly bounded, never paced:
-    --
+    -- A failed dial blocks the emulation thread: emu.file's open is a blocking connect() with no
+    -- timeout, and takes about 2 seconds where security software drops loopback SYNs. The number of
+    -- attempts is therefore bounded:
     --   COLD (MESH has never answered this session):
     --     dial 1  at ROM start (stall hidden in loading)  - silent
     --     dial 2  RETRY_COLD_SECOND later                 - fail -> "MESH IS NOT
@@ -323,30 +257,26 @@ function stateoutput.startplugin()
     --     "MESH DISCONNECTED" at the drop, one reconnect RETRY_FINAL_GAP later
     --     - fail -> "MESH RECONNECT FAILED" and dialling stops
     --
-    -- Cold vs warm is a per-MAME-SESSION fact (ever_connected), not per ROM. After a
-    -- give-up, dialling resumes only on a re-arm cue, each a deliberate user action:
-    -- ROM start / soft reset (a fresh cold sequence - or the single warm dial once
-    -- MESH has ever connected) and unpause (exactly one dial). No dial happens while
-    -- paused - the frame loop is stopped, so recovery runs at the unpause. A
-    -- successful connect is effectively free.
+    -- Cold or warm is decided per MAME session (ever_connected), not per ROM. After dialling stops
+    -- it resumes only on a re-arm cue:
+    --   ROM start / soft reset  - a fresh cold sequence, or the single warm dial once MESH has
+    --                             ever connected
+    --   unpause                 - exactly one dial
     local RETRY_COLD_SECOND = 10.0 -- silent retry after the ROM-start dial fails, so a
                                    -- MESH launched alongside MAME gets a moment
     local RETRY_FINAL_GAP   = 30.0 -- the announced final attempt, cold and warm alike
     local next_retry_at   = 0      -- monotonic deadline; 0 = free to dial right now
-    local ever_connected  = false  -- has MESH answered this MAME session? Never reset
+    local ever_connected  = false  -- true once MESH has answered this MAME session; never reset
                                    -- by a ROM change: once true, every later failure
                                    -- takes the WARM path
     local cold_fail_count = 0      -- consecutive failed dials while never connected
     local relay_given_up  = false  -- no further dials until a re-arm cue
 
     -- CONNECTION STATUS MESSAGES ------------------------------------------------
-    -- User-facing OSD popups for genuine connection problems - deliberately separate
-    -- from the debug-gated dbg_osd diagnostics, because a player whose force feedback
-    -- just died needs to see why whether or not diagnostics are on. The OSD half is
-    -- gated by ENABLE_OSD_CONNECTION_STATUS in the database's _default block (absent =
-    -- enabled); the console half always prints, so logs stay complete either way. Each
-    -- message fires at most once per session - MAME shows a single popmessage at a
-    -- time, so a repeat could only replace newer information with older.
+    -- On-screen and console messages for connection problems, separate from the dbg_osd
+    -- diagnostics. The console line always prints. The on-screen message is shown unless
+    -- ENABLE_OSD_CONNECTION_STATUS is false in the database's _default block. Each key fires at
+    -- most once per session.
     local osd_status_shown = {}
     local function osd_connection_status(key, console_msg, osd_msg)
         if osd_status_shown[key] then return end
@@ -363,11 +293,9 @@ function stateoutput.startplugin()
         end
     end
 
-    -- One-shot, ungated console banner: the moment the relay is confirmed as the
-    -- delivery path, state the MESH requirement in the log (the resolve_relay_mode
-    -- diagnostics are dbg-gated and invisible to normal users). Console only: the
-    -- on-screen notices belong to the connection-status messages, which fire only on
-    -- a genuine problem - a user with MESH running is never nagged on screen.
+    -- Prints a one-shot console banner stating that MESH must be running, once the relay is
+    -- confirmed as the delivery path. It is console only: the on-screen notices belong to the
+    -- connection status messages, which fire only on a problem.
     local relay_required_announced = false
     local function announce_relay_required()
         if relay_required_announced then return end
@@ -381,13 +309,10 @@ function stateoutput.startplugin()
         print("[MSOP] ----------------------------------------------------------------")
     end
 
-    -- Monotonic wall-clock seconds. emu.osd_ticks is MAME's own cross-platform monotonic
-    -- source (QueryPerformanceCounter on Windows, clock_gettime elsewhere), so this reads
-    -- the same on all three platforms. Deliberately not os.clock(), which returns wall
-    -- time on Windows but consumed CPU time on Linux/macOS - and MAME being multithreaded
-    -- and CPU-bound, the POSIX reading would run ahead of realtime and shrink every gap
-    -- below. os.time() is the fallback if the binding is ever missing: 1-second
-    -- granularity, which is coarse but perfectly adequate for gaps measured in seconds.
+    -- Returns monotonic wall-clock seconds from emu.osd_ticks, which reads the same on Windows,
+    -- Linux and macOS. os.clock() must not be used: it returns wall time on Windows but consumed
+    -- CPU time on Linux and macOS. os.time() is the fallback when the binding is missing, at
+    -- one-second granularity.
     local _TickRate = 0
     local function monotonic_seconds()
         if _TickRate == 0 then
@@ -402,63 +327,64 @@ function stateoutput.startplugin()
         return os.time()
     end
 
-    -- Arms the next dial for `gap` seconds from now. Called on every failed connect and
-    -- on every genuine disconnect; cleared by a successful connect and at each ROM start.
+    -- Arms the next dial for `gap` seconds from now. A successful connect, a ROM start and an
+    -- unpause clear the deadline.
     local function arm_relay_retry(gap)
         next_retry_at = monotonic_seconds() + gap
     end
 
-    -- True when the retry policy says we may dial again. Every path that opens the
-    -- socket goes through this, so no single one of them can reintroduce a per-frame
-    -- stall. Also the single enforcement point for the give-up - once relay_given_up
-    -- latches, no path dials again until a re-arm cue (ROM start / soft reset / machine
-    -- resume) clears it, so the gate cannot be bypassed piecemeal.
+    -- True when the retry policy allows a dial. Every path that opens the socket checks this first.
+    -- Once relay_given_up is set, no path dials until a re-arm cue (ROM start, soft reset or
+    -- unpause) clears it.
     local function relay_retry_due()
         return (not relay_given_up) and (monotonic_seconds() >= next_retry_at)
     end
 
     local last_state = {}
-    -- Array of pending "name = value\r\n" lines, joined into one string at flush time
-    -- (table.concat). A plain string accumulator here would re-copy the whole buffer on
-    -- every append (Lua strings are immutable) - quadratic exactly when it matters most,
-    -- the full-vocabulary burst Resync_Relay_State() builds on every (re)connect.
+    -- Pending "name = value\r\n" lines, joined with table.concat at flush time. Keep it an array:
+    -- appending to a string would copy the whole buffer on every line.
     local payload_buffer = {}
     local changes_detected = false
 
-    -- Forward-declared: defined right after msop_out (needs it in scope),
-    -- called from connect_socket() below on every successful (re)connect.
+    -- Forward declaration. The function is defined after msop_out, which it calls, and
+    -- connect_socket calls it on every successful connect.
     local Resync_Relay_State
 
-    -- Opens (or re-opens) the relay connection. emu.file's "socket.<host>:<port>"
-    -- URI is a stock MAME Lua idiom for a plain TCP client, not something
-    -- specific to this relay. last_state is wiped on every successful
-    -- (re)connect: the Configurator's relay service has no memory of frames
-    -- sent before a disconnect, so the next flush must re-send every current
-    -- value as if it were new, or the relay/hookers would silently miss
-    -- whatever changed while the socket was down. Wiping last_state alone
-    -- only catches values that happen to change again after reconnecting -
-    -- Resync_Relay_State() is what actually forces a resend of everything
-    -- else (see its own comment for why that's necessary).
+    -- Writes data to the relay socket. Returns true only when every byte was written: a short write
+    -- is followed by the rest, and a write of no bytes or an error is a failure. Every write site
+    -- uses it, so that all of them apply the same failure test.
+    local function relay_write(data)
+        local sent, len = 0, #data
+        while sent < len do
+            local ok, written = pcall(sock.write, sock, sent == 0 and data or string.sub(data, sent + 1))
+            if not (ok and type(written) == "number" and written > 0) then return false end
+            sent = sent + written
+        end
+        return len > 0
+    end
+
+    -- Opens the relay connection. emu.file's "socket.<host>:<port>" URI is MAME's stock Lua TCP
+    -- client. A successful connect clears last_state, writes _ActiveMameStart and calls
+    -- Resync_Relay_State, because MESH keeps nothing from before a disconnect. A failed connect
+    -- follows the retry policy.
     local function connect_socket()
-        -- Relay disabled for this install (old MAME delivering natively): open no
-        -- socket at all - MAME's own output modules are carrying everything.
+        -- The relay is off when MAME delivers the outputs itself, and no socket is opened.
         if not _UseRelay then return end
         sock = emu.file("w")
         local err = sock:open("socket.127.0.0.1:" .. _RelayPort)
 
         if not err then
             connected = true
-            -- The retry state resets on success, and `ever_connected` latches for the
-            -- rest of the session: from here on a drop is the WARM case (announced by
-            -- teardown_connection, with a single scheduled reconnect attempt).
+            -- The retry state resets on success. ever_connected stays true for the rest of the
+            -- session, so every later drop takes the WARM path.
             next_retry_at = 0
             ever_connected = true
             cold_fail_count = 0
             relay_given_up = false
             print("[MSOP] Connected to the MSOP relay (MESH) on port " .. _RelayPort
                   .. " - state outputs are now being delivered.")
-            -- If any connection problem was announced this session, confirm on the OSD
-            -- that delivery is live again; otherwise stay silent on screen.
+            -- If a connection problem was announced this session, confirm that delivery has
+            -- resumed. Otherwise show nothing on screen.
             if osd_status_shown.cold_first or osd_status_shown.cold_final
                or osd_status_shown.warm_first or osd_status_shown.warm_final then
                 osd_connection_status("connected",
@@ -469,16 +395,11 @@ function stateoutput.startplugin()
             end
             last_state = {}
 
-            -- Re-announce the running game to whatever just connected. mame_start is
-            -- otherwise one-shot (on_start), so a listener attaching a frame late would
-            -- get every output value via the resync below yet never learn which ROM to
-            -- load a profile for. Sent before the resync so the profile is in place when
-            -- the values arrive. Written directly - teardown_connection is not in scope
-            -- yet, so a (very unlikely) failed write on a just-opened socket is handled
-            -- inline exactly like a failed dial.
+            -- Announce the running game to the new listener before the resync, so that the profile
+            -- is in place when the values arrive. teardown_connection is not in scope yet, so a
+            -- failed write is handled inline: the socket is closed and a retry is armed.
             if _ActiveMameStart then
-                local ok_w, n_w = pcall(sock.write, sock, _ActiveMameStart)
-                if not (ok_w and n_w and n_w > 0) then
+                if not relay_write(_ActiveMameStart) then
                     if sock then sock:close() end
                     sock = nil
                     connected = false
@@ -487,28 +408,19 @@ function stateoutput.startplugin()
                 end
             end
 
-            -- Only a genuine no-op before any ROM has loaded/warmed up this
-            -- session (nothing to resync yet - the normal warmup flush
-            -- covers that case on its own). When it does resync, mark this
-            -- frame as already-seeded so flush_payload_to_relay's own
-            -- absorb-first-frame guard (below) doesn't discard the payload
-            -- Resync_Relay_State just built.
-            -- Also gated on a game being announced: with _ActiveMameStart nil a fresh
-            -- listener could never attribute the replayed values to any ROM, so the
-            -- resync would be contract noise. Rarely reachable; kept as a guard.
-            if _ActiveMameStart and Resync_Relay_State() then
-                first_frame_seeded = true
-            end
+            -- Resync_Relay_State does nothing before a ROM has warmed up; the warmup flush sends
+            -- the values in that case. The resync is skipped when no game is announced, because a
+            -- listener could not attribute the values to a ROM.
+            if _ActiveMameStart then Resync_Relay_State() end
         else
             if sock then sock:close() end
             sock = nil
             connected = false
 
             if not ever_connected then
-                -- COLD: the bounded three-dial sequence (see RETRY POLICY above). The
-                -- first failure is silent - the ROM-start dial happens while the game
-                -- is still loading, and a MESH launched alongside MAME deserves a
-                -- moment to come up before the player is warned about it.
+                -- COLD: the three-dial sequence (see RETRY POLICY). The first failure is silent,
+                -- because the ROM-start dial happens while the game is loading and MESH may still
+                -- be starting.
                 cold_fail_count = cold_fail_count + 1
                 if cold_fail_count == 1 then
                     arm_relay_retry(RETRY_COLD_SECOND)
@@ -526,8 +438,8 @@ function stateoutput.startplugin()
                         .. " open MESH before then, or disable the MSOP Plugin in MAME.")
                     arm_relay_retry(RETRY_FINAL_GAP)
                 else
-                    -- The announced final attempt failed: stop dialling until a re-arm
-                    -- cue (unpause / soft reset / next ROM start).
+                    -- The announced final attempt failed. Dialling stops until a re-arm cue
+                    -- (unpause, soft reset or the next ROM start).
                     osd_connection_status("cold_final",
                         "MESH NOT FOUND - STATE OUTPUTS PAUSED. Check that MESH is"
                         .. " running in the background whenever the MSOP Plugin is"
@@ -546,11 +458,10 @@ function stateoutput.startplugin()
                     relay_given_up = true
                 end
             else
-                -- WARM - ever_connected latches for the whole MAME session, so any ROM
-                -- after a successful connect lands here. teardown_connection announced
-                -- the drop and scheduled this single reconnect; it failed, so stop
-                -- dialling until a re-arm cue (each grants one warm dial, not a fresh
-                -- cold sequence).
+                -- WARM: ever_connected stays true for the whole MAME session, so every failure
+                -- after a successful connect lands here. The single warm dial has failed, so
+                -- dialling stops until a re-arm cue. Each cue grants one warm dial, not a new cold
+                -- sequence.
                 osd_connection_status("warm_final",
                     "MESH RECONNECT FAILED - STATE OUTPUTS PAUSED. Make sure MESH is"
                     .. " running in the background, then pause and unpause the game to"
@@ -563,23 +474,15 @@ function stateoutput.startplugin()
         end
     end
 
-    -- Shared by both write paths (this one and flush_payload_to_relay
-    -- below): tears down the connection after any failed or zero-byte
-    -- write, since a half-closed TCP socket doesn't reliably surface as an
-    -- error until the next syscall - treating any write failure as "the
-    -- connection is gone" is simpler and safer than trying to distinguish
-    -- a transient failure from a dead peer. It also matters that connected
-    -- never stays stale-true: connect_socket() is only ever attempted while
-    -- connected is false, so a missed teardown would silently block every
-    -- later reconnect - including the next ROM's own mame_start.
+    -- Closes the connection after a failed or zero-byte write. Every write path calls it, and any
+    -- write failure is treated as a lost connection. connected must never stay true on a closed
+    -- socket: connect_socket is attempted only while connected is false, so a missed teardown would
+    -- block every later reconnect.
     local function teardown_connection()
         print("[MSOP] Connection dropped by Relay")
         connected = false
-        first_frame_seeded = false
-        -- WARM incident: announce the drop the moment it is detected - state outputs
-        -- are paused from here - and schedule the single reconnect attempt the message
-        -- promises (see RETRY POLICY above). A restarting MESH is typically back well
-        -- inside that window, and a successful connect costs nothing.
+        -- Announce the drop and schedule the single reconnect attempt that the message promises
+        -- (see RETRY POLICY).
         osd_connection_status("warm_first",
             "MESH DISCONNECTED - the connection to MESH was lost; state outputs are"
             .. " paused. The MSOP Plugin will try to reconnect to MESH in 30 seconds."
@@ -591,60 +494,49 @@ function stateoutput.startplugin()
         arm_relay_retry(RETRY_FINAL_GAP)
         if sock then sock:close() end
         sock = nil
-        -- Drop any unsent frame diff with the connection. It could only ever be sent
-        -- after a reconnect, and connect_socket()'s Resync_Relay_State() already re-sends
-        -- every tracked output at its real current value then - replaying a stale
-        -- pre-disconnect diff in front of that would be redundant lines at best.
+        -- Discard the unsent changes. After a reconnect, Resync_Relay_State sends every tracked
+        -- output at its current value.
         payload_buffer = {}
         changes_detected = false
     end
 
-    -- Transient lifecycle pings (mame_stop/pause) bypass payload_buffer entirely and
-    -- write immediately. They're one-shot events with no "last value" to diff against,
-    -- and they can't wait for the next flush_payload_to_relay() call - that only runs
-    -- from Compute_Outputs, which may not fire again for a while (or ever, right after
-    -- mame_stop). Also opportunistically opens the connection if it isn't up yet, subject
-    -- to the same bounded retry policy as the frame path.
-    -- (mame_start is not sent this way: it identifies the running game and so must survive
-    -- a late/reconnecting listener, which a one-shot write cannot. It lives in
-    -- _ActiveMameStart and is re-announced on every connect - see connect_socket.)
-    -- A failed write here tears the connection down the same way a failed
-    -- flush does (see teardown_connection), so a dead write can never leave
-    -- connected=true pointing at a closed socket.
+    -- Writes a lifecycle event (mame_stop or pause) to the relay at once, bypassing payload_buffer,
+    -- because the next flush may never run. It opens the connection first if the retry policy
+    -- allows. mame_start is not sent here: it is held in _ActiveMameStart and written on every
+    -- connect (see connect_socket). A failed write tears the connection down.
     local function broadcast_native_event(event_string)
         if not _UseRelay then return end -- native-delivery install: MAME emits lifecycle itself
-        -- Opportunistic open, but through the same retry gate as the frame path: these
-        -- fire on pause/unpause too, which a player can produce at will, and each failed
-        -- dial stalls the emulation thread just as expensively from here.
+        -- The open goes through the retry gate: pause and unpause can fire at will, and each failed
+        -- dial stalls the emulation thread.
         if not connected and relay_retry_due() then
             connect_socket()
         end
 
         if connected and sock then
-            -- pcall with explicit args (sock.write is what `sock:write(...)` sugar resolves
-            -- to) - no throwaway closure allocated per event, unlike pcall(function() ... end).
-            local success, bytes_written = pcall(sock.write, sock, event_string)
-            if not success or bytes_written == 0 then
-                teardown_connection()
-            end
+            if not relay_write(event_string) then teardown_connection() end
         end
     end
 
-    -- The relay's only per-output entry point (called exclusively from
-    -- Set_Output_Safe). This is the single de-dup point for the whole relay
-    -- pipeline: only a genuine change gets appended to payload_buffer, which
-    -- is what keeps a busy frame's relay traffic to "what actually moved"
-    -- instead of the full output vocabulary every 1/60s. last_state here is
-    -- independent of MAME's own output table - Set_Output_Safe separately
-    -- writes the live proxy, and on_post_load's adopt() reads that proxy
-    -- directly rather than this table, so the two can never disagree in a
-    -- way that matters.
-    --
-    -- Skipped entirely while disconnected: there's no flush that will ever
-    -- read payload_buffer in that state (flush_payload_to_relay's own
-    -- disconnected branch returns before touching it), so buffering changes
-    -- no one can receive would just grow payload_buffer without bound for as
-    -- long as the relay stays down.
+    -- Converts a value to the integer an output carries. MAME stores s32 and the relay wire format
+    -- is "%d", which raises an error for a number with no integer form. Every value is limited
+    -- to the s32 range. A float (the float32 and float32be widths) is rounded, and a NaN becomes
+    -- 0.
+    local function To_Output_Int(value)
+        if math.type(value) == "integer" then
+            if value > 2147483647 then return 2147483647 end
+            if value < -2147483648 then return -2147483648 end
+            return value
+        end
+        if value ~= value then return 0 end
+        if value >= 2147483647 then return 2147483647 end
+        if value <= -2147483648 then return -2147483648 end
+        return math.floor(value + 0.5)
+    end
+
+    -- Queues one output value for the relay. Called from Set_Output_Safe, Resync_Relay_State and
+    -- Forward_Native_Outputs. Only a value that differs from last_state is appended to
+    -- payload_buffer, which makes this the relay's single change filter. It does nothing while
+    -- disconnected, so payload_buffer cannot grow while the relay is down.
     local function msop_out(out_name, val)
         if not _UseRelay or not connected then return end
         if val ~= last_state[out_name] then
@@ -656,35 +548,18 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Resync_Relay_State()
-    -- Called once from connect_socket() right after a successful (re)connect.
-    -- Wiping last_state there isn't enough by itself to make the relay's next
-    -- flush include every current value: Set_Output / Set_Global_Output only
-    -- ever reach msop_out when a value differs from their own LastOutputs /
-    -- _GlobalLastOutputs caches, and those are untouched by a socket
-    -- reconnect (only on_start and on_post_load clear them). Left alone,
-    -- anything holding steady at the moment of reconnect - the current ammo
-    -- count, an active STATUS flag, a lit lamp - would never reach msop_out
-    -- again until it next genuinely changes, leaving a freshly (re)connected
-    -- hooker with stale/blank state for it until then.
-    --
-    -- This replays every currently-tracked name at its real current value
-    -- (never zero) straight through msop_out; last_state was just wiped by
-    -- the caller, so each one is correctly treated as new and lands in the
-    -- next flush. MAME's own output table already holds the right value from
-    -- before the disconnect, so only the relay needs the nudge - no need to
-    -- touch Set_Output_Safe or re-write the native proxy.
-    --
-    -- Returns false (and does nothing) before any ROM has loaded/warmed up
-    -- this session - there's nothing to resync yet, and the normal warmup
-    -- flush (Register_Outputs_Safe) already covers that case on its own.
-    -- Returns true when it actually resynced something, so connect_socket()
-    -- knows to pre-seed first_frame_seeded (see its own comment).
+    -- Sends every MSOP output that has been written, at its current value, through msop_out.
+    -- connect_socket calls it after clearing last_state, because Set_Output and Set_Global_Output
+    -- reach msop_out only when a value differs from their own caches, which a reconnect does not
+    -- clear. It does nothing until a ROM has completed warmup.
     -- -------------------------------------------------------------------------
     Resync_Relay_State = function()
-        if not CFG or not _WarmupFlushed then return false end
+        if not CFG or not _WarmupFlushed then return end
 
+        -- An output with no cached value has never been written, and is skipped.
         for key, name in pairs(_GlobalOutputs) do
-            msop_out(name, _GlobalLastOutputs[key] or 0)
+            local value = _GlobalLastOutputs[key]
+            if value ~= nil then msop_out(name, To_Output_Int(value)) end
         end
 
         for i = 1, CFG.MAX_PLAYERS do
@@ -692,37 +567,16 @@ function stateoutput.startplugin()
             local names = _OutputNames[i]
             if p and names then
                 for key, name in pairs(names) do
-                    msop_out(name, p.LastOutputs[key] or 0)
+                    local value = p.LastOutputs[key]
+                    if value ~= nil then msop_out(name, To_Output_Int(value)) end
                 end
             end
         end
-
-        return true
     end
 
-    -- Sends one frame's accumulated diff as a single write(), called at the
-    -- very end of Compute_Outputs. Three things worth knowing:
-    --   - Reconnect attempts are governed by the bounded RETRY POLICY (see
-    --     arm_relay_retry / relay_retry_due), not by this function's call
-    --     rate, so a dead relay costs a fixed handful of blocking connects
-    --     per session instead of turning every frame into one.
-    --   - first_frame_seeded normally guards against a burst on the very
-    --     first connect of a session: last_state was just wiped by
-    --     connect_socket(), so without this, every already-nonzero output
-    --     from Frame_Logic's first pass would look like a fresh change and
-    --     flood the relay the moment the socket opens. In practice this
-    --     branch is only actually reached before any ROM has loaded/warmed
-    --     up - connect_socket() pre-seeds first_frame_seeded whenever
-    --     Resync_Relay_State() has real state to send, so a mid-session
-    --     reconnect's resync payload goes out on the very next flush instead
-    --     of being silently discarded here.
-    --   - A failed or zero-byte write tears down the whole connection via
-    --     teardown_connection() (rather than just skipping this frame's
-    --     payload), because a half-closed TCP socket doesn't reliably
-    --     surface as an error until the next syscall - treating any write
-    --     failure as "the connection is gone" and forcing a full reconnect
-    --     is simpler and safer than trying to distinguish a transient
-    --     failure from a dead peer.
+    -- Sends one frame's accumulated changes in one relay_write, at the end of Compute_Outputs.
+    -- While disconnected it only dials, when the retry policy allows. A failed or zero-byte write
+    -- tears the connection down.
     local function flush_payload_to_relay()
         if not _UseRelay then return end -- native-delivery install: nothing to flush over TCP
         if not connected then
@@ -731,33 +585,14 @@ function stateoutput.startplugin()
         end
 
         if changes_detected then
-            if not first_frame_seeded then
-                first_frame_seeded = true
-                payload_buffer = {}
-                changes_detected = false
-                -- msop_out already recorded every value in this discarded
-                -- payload as "sent". Without wiping last_state, anything whose first
-                -- appearance landed on the seed frame would be marked delivered while
-                -- its line was thrown away here, and would never be sent again until
-                -- it genuinely changed - or never at all if it holds steady all
-                -- session. That silently swallowed native outputs in particular: they
-                -- are forwarded from the very first frame, long before warmup, so the
-                -- whole native set landed on exactly this payload. Clearing the table
-                -- costs one re-announcement on the next flush and makes the discard
-                -- what it was always meant to be - a deferral, not a data loss.
-                last_state = {}
-                return
-            end
-
-            -- One join, one write, no per-flush closure (see broadcast_native_event).
-            local payload = table.concat(payload_buffer)
-            local success, bytes_written = pcall(sock.write, sock, payload)
-
-            if not success or bytes_written == 0 then
+            -- One join and one relay_write. The buffer is emptied in place and reused, so that a
+            -- flushing frame allocates no new table. A failed write discards it in
+            -- teardown_connection.
+            if relay_write(table.concat(payload_buffer)) then
+                for i = #payload_buffer, 1, -1 do payload_buffer[i] = nil end
+            else
                 teardown_connection()
             end
-
-            payload_buffer = {}
             changes_detected = false
         end
     end
@@ -766,33 +601,30 @@ function stateoutput.startplugin()
     -- LOGGING HELPERS
     -- -------------------------------------------------------------------------
     local function dbg_print(msg)
-        -- Always prints to stdout (captured using MAME's -verbose log)
+        -- Always prints to the console.
         print("[MSOP] " .. tostring(msg))
     end
-    
-    local function dbg_osd(msg)
-        -- On-Screen Display (OSD) remains restricted to the ENABLE_OSD flag or your Config flag
-        local use_osd = ENABLE_OSD or (CFG and CFG.ENABLE_OSD)
+
+    local function dbg_osd(msg, profile_osd)
+        -- Shown on screen only when ENABLE_OSD is set in this file or in the profile. on_start
+        -- passes the profile's switch as profile_osd, because CFG is not set when it reports.
+        local use_osd = ENABLE_OSD or profile_osd
         if use_osd and manager and manager.machine then
             manager.machine:popmessage("[MSOP] " .. tostring(msg))
         end
     end
 
     -- -------------------------------------------------------------------------
-    -- Resolve_Relay_Port()
-    -- Reads plugin.json's optional "relayport" member (written per install by MESH,
-    -- exactly like the "relay" flag) and adopts it for this session. Absent/invalid
-    -- leaves the stock default (8004), so a manual install relies on runtime
-    -- self-detection plus that default and the shipped zip
-    -- carries no port stamp at all. Walks pluginspath the same way the relay stamp
-    -- lookup does - entries may be ';'-separated and relative, as MAME resolves them.
-    -- Called once, before the first connect attempt.
+    -- read_plugin_manifest()
+    -- Returns the text of the plugin's plugin.json, or nil when it cannot be found. MESH writes the
+    -- optional "relayport" and "relay" members into that file. Every pluginspath entry is searched;
+    -- entries are separated by ';' and may be relative, as MAME resolves them.
     -- -------------------------------------------------------------------------
-    local function Resolve_Relay_Port()
+    local function read_plugin_manifest()
         local ok_pp, plugin_paths = pcall(function()
             return manager.machine.options.entries["pluginspath"]:value()
         end)
-        if not ok_pp or type(plugin_paths) ~= "string" then return end
+        if not ok_pp or type(plugin_paths) ~= "string" then return nil end
         for raw_dir in plugin_paths:gmatch("[^;]+") do
             local dir = raw_dir
             local ok_sub, expanded = pcall(function() return emu.subst_env(raw_dir) end)
@@ -801,43 +633,40 @@ function stateoutput.startplugin()
             if f then
                 local text = f:read("*a") or ""
                 f:close()
-                local p = tonumber(text:match('"relayport"%s*:%s*(%d+)'))
-                if p and p > 0 and p < 65536 then
-                    _RelayPort = p
-                    _RelayPortStamped = true
-                    dbg_print("Relay port: " .. p .. " (plugin.json relayport stamp)")
-                end
-                return -- manifest found; stamped or not, stop probing
+                return text -- the first manifest found is the one used
             end
         end
+        return nil
     end
 
-    -- Derive the relay decision from MAME itself, at runtime, so the plugin no
-    -- longer depends on the Configurator having stamped a correct relay flag. Runs
-    -- once, from on_start (machine fully up, before any relay use). Mirrors exactly what
-    -- the Configurator computes for an instance's "needs relay":
-    --   * emu.app_version() >= 0.289  -> Lua can't create outputs at all -> relay required.
-    --   * -output none / console      -> outputs created but MAME never broadcasts them ->
-    --                                    relay required.
-    --   * -output network / windows   -> MAME self-delivers -> relay off (no socket is
-    --                                    opened at all).
-    -- Both facts are read straight from MAME (emu.app_version + the resolved -output
-    -- option, verified against luaengine.cpp: core_options.entries[name]:value()). It is
-    -- authoritative whenever it can read either fact; when it can't (option not exposed on
-    -- a very old build, or an unresolved "auto" mode) it leaves the flag-file default in
-    -- place. The empirical safety net in Probe_Legacy_Set_Value still has the final say and
-    -- can only ever upgrade false -> true (never the reverse), so a mis-detected 0.289 that
-    -- slips through here is still caught the instant a real output-create attempt fails.
+    -- Sets _UseRelay from MAME itself, once, from on_start and before any relay use. It reads
+    -- emu.app_version() and the resolved -output option (core_options.entries[name]:value()). Where
+    -- neither gives an answer it uses the plugin.json "relay" stamp, then the default.
+    -- Probe_Legacy_Set_Value can later change false to true, never the reverse.
+    --   * output creation probe failed -> MAME cannot hold MSOP's outputs -> relay required.
+    --   * emu.app_version() >= 0.289  -> Lua cannot create outputs at all -> relay required.
+    --   * -output none / console      -> outputs are created but MAME never broadcasts them ->
+    --                                    relay required. "auto" is treated as "none".
+    --   * -output network / windows   -> MAME delivers the outputs itself -> relay off (no socket
+    --                                    is opened at all).
     local function resolve_relay_mode()
         if _RelayModeResolved then return end
         _RelayModeResolved = true
 
-        -- The port is independent of the mode decision below: whether or not the relay is
-        -- used, knowing where it lives costs nothing and must be settled before any dial.
-        pcall(Resolve_Relay_Port)
+        -- The port is settled first. It does not depend on the mode decision below. A "relayport"
+        -- member in plugin.json sets it; an absent or invalid value leaves the default (8004).
+        local ok_manifest, manifest = pcall(read_plugin_manifest)
+        if not ok_manifest then manifest = nil end
+        if manifest then
+            local port = tonumber(manifest:match('"relayport"%s*:%s*(%d+)'))
+            if port and port > 0 and port < 65536 then
+                _RelayPort = port
+                dbg_print("Relay port: " .. port .. " (plugin.json relayport stamp)")
+            end
+        end
 
-        -- Read the resolved -output mode once; both the port derivation immediately below and
-        -- the delivery gate further down need it.
+        -- Read the resolved -output mode. The network flag below and the capability and version
+        -- gates use it.
         local out_mode
         do
             local ok_out, m = pcall(function()
@@ -846,107 +675,67 @@ function stateoutput.startplugin()
             if ok_out and type(m) == "string" then out_mode = m:lower() end
         end
 
-        -- Remember whether MAME's own network output server is broadcasting this session
-        -- (it binds a hard-coded 8000). The pass-through standdown reads this: when MAME is
-        -- already broadcasting every native output on 8000, forwarding them again over the
-        -- relay would deliver each one twice to anything reading both ports.
+        -- Record whether MAME's own network output server is running this session (it binds port
+        -- 8000). Native output forwarding stands down when it is, because forwarding would deliver
+        -- each output twice to a program reading both ports.
         _MameServesNetwork = (out_mode == "network")
 
-        -- The port is never derived from the -output mode: the relay dials MESH's
-        -- dedicated ingest listener (default 8004, or the plugin.json "relayport"
-        -- stamp), which cannot collide with MAME's own server on 8000. The port says
-        -- where the relay lives; the gates below alone decide whether it is used.
+        -- The relay port is never derived from the -output mode. The gates below decide only
+        -- whether the relay is used.
 
-        -- Capability gate. Ground truth - it outranks both inferences below. Ask this
-        -- build whether it can hold a custom output at all (the deprecated
-        -- output.set_value(), probed for real by Probe_Legacy_Set_Value). If set_value
-        -- can't create, MAME cannot store our outputs, so it cannot broadcast them in
-        -- any -output mode, and the relay is the only delivery path there is.
-        --
-        -- Deliberately capability-based, not version-based: the mode gate below reads
-        -- "windows" as "MAME self-delivers, relay off", which is correct for a real
-        -- <= 0.288 and wrong for a 0.289-code build that merely reports 0.288 (custom
-        -- builds, and MAME's own pre-release window). Asking the binary removes the
-        -- guesswork, and the same rule covers every -output mode alike.
-        --
-        -- Only ever forces the relay on, never off.
+        -- Capability gate, which outranks the two gates below. If the probe found that
+        -- output.set_value() cannot create an output, MAME cannot broadcast MSOP's outputs in any
+        -- -output mode and the relay is required. Testing the capability also covers a build that
+        -- reports 0.288 but behaves as 0.289. This gate only turns the relay on.
         if _LegacyCreateProbed and not _LegacyCreateWorks then
             _UseRelay = true
-            _MisconfiguredOutputMode = (out_mode == "network" or out_mode == "windows")
+            _MisconfiguredOutputMode = (out_mode == "network")
+            _WindowsOutputWithRelay = (out_mode == "windows")
             dbg_print("Relay mode: ENABLED (this build cannot create custom outputs - "
                       .. "MAME has nothing of ours to broadcast in any -output mode)")
             return
         end
 
-        -- Version gate: >= 0.289 forces the relay regardless of -output mode.
+        -- Version gate: MAME 0.289 and later requires the relay in every -output mode.
         local ok_ver, ver = pcall(function() return emu.app_version() end)
         if ok_ver and type(ver) == "string" then
             local maj, min = ver:match("(%d+)%.(%d+)")
             if maj then
                 if tonumber(maj) > 0 or tonumber(min) >= 289 then
                     _UseRelay = true
-                    _MisconfiguredOutputMode = (out_mode == "network" or out_mode == "windows")
+                    _MisconfiguredOutputMode = (out_mode == "network")
+                    _WindowsOutputWithRelay = (out_mode == "windows")
                     dbg_print("Relay mode: ENABLED (MAME " .. ver .. " >= 0.289 - no native output creation)")
                     return
                 end
             end
         end
 
-        -- Output-mode gate for <= 0.288.
-        local ok_out, mode = pcall(function()
-            return manager.machine.options.entries["output"]:value()
-        end)
-        if ok_out and type(mode) == "string" then
-            mode = mode:lower()
-            -- MAME resolves '-output auto' (the factory default) to the "none" module,
-            -- so treat it as "none": a default-config MAME then delivers through the
-            -- relay instead of falling to the stamp fallback a hand install lacks.
-            if mode == "auto" then mode = "none" end
-            if mode == "none" or mode == "console" then
-                _UseRelay = true
-                dbg_print("Relay mode: ENABLED (-output " .. mode .. " - created but not broadcast)")
-                return
-            elseif mode == "network" or mode == "windows" then
-                _UseRelay = false
-                dbg_print("Relay mode: disabled (-output " .. mode .. " - MAME self-delivers)")
-                return
-            end
+        -- Output mode gate for MAME 0.288 and earlier. MAME resolves "-output auto" (the default)
+        -- to the "none" module, so it is treated as "none" and delivered through the relay.
+        local mode = (out_mode == "auto") and "none" or out_mode
+        if mode == "none" or mode == "console" then
+            _UseRelay = true
+            dbg_print("Relay mode: ENABLED (-output " .. mode .. " - created but not broadcast)")
+            return
+        elseif mode == "network" or mode == "windows" then
+            _UseRelay = false
+            dbg_print("Relay mode: disabled (-output " .. mode .. " - MAME self-delivers)")
+            return
         end
 
-        -- Indeterminate (option not exposed on this build, or an unresolved "auto"):
-        -- fall back to the per-install stamp the Configurator wrote into this plugin's
-        -- own manifest - plugin.json's `"relay": true/false` member. Located through
-        -- the same options table the output gate above just used (pluginspath can be a
-        -- ';'-separated list, entries may be relative to MAME's working directory -
-        -- exactly how MAME itself resolves them). Everything pcall-guarded: a missing
-        -- file/member simply keeps the safe default (false) and the Probe_Legacy
-        -- safety net still covers a dark 0.289.
-        local ok_pp, plugin_paths = pcall(function()
-            return manager.machine.options.entries["pluginspath"]:value()
-        end)
-        if ok_pp and type(plugin_paths) == "string" then
-            for raw_dir in plugin_paths:gmatch("[^;]+") do
-                -- Loop variables are <const> in Lua 5.5 - expand into a fresh local.
-                local dir = raw_dir
-                local ok_sub, expanded = pcall(function() return emu.subst_env(raw_dir) end)
-                if ok_sub and type(expanded) == "string" and #expanded > 0 then dir = expanded end
-                local f = io.open(dir .. "/stateoutput/plugin.json", "r")
-                if f then
-                    local text = f:read("*a") or ""
-                    f:close()
-                    local flag = text:match('"relay"%s*:%s*(%a+)')
-                    if flag == "true" then
-                        _UseRelay = true
-                        dbg_print("Relay mode: ENABLED (plugin.json relay stamp - runtime auto-detect unavailable)")
-                        return
-                    elseif flag == "false" then
-                        _UseRelay = false
-                        dbg_print("Relay mode: disabled (plugin.json relay stamp - runtime auto-detect unavailable)")
-                        return
-                    end
-                    break -- manifest found but unstamped (manual install) - stop probing
-                end
-            end
+        -- Undetermined: the option is not exposed on this build, or its value is none of the modes
+        -- above. Fall back to the "relay" member (true or false) that MESH stamps into plugin.json.
+        -- A missing file or member keeps the default (false).
+        local flag = manifest and manifest:match('"relay"%s*:%s*(%a+)')
+        if flag == "true" then
+            _UseRelay = true
+            dbg_print("Relay mode: ENABLED (plugin.json relay stamp - runtime auto-detect unavailable)")
+            return
+        elseif flag == "false" then
+            _UseRelay = false
+            dbg_print("Relay mode: disabled (plugin.json relay stamp - runtime auto-detect unavailable)")
+            return
         end
         dbg_print("Relay mode: " .. (_UseRelay and "ENABLED" or "disabled") ..
                   " (default - runtime auto-detect unavailable and no plugin.json relay stamp)")
@@ -954,10 +743,9 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- fnv1a_31(s)
-    -- Deterministic 31-bit FNV-1a hash of a string. Used to derive a stable,
-    -- positive s32 ROM id for the MSOP_LuaROMid output when the database
-    -- entry doesn't supply an explicit LUA_ROM_ID. Stable across plugin and
-    -- database updates because it depends only on the ROM's short name.
+    -- Returns the 31-bit FNV-1a hash of a string. It gives the MSOP_LuaROMid output a stable,
+    -- positive s32 ROM id when the profile has no LUA_ROM_ID. The hash depends only on the ROM's
+    -- short name, so it does not change between plugin or database releases.
     -- -------------------------------------------------------------------------
     local function fnv1a_31(s)
         local h = 2166136261
@@ -970,9 +758,8 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- deep_merge(default_cfg, game_cfg)
-    -- Layers a specific ROM's values over the '_default' template.
-    -- Ensures that `CFG` always contains every required key, preventing
-	-- "nil value" crashes during the frame loop if a ROM JSON was sparse.
+    -- Returns a copy of the '_default' template with a ROM's values layered over it, so that CFG
+    -- carries every default key even when the ROM's profile is sparse.
     -- -------------------------------------------------------------------------
     local function deep_merge(default_cfg, game_cfg)
         local result = {}
@@ -988,36 +775,44 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- normalize_variables(config)
-    -- Translates legacy variable names to modern internal names.
+    -- Limits MAX_PLAYERS, rounds the time settings, and moves the legacy LAMP_START setting name to
+    -- LAMPSTART, the name the engine reads, in each player block and each per-setting table. The
+    -- legacy key is removed: two keys with one output suffix would compile to the same output
+    -- name, and a resync would send both.
     -- -------------------------------------------------------------------------
     local function normalize_variables(config)
+        -- The engine holds state for four players. MAX_PLAYERS is limited to 1 to 4 here, so that
+        -- a profile value outside that range cannot index a player that does not exist.
+        local max_players = math.floor(tonumber(config.MAX_PLAYERS) or 1)
+        if max_players < 1 then max_players = 1 elseif max_players > 4 then max_players = 4 end
+        config.MAX_PLAYERS = max_players
+        local function move_legacy_key(t)
+            if type(t) ~= "table" or t.LAMP_START == nil then return end
+            if t.LAMPSTART == nil then t.LAMPSTART = t.LAMP_START end
+            t.LAMP_START = nil
+        end
         for i = 1, config.MAX_PLAYERS do
-            local p_cfg = config["P"..i]
-            if p_cfg then
-                if p_cfg.LAMP_START ~= nil and p_cfg.LAMPSTART == nil then p_cfg.LAMPSTART = p_cfg.LAMP_START end
+            move_legacy_key(config["P"..i])
+        end
+        move_legacy_key(config.DATA_WIDTHS)
+        move_legacy_key(config.OUTPUT_SUFFIXES)
+        move_legacy_key(config.CPU_TAGS)
+        move_legacy_key(config.MEMORY_SPACES)
+
+        -- MAME's attotime constructors take whole numbers, so a time setting with a fraction is
+        -- rounded.
+        for key, value in pairs(config) do
+            if math.type(value) == "float" and (string.match(key, "_MS$") or string.match(key, "_SEC$")) then
+                config[key] = math.floor(value + 0.5)
             end
-        end
-        if config.DATA_WIDTHS then
-            if config.DATA_WIDTHS.LAMP_START ~= nil and config.DATA_WIDTHS.LAMPSTART == nil then config.DATA_WIDTHS.LAMPSTART = config.DATA_WIDTHS.LAMP_START end
-        end
-        if config.OUTPUT_SUFFIXES then
-            if config.OUTPUT_SUFFIXES.LAMP_START ~= nil and config.OUTPUT_SUFFIXES.LAMPSTART == nil then config.OUTPUT_SUFFIXES.LAMPSTART = config.OUTPUT_SUFFIXES.LAMP_START end
-        end
-        if config.CPU_TAGS then
-            if config.CPU_TAGS.LAMP_START ~= nil and config.CPU_TAGS.LAMPSTART == nil then config.CPU_TAGS.LAMPSTART = config.CPU_TAGS.LAMP_START end
-        end
-        if config.MEMORY_SPACES then
-            if config.MEMORY_SPACES.LAMP_START ~= nil and config.MEMORY_SPACES.LAMPSTART == nil then config.MEMORY_SPACES.LAMPSTART = config.MEMORY_SPACES.LAMP_START end
         end
         return config
     end
 
     -- -------------------------------------------------------------------------
     -- convert_hex_strings_to_numbers(t)
-    -- Recursively converts JSON hex strings ("0x00FF") to integers.
-    -- JSON files cannot store hexadecimal numbers. They must be saved 
-    -- as strings. But MAME's memory reader requires raw numbers. This 
-    -- function fixes that translation limitation automatically at boot.
+    -- Recursively converts JSON hex strings ("0x00FF") to numbers. JSON cannot store hexadecimal
+    -- numbers, and MAME's memory reads take numbers.
     -- -------------------------------------------------------------------------
     local function convert_hex_strings_to_numbers(t)
         for k, v in pairs(t) do
@@ -1031,27 +826,24 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Resolve_Addresses_And_Strings()
-    -- Pre-calculates heavy string/math operations before the game starts.
-    -- String manipulation (e.g., string.lower) is very CPU intensive in Lua. 
-    -- By doing it once here, we save thousands of CPU cycles per second.
-    -- It also automatically generates P2/P3/P4 memory addresses based on 
-    -- P1's offset math.
+    -- Runs once per ROM load. Lowercases the settings that are compared as strings, builds the
+    -- memory binding table and the output names, and derives the P2 to P4 values marked "auto" from
+    -- the P1 value and the player memory offset.
     -- -------------------------------------------------------------------------
     local function Resolve_Addresses_And_Strings()
-        -- Normalise logical evaluation strings
+        -- Lowercase the settings that are compared as strings.
         CFG.AMMO_DIRECTION             = string.lower(tostring(CFG.AMMO_DIRECTION or ""))
         CFG.AMMO_ALT_DIRECTION         = string.lower(tostring(CFG.AMMO_ALT_DIRECTION or ""))
         CFG.AMMO_GRENADE_DIRECTION     = string.lower(tostring(CFG.AMMO_GRENADE_DIRECTION or ""))
 
-        -- P*_Clip is a derived "do I still have ammo" flag: 1 while ammo > 0, 0 the moment it
-        -- hits 0 (i.e. a reload is needed). It is only published for a genuinely depleting clip, because
-        -- that is the only reading where 0 unambiguously means empty:
-        --   * "decrease" -> a real clip counting down to 0. Emitted.
-        --   * increase   -> the address is a shots-fired counter, so 0 means a full clip and the flag
-        --                   would be exactly inverted. Never emitted.
-        --   * "change"   -> direction is unknown, so it carries the same inversion risk. Never emitted.
-        -- Games whose ammo climbs (or can swap gun types mid-game, changing an unknown maximum) simply
-        -- do not expose P*_Clip at all, rather than publish a reload signal that could be wrong.
+        -- P*_Clip is a derived flag: 1 while ammo is above 0, 0 when it reaches 0 (a reload is
+        -- needed). It is published only when AMMO_DIRECTION is "decrease", the only reading in
+        -- which 0 means empty:
+        --   * "decrease" -> a clip counting down to 0. Published.
+        --   * increase   -> the address is a shots-fired counter, so 0 means a full clip and the
+        --                   flag would be inverted. Never published.
+        --   * "change"   -> the direction is unknown, so it carries the same inversion risk.
+        --                   Never published.
         _ClipEnabled = (CFG.AMMO_DIRECTION == "decrease")
         CFG.LIFE_DIRECTION             = string.lower(tostring(CFG.LIFE_DIRECTION or ""))
         CFG.LIFE_ALT_DIRECTION         = string.lower(tostring(CFG.LIFE_ALT_DIRECTION or ""))
@@ -1062,12 +854,13 @@ function stateoutput.startplugin()
         CFG.RECOIL_METHOD              = string.lower(tostring(CFG.RECOIL_METHOD or "pulse"))
         CFG.RECOIL_PRIORITY            = string.lower(tostring(CFG.RECOIL_PRIORITY or "ammo"))
 
-        -- GAME_TYPE: genre gate. "lightgun" (default) runs the classic
-        -- per-player gun pipeline and compiles the gun vocabulary; "racing"
-        -- skips the gun pipeline and compiles only the FFB_* vocabulary;
-        -- "both" does it all (hybrids, e.g. a racing game with life/damage
-        -- tracking). Unknown values degrade to "lightgun" - the long-standing
-        -- default behaviour, so existing game profiles are untouched by this field.
+        -- GAME_TYPE selects the pipelines and output names a profile uses. An unknown value is
+        -- treated as "lightgun".
+        --   "lightgun" (default) - runs the per-player gun pipeline and compiles the gun output
+        --                          names.
+        --   "racing"             - skips the gun pipeline and compiles only the FFB_* output names.
+        --   "both"               - does both, for a hybrid such as a racing game with life and
+        --                          damage tracking.
         CFG.GAME_TYPE = string.lower(tostring(CFG.GAME_TYPE or "lightgun"))
         if CFG.GAME_TYPE ~= "racing" and CFG.GAME_TYPE ~= "both" then CFG.GAME_TYPE = "lightgun" end
 
@@ -1082,7 +875,7 @@ function stateoutput.startplugin()
             "CREDITS", "STATUS", "STATUS_ALT", "AMMO", "AMMO_ALT", "AMMO_GRENADE", "LIFE", "LIFE_ALT",
             "RECOIL", "RELOAD", "DAMAGE", "RUMBLE", "LAMPSTART",
             "SHOTS_FIRED_PRIMARY", "SHOTS_FIRED_ALT", "SHOTS_FIRED_GRENADE", "LIFE_LOST", "DAMAGE_TAKEN",
-            "FFB" -- racing FFB: memory-address sources bind through CPU_TAGS.FFB / MEMORY_SPACES.FFB
+            "FFB" -- FFB memory sources bind through CPU_TAGS.FFB / MEMORY_SPACES.FFB
         }
 
         local function Resolve_Mem_Path(val, global_val)
@@ -1092,17 +885,15 @@ function stateoutput.startplugin()
 
         -- -------------------------------------------------------------------------
         -- MAP CPU TAGS AND MEMORY SPACES
-        -- By default, MSOP targets the ":maincpu" and its "program" address space.
-        --
-        -- ADVANCED FEATURE: The "region" Memory Space
-        -- If a specific variable's MEMORY_SPACE is set to "region" in the game's JSON,
-        -- the plugin will bypass the CPU's logical address map and interface directly 
-        -- with MAME's raw physical memory regions (manager.machine.memory.regions).
-        -- 
-        -- When to USE "region": 
-        -- Use this exclusively when you need to write/patch instructions into Read-Only 
-        -- Memory (ROM), such as applying a 'Screen Flash Disable' patch. MAME natively 
-        -- blocks write attempts to ROM if routed through standard CPU spaces ("program").
+        -- Each data type binds to a CPU tag and a memory space. The defaults are CFG.CPU_TAG
+        -- (":maincpu") and CFG.MEMORY_SPACE ("program"); CPU_TAGS and MEMORY_SPACES override them
+        -- per data type.
+        -- Memory space values:
+        --   an address space name - the CPU's logical address space ("program" by default).
+        --   "region"              - the MAME memory region named by the tag
+        --                           (manager.machine.memory.regions), bypassing the CPU's address
+        --                           map. Use it only to write to ROM, such as a screen flash
+        --                           patch: MAME blocks writes to ROM through a CPU address space.
         -- -------------------------------------------------------------------------
         for _, key in ipairs(data_types) do
             local t = Resolve_Mem_Path(CFG.CPU_TAGS and CFG.CPU_TAGS[key], CFG.CPU_TAG or ":maincpu")
@@ -1110,19 +901,15 @@ function stateoutput.startplugin()
             _MemConfig[key] = { tag = t, space = s }
         end
 
-        -- P*_Clip is derived rather than read from a memory address, so an older database may
-        -- carry no OUTPUT_SUFFIXES entry for it. Default one in here - after the game/_default merge
-        -- but before the names are pre-compiled - so the output exists without needing a database
-        -- rebuild. A game that defines its own CLIP suffix still wins.
+        -- P*_Clip is derived, so a database may carry no OUTPUT_SUFFIXES entry for it. A default is
+        -- added here, after the merge and before the names are compiled. A profile's own CLIP
+        -- suffix is kept.
         CFG.OUTPUT_SUFFIXES = CFG.OUTPUT_SUFFIXES or {}
         if CFG.OUTPUT_SUFFIXES.CLIP == nil then CFG.OUTPUT_SUFFIXES.CLIP = "Clip" end
 
-        -- GAME_TYPE filter: precompile only the vocabulary this game's
-        -- genre can actually drive, so the warmup zero-flush and the relay never
-        -- carry names the ROM will never use ("racing" = FFB_* only, "lightgun" =
-        -- everything except FFB_*, "both" = all). Globals are genre-neutral and
-        -- unaffected. Set_Output's nil-name guard makes the trim safe by
-        -- construction - a write to a filtered key is simply skipped.
+        -- Compiles only the output names the GAME_TYPE can drive: "racing" keeps FFB_* only,
+        -- "lightgun" keeps everything except FFB_*, and "both" keeps all. Global outputs are not
+        -- filtered. Set_Output skips a key that has no compiled name.
         local function Type_Allows(key)
             local is_ffb = string.match(key, "^FFB_") ~= nil
             if CFG.GAME_TYPE == "racing" then return is_ffb end
@@ -1130,36 +917,43 @@ function stateoutput.startplugin()
             return true -- "both"
         end
 
-        -- Pre-compile the MAME output broadcast strings (e.g. "MSOP_P1_Ammo")
+        -- Compile the per-player output names (for example "MSOP_P1_Ammo").
         for i = 1, CFG.MAX_PLAYERS do
             _OutputNames[i] = {}
             for key, suffix in pairs(CFG.OUTPUT_SUFFIXES) do
                 if not string.match(key, "^GLOBAL_") and Type_Allows(key) then
                     local target_p = i
                     if not CFG.SIMULTANEOUS_PLAY and (key == "RECOIL" or key == "RELOAD" or key == "DAMAGE" or key == "RUMBLE" or key == "LAMPSTART") then target_p = 1 end
-                    
-                    -- CRITICAL UPDATE: Add MSOP_ prefix
+
+                    -- Per-player outputs carry the MSOP_ prefix.
                     _OutputNames[i][key] = "MSOP_P" .. target_p .. "_" .. tostring(suffix)
                 end
             end
             local target_p_ctm = (not CFG.SIMULTANEOUS_PLAY) and 1 or i
-            
-            -- DemulShooter-compat aliases are emitted without the MSOP_ prefix, so DemulShooter reads
-            -- them under its own expected output names (P<n>_CtmRecoil / P<n>_Damaged / P<n>_CtmLmpStart).
-            -- Gun-specific: not compiled for "racing" profiles (GAME_TYPE filter above).
+
+            -- The DemulShooter aliases have no MSOP_ prefix, so that DemulShooter reads them under
+            -- the names it expects (P<n>_CtmRecoil, P<n>_Damaged and P<n>_CtmLmpStart). They are
+            -- not compiled for "racing" profiles.
             if CFG.GAME_TYPE ~= "racing" then
                 _OutputNames[i]["CtmRecoil"]   = "P" .. target_p_ctm .. "_CtmRecoil"
                 _OutputNames[i]["Damaged"]     = "P" .. target_p_ctm .. "_Damaged"
                 _OutputNames[i]["CtmLmpStart"] = "P" .. target_p_ctm .. "_CtmLmpStart"
             end
         end
-        
+
+        -- With alternating play every player's pulse and start lamp outputs go out under player
+        -- 1's names, so they share player 1's cache as well (see Set_Output). Player 1 alone
+        -- drives the start lamp.
+        _SharedOutputs = (not CFG.SIMULTANEOUS_PLAY) and
+            { RECOIL = true, RELOAD = true, DAMAGE = true, RUMBLE = true, CtmRecoil = true, Damaged = true,
+              LAMPSTART = true, CtmLmpStart = true } or false
+
         for key, suffix in pairs(CFG.OUTPUT_SUFFIXES) do
-            -- Add MSOP_ prefix to global outputs
+            -- Global outputs carry the MSOP_ prefix.
             if string.match(key, "^GLOBAL_") then _GlobalOutputs[key] = "MSOP_" .. tostring(suffix) end
         end
 
-        -- Process "auto" variables
+        -- Normalise every spelling of "auto" to lowercase.
         local all_players = { CFG.P1, CFG.P2, CFG.P3, CFG.P4 }
         for _, p_cfg in ipairs(all_players) do
             for k, val in pairs(p_cfg) do
@@ -1167,7 +961,14 @@ function stateoutput.startplugin()
             end
         end
 
-        -- Ensure hardware "auto" states gracefully disable if they have no underlying Ammo/Life data to track
+        -- A P1 ammo or life setting has no source to derive from, so "auto" there is unset. This
+        -- runs first, because the hardware settings below depend on it.
+        for _, key in ipairs({ "AMMO", "AMMO_ALT", "AMMO_GRENADE", "LIFE", "LIFE_ALT" }) do
+            if CFG.P1[key] == "auto" then CFG.P1[key] = false end
+        end
+        -- A P1 hardware setting left as "auto" is set to false when no ammo or life address exists
+        -- to derive it from. RUMBLE and LAMPSTART have no derived source and are always set to
+        -- false.
         local p1_hardware = { "RECOIL", "RELOAD", "DAMAGE", "RUMBLE", "LAMPSTART", "STATUS", "STATUS_ALT" }
         for _, key in ipairs(p1_hardware) do
             if CFG.P1[key] == "auto" then
@@ -1175,18 +976,18 @@ function stateoutput.startplugin()
                 elseif key == "RECOIL" and (CFG.P1.AMMO or CFG.P1.AMMO_ALT or CFG.P1.AMMO_GRENADE) then
                 elseif key == "RELOAD" and (CFG.P1.AMMO or CFG.P1.AMMO_ALT or CFG.P1.AMMO_GRENADE) then
                 elseif key == "DAMAGE" and (CFG.P1.LIFE or CFG.P1.LIFE_ALT) then
-                elseif key == "LAMPSTART" then
                 else CFG.P1[key] = false end
             end
         end
 
-        -- Execute math to generate P2/P3/P4 hex strings based on the multiplier offset
+        -- Derive each P2 to P4 value marked "auto" from the P1 value plus the offset multiplied by
+        -- the player's position after P1.
         local standard_offset = tonumber(CFG.PLAYER_MEMORY_OFFSET) or 0
         local credit_offset = tonumber(CFG.PLAYER_CREDIT_MEMORY_OFFSET) or standard_offset
         local player_tables = { CFG.P2, CFG.P3, CFG.P4 }
 
         for i, p_cfg in ipairs(player_tables) do
-            local multiplier = i 
+            local multiplier = i
             for key, val in pairs(p_cfg) do
                 if val == "auto" then
                     local p1_val = CFG.P1[key]
@@ -1202,22 +1003,26 @@ function stateoutput.startplugin()
             end
         end
         _PlayerCFG = { CFG.P1, CFG.P2, CFG.P3, CFG.P4 }
-    end
 
-    local function Is_Warmup_Complete() return manager.machine.time > _StartupTime end
+        -- True when any player has a credit address of its own. Their total then stands for the
+        -- global credits, and the global credit address is not tracked. A "racing" profile does not
+        -- run the per-player pipeline, so it is always false there.
+        CFG.PLAYER_CREDITS_TRACKED = false
+        if CFG.GAME_TYPE ~= "racing" then
+            for i = 1, CFG.MAX_PLAYERS do
+                if type(_PlayerCFG[i].CREDITS) == "number" then CFG.PLAYER_CREDITS_TRACKED = true end
+            end
+        end
+    end
 
     -- -------------------------------------------------------------------------
     -- Value_Is_Active(val, active_spec)
-    -- Tests a polled memory value against a configured "active" specification.
-    -- active_spec may be: a table of acceptable values, a single number, or
-    -- nil/false (meaning "any positive value counts as active").
-    --
-    -- PERFORMANCE note: this replaces four near-identical inline checks that
-    -- were previously written as immediately-invoked anonymous functions
-    -- (e.g. `(function() for _,v in ipairs(t) do ... end end)()`). Each of
-    -- those allocated a brand new closure every time it ran - up to several
-    -- times per player, per frame, 60 times a second. Defining the check
-    -- once here means zero closure allocation in the hot path.
+    -- Tests a polled memory value against a configured "active" specification. It is a named
+    -- function so that the frame loop allocates no closure.
+    -- active_spec:
+    --   table       - active when val equals any entry.
+    --   number      - active when val equals it.
+    --   nil / false - active when val is above 0.
     -- -------------------------------------------------------------------------
     local function Value_Is_Active(val, active_spec)
         if type(active_spec) == "table" then
@@ -1228,56 +1033,56 @@ function stateoutput.startplugin()
         elseif type(active_spec) == "number" then
             return val == active_spec
         else
-            -- nil/false mean "any positive value counts as active"; any other
-            -- spec type (e.g. an unresolved "auto" string surviving config
-            -- resolution) is treated as never-active - this exactly matches
-            -- the original inline logic, which only fell through to val > 0
-            -- when the spec was falsy
+            -- nil or false means any positive value is active. Any other type, such as an
+            -- unresolved "auto" string, is never active.
             return (not active_spec) and (val > 0)
         end
     end
 
     -- -------------------------------------------------------------------------
+    -- Shot_Delta(direction, curr, last, threshold)
+    -- Returns the number of rounds an ammo change stands for, or 0 when the change is not a shot.
+    -- direction:
+    --   "decrease" - a fall counts, when the previous value was at or below the threshold.
+    --   "change"   - any change counts, by its size.
+    --   other      - a rise counts ("increase").
+    -- -------------------------------------------------------------------------
+    local function Shot_Delta(direction, curr, last, threshold)
+        if direction == "decrease" then
+            return (curr < last and last <= threshold) and (last - curr) or 0
+        elseif direction == "change" then
+            return math.abs(curr - last)
+        end
+        return (curr > last) and (curr - last) or 0
+    end
+
+    -- -------------------------------------------------------------------------
     -- OUTPUT PROXY CACHE & SAFE SETTER
-    -- Transparently handles modern fast-proxies (MAME 0.289+) and
-    -- legacy set_value fallbacks (MAME 0.288-) without crashing.
+    -- Writes an output through its cached proxy where one exists, and through the deprecated
+    -- set_value on a build that can still create outputs (MAME 0.288 and earlier).
     -- -------------------------------------------------------------------------
     local _ProxyCache = {}
 
-    -- Named resolver for the pcalls in Get_Output_Proxy and _FFB.Probe_Output:
-    -- the miss path can retry every frame for a name that never appears
-    -- (_RetryMissingProxies keeps misses uncached because an output can be
-    -- created on its first write), and a fresh closure per attempt would be
-    -- per-frame garbage. Same pattern as pcall(sock.write, sock, ...).
+    -- A named function for the pcalls in Get_Output_Proxy and _FFB.Probe_Output. The miss path can
+    -- retry every frame, and a closure per attempt would allocate on every frame.
     local function Resolve_Root_Output(dev, name)
         return dev:output(name)
     end
 
-    -- Whether the deprecated output.set_value() can still auto-create a brand new
-    -- output on first use (true on MAME 0.288 and earlier) or only resolves existing
-    -- outputs (0.289+ stock). There is no direct way to ask the Lua API, and a version
-    -- number cannot be trusted on custom/patched builds - so Probe_Legacy_Set_Value
-    -- tests it empirically, once, and remembers the answer for the session.
-
-    -- The one-time test uses a disposable name that is never part of any real
-    -- vocabulary and a value no real write would coincidentally produce (0 is
-    -- unusable: it is indistinguishable from get_value's own default for a name that
-    -- was never created). The result must be verified through get_value - the same
-    -- legacy API family set_value belongs to - not device:output(), whose per-device
-    -- proxy lookup does not necessarily reflect what set_value just wrote and reads
-    -- false-negative on real 0.287/0.288.
+    -- Tests once per session whether the deprecated output.set_value() can create an output or only
+    -- resolves existing ones. The probe writes the plugin version to MSOP_LuaVersion, the value
+    -- that output carries anyway, and reads it back through get_value. Zero cannot be used: it is
+    -- get_value's default. device:output() does not reliably show a set_value write.
     local function Probe_Legacy_Set_Value(out_handle)
         if _LegacyCreateProbed then return end
         if not out_handle or not out_handle.set_value or not out_handle.get_value then return end
 
         _LegacyCreateProbed = true
-        local PROBE_NAME = "MSOP_LegacyCreateProbe"
-        local PROBE_VALUE = 123456789
+        local PROBE_NAME = "MSOP_LuaVersion"
+        local PROBE_VALUE = PLUGIN_VERSION_NUM
 
-        -- Announced so the console reads as intentional: on MAME 0.289+ this deliberate
-        -- test write makes MAME print its own error on the next line. That error is
-        -- expected and harmless - MSOP reads the result either way and switches to
-        -- relay delivery automatically when creation is unavailable.
+        -- The test write makes MAME 0.289 and later print its own error on the next console line.
+        -- The message below says so in advance.
         dbg_print("COMPATIBILITY TEST: probing whether this MAME build can create state outputs "
                   .. "(via the deprecated output.set_value). If a MAME error/warning appears on "
                   .. "the NEXT line, that is EXPECTED on MAME 0.289+ (output creation was removed) "
@@ -1290,35 +1095,23 @@ function stateoutput.startplugin()
         if _LegacyCreateWorks then
             dbg_print("COMPATIBILITY TEST passed: this MAME build CAN create state outputs "
                       .. "(MAME 0.288 or earlier behaviour) - no error above was expected.")
-        end
-
-        if not _LegacyCreateWorks then
+        else
             dbg_print("COMPATIBILITY TEST result: this MAME build CANNOT create state outputs (expected on MAME 0.289+ - any output error above was the test, not a fault). No further attempts will be made this session; the relay is delivering everything.")
-            -- Safety net: set_value is the only route by which MAME itself could hold one
-            -- of our outputs. With it confirmed dead, custom outputs are structurally
-            -- impossible in MAME, so the relay is the only delivery path. Force it on even
-            -- if the plugin.json relay stamp was never written (e.g. a 0.289 dev build the
-            -- app hadn't been told about), so 0.289+ can never silently go dark. Reached
-            -- only when the probe has just failed, so this still cannot turn the relay on
-            -- for an old build that self-delivers.
+            -- set_value is the only route by which MAME could hold an MSOP output. With creation
+            -- confirmed impossible, the relay is the only delivery path, so it is forced on even
+            -- when it was left off. This is reached only after a failed probe, so it cannot turn
+            -- the relay on for a build that delivers the outputs itself.
             if not _UseRelay then
                 _UseRelay = true
                 dbg_print("Relay auto-enabled (native output creation is impossible on this build).")
-                -- No need to resend mame_start here: _ActiveMameStart already holds the running
-                -- game (set in on_start), and connect_socket re-announces it on the next connect -
-                -- which the frame flush triggers now that the relay is live.
+                -- _ActiveMameStart already holds the running game, and connect_socket sends it on
+                -- the next connect, which the frame flush triggers.
             end
         end
     end
 
-    -- Calls the deprecated set_value fallback, but only for as long as it's
-    -- worth calling. Resolving the probe from here (rather than waiting for
-    -- some later, guaranteed-non-zero call) means even the very first real
-    -- write this session - typically Register_Outputs_Safe's own warmup
-    -- zero-flush - already knows whether to bother, instead of a whole
-    -- batch of zero-value writes going out unconditionally before a
-    -- naturally-occurring non-zero value ever arrives to settle the
-    -- question.
+    -- Calls the deprecated set_value only while it can create outputs. The probe runs on the first
+    -- call, so nothing more is written on a build where creation is impossible.
     local function Try_Legacy_Set_Value(out_handle, name, value)
         if not out_handle or not out_handle.set_value then return end
         Probe_Legacy_Set_Value(out_handle) -- no-op after the first call
@@ -1337,7 +1130,7 @@ function stateoutput.startplugin()
             if root_dev and root_dev.output then
                 local s2, p = pcall(Resolve_Root_Output, root_dev, name)
 
-                -- Validate that the proxy actually connects to hardware
+                -- Accept the proxy only if the output exists.
                 if s2 and p and p:exists() then
                     proxy = p
                 else
@@ -1348,8 +1141,8 @@ function stateoutput.startplugin()
 
         if not proxy then
             Try_Legacy_Set_Value(out_handle, name, 0)
-            -- Pass-through: a name that isn't there yet may appear once its device
-            -- finishes starting, so don't poison the cache with a permanent false.
+            -- In pass-through mode a missing output may appear once its device has started, so the
+            -- miss is not cached.
             if _RetryMissingProxies then return false end
         end
 
@@ -1358,26 +1151,14 @@ function stateoutput.startplugin()
     end
 
     local function Set_Output_Safe(out_handle, name, value)
-        -- Outputs are integers everywhere downstream: MAME's output system stores s32,
-        -- and the relay wire format is "%d" (matching network.cpp's own integer-only
-        -- protocol). A fractional value can legitimately arrive here - Read_Data_Safe's
-        -- float32/float32be widths (Model 2/3 games) return raw floats - and Lua 5.4+
-        -- string.format("%d", 2.5) throws "number has no integer representation", which
-        -- would surface as a FRAME ERROR every frame for such a game. Round once at this
-        -- single choke point (covers both the relay and the native write below); for the
-        -- integer values every other path produces, floor(v + 0.5) is the same integer.
-        value = math.floor(value + 0.5)
+        -- The value is converted once here, for both the relay and the native write.
+        value = To_Output_Int(value)
 
-        -- Always broadcast to the Relay - the only delivery path on 0.289+ stock
-        -- MAME, where Lua cannot create new outputs.
+        -- Queue the value for the relay, the only delivery path on stock MAME 0.289 and later.
         msop_out(name, value)
 
-        -- Also write MAME's own output table wherever that's still possible -
-        -- meaning old stock builds, where the
-        -- deprecated set_value can still auto-create (see Try_Legacy_Set_Value
-        -- for how that stops being attempted once it's confirmed futile).
-        -- Restores save-state persistence and on_post_load's adopt() recovery
-        -- wherever creation did succeed.
+        -- Also write MAME's own output table where the output exists or can still be created (see
+        -- Try_Legacy_Set_Value), for clients that read MAME's output system.
         local proxy = Get_Output_Proxy(name, out_handle)
         if proxy then
             proxy:set(value)
@@ -1388,34 +1169,37 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Read_Data_Safe(mem_handle, source, width)
-    -- Universal memory polling adapter
-    --    8, 16, 32    -> Reads standard Unsigned Integers
-    --    "float32"    -> Reads 32-bit Little Endian Floats (Modern 3D games)
-    --    "float32be"  -> Reads 32-bit Big Endian Floats (Sega Model 2/3)
-    --    "output"     -> Reads an existing MAME software output instead of RAM
+    -- Reads one value from memory or from an existing output. Returns 0 when the source or the
+    -- handle is missing.
+    -- width:
+    --    8, 16, 32, 64 -> reads an unsigned integer of that width (any other number reads 8 bits)
+    --    "float32"     -> reads a 32-bit little-endian float (modern 3D games)
+    --    "float32be"   -> reads a 32-bit big-endian float (Sega Model 2/3)
+    --    "output"      -> reads an existing MAME output by name instead of RAM
     -- -------------------------------------------------------------------------
     local function Read_Data_Safe(mem_handle, source, width)
         if not source then return 0 end
-        
+
         if type(width) == "string" then
             if width == "output" then
-                -- Reuse Get_Output_Proxy to get the memory-mapped pointer
+                -- Look the output up through the proxy cache.
                 local proxy = Get_Output_Proxy(source, nil)
-                
+
                 if proxy then
-                    -- Modern 0.289+ Fast Path: read directly from the proxy object
+                    -- MAME 0.289 and later: read through the proxy.
                     return proxy:get()
-                elseif manager.machine.output and manager.machine.output.get_value then
-                    -- Legacy 0.288- Fallback: string lookup
+                elseif _LegacyCreateWorks and manager.machine.output and manager.machine.output.get_value then
+                    -- MAME 0.288 and earlier: look the value up by name. Later builds are excluded,
+                    -- because get_value is deprecated there and logs a warning on every call.
                     local native_val = manager.machine.output:get_value(source)
                     return type(native_val) == "number" and native_val or (native_val and 1 or 0)
                 end
                 return 0
-                
+
             elseif width == "float32" and mem_handle then
                 local val = mem_handle:read_u32(source)
                 return string.unpack("f", string.pack("I4", val))
-                
+
             elseif width == "float32be" and mem_handle then
                 local val = mem_handle:read_u32(source)
                 val = ((val & 0xFF) << 24) | ((val & 0xFF00) << 8) | ((val & 0xFF0000) >> 8) | ((val & 0xFF000000) >> 24)
@@ -1430,16 +1214,25 @@ function stateoutput.startplugin()
         if width == 64 then return mem_handle:read_u64(source) end
         return mem_handle:read_u8(source)
     end
-    
+
+    -- Reads an ammo or life value: the memory value plus the setting's offset, or 0 when it is
+    -- above the setting's maximum. key is the setting name ("AMMO", "LIFE_ALT" and so on).
+    -- Frame_Logic and Seed_Frame_Baselines both read through it, so their values always agree.
+    local function Read_Counter(key, source, offset, max)
+        local value = Read_Data_Safe(_MemHandles[key], source, CFG.DATA_WIDTHS[key]) + (offset or 0)
+        if max and value > max then value = 0 end
+        return value
+    end
+
     -- -------------------------------------------------------------------------
     -- Write_Data_Safe(mem_handle, source, width, value)
-    -- Active memory patching adapter. Injects values into RAM.
-    -- Used primarily to disable visual hazards (like white flashes)
-    -- by hard-locking memory addresses to a specific value.
+    -- Writes one value to memory at the given width. It is used to hold an address at a fixed
+    -- value, for example to disable a screen flash. A string width (an output or a float) is not
+    -- written.
     -- -------------------------------------------------------------------------
     local function Write_Data_Safe(mem_handle, source, width, value)
         if not source or not mem_handle or not value then return end
-        if type(width) == "string" then return end -- Outputs/Floats not supported for memory patching
+        if type(width) == "string" then return end -- outputs and floats are not patched
         if width == 16 then mem_handle:write_u16(source, value)
         elseif width == 32 then mem_handle:write_u32(source, value)
         elseif width == 64 then mem_handle:write_u64(source, value)
@@ -1448,11 +1241,9 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
-    -- Flushes outputs to zero at boot and synchronises local caches.
-    -- Prevents external hardware (like DemulShooter or lighting apps) 
-    -- from sticking 'on' if a previous game crashed or ended abruptly.
-    -- Forces a true 0-state broadcast over the MAME TCP socket and 
-    -- aligns the local Lua spam-filter to guarantee accurate tracking.
+    -- Writes 0 to every configured output when warmup completes and sets the LastOutputs caches to
+    -- match, so that hardware left on by a previous game is switched off. The plugin identity and
+    -- ROM id outputs are written with their values.
     -- -------------------------------------------------------------------------
     local function Register_Outputs_Safe(out_handle)
         if not out_handle then return end
@@ -1463,65 +1254,70 @@ function stateoutput.startplugin()
                 _GlobalLastOutputs[key] = value
             end
         end
-        
+
         Sync_Global("GLOBAL_GAME_STATUS", 0)
         Sync_Global("GLOBAL_ATTRACT_STATUS", 0)
-        -- Plugin identity comes from this script's constants, not the
-        -- database: CFG.LUA_VERSION/LUA_DATE describe the database release
-        -- (older releases published them as the plugin identity, so the database's
-        -- values were reported no matter which plugin was actually running).
+        -- The plugin identity comes from this file's constants. CFG.LUA_VERSION and CFG.LUA_DATE
+        -- describe the database release.
         Sync_Global("GLOBAL_LUA_VERSION", PLUGIN_VERSION_NUM)
         Sync_Global("GLOBAL_LUA_DATE", PLUGIN_DATE_NUM)
         Sync_Global("GLOBAL_LUA_ROM_ID", _RomIdNum)
-        
-        if CFG.CREDITS then 
+
+        if CFG.CREDITS then
             Sync_Global("GLOBAL_CREDITS", 0)
-            Sync_Global("GLOBAL_CREDITS_INSERTED", 0)
+            if CFG.ENABLE_CREDIT_COUNT then Sync_Global("GLOBAL_CREDITS_INSERTED", 0) end
         end
-        
+
         for i = 1, CFG.MAX_PLAYERS do
-            local p_cfg = _PlayerCFG[i] 
-            
+            local p_cfg = _PlayerCFG[i]
+
+            -- An output shared with player 1 is written once, by player 1.
+            local shared = _SharedOutputs
             local function Sync_Output(cfg_key, out_key)
+                if i > 1 and shared and shared[out_key] then return end
                 if p_cfg[cfg_key] and _OutputNames[i][out_key] then
                     Set_Output_Safe(out_handle, _OutputNames[i][out_key], 0)
                     _Player[i].LastOutputs[out_key] = 0
                 end
             end
-            
+
             local function Sync_Force(out_key)
+                if i > 1 and shared and shared[out_key] then return end
                 if _OutputNames[i][out_key] then
                     Set_Output_Safe(out_handle, _OutputNames[i][out_key], 0)
                     _Player[i].LastOutputs[out_key] = 0
                 end
             end
-            
+
             Sync_Output("STATUS", "STATUS")
             Sync_Output("STATUS_ALT", "STATUS_ALT")
-            
-            if p_cfg.CREDITS then 
+
+            if p_cfg.CREDITS then
                 Sync_Output("CREDITS", "CREDITS")
-                Sync_Output("CREDITS", "CREDITS_INSERTED")
-                Sync_Output("CREDITS", "CREDITS_CONSUMED")
+                if CFG.ENABLE_CREDIT_COUNT then
+                    Sync_Output("CREDITS", "CREDITS_INSERTED")
+                    Sync_Output("CREDITS", "CREDITS_CONSUMED")
+                end
             end
-            
+
             local keys = {"AMMO", "AMMO_ALT", "AMMO_GRENADE", "LIFE", "LIFE_ALT", "DAMAGE", "RECOIL", "RELOAD", "RUMBLE", "LAMPSTART"}
             for _, k in ipairs(keys) do
                 Sync_Output(k, k)
             end
 
-            -- P*_Clip has no memory address of its own (it is derived from AMMO), so its reset is
-            -- gated on AMMO being configured rather than on a "CLIP" config key that never exists.
+            -- P*_Clip is derived from AMMO and has no setting of its own, so its reset is gated on
+            -- AMMO.
             if _ClipEnabled then Sync_Output("AMMO", "CLIP") end
-            
-            -- Move DemulShooter overrides outside the loop to guarantee MAME registers them
-            if CFG.DEMULSHOOTER_COMPATIBILITY then 
+
+            -- The DemulShooter aliases are reset for every player, whether or not RECOIL or DAMAGE
+            -- is configured.
+            if CFG.DEMULSHOOTER_COMPATIBILITY then
                 Sync_Force("CtmRecoil")
                 Sync_Force("Damaged")
             end
-            
+
             if CFG.ENABLE_DAMAGE_COUNT and p_cfg.DAMAGE_TAKEN then Sync_Output("DAMAGE_TAKEN", "DAMAGE_TAKEN") end
-            if CFG.ENABLE_SHOT_COUNT then 
+            if CFG.ENABLE_SHOT_COUNT then
                 Sync_Force("SHOTS_FIRED")
                 if p_cfg.SHOTS_FIRED_PRIMARY then Sync_Output("SHOTS_FIRED_PRIMARY", "SHOTS_FIRED_PRIMARY") end
                 if p_cfg.SHOTS_FIRED_ALT then Sync_Output("SHOTS_FIRED_ALT", "SHOTS_FIRED_ALT") end
@@ -1533,30 +1329,60 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- OUTPUT SPAM WRAPPERS:
-    -- Only sends a command to MAME's output system if the value has actually
-    -- changed. This drastically reduces TCP server load.
-    --
-    -- PERFORMANCE note: these are defined once, here, at plugin-load scope -
-    -- not inside Frame_Logic. They used to be declared with `local function`
-    -- inside Frame_Logic, which meant Lua allocated two brand new closures
-    -- every single frame (60/sec) purely to hold onto `out`. That's exactly
-    -- the kind of per-frame GC churn the Compute_Outputs/pcall restructuring
-    -- below was written to avoid - it just crept back in one level down.
-    -- `out` is now passed in explicitly instead of captured.
+    -- Write an output only when its value differs from the cached last value. They are defined at
+    -- plugin scope and take `out` as a parameter, so that Frame_Logic allocates no closure for
+    -- them.
     -- -------------------------------------------------------------------------
     local function Set_Output(out, p_idx, key, value)
-        local p = _Player[p_idx]
+        local p = (_SharedOutputs and _SharedOutputs[key]) and _Player[1] or _Player[p_idx]
         if p.LastOutputs[key] ~= value and _OutputNames[p_idx][key] then
             Set_Output_Safe(out, _OutputNames[p_idx][key], value)
             p.LastOutputs[key] = value
         end
     end
 
+    -- Writes 0 to every player's pulse outputs. It is used where the timers that would end a pulse
+    -- are about to be discarded: after a state load and at a reset. An output that has never
+    -- been written is left alone.
+    local function End_Pulses(out)
+        for i = 1, CFG.MAX_PLAYERS do
+            local sent = _Player[i].LastOutputs
+            if sent.RECOIL then Set_Output(out, i, "RECOIL", 0) end
+            if sent.RELOAD then Set_Output(out, i, "RELOAD", 0) end
+            if sent.DAMAGE then Set_Output(out, i, "DAMAGE", 0) end
+            if sent.RUMBLE then Set_Output(out, i, "RUMBLE", 0) end
+            if sent.CtmRecoil then Set_Output(out, i, "CtmRecoil", 0) end
+            if sent.Damaged then Set_Output(out, i, "Damaged", 0) end
+        end
+    end
+
+    -- Starts a reload pulse for player p_idx. With alternating play, player 1 owns the shared
+    -- output, so its timer is started as well.
+    local function Start_Reload(out, p_idx, p, current_time)
+        Set_Output(out, p_idx, "RELOAD", 1)
+        p.ReloadTick = current_time
+        p.IsReloadActive = true
+        if not CFG.SIMULTANEOUS_PLAY and p_idx > 1 then
+            _Player[1].ReloadTick = current_time
+            _Player[1].IsReloadActive = true
+        end
+    end
+
+    -- Compares a player's credits with the last frame's. A rise is counted as credits inserted, and
+    -- a fall is held as a pending drop until a spawn consumes it.
+    local function Track_Player_Credits(out, p_idx, p, credits)
+        if credits > p.LastCredits then
+            p.CreditsInserted = p.CreditsInserted + (credits - p.LastCredits)
+            if CFG.ENABLE_CREDIT_COUNT then Set_Output(out, p_idx, "CREDITS_INSERTED", p.CreditsInserted) end
+        elseif credits < p.LastCredits then
+            p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - credits)
+        end
+        p.LastCredits = credits
+    end
+
     local function Set_Global_Output(out, key, value)
-        -- Guard the name like Set_Output does: a game that overrides OUTPUT_SUFFIXES and
-        -- omits a GLOBAL_ key would otherwise pass nil to Set_Output_Safe -> a per-frame
-        -- error (caught by the Compute_Outputs pcall, but noisy). The real _default carries
-        -- every global, so this only matters for hand-trimmed per-game suffix overrides.
+        -- The name is checked as in Set_Output: a profile that overrides OUTPUT_SUFFIXES and omits
+        -- a GLOBAL_ key would otherwise pass nil to Set_Output_Safe.
         if _GlobalLastOutputs[key] ~= value and _GlobalOutputs[key] then
             Set_Output_Safe(out, _GlobalOutputs[key], value)
             _GlobalLastOutputs[key] = value
@@ -1565,24 +1391,25 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Seed_Frame_Baselines()
-    -- Primes every Last* delta baseline from live values the moment warmup
-    -- completes, and again after a save state loads. Without this, every
-    -- baseline starts at 0, so pre-existing values are booked as fresh
-    -- deltas on the first tracked frame - on vcop2, 2 leftover NVRAM
-    -- credits became "MSOP_GlobalCreditsInserted = 2" before a single coin
-    -- was dropped. Reads mirror Frame_Logic's math exactly (divisor,
-    -- offsets, MAX clamps) so frame 1 of tracking sees zero false movement.
+    -- Sets every Last* baseline from the live values when warmup completes and after a save state
+    -- loads. Without it the baselines start at 0, and values that already exist, such as credits
+    -- held in NVRAM, are counted as new changes on the first tracked frame. The credit reads must
+    -- match Frame_Logic's divisor; the ammo and life reads share Read_Counter with it.
     -- -------------------------------------------------------------------------
     local function Seed_Frame_Baselines()
         if not CFG then return end
         local divisor = CFG.COINS_PER_CREDIT or 1
         if divisor < 1 then divisor = 1 end
 
-        if CFG.CREDITS and type(CFG.CREDITS) == "number" then
+        if CFG.CREDITS and type(CFG.CREDITS) == "number" and not CFG.PLAYER_CREDITS_TRACKED then
             local raw = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS)
             _LastGlobalCredits = math.floor(raw / divisor)
             if _LastGlobalCredits > 0 then _HasCoinedUp = true end
         end
+
+        -- With per-player credit addresses, Frame_Logic tracks their total as the global credits,
+        -- so the global baseline is seeded from the same total.
+        local player_credit_total = 0
 
         for i = 1, CFG.MAX_PLAYERS do
             local cfg = _PlayerCFG[i]
@@ -1591,32 +1418,16 @@ function stateoutput.startplugin()
                 if cfg.CREDITS and type(cfg.CREDITS) == "number" then
                     local raw = Read_Data_Safe(_MemHandles["CREDITS"], cfg.CREDITS, CFG.DATA_WIDTHS.CREDITS)
                     p.LastCredits = math.floor(raw / divisor)
+                    player_credit_total = player_credit_total + p.LastCredits
+                elseif cfg.CREDITS == "auto" and type(CFG.CREDITS) == "number" then
+                    local raw = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS)
+                    p.LastCredits = math.floor(raw / divisor)
                 end
-                if cfg.AMMO then
-                    local v = Read_Data_Safe(_MemHandles["AMMO"], cfg.AMMO, CFG.DATA_WIDTHS.AMMO) + (CFG.AMMO_OFFSET or 0)
-                    if CFG.AMMO_MAX and v > CFG.AMMO_MAX then v = 0 end
-                    p.LastAmmo = v
-                end
-                if cfg.AMMO_ALT then
-                    local v = Read_Data_Safe(_MemHandles["AMMO_ALT"], cfg.AMMO_ALT, CFG.DATA_WIDTHS.AMMO_ALT) + (CFG.AMMO_ALT_OFFSET or 0)
-                    if CFG.AMMO_ALT_MAX and v > CFG.AMMO_ALT_MAX then v = 0 end
-                    p.LastAmmoAlt = v
-                end
-                if cfg.AMMO_GRENADE then
-                    local v = Read_Data_Safe(_MemHandles["AMMO_GRENADE"], cfg.AMMO_GRENADE, CFG.DATA_WIDTHS.AMMO_GRENADE) + (CFG.AMMO_GRENADE_OFFSET or 0)
-                    if CFG.AMMO_GRENADE_MAX and v > CFG.AMMO_GRENADE_MAX then v = 0 end
-                    p.LastAmmoGrenade = v
-                end
-                if cfg.LIFE then
-                    local v = Read_Data_Safe(_MemHandles["LIFE"], cfg.LIFE, CFG.DATA_WIDTHS.LIFE) + (CFG.LIFE_OFFSET or 0)
-                    if CFG.LIFE_MAX and v > CFG.LIFE_MAX then v = 0 end
-                    p.LastLife = v
-                end
-                if cfg.LIFE_ALT then
-                    local v = Read_Data_Safe(_MemHandles["LIFE_ALT"], cfg.LIFE_ALT, CFG.DATA_WIDTHS.LIFE_ALT) + (CFG.LIFE_ALT_OFFSET or 0)
-                    if CFG.LIFE_ALT_MAX and v > CFG.LIFE_ALT_MAX then v = 0 end
-                    p.LastLifeAlt = v
-                end
+                if cfg.AMMO then p.LastAmmo = Read_Counter("AMMO", cfg.AMMO, CFG.AMMO_OFFSET, CFG.AMMO_MAX) end
+                if cfg.AMMO_ALT then p.LastAmmoAlt = Read_Counter("AMMO_ALT", cfg.AMMO_ALT, CFG.AMMO_ALT_OFFSET, CFG.AMMO_ALT_MAX) end
+                if cfg.AMMO_GRENADE then p.LastAmmoGrenade = Read_Counter("AMMO_GRENADE", cfg.AMMO_GRENADE, CFG.AMMO_GRENADE_OFFSET, CFG.AMMO_GRENADE_MAX) end
+                if cfg.LIFE then p.LastLife = Read_Counter("LIFE", cfg.LIFE, CFG.LIFE_OFFSET, CFG.LIFE_MAX) end
+                if cfg.LIFE_ALT then p.LastLifeAlt = Read_Counter("LIFE_ALT", cfg.LIFE_ALT, CFG.LIFE_ALT_OFFSET, CFG.LIFE_ALT_MAX) end
                 if type(cfg.DAMAGE_TAKEN) == "number" then
                     p.LastDmgMem = Read_Data_Safe(_MemHandles["DAMAGE_TAKEN"], cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
                 end
@@ -1634,71 +1445,59 @@ function stateoutput.startplugin()
                 end
             end
         end
+
+        if CFG.PLAYER_CREDITS_TRACKED then
+            _LastGlobalCredits = player_credit_total
+            if player_credit_total > 0 then _HasCoinedUp = true end
+        end
     end
 
     -- =========================================================================
     -- FORCE FEEDBACK state outputs (racing genre)  --  see CFG.FFB in the database
-    -- Racing-genre extension of the gun games' translation-layer model: read the
-    -- raw force-feedback command the emulated game produces (a native output the
-    -- driver creates, or a stable emulated memory address), decode the
-    -- game-specific encoding, and emit a STANDARDISED effect-channel vocabulary
-    -- (the set of channels real FFB hardware is typically driven with):
+    -- Reads the game's raw force-feedback command (a native output or a memory address), decodes it
+    -- and writes a standard set of effect channels. All state lives in the _FFB table, because
+    -- startplugin is close to Lua's limit of 200 locals. The resolution and compute functions are
+    -- attached in the "FORCE FEEDBACK RESOLUTION + COMPUTE" section.
     --
+    -- Output channels (SCALE defaults to 255, which is lossless for every known source encoding):
     --   MSOP_P<n>_FFB_Constant  signed -SCALE..+SCALE  directional push force.
     --                          positive = force from the right (wheel pushed
     --                          left), negative = from the left, 0 = release.
-    --   MSOP_P<n>_FFB_Spring    0..SCALE  self-centering spring strength.
+    --   MSOP_P<n>_FFB_Spring    0..SCALE  self-centring spring strength.
     --   MSOP_P<n>_FFB_Friction  0..SCALE  steering friction / clutch drag.
     --   MSOP_P<n>_FFB_Damper    0..SCALE  velocity damping strength.
     --   MSOP_P<n>_FFB_Sine      0..SCALE  vibration/shake strength (the effect
     --                          period is a consumer-side tuning knob).
     --   MSOP_P<n>_FFB_Rumble    0..SCALE  continuous force-correlated motor
-    --                          rumble level. UNSIGNED by contract: motor
+    --                          rumble level. Unsigned by contract: motor
     --                          routing lives in the consumer's config, and
     --                          direction is derivable from FFB_Constant's
     --                          sign. Coexists with the standard pulse-style
     --                          P<n>_Rumble output - a single-rumble-path
-    --                          consumer should MIX the two (max), never sum.
+    --                          consumer should mix the two (max), never sum.
     --   MSOP_P<n>_FFB_Raw       the undecoded source value (diagnostics and
     --                          new-game analysis).
     --
-    --   SEMANTIC EVENTS (contract 2.2) - pulse/level strengths 0..SCALE read
-    --   from separate per-game memory ADDRESSES via CFG.FFB.EVENTS (the gun
-    --   games' Damage/Rumble acquisition model; address-only by contract):
+    -- Semantic events (contract 2.2):
     --   MSOP_P<n>_FFB_Collision / FFB_GearChange / FFB_SurfaceRumble /
-    --   FFB_TyreSlip / FFB_EngineRumble. Optional per game - a profile emits
-    --   only what it can source.
+    --   FFB_TyreSlip / FFB_EngineRumble. Pulse/level strengths 0..SCALE read
+    --   from separate per-game memory addresses via CFG.FFB.EVENTS (address-only
+    --   by contract). Optional per game - a profile emits only what it can source.
     --
-    --   SCALE defaults to 255 (Signed255/Unsigned255 per the MESH contract):
-    --   lossless for every known source encoding (max +/-127 levels/side).
-    --
-    -- COMMAND SEMANTICS: a decoder returns only the channels the game's command
-    -- byte addresses this frame; unlisted channels keep their previous value
-    -- (arcade drive boards receive commands, not state snapshots - e.g. Model 2
-    -- sends one banded command per frame that means "set spring to X" while the
-    -- last roll force stays in force). Explicit zero releases a channel.
-    -- Consumers (MESH, hookers) map channels onto real effects with zero game
-    -- knowledge - exactly like PX_CtmRecoil for guns.
-    --
-    -- All state lives in one table (startplugin is a single Lua function close
-    -- to the 200-local limit; one local is all this module may add). Only the
-    -- state + decoders live here: the functions needing Enumerate_Native_Outputs
-    -- / _MemHandles are attached after those exist - see the "FORCE FEEDBACK
-    -- RESOLUTION + COMPUTE" section further down. That is safe because
-    -- Frame_Logic only CALLS _FFB.Compute at frame time, long after load.
-    --
-    -- Decoders take (raw, scale) and return a partial {CHANNEL = value} table,
-    -- or nil for "no change". A command only ever addresses the channels it
-    -- names; every other channel holds its last value until re-commanded, and
-    -- an explicit 0 is a release. Each decoder is a pure function of the
-    -- command byte except harddrivin_serial, which assembles a frame.
+    -- Decoders (_FFB.decoders):
+    --   parameters - (raw, scale)
+    --   returns    - a partial {CHANNEL = value} table holding only the channels the game's
+    --                command addresses this frame, or nil for "no change". A channel that is not
+    --                returned keeps its last value until it is commanded again; an explicit 0
+    --                releases it.
+    --   state      - every decoder is a pure function of the command byte except harddrivin_serial,
+    --                which assembles a frame.
     -- =========================================================================
     local _FFB = {
-        proxy = false,       -- resolved native-output proxy (output mode)
+        proxy = false,       -- output mode: the output's proxy; legacy mode: the output manager
         source = false,      -- resolved source (name string or numeric address)
-        mode = false,        -- "output" | "mem"
+        mode = false,        -- "output" | "legacy" | "mem"
         probe_frames = 0,    -- frames spent probing, for the one-shot warning
-        warned = false,
         events_rt = {},      -- per-event runtime state (last value, pulse tick)
         hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0 },
         enum = false,        -- cached native-output enumeration for this ROM...
@@ -1706,12 +1505,10 @@ function stateoutput.startplugin()
         exhausted = false,   -- probing gave up: no configured SOURCE exists here
         channels = { "CONSTANT", "SPRING", "FRICTION", "DAMPER", "SINE", "RUMBLE" },
 
-        -- Rave Racer / Namco Super System 22 wheel LUT: the MCU's scrambled
-        -- force byte -> linear force index 1..123 (-1 = code never emitted).
-        -- Index the array with (raw & 0xFF) + 1. The scramble has no closed
-        -- form, so the mapping is a fixed 256-entry table: each of 1..123
-        -- appears exactly once, all at even byte values, and every odd byte
-        -- is a code the MCU never sends.
+        -- Namco Super System 22 wheel lookup table (Rave Racer): maps the MCU's scrambled force
+        -- byte to a linear force index 1..123, with -1 for a code that is never sent. Index it with
+        -- (raw & 0xFF) + 1. The scramble has no closed form. Each of 1..123 appears exactly once,
+        -- at an even byte value, and every odd byte is a code the MCU never sends.
         rr_map = {
             -1,-1,62,-1,30,-1,94,-1,  46,-1,78,-1,14,-1,110,-1,
             54,-1,70,-1,22,-1,102,-1, 38,-1,86,-1,6,-1,118,-1,
@@ -1732,8 +1529,8 @@ function stateoutput.startplugin()
         },
     }
 
-    -- Linear band helper shared by the banded decoders: maps raw in
-    -- (base, base+span] onto 0..scale, clamped.
+    -- Maps raw in (base, base + span] linearly onto 0..scale, clamped. The banded decoders share
+    -- it.
     function _FFB.Band(raw, base, span, scale)
         local p = (raw - base) / span
         if p < 0 then p = 0 elseif p > 1 then p = 1 end
@@ -1741,20 +1538,14 @@ function stateoutput.startplugin()
     end
 
     _FFB.decoders = {
-        -- Raw value straight onto the Constant channel (analysis/bring-up).
+        -- Passes the raw value to the Constant channel, for analysis of a new game. Compute limits
+        -- it to the scale; FFB_Raw carries the value as read.
         passthrough = function(raw, scale) return { CONSTANT = raw } end,
 
-        -- Two's-complement byte -> signed Constant, for cabinets that send the
-        -- wheel force as a full-range signed value (the Midway/Atari and
-        -- Gaelco racers). The two halves are deliberately asymmetric because
-        -- the encoding is: 0x80..0xFF is 128 steps of negative force with 0x80
-        -- the hardest lock, while 0x01..0x7F is 127 steps of positive, so each
-        -- side divides by its own span and reaches exactly +/-scale at its
-        -- extreme. 0x00 is neutral. Round half away from zero symmetrically -
-        -- floor for positives, ceil for negatives, since floor(x-0.5) would
-        -- over-round the negative side (-0.79 must become -1, not -2).
-        -- Cabinets in this family that wire the wheel the other way round set
-        -- FFB.INVERT in their profile rather than getting a second decoder.
+        -- Two's-complement byte to signed Constant, for cabinets that send a full-range signed
+        -- wheel force. 0x80..0xFF is 128 negative steps and 0x01..0x7F is 127 positive steps, so
+        -- each side divides by its own span and reaches exactly +/-scale; 0x00 is neutral. Rounding
+        -- is half away from zero. A cabinet wired the other way round sets FFB.INVERT.
         signed8 = function(raw, scale)
             local v = raw & 0xFF
             if v > 127 then
@@ -1798,7 +1589,7 @@ function stateoutput.startplugin()
         end,
 
         -- Sega Rally (srallyc family): two 32-step bands on the drive-board byte.
-        -- 0xC0-0xDF = force from the RIGHT, 0x80-0x9F = force from the LEFT.
+        -- 0xC0-0xDF = force from the right, 0x80-0x9F = force from the left.
         sega_rally_bands = function(raw, scale)
             if raw == 0x00 then return { CONSTANT = 0, RUMBLE = 0 } end
             if raw >= 0xC0 and raw <= 0xDF then
@@ -1812,7 +1603,7 @@ function stateoutput.startplugin()
         end,
 
         -- Hyper Neo Geo 64 racers (Roads Edge, Xtreme Rally): two 63-step bands.
-        -- 193-255 = force from the LEFT, 129-191 = force from the RIGHT.
+        -- 193-255 = force from the left, 129-191 = force from the right.
         hng64_bands = function(raw, scale)
             if raw == 0 then return { CONSTANT = 0, RUMBLE = 0 } end
             if raw >= 193 and raw <= 255 then
@@ -1828,8 +1619,8 @@ function stateoutput.startplugin()
         end,
 
         -- Side by Side 1/2 (Taito): low 5 bits carry the command. 0x00/0x1E/0x1F
-        -- release; otherwise ODD = force from the right, EVEN = from the left, and
-        -- the step count is INVERTED (a low command byte means a high force).
+        -- release; otherwise odd = force from the right, even = from the left, and
+        -- the step count is inverted (a low command byte means a high force).
         sidebs_5bit = function(raw, scale)
             local v = raw & 0x1F
             if v == 0 or v == 0x1E or v == 0x1F then return { CONSTANT = 0, RUMBLE = 0 } end
@@ -1859,17 +1650,17 @@ function stateoutput.startplugin()
             end
             if raw == 0x50 or raw == 0x5F then
                 local f = math.floor(scale * 0.5 + 0.5)
-                return { CONSTANT = f, RUMBLE = f }   -- roll: force from the RIGHT
+                return { CONSTANT = f, RUMBLE = f }   -- roll: force from the right
             end
             if raw == 0x60 or raw == 0x6F then
                 local f = math.floor(scale * 0.5 + 0.5)
-                return { CONSTANT = -f, RUMBLE = f }  -- roll: force from the LEFT
+                return { CONSTANT = -f, RUMBLE = f }  -- roll: force from the left
             end
             return { CONSTANT = 0 }
         end,
 
         -- Power Drift (Sega Y-board): the bank-motor position byte doubles as the
-        -- steering command - 0x01-0x03 = from the LEFT, 0x05-0x07 = from the RIGHT.
+        -- steering command - 0x01-0x03 = from the left, 0x05-0x07 = from the right.
         pdrift_8step = function(raw, scale)
             if raw > 0x00 and raw < 0x04 then
                 local f = math.floor((((4 - raw) * scale) / 3) + 0.5)
@@ -1881,7 +1672,7 @@ function stateoutput.startplugin()
             return { CONSTANT = 0, RUMBLE = 0 }
         end,
 
-        -- Cabinets whose only feedback line is an ON/OFF shaker (Outrunners, Turbo
+        -- Cabinets whose only feedback line is an on/off shaker (Outrunners, Turbo
         -- OutRun, Chase Bombers, Double Axle, Cisco Heat, F-1 GP Star): any non-zero
         -- command means "vibrate", so the strength is a consumer-side tuning choice.
         flag_shake = function(raw, scale)
@@ -1889,11 +1680,10 @@ function stateoutput.startplugin()
             return { SINE = 0, RUMBLE = 0 }
         end,
 
-        -- Hard Drivin' / Race Drivin' (Atari): the wheel force is not a single byte -
-        -- the driver writes a 4-byte FRAME serially through the same output, so this
-        -- decoder is STATEFUL (state in _FFB.hd, cleared by _FFB.Reset). Compute's
-        -- change gate means it is fed value TRANSITIONS, not every write - the best
-        -- a frame-sampled reader can do with a serial line.
+        -- Hard Drivin' / Race Drivin' (Atari): the driver writes the wheel force as a 4-byte frame
+        -- through one output, so this decoder keeps state in _FFB.hd (cleared by _FFB.Reset).
+        -- Compute's change gate feeds it value transitions, not every write. It returns nil on
+        -- every intermediate write, which holds the last force in place.
         --   * an alternating 0xE0/0x00 run is the idle/sync pattern - it resets the
         --     frame cursor and is never treated as data;
         --   * v0 must stay < 200 and v1 > 200; anything else means the cursor has
@@ -1901,9 +1691,8 @@ function stateoutput.startplugin()
         --   * on the 5th write the frame decodes to a signed force:
         --       f = (v0 & 15) + ((v3 & 7) << 5), |0x10 when v1's high nibble is F,
         --       negated when v2's high nibble is F, clamped to +/-100 and rescaled.
-        --     A positive frame value drives the wheel FROM THE LEFT, so the sign is
+        --     A positive frame value drives the wheel from the left, so the sign is
         --     inverted into MSOP's convention.
-        -- Returns nil on every intermediate write, holding the last force in place.
         harddrivin_serial = function(raw, scale)
             local h = _FFB.hd
             h.s3, h.s2, h.s1, h.s0 = h.s2, h.s1, h.s0, raw
@@ -1932,7 +1721,7 @@ function stateoutput.startplugin()
             if f > 100 then f = 100 elseif f < -100 then f = -100 end
 
             local mag = math.floor(((f < 0 and -f or f) * scale / 100) + 0.5)
-            -- plugin: f >= 0 -> DIRECTION_FROM_LEFT, so invert into MSOP's convention
+            -- A frame value of 0 or above is a force from the left, so the sign is inverted.
             if f >= 0 then return { CONSTANT = -mag, RUMBLE = mag } end
             return { CONSTANT = mag, RUMBLE = mag }
         end,
@@ -1943,7 +1732,9 @@ function stateoutput.startplugin()
             local v = _FFB.rr_map[(raw & 0xFF) + 1]
             if not v or v < 0 then return nil end
             if v > 0x3D and v < 0x7C then
+                -- The left band has one more code than the right, so its strongest code is limited.
                 local f = math.floor(((124 - v) * scale / 61) + 0.5)
+                if f > scale then f = scale end
                 return { CONSTANT = -f, RUMBLE = f }
             elseif v > 0x00 and v < 0x3E then
                 local f = math.floor((v * scale / 61) + 0.5)
@@ -1955,23 +1746,22 @@ function stateoutput.startplugin()
 
     -- =========================================================================
     -- THE FRAME LOOP ENGINE (Frame_Logic)
-    -- This is the heartbeat of the plugin. It evaluates memory conditions 60 
-	-- times a second. It is isolated from the `pcall` wrapper below to prevent
-	-- closure memory allocation (GC Spikes).
+    -- Runs once per frame and evaluates the profile's memory conditions. It is a named function so
+    -- that Compute_Outputs can pass it to pcall without allocating a closure.
     -- =========================================================================
     local function Frame_Logic()
         local machine = manager.machine
         if not machine then _IsShuttingDown = true; return end
-        
+
         local out = machine.output
         local current_time = machine.time
         if not out then return end
-        
+
         -- -------------------------------------------------------------------------
         -- PERFORMANCE OPTIMISATION: One-Time Bus Binding Cache
-        -- Finds the specific MAME context only on frame 1, storing it locally.
-        -- If the user configured a memory space as "region", we hook directly into the
-        -- physical ROM memory region instead of the CPU address space to allow safe patching.
+        -- Binds each data type's address space or memory region on the first frame and keeps the
+        -- handle. A memory space of "region" binds the memory region named by the tag instead of a
+        -- CPU address space.
         -- -------------------------------------------------------------------------
         if not _HardwareBound then
             for key, conf in pairs(_MemConfig) do
@@ -1985,22 +1775,24 @@ function stateoutput.startplugin()
             end
             _HardwareBound = true
         end
-        
+
         -- -------------------------------------------------------------------------
         -- PHASE 0: WARMUP & INITIALISATION FLUSH
-        -- Ensures outputs are held silently during startup and perfectly
-        -- synced the exact frame the boot delay expires.
+        -- Holds the outputs until the startup delay expires, then writes the zero state and seeds
+        -- the baselines on that frame.
         -- -------------------------------------------------------------------------
-        local warmup_ok = Is_Warmup_Complete()
-        
-        -- Trigger initialisation exactly when warmup completes
+        local warmup_ok = current_time > _StartupTime
+
         if warmup_ok and not _WarmupFlushed then
             Register_Outputs_Safe(out)
-            Seed_Frame_Baselines() -- prime Last* deltas from live values (no phantom "inserted" from NVRAM leftovers)
+            Seed_Frame_Baselines() -- set the Last* baselines from live values
             _WarmupFlushed = true
-            return -- Skip the rest of this frame so MAME actually broadcasts the '0' states!
+            -- A relay that connected during the startup delay missed the outputs written in the
+            -- frames before it. The resync sends them; the change filter drops the rest.
+            Resync_Relay_State()
+            return -- this frame delivers the zero state only
         end
-        
+
         local divisor = CFG.COINS_PER_CREDIT or 1
         if divisor < 1 then divisor = 1 end
 
@@ -2016,7 +1808,10 @@ function stateoutput.startplugin()
             if is_attract_mode then _PendingGlobalCreditDrops = 0 end
         end
 
-        if CFG.CREDITS and type(CFG.CREDITS) == "number" then 
+        -- The global credit address is not tracked when a player has a credit address of its own:
+        -- the per-player total then stands for the global credits (see the end of Phase 2), and
+        -- tracking both against one baseline would count every difference between them.
+        if CFG.CREDITS and type(CFG.CREDITS) == "number" and not CFG.PLAYER_CREDITS_TRACKED then
             local raw = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS)
             local current_credits = math.floor(raw / divisor)
             Set_Global_Output(out, "GLOBAL_CREDITS", warmup_ok and current_credits or 0)
@@ -2041,115 +1836,98 @@ function stateoutput.startplugin()
                 local val = Read_Data_Safe(_MemHandles["GLOBAL_GAME_STATUS"], CFG.GAME_STATUS, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
                 local active = CFG.GAME_STATUS_ACTIVE_VALUE
                 is_game_active = Value_Is_Active(val, active)
+                -- GAME_STATUS_ALT (optional) is a second address for a game that tracks
+                -- activity in a different place per mode. Active when either address reads
+                -- active. It shares the main address's CPU, memory space and data width, and
+                -- GAME_STATUS_ALT_ACTIVE_VALUE defaults to GAME_STATUS_ACTIVE_VALUE.
+                if not is_game_active and type(CFG.GAME_STATUS_ALT) == "number" then
+                    local alt_val = Read_Data_Safe(_MemHandles["GLOBAL_GAME_STATUS"], CFG.GAME_STATUS_ALT, CFG.DATA_WIDTHS.GLOBAL_GAME_STATUS)
+                    is_game_active = Value_Is_Active(alt_val, CFG.GAME_STATUS_ALT_ACTIVE_VALUE or active)
+                end
             end
         elseif CFG.GAME_STATUS == "always" then
-            -- No game-status address is known for this game, but the profile
-            -- declares the game active whenever it is running (warmed up and
-            -- not held in an address-backed attract mode). Without this, a
-            -- profile with no per-player activity signals can never raise
-            -- GLOBAL_GAME_STATUS at all - any_player_active stays false -
-            -- leaving status-gated consumers dark and derived attract stuck
-            -- on for the whole session. The shared debounce below still
-            -- applies, so activation timing matches the address-backed path,
-            -- and the warmup gate on emission is unchanged. Any other
-            -- non-address value is ignored (status unknown), exactly as
-            -- before.
+            -- GAME_STATUS "always": no game status address is known, and the profile declares the
+            -- game active whenever it is running and not in address-backed attract mode. This lets
+            -- a profile with no per-player activity signal raise GLOBAL_GAME_STATUS. The debounce
+            -- below still applies. With false or "auto" the game status follows the players.
             global_exists = true
             is_game_active = not is_attract_mode
         end
-        
+
         if is_game_active then
-            if _GameActiveTick == _ZeroTime then _GameActiveTick = current_time end
-            if (current_time - _GameActiveTick) <= _StatusDebounce then is_game_active = false end
+            if _GameActiveTick == _ZeroTime then _GameActiveTick = current_time; _GameDebounced = false end
+            if not _GameDebounced then
+                if (current_time - _GameActiveTick) <= _StatusDebounce then is_game_active = false else _GameDebounced = true end
+            end
         else
             _GameActiveTick = _ZeroTime; is_game_active = false
         end
-        
+
 
         -- -------------------------------------------------------------------------
         -- PHASE 2: CORE PLAYER ITERATION
-        -- Loops through P1, P2, P3, P4 sequentially.
+        -- Processes each player in turn.
         -- -------------------------------------------------------------------------
         local any_player_active = false
         local aggregated_credits = 0
         local using_individual_credits = false
-        -- GAME_TYPE: "racing" profiles skip the whole per-player gun
-        -- pipeline - every address guard inside would evaluate false anyway,
-        -- so a zero-iteration loop saves that conditional sweep each frame.
-        -- The post-loop logic runs on the initialised defaults above. Use
-        -- "both" for a hybrid that needs the gun pipeline as well.
+        local t_ammo = CFG.AMMO_THRESHOLD or 254
+        local t_alt = CFG.AMMO_ALT_THRESHOLD or 254
+        local t_grenade = CFG.AMMO_GRENADE_THRESHOLD or 254
+        -- A "racing" profile skips the per-player gun pipeline: the loop runs zero times and the
+        -- logic after it uses the defaults set above. "both" runs the gun pipeline as well.
         local player_loop_max = (CFG.GAME_TYPE == "racing") and 0 or CFG.MAX_PLAYERS
         for i = 1, player_loop_max do
             local cfg = _PlayerCFG[i]
             local p = _Player[i]
-            
+
             if is_attract_mode then p.PendingCreditDrops = 0 end
-            
-            -- Memory Polling Block
+
+            -- Read the ammo and life values.
             local curr_ammo, curr_ammo_alt, curr_ammo_grenade, curr_life, curr_life_alt = 0, 0, 0, 0, 0
-            
-            if cfg.AMMO then 
-                curr_ammo = Read_Data_Safe(_MemHandles["AMMO"], cfg.AMMO, CFG.DATA_WIDTHS.AMMO) + (CFG.AMMO_OFFSET or 0)
-                if CFG.AMMO_MAX and curr_ammo > CFG.AMMO_MAX then curr_ammo = 0 end
+
+            if cfg.AMMO then
+                curr_ammo = Read_Counter("AMMO", cfg.AMMO, CFG.AMMO_OFFSET, CFG.AMMO_MAX)
             end
-            if cfg.AMMO_ALT then 
-                curr_ammo_alt = Read_Data_Safe(_MemHandles["AMMO_ALT"], cfg.AMMO_ALT, CFG.DATA_WIDTHS.AMMO_ALT) + (CFG.AMMO_ALT_OFFSET or 0)
-                if CFG.AMMO_ALT_MAX and curr_ammo_alt > CFG.AMMO_ALT_MAX then curr_ammo_alt = 0 end
+            if cfg.AMMO_ALT then
+                curr_ammo_alt = Read_Counter("AMMO_ALT", cfg.AMMO_ALT, CFG.AMMO_ALT_OFFSET, CFG.AMMO_ALT_MAX)
             end
-            if cfg.AMMO_GRENADE then 
-                curr_ammo_grenade = Read_Data_Safe(_MemHandles["AMMO_GRENADE"], cfg.AMMO_GRENADE, CFG.DATA_WIDTHS.AMMO_GRENADE) + (CFG.AMMO_GRENADE_OFFSET or 0)
-                if CFG.AMMO_GRENADE_MAX and curr_ammo_grenade > CFG.AMMO_GRENADE_MAX then curr_ammo_grenade = 0 end
+            if cfg.AMMO_GRENADE then
+                curr_ammo_grenade = Read_Counter("AMMO_GRENADE", cfg.AMMO_GRENADE, CFG.AMMO_GRENADE_OFFSET, CFG.AMMO_GRENADE_MAX)
             end
-            if cfg.LIFE then 
-                curr_life = Read_Data_Safe(_MemHandles["LIFE"], cfg.LIFE, CFG.DATA_WIDTHS.LIFE) + (CFG.LIFE_OFFSET or 0)
-                if CFG.LIFE_MAX and curr_life > CFG.LIFE_MAX then curr_life = 0 end
+            if cfg.LIFE then
+                curr_life = Read_Counter("LIFE", cfg.LIFE, CFG.LIFE_OFFSET, CFG.LIFE_MAX)
             end
-            if cfg.LIFE_ALT then 
-                curr_life_alt = Read_Data_Safe(_MemHandles["LIFE_ALT"], cfg.LIFE_ALT, CFG.DATA_WIDTHS.LIFE_ALT) + (CFG.LIFE_ALT_OFFSET or 0)
-                if CFG.LIFE_ALT_MAX and curr_life_alt > CFG.LIFE_ALT_MAX then curr_life_alt = 0 end
+            if cfg.LIFE_ALT then
+                curr_life_alt = Read_Counter("LIFE_ALT", cfg.LIFE_ALT, CFG.LIFE_ALT_OFFSET, CFG.LIFE_ALT_MAX)
             end
 
-            -- Per-Player Credits processing
+            -- Read and track the per-player credits.
             local p_credits = 0
             local p_credits_known = false
             if cfg.CREDITS then
-                if type(cfg.CREDITS) == "number" then 
+                if type(cfg.CREDITS) == "number" then
                     local raw = Read_Data_Safe(_MemHandles["CREDITS"], cfg.CREDITS, CFG.DATA_WIDTHS.CREDITS)
                     p_credits = math.floor(raw / divisor)
                     p_credits_known = true
                     Set_Output(out, i, "CREDITS", warmup_ok and p_credits or 0)
-                    
-                    -- Aggregate individual credits for global override
+
+                    -- Sum the per-player credits. The total replaces the global credits after the
+                    -- loop.
                     aggregated_credits = aggregated_credits + p_credits
                     using_individual_credits = true
-                    
-                    if warmup_ok then
-                        if p_credits > p.LastCredits then
-                            p.CreditsInserted = p.CreditsInserted + (p_credits - p.LastCredits)
-                            if CFG.ENABLE_CREDIT_COUNT then Set_Output(out, i, "CREDITS_INSERTED", p.CreditsInserted) end
-                        elseif p_credits < p.LastCredits then
-                            p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - p_credits)
-                        end
-                        p.LastCredits = p_credits
-                    end
-                elseif cfg.CREDITS == "auto" and CFG.CREDITS then 
-                    p_credits = Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS) 
+
+                    if warmup_ok then Track_Player_Credits(out, i, p, p_credits) end
+                elseif cfg.CREDITS == "auto" and CFG.CREDITS then
+                    p_credits = math.floor(Read_Data_Safe(_MemHandles["GLOBAL_CREDITS"], CFG.CREDITS, CFG.DATA_WIDTHS.GLOBAL_CREDITS) / divisor)
                     p_credits_known = true
                     Set_Output(out, i, "CREDITS", warmup_ok and p_credits or 0)
-                    
-                    if warmup_ok then
-                        if p_credits > p.LastCredits then
-                            p.CreditsInserted = p.CreditsInserted + (p_credits - p.LastCredits)
-                            if CFG.ENABLE_CREDIT_COUNT then Set_Output(out, i, "CREDITS_INSERTED", p.CreditsInserted) end
-                        elseif p_credits < p.LastCredits then
-                            p.PendingCreditDrops = p.PendingCreditDrops + (p.LastCredits - p_credits)
-                        end
-                        p.LastCredits = p_credits
-                    end
+
+                    if warmup_ok then Track_Player_Credits(out, i, p, p_credits) end
                 end
             end
-            
-            if cfg.LAMPSTART then
+
+            if cfg.LAMPSTART and (i == 1 or not _SharedOutputs) then
                 local lampstart_val = warmup_ok and Read_Data_Safe(_MemHandles["LAMPSTART"], cfg.LAMPSTART, CFG.DATA_WIDTHS.LAMPSTART) or 0
                 Set_Output(out, i, "LAMPSTART", lampstart_val)
                 if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmLmpStart", lampstart_val) end
@@ -2159,7 +1937,8 @@ function stateoutput.startplugin()
             local out_status_val = 0
             local out_status_alt_val = 0
 
-            -- Priority Evaluation Hierarchy
+            -- Player activity, in priority order: the player's own STATUS addresses, then the
+            -- global game status with life, then credits with life.
             if not is_attract_mode then
                 if (cfg.STATUS and cfg.STATUS ~= "auto") or (cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto") then
                     local p_stat_active = false
@@ -2188,41 +1967,42 @@ function stateoutput.startplugin()
                     if _HasCoinedUp and (curr_life > 0 or curr_life_alt > 0) and ((not p_credits_known) or p_credits > 0) then is_player_active = true; out_status_val = 1; out_status_alt_val = 1 end
                 end
             end
-            
+
             if not warmup_ok then is_player_active = false; out_status_val = 0; out_status_alt_val = 0 end
-            
+
             if is_player_active then
-                if p.ActiveTick == _ZeroTime then p.ActiveTick = current_time end
-                if (current_time - p.ActiveTick) <= _StatusDebounce then is_player_active = false; out_status_val = 0; out_status_alt_val = 0 end
+                if p.ActiveTick == _ZeroTime then p.ActiveTick = current_time; p.Debounced = false end
+                if not p.Debounced then
+                    if (current_time - p.ActiveTick) <= _StatusDebounce then is_player_active = false; out_status_val = 0; out_status_alt_val = 0 else p.Debounced = true end
+                end
             else p.ActiveTick = _ZeroTime; out_status_val = 0; out_status_alt_val = 0 end
-            
+
             p.IsActive = is_player_active
             if is_player_active then any_player_active = true end
             p.IsFFBAllowed = (CFG.FORCE_FEEDBACK_ENABLER == "status") and (out_status_val == 1 or out_status_alt_val == 1) or (CFG.FORCE_FEEDBACK_ENABLER == "life") and (curr_life > 0 or curr_life_alt > 0) or (CFG.FORCE_FEEDBACK_ENABLER == "gamestatus") and is_game_active or is_player_active
-            
+            -- Nothing is allowed before the startup delay ends, whatever boot memory reads.
+            if not warmup_ok then p.IsFFBAllowed = false end
+
             if cfg.STATUS then Set_Output(out, i, "STATUS", out_status_val) end
             if cfg.STATUS_ALT then Set_Output(out, i, "STATUS_ALT", out_status_alt_val) end
 
             if CFG.ENABLE_CREDIT_COUNT and warmup_ok then
                 local spawned = false
-                
-                -- Check 1: Did Player Status just change from inactive to active
+
+                -- Check 1: the player changed from inactive to active.
                 if is_player_active and not p.WasActive then
                     spawned = true
-                    
-                -- Check 2: Did life reset while Player Status remained active (for player continues)?
-                -- The p.WasActive guard is what makes "remained active" real. Without it,
-                -- an idle player whose offset-derived life byte happens to move (vcop2:
-                -- P2's auto address = P1+4 initialises the instant Start is pressed)
-                -- spawn-steals the pending credit drop from the player who actually
-                -- started - the log showed MSOP_P2_CreditsConsumed=1 on a P1-only game.
+
+                -- Check 2: life was refilled while the player stayed active (a continue). The
+                -- p.WasActive guard stops an idle player whose life address changes from claiming
+                -- another player's pending credit drop.
                 elseif cfg.LIFE and p.WasActive then
                     if CFG.LIFE_DIRECTION == "decrease" and curr_life > p.LastLife and p.LastLife == 0 then spawned = true
                     elseif CFG.LIFE_DIRECTION == "increase" and curr_life < p.LastLife and curr_life == 0 then spawned = true end
                 end
-                
+
                 if spawned then p.SpawnsAwaitingCredit = p.SpawnsAwaitingCredit + 1 end
-                
+
                 if p.SpawnsAwaitingCredit > 0 then
                     if p.PendingCreditDrops > 0 then
                         p.CreditsConsumed = p.CreditsConsumed + 1
@@ -2240,102 +2020,106 @@ function stateoutput.startplugin()
 
             local just_died = (not is_player_active and p.WasActive)
             local primary_active = (out_status_val == 1)
-            local alternate_active = (cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto") and (out_status_alt_val == 1) or primary_active
+            -- A player with a STATUS_ALT address of its own follows it for the alternate weapon and
+            -- life, and each ammo count then triggers recoil and reload only while its own status
+            -- is active. The two flags are fields of p and not locals: Frame_Logic's stack frame
+            -- is large, and more locals make Lua regrow the stack on every frame.
+            local alternate_active = primary_active
+            p.PrimaryFires, p.AlternateFires = true, true
+            if cfg.STATUS_ALT and cfg.STATUS_ALT ~= "auto" then
+                alternate_active = (out_status_alt_val == 1)
+                p.PrimaryFires, p.AlternateFires = primary_active, alternate_active
+            end
 
             -- -------------------------------------------------------------------------
             -- PHASE 3: HARDWARE TRIGGERS (Recoil & Reload)
             -- -------------------------------------------------------------------------
             local auto_recoil_triggered_this_frame = false
-            local t_ammo = CFG.AMMO_THRESHOLD or 254
-            local t_alt = CFG.AMMO_ALT_THRESHOLD or 254
-            local t_grenade = CFG.AMMO_GRENADE_THRESHOLD or 254
-            
+
             if p.IsFFBAllowed then
                   local trigger = 0
-                  if CFG.ENABLE_RECOIL_AMMO ~= false and cfg.AMMO then
+                  if CFG.ENABLE_RECOIL_AMMO ~= false and cfg.AMMO and p.PrimaryFires then
                       if CFG.AMMO_DIRECTION == "decrease" then if curr_ammo < p.LastAmmo and p.LastAmmo <= t_ammo then trigger = 1 end
                       elseif CFG.AMMO_DIRECTION == "change" then if curr_ammo ~= p.LastAmmo then trigger = 1 end
                       elseif curr_ammo > p.LastAmmo then trigger = 1 end
                   end
-                  if CFG.ENABLE_RECOIL_AMMO_ALT ~= false and cfg.AMMO_ALT then
+                  if CFG.ENABLE_RECOIL_AMMO_ALT ~= false and cfg.AMMO_ALT and p.AlternateFires then
                       if CFG.AMMO_ALT_DIRECTION == "decrease" then if curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= t_alt then trigger = 2 end
                       elseif CFG.AMMO_ALT_DIRECTION == "change" then if curr_ammo_alt ~= p.LastAmmoAlt then trigger = 2 end
                       elseif curr_ammo_alt > p.LastAmmoAlt then trigger = 2 end
                   end
-                  if CFG.ENABLE_RECOIL_AMMO_GRENADE ~= false and cfg.AMMO_GRENADE then
+                  if CFG.ENABLE_RECOIL_AMMO_GRENADE ~= false and cfg.AMMO_GRENADE and p.AlternateFires then
                       if CFG.AMMO_GRENADE_DIRECTION == "decrease" then if curr_ammo_grenade < p.LastAmmoGrenade and p.LastAmmoGrenade <= t_grenade then trigger = 3 end
                       elseif CFG.AMMO_GRENADE_DIRECTION == "change" then if curr_ammo_grenade ~= p.LastAmmoGrenade then trigger = 3 end
                       elseif curr_ammo_grenade > p.LastAmmoGrenade then trigger = 3 end
                   end
-                  
-                  -- Fire Recoil based on Ammo Math
+
+                  -- Start a recoil pulse from an ammo change.
                   if trigger > 0 and (cfg.RECOIL == "auto" or (type(cfg.RECOIL) == "number" and CFG.RECOIL_PRIORITY == "ammo")) then
                       if current_time - p.RecoilTick > _MinRecoilInterval then
                           if trigger == 1 then p.CurrentRecoilDuration = _RecoilDuration
                           elseif trigger == 2 then p.CurrentRecoilDuration = _RecoilAltDuration
                           elseif trigger == 3 then p.CurrentRecoilDuration = _RecoilGrenadeDuration end
-                          
+
                           Set_Output(out, i, "RECOIL", 1); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmRecoil", 1) end
                           p.RecoilTick = current_time; p.IsRecoilActive = true; auto_recoil_triggered_this_frame = true
-                          if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true end
+                          if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true; _Player[1].CurrentRecoilDuration = p.CurrentRecoilDuration end
                       end
                   end
-                  
-                  -- Fire Reload based on Ammo Math
-                  if CFG.ENABLE_RELOAD_AMMO ~= false and cfg.AMMO then
+
+                  -- Start a reload pulse from an ammo change.
+                  if CFG.ENABLE_RELOAD_AMMO ~= false and cfg.AMMO and p.PrimaryFires then
                       if (CFG.AMMO_DIRECTION == "decrease" and curr_ammo > p.LastAmmo) or (CFG.AMMO_DIRECTION == "increase" and curr_ammo < p.LastAmmo) then
-                          if cfg.RELOAD then Set_Output(out, i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
+                          if cfg.RELOAD then Start_Reload(out, i, p, current_time) end
                       end
                   end
-                  if CFG.ENABLE_RELOAD_AMMO_ALT ~= false and cfg.AMMO_ALT then
+                  if CFG.ENABLE_RELOAD_AMMO_ALT ~= false and cfg.AMMO_ALT and p.AlternateFires then
                       if (CFG.AMMO_ALT_DIRECTION == "decrease" and curr_ammo_alt > p.LastAmmoAlt) or (CFG.AMMO_ALT_DIRECTION == "increase" and curr_ammo_alt < p.LastAmmoAlt) then
-                          if cfg.RELOAD then Set_Output(out, i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
+                          if cfg.RELOAD then Start_Reload(out, i, p, current_time) end
                       end
                   end
-                  if CFG.ENABLE_RELOAD_AMMO_GRENADE ~= false and cfg.AMMO_GRENADE then
+                  if CFG.ENABLE_RELOAD_AMMO_GRENADE ~= false and cfg.AMMO_GRENADE and p.AlternateFires then
                       if (CFG.AMMO_GRENADE_DIRECTION == "decrease" and curr_ammo_grenade > p.LastAmmoGrenade) or (CFG.AMMO_GRENADE_DIRECTION == "increase" and curr_ammo_grenade < p.LastAmmoGrenade) then
-                          if cfg.RELOAD then Set_Output(out, i, "RELOAD", 1); p.ReloadTick = current_time; p.IsReloadActive = true; if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end end
+                          if cfg.RELOAD then Start_Reload(out, i, p, current_time) end
                       end
                   end
-                  
-                  -- Fire Reload manually (based on Memory Address polling)
+
+                  -- Start a reload pulse from the RELOAD memory address.
                   if cfg.RELOAD and type(cfg.RELOAD) == "number" then
                       local val = Read_Data_Safe(_MemHandles["RELOAD"], cfg.RELOAD, CFG.DATA_WIDTHS.RELOAD)
                       local manual_trigger = false
-                      
+
                       if type(CFG.RELOAD_MEM_ADD_VALUE) == "table" then
                           local found_match = false
                           for _, v in ipairs(CFG.RELOAD_MEM_ADD_VALUE) do
                               if val == v then found_match = true; break end
                           end
-                          
+
                           local last_was_match = false
                           for _, v in ipairs(CFG.RELOAD_MEM_ADD_VALUE) do
                               if p.LastReloadVal == v then last_was_match = true; break end
                           end
-                          
+
                           manual_trigger = (found_match and not last_was_match)
-                          
+
                       elseif type(CFG.RELOAD_MEM_ADD_VALUE) == "number" then
                           manual_trigger = (val == CFG.RELOAD_MEM_ADD_VALUE and p.LastReloadVal ~= CFG.RELOAD_MEM_ADD_VALUE)
-                          
+
                       elseif type(CFG.RELOAD_MEM_MIN_VALUE) == "number" then
-                          -- Trigger if value increased and met the minimum threshold
+                          -- The value rose and is at or above the minimum.
                           manual_trigger = (val > p.LastReloadVal and val >= CFG.RELOAD_MEM_MIN_VALUE)
-                          
+
                       else
                           manual_trigger = (val > p.LastReloadVal)
                       end
-                      
+
                       if manual_trigger then
-                          Set_Output(out, i, "RELOAD", 1)
-                          p.ReloadTick = current_time; p.IsReloadActive = true
-                          if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].ReloadTick = current_time; _Player[1].IsReloadActive = true end
+                          Start_Reload(out, i, p, current_time)
                       end
                       p.LastReloadVal = val
                   end
-                  
-                  -- Fire Recoil manually (based on Memory Address polling)
+
+                  -- Start a recoil pulse from the RECOIL memory address.
                   if not auto_recoil_triggered_this_frame then
                       if cfg.RECOIL and type(cfg.RECOIL) == "number" then
                           local val = Read_Data_Safe(_MemHandles["RECOIL"], cfg.RECOIL, CFG.DATA_WIDTHS.RECOIL)
@@ -2344,49 +2128,64 @@ function stateoutput.startplugin()
                               if type(CFG.RECOIL_MEM_ADD_VALUE) == "number" then
                                   if CFG.RECOIL_METHOD == "hold" then manual_trigger = (val == CFG.RECOIL_MEM_ADD_VALUE) else manual_trigger = (val == CFG.RECOIL_MEM_ADD_VALUE and p.LastRecoilVal ~= CFG.RECOIL_MEM_ADD_VALUE) end
                               else
-                                  manual_trigger = (CFG.RECOIL_METHOD == "hold") and (val > 0) or (CFG.RECOIL_METHOD == "change") and (val ~= p.LastRecoilVal and val > 0) or (CFG.RECOIL_METHOD == "latch") and (val > 0 and p.LastRecoilVal == 0) or (val > p.LastRecoilVal)
+                                  -- RECOIL_MEM_MIN_VALUE (optional) is the lowest value that
+                                  -- counts as an active recoil read. Unset, any value above zero
+                                  -- is active.
+                                  local is_active
+                                  if type(CFG.RECOIL_MEM_MIN_VALUE) == "number" then is_active = (val >= CFG.RECOIL_MEM_MIN_VALUE) else is_active = (val > 0) end
+                                  local method = CFG.RECOIL_METHOD
+                                  if method == "hold" then manual_trigger = is_active
+                                  elseif method == "change" then manual_trigger = (is_active and val ~= p.LastRecoilVal)
+                                  elseif method == "latch" then manual_trigger = (is_active and p.LastRecoilVal == 0)
+                                  else manual_trigger = (is_active and val > p.LastRecoilVal) end
                               end
-                              
+
                               local active_interval = (CFG.RECOIL_METHOD == "hold") and _RecoilHoldInterval or _MinRecoilInterval
                               if manual_trigger and (current_time - p.RecoilTick > active_interval) then
                                   p.CurrentRecoilDuration = _RecoilDuration; Set_Output(out, i, "RECOIL", 1)
                                   if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmRecoil", 1) end
-                                  
-                                  -- Use hardware fallback for primary shots if ammo is unmapped, or if primary ammo is empty
+
+                                  -- Count the shot here when no ammo address is configured or the
+                                  -- primary ammo is empty.
                                   if CFG.ENABLE_SHOT_COUNT and warmup_ok and (not cfg.AMMO or curr_ammo == 0) then
                                       p.ShotCountPrimary = p.ShotCountPrimary + 1
                                       Set_Output(out, i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
                                   end
                                   p.RecoilTick = current_time; p.IsRecoilActive = true
-                                  if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true end
+                                  if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].RecoilTick = current_time; _Player[1].IsRecoilActive = true; _Player[1].CurrentRecoilDuration = p.CurrentRecoilDuration end
                               end
                           end
                           p.LastRecoilVal = val
                       end
                   end
+            else
+                -- Keep the memory baselines current while the gate is closed, so that a value that
+                -- rose in the meantime is not read as a new event when the gate opens.
+                if type(cfg.RELOAD) == "number" then p.LastReloadVal = Read_Data_Safe(_MemHandles["RELOAD"], cfg.RELOAD, CFG.DATA_WIDTHS.RELOAD) end
+                if type(cfg.RECOIL) == "number" then p.LastRecoilVal = Read_Data_Safe(_MemHandles["RECOIL"], cfg.RECOIL, CFG.DATA_WIDTHS.RECOIL) end
             end
 
             -- -------------------------------------------------------------------------
             -- PHASE 4: STATISTICAL BROADCASTS & HIT DAMAGE
-            -- Pushes live Ammo/Life numbers to external apps.
+            -- Writes the live ammo and life values and the shot, damage and life counters.
             -- -------------------------------------------------------------------------
             if is_player_active or just_died then
                 if primary_active then
                     if cfg.AMMO then
                         Set_Output(out, i, "AMMO", warmup_ok and curr_ammo or 0)
-                        -- Derived: 1 while rounds remain, 0 the instant the clip empties (reload needed).
-                        -- Gated on _ClipEnabled so only depleting-clip games ever publish it.
+                        -- P*_Clip is 1 while rounds remain and 0 when the clip is empty (a reload
+                        -- is needed).
                         if _ClipEnabled then Set_Output(out, i, "CLIP", (warmup_ok and curr_ammo > 0) and 1 or 0) end
                     end
                     if cfg.LIFE then Set_Output(out, i, "LIFE", warmup_ok and curr_life or 0) end
-                    
+
                     if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_PRIMARY and warmup_ok then
-                        if type(cfg.SHOTS_FIRED_PRIMARY) == "number" then 
+                        if type(cfg.SHOTS_FIRED_PRIMARY) == "number" then
                              local val = Read_Data_Safe(_MemHandles["SHOTS_FIRED_PRIMARY"], cfg.SHOTS_FIRED_PRIMARY, CFG.DATA_WIDTHS.SHOTS_FIRED_PRIMARY)
                              Set_Output(out, i, "SHOTS_FIRED_PRIMARY", val); p.ShotCountPrimary = val
                         elseif cfg.SHOTS_FIRED_PRIMARY == "auto" and cfg.AMMO and p.WasActive then
-                            local diff = (CFG.AMMO_DIRECTION == "decrease") and (curr_ammo < p.LastAmmo and p.LastAmmo <= t_ammo and p.LastAmmo - curr_ammo or 0) or ((curr_ammo > p.LastAmmo) and (curr_ammo - p.LastAmmo) or 0)
-                            if diff > 0 or (CFG.AMMO_DIRECTION == "change" and curr_ammo ~= p.LastAmmo) then
+                            local diff = Shot_Delta(CFG.AMMO_DIRECTION, curr_ammo, p.LastAmmo, t_ammo)
+                            if diff > 0 then
                                 p.ShotCountPrimary = p.ShotCountPrimary + (CFG.SHOTS_FIRED_METHOD == "bullets" and diff or 1)
                                 Set_Output(out, i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
                             end
@@ -2403,28 +2202,28 @@ function stateoutput.startplugin()
                 if alternate_active then
                     if cfg.AMMO_ALT then Set_Output(out, i, "AMMO_ALT", warmup_ok and curr_ammo_alt or 0) end
                     if cfg.LIFE_ALT then Set_Output(out, i, "LIFE_ALT", warmup_ok and curr_life_alt or 0) end
-                    
+
                     if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_ALT and warmup_ok then
                         if type(cfg.SHOTS_FIRED_ALT) == "number" then
                             local val = Read_Data_Safe(_MemHandles["SHOTS_FIRED_ALT"], cfg.SHOTS_FIRED_ALT, CFG.DATA_WIDTHS.SHOTS_FIRED_ALT)
                             Set_Output(out, i, "SHOTS_FIRED_ALT", val); p.ShotCountAlt = val
                         elseif cfg.SHOTS_FIRED_ALT == "auto" and cfg.AMMO_ALT and p.WasActive then
-                            local diff = (CFG.AMMO_ALT_DIRECTION == "decrease") and (curr_ammo_alt < p.LastAmmoAlt and p.LastAmmoAlt <= t_alt and p.LastAmmoAlt - curr_ammo_alt or 0) or ((curr_ammo_alt > p.LastAmmoAlt) and (curr_ammo_alt - p.LastAmmoAlt) or 0)
-                            if diff > 0 or (CFG.AMMO_ALT_DIRECTION == "change" and curr_ammo_alt ~= p.LastAmmoAlt) then
+                            local diff = Shot_Delta(CFG.AMMO_ALT_DIRECTION, curr_ammo_alt, p.LastAmmoAlt, t_alt)
+                            if diff > 0 then
                                 p.ShotCountAlt = p.ShotCountAlt + (CFG.SHOTS_FIRED_ALT_METHOD == "bullets" and diff or 1)
                                 Set_Output(out, i, "SHOTS_FIRED_ALT", p.ShotCountAlt)
                             end
                         end
                     end
-                    
+
                     if cfg.AMMO_GRENADE then Set_Output(out, i, "AMMO_GRENADE", warmup_ok and curr_ammo_grenade or 0) end
                     if CFG.ENABLE_SHOT_COUNT and cfg.SHOTS_FIRED_GRENADE and warmup_ok then
                         if type(cfg.SHOTS_FIRED_GRENADE) == "number" then
                             local val = Read_Data_Safe(_MemHandles["SHOTS_FIRED_GRENADE"], cfg.SHOTS_FIRED_GRENADE, CFG.DATA_WIDTHS.SHOTS_FIRED_GRENADE)
                             Set_Output(out, i, "SHOTS_FIRED_GRENADE", val); p.ShotCountGrenade = val
                         elseif cfg.SHOTS_FIRED_GRENADE == "auto" and cfg.AMMO_GRENADE and p.WasActive then
-                            local diff = (CFG.AMMO_GRENADE_DIRECTION == "decrease") and (curr_ammo_grenade < p.LastAmmoGrenade and p.LastAmmoGrenade <= t_grenade and p.LastAmmoGrenade - curr_ammo_grenade or 0) or ((curr_ammo_grenade > p.LastAmmoGrenade) and (curr_ammo_grenade - p.LastAmmoGrenade) or 0)
-                            if diff > 0 or (CFG.AMMO_GRENADE_DIRECTION == "change" and curr_ammo_grenade ~= p.LastAmmoGrenade) then
+                            local diff = Shot_Delta(CFG.AMMO_GRENADE_DIRECTION, curr_ammo_grenade, p.LastAmmoGrenade, t_grenade)
+                            if diff > 0 then
                                 p.ShotCountGrenade = p.ShotCountGrenade + (CFG.SHOTS_FIRED_GRENADE_METHOD == "bullets" and diff or 1)
                                 Set_Output(out, i, "SHOTS_FIRED_GRENADE", p.ShotCountGrenade)
                             end
@@ -2445,17 +2244,17 @@ function stateoutput.startplugin()
                 if cfg.LIFE_ALT then Set_Output(out, i, "LIFE_ALT", 0) end
                 if cfg.AMMO_GRENADE then Set_Output(out, i, "AMMO_GRENADE", 0) end
             end
-            
+
             if CFG.ENABLE_SHOT_COUNT and warmup_ok then
                 local total_shots = p.ShotCountPrimary + p.ShotCountAlt + p.ShotCountGrenade
                 Set_Output(out, i, "SHOTS_FIRED", total_shots)
             end
 
-            -- Hit Damage, Environmental Rumble, and Life Lost processing
+            -- Process damage, rumble and lives lost.
             if is_player_active or just_died then
                 local hit_triggered = false
-                
-                -- Calculate Damage Taken
+
+                -- Count the damage taken.
                 if type(cfg.DAMAGE_TAKEN) == "number" then
                     local val = Read_Data_Safe(_MemHandles["DAMAGE_TAKEN"], cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
                     if val > p.LastDmgMem and warmup_ok then
@@ -2465,15 +2264,15 @@ function stateoutput.startplugin()
                     p.LastDmgMem = val
                 elseif cfg.DAMAGE_TAKEN == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and p.WasActive then
                     local hit = (cfg.LIFE and ((CFG.LIFE_DIRECTION == "decrease" and curr_life < p.LastLife) or (CFG.LIFE_DIRECTION == "increase" and curr_life > p.LastLife))) or (cfg.LIFE_ALT and ((CFG.LIFE_ALT_DIRECTION == "decrease" and curr_life_alt < p.LastLifeAlt) or (CFG.LIFE_ALT_DIRECTION == "increase" and curr_life_alt > p.LastLifeAlt)))
-                    if hit and warmup_ok then 
+                    if hit and warmup_ok then
                         if CFG.ENABLE_DAMAGE_COUNT then p.DamageCount = p.DamageCount + 1; Set_Output(out, i, "DAMAGE_TAKEN", p.DamageCount) end
                         hit_triggered = true
                     end
                 end
 
                 local ffb_now = p.IsFFBAllowed or (just_died and p.WasFFBAllowed)
-                
-                -- Trigger Damage (Hit) FFB
+
+                -- Start a damage pulse.
                 if cfg.DAMAGE and ffb_now then
                     if type(cfg.DAMAGE) == "number" then
                         local val = Read_Data_Safe(_MemHandles["DAMAGE"], cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE)
@@ -2489,8 +2288,8 @@ function stateoutput.startplugin()
                         if not CFG.SIMULTANEOUS_PLAY and i > 1 then _Player[1].DamageTick = current_time; _Player[1].IsDamageActive = true end
                     end
                 end
-                
-                -- Trigger Environmental Rumble FFB
+
+                -- Start a rumble pulse.
                 if cfg.RUMBLE and ffb_now then
                     if type(cfg.RUMBLE) == "number" then
                         local val = Read_Data_Safe(_MemHandles["RUMBLE"], cfg.RUMBLE, CFG.DATA_WIDTHS.RUMBLE)
@@ -2502,8 +2301,8 @@ function stateoutput.startplugin()
                         p.LastRumbleEventVal = val
                     end
                 end
-                
-                -- Calculate "Lives Lost" (Difference in life bar drops across the whole play session)
+
+                -- Count the lives lost: the total fall in life across the session.
                 if CFG.ENABLE_LIFE_LOST then
                     if cfg.LIFE_LOST == "auto" and (cfg.LIFE or cfg.LIFE_ALT) and warmup_ok and p.WasActive then
                          local lost = false
@@ -2517,9 +2316,9 @@ function stateoutput.startplugin()
                          end
                          if cfg.LIFE_ALT then
                              if CFG.LIFE_ALT_DIRECTION == "decrease" then
-                                 if curr_life_alt < p.LastLifeAlt then lost = true; diff = p.LastLifeAlt - curr_life_alt end
+                                 if curr_life_alt < p.LastLifeAlt then lost = true; diff = diff + p.LastLifeAlt - curr_life_alt end
                              else
-                                 if curr_life_alt > p.LastLifeAlt then lost = true; diff = curr_life_alt - p.LastLifeAlt end
+                                 if curr_life_alt > p.LastLifeAlt then lost = true; diff = diff + curr_life_alt - p.LastLifeAlt end
                              end
                          end
                          if lost then
@@ -2533,11 +2332,22 @@ function stateoutput.startplugin()
                 end
             end
 
-            -- Update Frame History Cache (Used for Math on the next frame)
+            -- The damage and rumble baselines are kept current while their gate is closed, for the
+            -- same reason as the recoil and reload baselines in Phase 3.
+            local player_tracked = is_player_active or just_died
+            if not (player_tracked and (p.IsFFBAllowed or (just_died and p.WasFFBAllowed))) then
+                if type(cfg.DAMAGE) == "number" then p.LastDamageVal = Read_Data_Safe(_MemHandles["DAMAGE"], cfg.DAMAGE, CFG.DATA_WIDTHS.DAMAGE) end
+                if type(cfg.RUMBLE) == "number" then p.LastRumbleEventVal = Read_Data_Safe(_MemHandles["RUMBLE"], cfg.RUMBLE, CFG.DATA_WIDTHS.RUMBLE) end
+            end
+            if not player_tracked and type(cfg.DAMAGE_TAKEN) == "number" then
+                p.LastDmgMem = Read_Data_Safe(_MemHandles["DAMAGE_TAKEN"], cfg.DAMAGE_TAKEN, CFG.DATA_WIDTHS.DAMAGE_TAKEN)
+            end
+
+            -- Store this frame's values as the baselines for the next frame.
             p.LastAmmo = curr_ammo; p.LastAmmoAlt = curr_ammo_alt; p.LastAmmoGrenade = curr_ammo_grenade
             p.LastLife = curr_life; p.LastLifeAlt = curr_life_alt; p.WasActive = p.IsActive; p.WasFFBAllowed = p.IsFFBAllowed
 
-            -- Cleanup Hardware Timers (Shuts hardware off when time is up)
+            -- End each pulse when its duration has elapsed.
             if CFG.SIMULTANEOUS_PLAY or i == 1 then
                 if p.IsRecoilActive and (current_time - p.RecoilTick > p.CurrentRecoilDuration) then Set_Output(out, i, "RECOIL", 0); if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmRecoil", 0) end; p.IsRecoilActive = false end
                 if p.IsReloadActive and (current_time - p.ReloadTick > _ReloadDuration) then Set_Output(out, i, "RELOAD", 0); p.IsReloadActive = false end
@@ -2545,8 +2355,8 @@ function stateoutput.startplugin()
                 if p.IsRumbleActive and (current_time - p.RumbleTick > _RumbleDuration) then Set_Output(out, i, "RUMBLE", 0); p.IsRumbleActive = false end
             end
         end
-        
-        -- Override Global Credits if individual credits are actively mapped
+
+        -- When per-player credits are configured, their total replaces the global credits.
         if using_individual_credits then
             Set_Global_Output(out, "GLOBAL_CREDITS", warmup_ok and aggregated_credits or 0)
             if warmup_ok then
@@ -2560,28 +2370,26 @@ function stateoutput.startplugin()
             end
             if aggregated_credits > 0 and warmup_ok then _HasCoinedUp = true end
         end
-        
+
         local final_game_active = ((global_exists and is_game_active) or (not global_exists and any_player_active))
         Set_Global_Output(out, "GLOBAL_GAME_STATUS", warmup_ok and final_game_active and 1 or 0)
 
-        -- DERIVED ATTRACT MODE:
-        -- When no address exists, infer it: warmed up, no game running,
-        -- no player session active. This is an output-only signal -
-        -- unlike the address-backed attract detection in Phase 1, it must
-        -- never veto memory reads or clear pending credit accounting,
-        -- otherwise a derived-attract game could never observe its own game start.
+        -- Derived attract mode: with no attract address, attract is reported when warmup is
+        -- complete, no game is active and no player is active. It is an output only. Unlike the
+        -- address-backed detection in Phase 1, it must never gate memory reads or clear pending
+        -- credit accounting.
         if not (CFG.ATTRACT_STATUS and type(CFG.ATTRACT_STATUS) == "number") then
             Set_Global_Output(out, "GLOBAL_ATTRACT_STATUS", (warmup_ok and not final_game_active and not any_player_active) and 1 or 0)
         end
-        
-        -- Walk-away protection: Clear session stats if inactive for a long time
+
+        -- Clear the pending credit accounting after CREDITS_CLEAR_TIMEOUT_SEC of inactivity.
         if not final_game_active then
-            if _GameInactiveTick == _ZeroTime then 
-                _GameInactiveTick = current_time 
+            if _GameInactiveTick == _ZeroTime then
+                _GameInactiveTick = current_time
             elseif _CreditsClearTimeout and (current_time - _GameInactiveTick > _CreditsClearTimeout) then
                 _PendingGlobalCreditDrops = 0
-                for i = 1, CFG.MAX_PLAYERS do 
-                    _Player[i].PendingCreditDrops = 0 
+                for i = 1, CFG.MAX_PLAYERS do
+                    _Player[i].PendingCreditDrops = 0
                     _Player[i].SpawnsAwaitingCredit = 0
                 end
             end
@@ -2591,15 +2399,15 @@ function stateoutput.startplugin()
 
         -- -------------------------------------------------------------------------
         -- PHASE 5: MEMORY PATCHING
-        -- Actively overwrites MAME memory to disable blinding flashes.
+        -- Writes the screen flash disable values to memory on every frame.
         -- -------------------------------------------------------------------------
         if warmup_ok and CFG.SCREEN_FLASH then
-            -- 1. Process Global Patch (If configured)
+            -- 1. The global patch, if configured.
             if CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_DISABLE_VALUE then
                 Write_Data_Safe(_MemHandles["SCREEN_FLASH"], CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_DISABLE_VALUE)
             end
-            
-            -- 2. Process Per-Player Patches
+
+            -- 2. The per-player patches.
             for i = 1, CFG.MAX_PLAYERS do
                 local p_cfg = _PlayerCFG[i]
                 if p_cfg.SCREEN_FLASH_MEMORY_ADDRESS and p_cfg.SCREEN_FLASH_DISABLE_VALUE then
@@ -2610,22 +2418,19 @@ function stateoutput.startplugin()
 
         -- -------------------------------------------------------------------------
         -- PHASE 6: FORCE FEEDBACK STATE OUTPUTS (racing genre)
-        -- Reads and decodes the game's force command for racing profiles.
-        -- No-op unless this ROM's profile has FFB.ENABLED = true. Defined in
-        -- the "FORCE FEEDBACK RESOLUTION + COMPUTE" section (after native-
-        -- output enumeration is in scope) - resolved at call time.
+        -- Reads and decodes the game's force command. It does nothing unless the profile has
+        -- FFB.ENABLED = true. _FFB.Compute is defined in the "FORCE FEEDBACK RESOLUTION + COMPUTE"
+        -- section and is looked up at call time.
         -- -------------------------------------------------------------------------
         _FFB.Compute(out, warmup_ok, current_time)
     end
 
     -- -------------------------------------------------------------------------
     -- Driver_Source_Key()
-    -- The running machine's driver basename, lowercased, no directories, no
-    -- extension: ".../src/mame/namco/namcos12.cpp" -> "namcos12". That is how
-    -- native_outputs_by_driver.lua is keyed, and the same key MAME itself uses
-    -- for its source/<name>.ini. game_driver.source_file is a compile-time
-    -- __FILE__, so the separator can be either slash depending on the build
-    -- host - both are handled. Returns nil if the field is unavailable.
+    -- Returns the running machine's driver source file as a lowercase basename with no directory
+    -- and no extension: ".../src/mame/namco/namcos12.cpp" -> "namcos12".
+    -- native_outputs_by_driver.lua is keyed this way. The path can use either slash, depending on
+    -- the build host. Returns nil if the field is unavailable.
     -- -------------------------------------------------------------------------
     local function Driver_Source_Key()
         local ok, src = pcall(function() return manager.machine.system.source_file end)
@@ -2637,31 +2442,20 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- Probe_Enumerate_Outputs() / Enumerate_Native_Outputs()
-    -- Asks the running machine which outputs it has actually created, instead of
-    -- trusting a list scraped from MAME's source months earlier.
-    --
-    -- This needs MAME's read-only device.outputs property. It creates nothing: it
-    -- lists what a device already made, which is information MAME already publishes
-    -- to any external process through -output console and -output network. Where it
-    -- is missing, every caller falls back to the scraped database files.
-    --
-    -- Why this matters beyond tidiness: the scraped data is keyed by driver SOURCE
-    -- FILE, so a game inherits the union of every output declared by every sibling
-    -- in the same .cpp - names its own machine never creates - while a game whose
-    -- driver was never scraped gets nothing at all. Enumeration is exact for both.
-    --
-    -- Returns nil when this build cannot enumerate (the caller then falls back).
-    -- An empty table is a real answer: this machine created no outputs.
+    -- Lists the outputs the running machine has created, through MAME's read-only device.outputs
+    -- property. Nothing is created. It replaces the scraped database files, which are keyed by
+    -- driver source file: they name outputs a given machine never creates and miss drivers that
+    -- were never scraped.
+    -- Returns:
+    --   nil         - this build cannot enumerate; the caller falls back to the scraped files.
+    --   empty table - a real answer: this machine created no outputs.
+    --   records     - one per output: { dev, name, wire, proxy } (see Forward_Native_Outputs).
     -- -------------------------------------------------------------------------
-    -- Recognises MSOP's own synthetic output names, so enumeration can never mistake
-    -- one for a driver's native output. This matters on any build where MSOP can still
-    -- create outputs (MAME 0.288 and earlier, through the deprecated set_value): there
-    -- its names really do exist in the machine's output table, and Set_Output_Safe
-    -- already puts every one of them on the relay as it changes. Forwarding them again
-    -- from Forward_Native_Outputs would double up that stream and blur the line its
-    -- contract draws - a "native" output is the driver's, never MSOP's. Matches the
-    -- vocabulary MSOP writes: MSOP_* globals and per-player names, plus the three
-    -- unprefixed per-player customs (P<n>_CtmRecoil, P<n>_CtmLmpStart, P<n>_Damaged).
+
+    -- Recognises MSOP's own output names, so that enumeration never treats one as a native output:
+    -- the MSOP_* names and the three unprefixed per-player names (P<n>_CtmRecoil, P<n>_CtmLmpStart,
+    -- P<n>_Damaged). On MAME 0.288 and earlier those names exist in the machine's output table, and
+    -- Set_Output_Safe already sends them over the relay.
     local function Is_MSOP_Output_Name(name)
         return (name:match("^MSOP_") or name:match("^P%d+_Ctm") or name:match("^P%d+_Damaged$")) ~= nil
     end
@@ -2673,12 +2467,9 @@ function stateoutput.startplugin()
             local root = manager.machine.devices[":"]
             return root and root.outputs or nil
         end)
-        -- device.outputs (stock MAME 0.290+; official 0.289 does not have it) is
-        -- a userdata container of live output proxies keyed by name - not a plain
-        -- Lua table, so don't test type names. Confirm the one property every
-        -- caller relies on instead: that pairs() can iterate it. Builds without
-        -- the feature return nil (property absent), which fails the nil check
-        -- before pairs is ever attempted.
+        -- device.outputs (stock MAME 0.290 and later) is a userdata container of live output
+        -- proxies keyed by name, not a Lua table, so its type is not tested. The test is that
+        -- pairs() can iterate it. A build without the property returns nil.
         local usable = false
         if ok and val ~= nil then
             usable = pcall(function() for _ in pairs(val) do break end end)
@@ -2704,14 +2495,10 @@ function stateoutput.startplugin()
                 local list = dev.outputs
                 if list ~= nil then
                     local is_root = not dev.owner
-                    -- device.outputs iterates as (name, live output proxy). The proxy is
-                    -- kept on the record so Forward_Native_Outputs never has to re-resolve
-                    -- it. The wire name is MAME's qualified output name - the exact format
-                    -- the -output modules put on the wire, so hooker payloads stay
-                    -- byte-identical: root-device outputs are unqualified; otherwise the
-                    -- owning device's tag minus its leading colon, then ':', then the name
-                    -- (the formula from osd::output_item's constructor, and the same
-                    -- reconstruction the maintainer posted on PR #15745).
+                    -- device.outputs iterates as (name, live output proxy); the proxy is kept on
+                    -- the record. The wire name is MAME's qualified output name, as the -output
+                    -- modules send it: plain for a root-device output, else the device tag without
+                    -- its leading colon, then ':', then the name (osd::output_item's constructor).
                     for name, proxy in pairs(list) do
                         if type(name) == "string" and not Is_MSOP_Output_Name(name) then
                             records[#records + 1] = {
@@ -2726,8 +2513,8 @@ function stateoutput.startplugin()
             end
         end)
         if not ok then
-            -- Something in the walk threw. Treat as unsupported for the rest of the
-            -- session rather than retrying a broken path every ROM load.
+            -- The walk raised an error. Enumeration is treated as unsupported for the rest of the
+            -- session.
             _EnumerateOutputsSupported = false
             dbg_print("Native output enumeration failed mid-walk - reverting to scraped databases")
             return nil
@@ -2735,35 +2522,38 @@ function stateoutput.startplugin()
         return records
     end
 
-    -- Named resolver for the enumerated-record pcalls (Forward_Native_Outputs
-    -- and _FFB.Resolve): the resolution paths can retry every frame for a name
-    -- whose device never creates the output, and a fresh closure per attempt
-    -- would be per-frame garbage. Same pattern as pcall(sock.write, sock, ...).
+    -- A named function for the pcalls in Forward_Native_Outputs and _FFB.Resolve. Both can retry
+    -- every frame, and a closure per attempt would allocate on every frame.
     local function Resolve_Device_Output(fwd)
         return fwd.dev:output(fwd.name)
     end
 
+    -- Native output reads for MAME 0.288 and earlier, which have no output proxies.
+    -- name_to_id returns 0 for a name the machine never created and creates nothing;
+    -- get_value reads the current value. Call them only when _LegacyCreateWorks is true:
+    -- MAME 0.289 and later have no name_to_id and print a warning on every get_value.
+    local function Legacy_Output_Id(name)
+        return manager.machine.output:name_to_id(name)
+    end
+
+    local function Legacy_Output_Value(out, name)
+        return out:get_value(name)
+    end
+
     -- -------------------------------------------------------------------------
     -- Forward_Native_Outputs()
-    -- Mirrors curated native outputs (the ROM driver's own outputs, e.g.
-    -- "lamp0" - not anything MSOP creates) over the relay so hookers still
-    -- see them even though MAME runs with -output none under the relay and
-    -- its own native output modules never get a chance to broadcast them.
-    -- Deliberately one-directional (read via the existing proxy cache,
-    -- forward via msop_out) - never written back through Set_Output_Safe,
-    -- since the driver already holds the authoritative value; re-writing it
-    -- would be redundant at best and fight the driver's own state at worst.
-    -- Populate CFG.ADDITIONAL_OUTPUT_FORWARDS (a plain array of output
-    -- names) per game for anything discovery can't see (e.g. a third-party
-    -- script's own output). That list is always honoured, whichever discovery
-    -- route below supplied the rest.
+    -- Sends the native outputs in _NativeForwards (the driver's own outputs, such as "lamp0") over
+    -- the relay, because MAME does not broadcast them with -output none or console. It only reads:
+    -- nothing is written back. The names in CFG.ADDITIONAL_OUTPUT_FORWARDS are always included.
+    -- on_start and on_machine_stop replace the table, so it never outlives its machine.
     --
-    -- _NativeForwards is an array of RECORDS, not bare names:
+    -- _NativeForwards is an array of records, not bare names:
     --     { dev = <device or nil>, name = "lamp0", wire = "lamp0", proxy = ... }
     --   * dev   - the device that owns the output, when it was discovered by
     --             enumeration. nil for a name that came from a database or from
     --             ADDITIONAL_OUTPUT_FORWARDS, which resolves against the root
-    --             device exactly as every earlier version did.
+    --             device.
+    --   * name  - the output's name on its owning device.
     --   * wire  - the name put on the relay. This is MAME's own qualified name,
     --             so an output owned by a subdevice goes out as "sub:lamp0",
     --             matching what MAME's -output network module would broadcast.
@@ -2772,48 +2562,78 @@ function stateoutput.startplugin()
     --             byte-identical to the scraped-fallback path's.
     --   * proxy - resolved lazily on first use and cached in the record; false
     --             once a miss is known to be permanent. See _RetryMissingProxies.
+    --   * legacy - true once the name is confirmed to exist on a build without
+    --             output proxies (MAME 0.288 and earlier); read through
+    --             Legacy_Output_Value from then on.
+    --   * misses - frames in which a retried lookup failed. At 600 the miss is
+    --             made permanent, or on a build without proxies the lookup slows.
+    --   * wait  - frames left before the next slow lookup on a build without
+    --             proxies.
+    --   * legacy_out - a field of the table itself: the machine's output manager, fetched once
+    --             for the legacy reads.
     -- -------------------------------------------------------------------------
     local function Forward_Native_Outputs()
-        -- msop_out drops every write while the relay is down (and on a
-        -- native-delivery install), so walking the records in that state
-        -- would only pay for proxy reads - and missing-proxy resolution
-        -- retries - that nobody can receive. Skipping loses nothing: a
-        -- (re)connect wipes last_state, so the first connected frame
-        -- re-sends every current value anyway.
+        -- msop_out drops every write while the relay is down or unused, so the records are not
+        -- walked then. A connect clears last_state, so the first connected frame sends every
+        -- current value.
         if not (_UseRelay and connected) then return end
         for _, fwd in ipairs(_NativeForwards) do
             local proxy = fwd.proxy
-            if proxy == nil then
+            if proxy == nil and not fwd.legacy and (fwd.wait or 0) > 0 then
+                fwd.wait = fwd.wait - 1
+            elseif proxy == nil and not fwd.legacy then
                 if fwd.dev then
-                    -- Enumerated: resolve against the device that actually owns the
-                    -- output. Get_Output_Proxy only ever looks at the root device, so
-                    -- this is the only path that can reach a subdevice's outputs.
+                    -- Enumerated: resolve against the device that owns the output. Get_Output_Proxy
+                    -- looks only at the root device, so this is the only path that reaches a
+                    -- subdevice's outputs.
                     local ok, p = pcall(Resolve_Device_Output, fwd)
                     proxy = (ok and p and p:exists()) and p or false
+                elseif _LegacyCreateProbed and _LegacyCreateWorks then
+                    -- A build without proxies: only the output manager can find the name.
+                    proxy = false
+                    local ok, id = pcall(Legacy_Output_Id, fwd.name)
+                    if ok and type(id) == "number" and id ~= 0 then fwd.legacy = true end
                 else
                     proxy = Get_Output_Proxy(fwd.name, nil) or false
                 end
-                -- Don't cache a miss while misses are still worth retrying (an output
-                -- whose device started late may only appear a few frames in).
-                if proxy or not _RetryMissingProxies then fwd.proxy = proxy end
+                -- A miss is not cached at once while _RetryMissingProxies is set, because an output
+                -- whose device started late may appear a few frames in. After 600 frames it is.
+                -- A build without proxies never caches it, as an output there can be created by its
+                -- first write at any time: after 600 frames it looks once every 60 frames.
+                local legacy_build = _LegacyCreateProbed and _LegacyCreateWorks
+                if proxy or not (_RetryMissingProxies or legacy_build) then
+                    fwd.proxy = proxy
+                elseif not fwd.legacy then
+                    fwd.misses = (fwd.misses or 0) + 1
+                    if fwd.misses >= 600 then
+                        if legacy_build then fwd.wait = 59 else fwd.proxy = false end
+                    end
+                end
             end
             if proxy then
                 msop_out(fwd.wire, proxy:get())
+            elseif fwd.legacy then
+                local legacy_out = _NativeForwards.legacy_out
+                if not legacy_out then
+                    legacy_out = manager.machine.output
+                    _NativeForwards.legacy_out = legacy_out
+                end
+                local ok, val = pcall(Legacy_Output_Value, legacy_out, fwd.name)
+                if ok and type(val) == "number" then msop_out(fwd.wire, val) end
             end
         end
     end
 
     -- =========================================================================
-    -- FORCE FEEDBACK RESOLUTION + COMPUTE   (state table + decoders declared
-    -- just before Frame_Logic). Defined here because resolution leans on
-    -- Enumerate_Native_Outputs, which is only in scope from this point -
-    -- Frame_Logic's PHASE 6 call binds to these at call time.
+    -- FORCE FEEDBACK RESOLUTION + COMPUTE
+    -- The state table and decoders are declared before Frame_Logic. These functions are defined
+    -- here because resolution needs Enumerate_Native_Outputs in scope. Frame_Logic's PHASE 6 looks
+    -- _FFB.Compute up at call time.
     -- =========================================================================
 
-    -- Side-effect-free single-name probe against the ROOT device. Deliberately
-    -- not Get_Output_Proxy: its miss path writes a legacy 0 into the output
-    -- table, and this must never write to the driver's own output. Used only
-    -- as the fallback when enumeration is unavailable on this build.
+    -- Looks one output name up on the root device without writing anything. Get_Output_Proxy is not
+    -- used, because its miss path writes a legacy 0 and a driver's own output must never be
+    -- written. It is the fallback when the build cannot enumerate.
     function _FFB.Probe_Output(name)
         if not (manager and manager.machine and manager.machine.devices) then return false end
         local root = manager.machine.devices[":"]
@@ -2828,7 +2648,6 @@ function stateoutput.startplugin()
         _FFB.source = false
         _FFB.mode = false
         _FFB.probe_frames = 0
-        _FFB.warned = false
         _FFB.exhausted = false
         -- The next machine has its own output table, so the cached enumeration
         -- from the last one must not be reused.
@@ -2843,14 +2662,28 @@ function stateoutput.startplugin()
         _FFB.hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0 }
     end
 
-    -- Walks CFG.FFB.SOURCES in order: hex strings were already converted to
-    -- numbers at load (convert_hex_strings_to_numbers), so a number is an
-    -- emulated memory ADDRESS (bound via _MemHandles["FFB"], the same
-    -- acquisition model as the gun games) and a string is a native output
-    -- name. Native names resolve through live enumeration first (exact,
-    -- and the only route to a subdevice-owned output), then the root-device
-    -- probe. First hit wins and is logged. Retries every frame until
-    -- something resolves - driver outputs may not exist on frame 1.
+    -- Realigns the FFB state after a state load. An event's timer and last value belong to the
+    -- timeline before the load: the timer could hold its output on for minutes and the last value
+    -- could fire a false event. A pulsing event output is ended, and the stream is decoded afresh.
+    function _FFB.Post_Load(out)
+        local cfgF = CFG.FFB
+        if not (cfgF and cfgF.ENABLED == true) then return end
+        local p_idx = tonumber(cfgF.PLAYER) or 1
+        if p_idx < 1 or p_idx > CFG.MAX_PLAYERS then p_idx = 1 end
+        for _, rt in pairs(_FFB.events_rt) do
+            -- A pulsing event is ended. Any other event output keeps its cached value.
+            if rt.tick then Set_Output(out, p_idx, rt.out_key, 0) end
+            rt.last = false
+            rt.tick = false
+        end
+        _FFB.last_raw = nil
+        _FFB.hd = { s0=0, s1=0, s2=0, s3=0, frame=0, v0=0, v1=0, v2=0, v3=0 }
+    end
+
+    -- Walks CFG.FFB.SOURCES in order and takes the first source that resolves. A number is a memory
+    -- address, read through _MemHandles["FFB"]. A string is a native output name, resolved through
+    -- enumeration first and then the root-device probe. It is retried every frame until a source
+    -- resolves, because driver outputs may not exist on the first frame.
     function _FFB.Resolve()
         local cfgF = CFG.FFB
         for _, src in ipairs(cfgF.SOURCES) do
@@ -2862,13 +2695,10 @@ function stateoutput.startplugin()
                     return true
                 end
             elseif type(src) == "string" then
-                -- Enumeration is cached for the whole ROM session (cleared by
-                -- _FFB.Reset). A machine's output table is a static part of its
-                -- configuration, so the answer cannot change between frames -
-                -- and this function retries every frame until something
-                -- resolves, so re-walking every device each time would allocate
-                -- a record per output, 60 times a second, for nothing. Fetched
-                -- lazily still: an address-first profile never enumerates at all.
+                -- The enumeration is cached for the ROM session (cleared by _FFB.Reset), because
+                -- this function retries every frame and a machine's output table does not change.
+                -- It is fetched on first need, so a profile whose address source resolves never
+                -- enumerates.
                 if not _FFB.enum_done then
                     _FFB.enum = Enumerate_Native_Outputs()
                     _FFB.enum_done = true
@@ -2896,30 +2726,38 @@ function stateoutput.startplugin()
                         dbg_print("FFB: source resolved to native output '" .. src .. "' (root probe)")
                         return true
                     end
+                    -- MAME 0.288 and earlier have no output proxies. The name is looked up and
+                    -- read through the output manager, which _FFB.proxy then holds.
+                    if _LegacyCreateWorks then
+                        local ok, id = pcall(Legacy_Output_Id, src)
+                        if ok and type(id) == "number" and id ~= 0 then
+                            _FFB.proxy = manager.machine.output
+                            _FFB.source = src
+                            _FFB.mode = "legacy"
+                            dbg_print("FFB: source resolved to native output '" .. src .. "' (output manager)")
+                            return true
+                        end
+                    end
                 end
             end
         end
         _FFB.probe_frames = _FFB.probe_frames + 1
-        if not _FFB.warned and _FFB.probe_frames == 600 then
-            _FFB.warned = true
-            -- Give up for the rest of the ROM session. The enumeration is already
-            -- cached above, so retrying costs little, but ten seconds of misses on
-            -- a static output table is a settled answer - keep walking the source
-            -- list every frame and it never becomes anything else.
+        if _FFB.probe_frames == 600 then
+            -- Stop probing for the rest of the ROM session. After 600 frames of misses the output
+            -- table will not gain the source.
             _FFB.exhausted = true
             dbg_print("FFB WARNING: no source found after 600 frames - none of the configured SOURCES exist for this ROM; probing stopped")
         end
         return false
     end
 
-    -- Semantic-event engine (contract 2.2). Each configured event reads its
-    -- own per-game memory ADDRESS (address-only by contract - the gun games'
-    -- Damage/Rumble acquisition model) through the shared FFB memory binding
-    -- (CPU_TAGS.FFB / MEMORY_SPACES.FFB), and emits pulse- or level-style
-    -- strengths 0..SCALE. Event config (CFG.FFB.EVENTS[<KEY>], where <KEY> is
-    -- COLLISION / GEARCHANGE / SURFACERUMBLE / TYRESLIP / ENGINERUMBLE):
+    -- Semantic events (contract 2.2). Each configured event reads its own per-game memory address
+    -- (address-only by contract) through the shared FFB memory binding (CPU_TAGS.FFB /
+    -- MEMORY_SPACES.FFB) and writes a pulse or level strength 0..SCALE.
+    -- Event settings (CFG.FFB.EVENTS[<KEY>], where <KEY> is COLLISION / GEARCHANGE / SURFACERUMBLE
+    -- / TYRESLIP / ENGINERUMBLE):
     --   SOURCE      "0x..." memory address (required; hex string -> number at load)
-    --   mode        "nonzero"  level: STRENGTH while raw ~= 0, else 0 (default)
+    --   MODE        "nonzero"  level: STRENGTH while raw ~= 0, else 0 (default)
     --               "change"   pulse STRENGTH for DURATION_MS when raw changes
     --               "increase" pulse when raw increases (event counters)
     --               "value"    raw scaled 0..SCALE against MAX
@@ -2940,15 +2778,12 @@ function stateoutput.startplugin()
             if type(ev) == "table" and type(ev.SOURCE) == "number" then
                 local rt = _FFB.events_rt[key]
                 if not rt then
-                    -- Event config is static for the ROM session (events_rt is
-                    -- cleared by _FFB.Reset), so normalise it all once here -
-                    -- re-lowercasing MODE, tonumber-ing STRENGTH/MAX and
-                    -- rebuilding the "FFB_" name were two string allocations
-                    -- plus conversions per event, per frame, for nothing.
+                    -- The event settings do not change during the ROM session (events_rt is cleared
+                    -- by _FFB.Reset), so they are normalised once here.
                     local max = tonumber(ev.MAX) or scale
                     if max < 1 then max = 1 end
                     rt = { last = false, tick = false,
-                           dur = emu.attotime.from_msec(tonumber(ev.DURATION_MS) or 150),
+                           dur = emu.attotime.from_msec(math.floor((tonumber(ev.DURATION_MS) or 150) + 0.5)),
                            mode = string.lower(tostring(ev.MODE or "nonzero")),
                            strength = tonumber(ev.STRENGTH) or scale,
                            max = max,
@@ -2986,13 +2821,10 @@ function stateoutput.startplugin()
         end
     end
 
-    -- Called once per frame from Frame_Logic's PHASE 6 (enabled profiles
-    -- only). Holds everything at 0 during warmup, then reads + decodes +
-    -- emits through the normal Set_Output path (per-player LastOutputs dedup
-    -- + relay delivery). Stream channels need the main SOURCES to resolve;
-    -- semantic events are independent per-address reads, so an events-only
-    -- profile (empty SOURCES) works too. Only the channels a decoder returns
-    -- are updated - see COMMAND SEMANTICS at the module declaration.
+    -- Called once per frame from Frame_Logic's PHASE 6. Holds every FFB output at 0 during warmup,
+    -- then reads, decodes and writes through Set_Output. The stream channels need a source in
+    -- SOURCES to resolve. Semantic events are separate reads, so a profile with events only also
+    -- works. Only the channels a decoder returns are updated.
     function _FFB.Compute(out, warmup_ok, current_time)
         local cfgF = CFG.FFB
         if not (cfgF and cfgF.ENABLED == true) then return end
@@ -3016,29 +2848,29 @@ function stateoutput.startplugin()
             return
         end
 
-        -- STREAM CHANNELS (skipped cleanly when no SOURCES are configured)
+        -- Stream channels (skipped when no SOURCES are configured).
         if type(cfgF.SOURCES) == "table" and #cfgF.SOURCES > 0
            and (_FFB.mode ~= false or (not _FFB.exhausted and _FFB.Resolve())) then
             local raw
             if _FFB.mode == "output" then
                 raw = _FFB.proxy:get()
+            elseif _FFB.mode == "legacy" then
+                raw = Legacy_Output_Value(_FFB.proxy, _FFB.source)
             else
                 raw = Read_Data_Safe(_MemHandles["FFB"], _FFB.source, CFG.DATA_WIDTHS.FFB or 8)
             end
             if type(raw) == "number" then
                 Set_Output(out, p_idx, "FFB_RAW", raw)
 
-                -- Decoder and scale cannot change mid-ROM: resolve once per load
-                -- (cleared by _FFB.Reset) instead of rebuilding the lookup string -
-                -- two string allocations - every frame.
+                -- The decoder and scale cannot change during a ROM session, so they are resolved
+                -- once (cleared by _FFB.Reset).
                 if _FFB.decoder == nil then
                     _FFB.decoder = _FFB.decoders[string.lower(tostring(cfgF.DECODE or "passthrough"))] or _FFB.decoders.passthrough
                     _FFB.scale = tonumber(cfgF.SCALE) or 255
                 end
 
-                -- Decode only when the command value changed: identical raw decodes
-                -- to identical channel values (which Set_Output deduplicates anyway),
-                -- so re-decoding would only allocate the result table for nothing.
+                -- Decode only when the command value changed: an identical raw value decodes to
+                -- identical channel values, which Set_Output would drop.
                 if raw ~= _FFB.last_raw then
                     _FFB.last_raw = raw
                     local scale = _FFB.scale
@@ -3059,195 +2891,187 @@ function stateoutput.startplugin()
             end
         end
 
-        -- SEMANTIC EVENTS (independent of the stream source)
+        -- Semantic events (independent of the stream source).
         _FFB.Compute_Events(out, p_idx, current_time)
     end
 
     -- -------------------------------------------------------------------------
     -- Compute_Outputs()
-    -- Safe execution wrapper for the Frame_Logic engine.
+    -- The frame notifier. Runs Frame_Logic and Forward_Native_Outputs under pcall, then flushes the
+    -- relay payload.
     -- -------------------------------------------------------------------------
     local function Compute_Outputs()
-        -- Ensure the ROM is valid and memory spaces are bound, and bail out
-        -- immediately once shutdown has started (Frame_Logic sets
-        -- _IsShuttingDown itself if manager.machine goes away mid-frame,
-        -- but Unhook_Frame isn't guaranteed to have detached this notifier
-        -- by the very next frame - this stops any further pcall(Frame_Logic)
-        -- attempts as soon as that flag flips, rather than relying solely
-        -- on Frame_Logic's own internal guard to catch it every time).
-        if _IsShuttingDown then return end
+        -- Stop as soon as shutdown has started or the hook has been released. Unhook_Frame may not
+        -- have detached this notifier before the next frame, and cannot detach a legacy hook.
+        if _IsShuttingDown or not _FrameHookActive then return end
 
-        -- Frame_Logic is the MSOP profile engine and requires CFG. An unsupported ROM has CFG == nil
-        -- but may still be running in pass-through mode - where the only job is mirroring MAME's
-        -- own native outputs over the relay - so skip the engine and fall through to the
-        -- forward + flush below rather than returning early.
+        -- Frame_Logic needs CFG. A ROM with no profile has CFG == nil but may run in pass-through
+        -- mode, so the engine is skipped and the forward and flush below still run.
         if CFG then
-            -- Execute the massive Frame_Logic engine safely
-            -- pcall prevents garbage collection spikes and handles errors gracefully
+            -- pcall catches an error in Frame_Logic, so that a failing frame is logged and the
+            -- notifier keeps running.
             local ok, err = pcall(Frame_Logic)
-            if not ok then dbg_print("FRAME ERROR: " .. tostring(err)) end
+            if not ok then
+                _ErrorCounts.frame = _ErrorCounts.frame + 1
+                if _ErrorCounts.frame == 1 or _ErrorCounts.frame % 600 == 0 then
+                    dbg_print("FRAME ERROR (" .. _ErrorCounts.frame .. " so far): " .. tostring(err))
+                end
+            end
         end
 
-        -- Mirror any curated native driver outputs for this ROM (no-op if
-        -- none are configured)
+        -- Forward this ROM's native outputs (nothing happens when none are listed).
         local ok2, err2 = pcall(Forward_Native_Outputs)
-        if not ok2 then dbg_print("NATIVE FORWARD ERROR: " .. tostring(err2)) end
+        if not ok2 then
+            _ErrorCounts.native = _ErrorCounts.native + 1
+            if _ErrorCounts.native == 1 or _ErrorCounts.native % 600 == 0 then
+                dbg_print("NATIVE FORWARD ERROR (" .. _ErrorCounts.native .. " so far): " .. tostring(err2))
+            end
+        end
 
-        -- FLUSH CHANGES OVER THE NETWORK
-        -- This blasts everything Frame_Logic generated this frame over TCP
+        -- Send this frame's changes over the relay.
         flush_payload_to_relay()
     end
 
     -- -------------------------------------------------------------------------
     -- Unhook_Frame()
-    -- Deterministically detaches the frame notifier. on_start() re-fires on
-    -- every reset (soft resets included) and previously just overwrote the
-    -- old subscription, leaving the abandoned one firing until garbage
-    -- collection got around to it - stacking two engine passes per frame in
-    -- the meantime.
+    -- Detaches the frame notifier. on_start fires on every reset, and replacing the subscription
+    -- without unsubscribing would leave the old one firing until it is garbage collected, running
+    -- the engine twice per frame. A legacy hook stays registered and is switched off by
+    -- _FrameHookActive.
     -- -------------------------------------------------------------------------
     local function Unhook_Frame()
+        _FrameHookActive = false
         local sub = exports.subscriptions.frame
         if sub then
             if type(sub) == "userdata" and sub.unsubscribe then
                 pcall(function() sub:unsubscribe() end)
             end
             exports.subscriptions.frame = nil
-        elseif emu.register_frame_done then
-            emu.register_frame_done(nil, "frame")
+        end
+    end
+
+    -- -------------------------------------------------------------------------
+    -- Hook_Frame()
+    -- Attaches Compute_Outputs as the frame notifier. Callers run Unhook_Frame first. On a build
+    -- without emu.add_machine_frame_notifier, emu.register_frame_done is called once only, because
+    -- each call adds another hook that cannot be removed.
+    -- -------------------------------------------------------------------------
+    local function Hook_Frame()
+        _FrameHookActive = true
+        if emu.add_machine_frame_notifier then
+            exports.subscriptions.frame = emu.add_machine_frame_notifier(Compute_Outputs)
+        elseif not _LegacyFrameHooked then
+            emu.register_frame_done(Compute_Outputs, "frame")
+            _LegacyFrameHooked = true
         end
     end
 
     -- -------------------------------------------------------------------------
     -- on_post_load()
-    -- SAVE-STATE ALIGNMENT: any output that is genuinely part of the machine
-    -- snaps to its saved value on load - but this engine's Lua-side mirrors,
-    -- counters, and attotime anchors are not saved. (MSOP's own outputs are not
-    -- among the saved ones on stock builds - nothing outside the driver can add
-    -- to the output table - so the adopt() calls below fall back to the session
-    -- value for MSOP names and only find real data where an output actually
-    -- exists, which is exactly what they were written to handle.)
-    -- Left alone, the first frames after a load fire phantom deltas
-    -- (ammo jump -> recoil/reload, credit jump -> "inserted") and the stale
-    -- session counters immediately overwrite the freshly restored counter outputs.
-    -- Strategy:
-    --   1. re-seed memory delta baselines from restored RAM
-    --   2. Adopt restored counter outputs as the session counters (the
-    --      outputs are the saved truth; proxy:get() returns it)
-    --   3. kill in-flight FFB pulses - their attotime anchors belong to the
-    --      pre-load timeline and can wedge comparisons for minutes
-    --   4. wipe change-detection mirrors so every next write re-broadcasts;
-    --      the core de-duplicates identical values, so clients only ever see
-    --      the values that genuinely differ
+    -- Save-state alignment. A loaded state restores RAM and the outputs the machine had at start,
+    -- but not this engine's baselines and attotime anchors, so the first frames after a load would
+    -- report false changes (an ammo jump as recoil, a credit jump as "inserted"). MSOP's outputs
+    -- are not part of a state, so the session counters carry on from their values before the load.
+    -- Steps:
+    --   1. Re-seed the memory baselines from the restored RAM.
+    --   2. Carry the game and player activity over from the last values sent, so that a load
+    --      neither drops the status outputs to 0 nor counts a spawn.
+    --   3. End the pulses in flight. Their attotime anchors belong to the timeline before the load
+    --      and can block the timer comparisons for minutes.
     -- -------------------------------------------------------------------------
     local function on_post_load()
+        -- A loaded state carries its own machine time, so a deadline measured from the last reset
+        -- no longer applies to it. Once warmup has completed, or when the state is older than that
+        -- reset, the deadline falls back to the delay measured from zero: only a state saved while
+        -- its own game was starting is held.
+        if CFG and _StartupDelay and (_WarmupFlushed or manager.machine.time < _StartupTime - _StartupDelay) then
+            _StartupTime = _StartupDelay
+        end
         if _IsShuttingDown or not CFG or not _WarmupFlushed then
-            -- a state loaded before warmup ever completed this session isn't
-            -- being tracked yet; the normal warmup flush will handle it
+            -- A state loaded before warmup completes is not tracked yet. The warmup flush handles
+            -- it.
             return
         end
         local ok, err = pcall(function()
             Seed_Frame_Baselines()
 
-            local function adopt(name, fallback)
-                if not name then return fallback end
-                local proxy = Get_Output_Proxy(name, nil)
-                if proxy then
-                    local got = proxy:get()
-                    if type(got) == "number" then return got end
-                end
-                return fallback
-            end
-
-            _GlobalCreditsInserted = adopt(_GlobalOutputs["GLOBAL_CREDITS_INSERTED"], _GlobalCreditsInserted)
             _PendingGlobalCreditDrops = 0
 
             local now = manager.machine.time
-            local debounce_age = emu.attotime.from_msec((CFG.STATUS_DEBOUNCE_MS or 0) + 20)
-            local game_restored = adopt(_GlobalOutputs["GLOBAL_GAME_STATUS"], 0) == 1
+            local debounce_age = emu.attotime.from_msec((CFG.STATUS_DEBOUNCE_MS or 34) + 20)
+            -- The last status values sent are carried over. Starting from 0 would drop the game
+            -- and every player to inactive on each load.
+            local game_restored = (_GlobalLastOutputs["GLOBAL_GAME_STATUS"] or 0) == 1
             _GameActiveTick = game_restored and (now - debounce_age) or _ZeroTime
+            _GameDebounced = false
             _GameInactiveTick = _ZeroTime
-            _GlobalLastOutputs = {}
+
+            -- The output caches are kept. A load does not change MSOP's own outputs, so the
+            -- cached values are still the values MAME and MESH hold.
+            local out = manager.machine and manager.machine.output
 
             for i = 1, CFG.MAX_PLAYERS do
                 local p = _Player[i]
-                local names = _OutputNames[i] or {}
 
-                p.ShotCountPrimary = adopt(names["SHOTS_FIRED_PRIMARY"], p.ShotCountPrimary)
-                p.ShotCountAlt     = adopt(names["SHOTS_FIRED_ALT"], p.ShotCountAlt)
-                p.ShotCountGrenade = adopt(names["SHOTS_FIRED_GRENADE"], p.ShotCountGrenade)
-                p.DamageCount      = adopt(names["DAMAGE_TAKEN"], p.DamageCount)
-                p.LifeLostCount    = adopt(names["LIFE_LOST"], p.LifeLostCount)
-                p.CreditsInserted  = adopt(names["CREDITS_INSERTED"], p.CreditsInserted)
-                p.CreditsConsumed  = adopt(names["CREDITS_CONSUMED"], p.CreditsConsumed)
-
-                -- adopt restored activity so Check 1 doesn't phantom-spawn a
-                -- credit claim for a player who was already mid-session; the
-                -- pre-aged ActiveTick keeps an active player's Status output
-                -- seamless through the debounce window instead of blipping 0
-                local was_active = adopt(names["STATUS"], 0) == 1
+                -- Carry the activity over so that Check 1 does not count a spawn for a player
+                -- already in a session. The pre-aged ActiveTick carries an active player's Status
+                -- output through the debounce window without a drop to 0. The player's own flag
+                -- is used, because a profile may have no STATUS output to consult.
+                local was_active = p.IsActive
                 p.IsActive, p.WasActive = was_active, was_active
                 p.ActiveTick = was_active and (now - debounce_age) or _ZeroTime
+                p.Debounced = false
                 p.IsFFBAllowed, p.WasFFBAllowed = was_active, was_active
 
                 p.RecoilTick, p.ReloadTick, p.DamageTick, p.RumbleTick = _ZeroTime, _ZeroTime, _ZeroTime, _ZeroTime
                 p.IsRecoilActive, p.IsReloadActive, p.IsDamageActive, p.IsRumbleActive = false, false, false, false
                 p.PendingCreditDrops, p.SpawnsAwaitingCredit = 0, 0
-                p.LastOutputs = {}
             end
 
-            -- a state saved mid-pulse restores RECOIL/RELOAD/etc as 1 with no
-            -- timer left running to turn them off - force every pulse low
-            if manager.machine and manager.machine.output then
-                local out = manager.machine.output
-                for i = 1, CFG.MAX_PLAYERS do
-                    Set_Output(out, i, "RECOIL", 0)
-                    Set_Output(out, i, "RELOAD", 0)
-                    Set_Output(out, i, "DAMAGE", 0)
-                    Set_Output(out, i, "RUMBLE", 0)
-                    if CFG.DEMULSHOOTER_COMPATIBILITY then
-                        Set_Output(out, i, "CtmRecoil", 0)
-                        Set_Output(out, i, "Damaged", 0)
-                    end
-                end
+            -- The pulse timers were reset above, so nothing would end a pulse that was in flight.
+            -- Every pulse is forced to 0.
+            if out then
+                End_Pulses(out)
+                _FFB.Post_Load(out)
             end
-            dbg_print("Save state loaded - baselines re-seeded, counters adopted from restored outputs")
+            dbg_print("Save state loaded - baselines re-seeded")
         end)
         if not ok then dbg_print("POST-LOAD RESYNC ERROR: " .. tostring(err)) end
     end
 
     -- -------------------------------------------------------------------------
     -- on_machine_stop()
-    -- Cleanup hook. Halts processing and destroys subscriptions.
+    -- The machine stop hook. Stops the engine, sends mame_stop, restores the patched memory and
+    -- detaches the frame notifier.
     -- -------------------------------------------------------------------------
     local function on_machine_stop()
         _IsShuttingDown = true
 
-        -- Drop the native-forward records. Each one can hold a device handle and a
-        -- resolved output proxy belonging to the machine now being torn down.
-        -- on_start rebuilds
-        -- this list wholesale for every ROM, so nothing is lost by clearing it here -
-        -- it only guarantees no stale machine reference can outlive its machine. Same
-        -- reasoning as the _ProxyCache reset in on_start.
+        -- Drop the native forward records. Each can hold a device handle and an output proxy that
+        -- belong to the machine being torn down. on_start rebuilds the list for every ROM.
         _NativeForwards = {}
 
-        -- Always broadcast mame_stop so hookers know to sleep - sent while
-        -- _ActiveMameStart still holds the dying game, so a listener whose first
-        -- connection happens at game exit (this broadcast can open it just-in-time)
-        -- still receives "mame_start -> final values -> mame_stop". Clearing the
-        -- announcement first produced unidentifiable exit bursts.
+        -- Send mame_stop while _ActiveMameStart still holds the game. A listener whose first
+        -- connection is opened by this broadcast then receives mame_start before mame_stop.
         broadcast_native_event("mame_stop = 1\r\n")
 
-        -- No game runs from here on: clear so a later (re)connect never announces a
+        -- No game is running from here on. Clear it so that a later connect does not announce a
         -- stale ROM.
         _ActiveMameStart = nil
-        
-        -- Safely restore modified memory values before shutting down
+
+        -- A connect made by that broadcast queues this game's values, and no later frame flushes
+        -- them. Discard them, and require a new warmup before any resync, so that nothing of this
+        -- game is sent under the next game's mame_start.
+        payload_buffer = {}
+        changes_detected = false
+        _WarmupFlushed = false
+
+        -- Restore the patched memory values before shutdown.
         if CFG and CFG.SCREEN_FLASH then
             local conf = _MemConfig["SCREEN_FLASH"]
             if conf and manager and manager.machine then
-                
-                -- Determine the exact memory space hook
+
+                -- Resolve the memory handle for the patch.
                 local mem_handle = nil
                 if string.lower(conf.space) == "region" then
                     mem_handle = manager.machine.memory.regions[conf.tag]
@@ -3257,14 +3081,14 @@ function stateoutput.startplugin()
                         mem_handle = dev.spaces[conf.space]
                     end
                 end
-                
+
                 if mem_handle then
-                    -- 1. Restore Global Patch
+                    -- 1. Restore the global patch.
                     if CFG.SCREEN_FLASH_MEMORY_ADDRESS and CFG.SCREEN_FLASH_RESTORE_VALUE then
                         Write_Data_Safe(mem_handle, CFG.SCREEN_FLASH_MEMORY_ADDRESS, CFG.DATA_WIDTHS.SCREEN_FLASH or 8, CFG.SCREEN_FLASH_RESTORE_VALUE)
                     end
-                    
-                    -- 2. Restore Per-Player Patches
+
+                    -- 2. Restore the per-player patches.
                     for i = 1, CFG.MAX_PLAYERS do
                         local p_cfg = _PlayerCFG[i]
                         if p_cfg and p_cfg.SCREEN_FLASH_MEMORY_ADDRESS and p_cfg.SCREEN_FLASH_RESTORE_VALUE then
@@ -3280,171 +3104,183 @@ function stateoutput.startplugin()
 
     -- =========================================================================
     -- the BOOT HOOK (on_start)
-    -- This fires exactly once when a specific ROM finishes launching.
-    -- Initialises arrays, validates DB config, and sets up timers.
+    -- Fires on every reset of the machine, soft resets included. Settles the relay mode, loads the
+    -- ROM's profile, resets the engine state and attaches the frame notifier. A ROM with no profile
+    -- can run in pass-through mode.
     -- =========================================================================
     local function on_start()
-        dbg_print("on_start triggered. Current MAME Phase: " .. tostring(manager.machine.phase))
         if not manager or not manager.machine then return end
+        dbg_print("on_start triggered. Current MAME Phase: " .. tostring(manager.machine.phase))
 
-        -- A new machine is starting, so the previous machine's shutdown is over. Cleared here
-        -- for every ROM: the pass-through path (a ROM with no profile) never reaches the
-        -- profile branch's own reset, and Compute_Outputs returns at once while this is set.
-        -- Without it, a game picked from MAME's own menu forwards nothing, because the menu
-        -- is itself a machine whose stop sets the flag.
+        -- A new machine is starting, so the previous machine's shutdown is over. The flag is
+        -- cleared here for every ROM, with or without a profile: Compute_Outputs returns at once
+        -- while it is set.
         _IsShuttingDown = false
 
-        -- Settle the relay decision from MAME's live version + -output mode
-        -- before the first relay use below (one-shot; no-ops on subsequent resets).
-        -- Settle the create-capability question before the relay decision: resolve_relay_mode's
-        -- capability gate needs the answer, and left to the first real write it would arrive too
-        -- late (which is exactly how -output windows went dark on a version-misreporting build).
+        -- Probe the create capability first: resolve_relay_mode's capability gate needs the answer,
+        -- and the first real write would give it too late. resolve_relay_mode then settles the
+        -- relay decision once; later resets do nothing.
         pcall(function() Probe_Legacy_Set_Value(manager.machine.output) end)
         resolve_relay_mode()
 
-        -- With the relay decision now final, tell the user up front (once per session, ungated) that
-        -- MESH must be running whenever the relay is the delivery path. Printed here rather than
-        -- inside resolve_relay_mode's many return branches so it fires regardless of which gate
-        -- turned the relay on, and only when it actually did.
+        -- With the relay decision final, state once per session that MESH must be running. It is
+        -- printed here so that it appears whichever gate turned the relay on.
         if _UseRelay then
             announce_relay_required()
-            -- One-shot misconfiguration notice (gated like every connection-status
-            -- message): the relay is mandatory on this build, but the chosen -output
-            -- mode suggests the user expects MAME to broadcast MSOP's outputs natively.
+            -- One-shot notice: the relay is required on this build, but -output network suggests
+            -- the user expects MAME to broadcast MSOP's outputs.
             if _MisconfiguredOutputMode then
                 osd_connection_status("misconfig",
                     "INCORRECT OUTPUT MODE DETECTED - this MAME version cannot broadcast"
                     .. " MSOP's state outputs on its own (MAME 0.289 and above), so they"
                     .. " need to be delivered through MESH. Set MAME output to \"none\" in"
-                    .. " mame.ini for the recommended setup. Using \"network\" or"
-                    .. " \"windows\" in MAME 0.289+ means external hooker programs may not"
-                    .. " receive MSOP's state outputs (these output modes only deliver"
-                    .. " MSOP's outputs natively in MAME 0.200 - 0.288).",
+                    .. " mame.ini for the recommended setup. Using \"network\" in MAME"
+                    .. " 0.289+ means external hooker programs may not receive MSOP's"
+                    .. " state outputs (this output mode only delivers MSOP's outputs"
+                    .. " natively in MAME 0.200 - 0.288).",
                     "MSOP: INCORRECT OUTPUT MODE DETECTED\n"
                     .. "This MAME version cannot broadcast MSOP's state outputs on its"
                     .. " own (MAME 0.289 and above), so they need to be delivered through"
                     .. " MESH. Set MAME output to \"none\" in mame.ini for the recommended"
-                    .. " setup. Using \"network\" or \"windows\" in MAME 0.289+ means"
-                    .. " external hooker programs may not receive MSOP's state outputs"
-                    .. " (these output modes only deliver MSOP's outputs natively in MAME"
-                    .. " 0.200 - 0.288).")
+                    .. " setup. Using \"network\" in MAME 0.289+ means external hooker"
+                    .. " programs may not receive MSOP's state outputs (this output mode"
+                    .. " only delivers MSOP's outputs natively in MAME 0.200 - 0.288).")
+            elseif _WindowsOutputWithRelay then
+                osd_connection_status("windows_output",
+                    "MAME output is set to \"windows\" on a MAME version that cannot"
+                    .. " broadcast MSOP's state outputs on its own (MAME 0.289 and above)."
+                    .. " This works with MESH: MSOP's outputs are delivered through MESH"
+                    .. " and the game's native outputs are sent by MAME. Programs that"
+                    .. " only read MAME's Windows messages, such as MAMEhooker, receive"
+                    .. " the native outputs only. To send them MSOP's outputs as well,"
+                    .. " set MAME output to \"none\" in mame.ini and enable \"Serve Win32"
+                    .. " output\" in MESH.",
+                    "MSOP: MAME OUTPUT IS SET TO WINDOWS\n"
+                    .. "This works with MESH. Programs that only read MAME's Windows"
+                    .. " messages, such as MAMEhooker, receive the game's native outputs"
+                    .. " only. To send them MSOP's outputs as well, set MAME output to"
+                    .. " \"none\" in mame.ini and enable \"Serve Win32 output\" in MESH.")
             end
         end
 
         local rom_name = manager.machine.system.name
 
-        -- Re-arm the retry state: a ROM boundary hides the stall in loading and is
-        -- exactly when a listener most plausibly appeared. Deliberately does not reset
-        -- ever_connected - cold vs warm is a session-level fact, so if MESH has ever
-        -- connected this session, a failure here takes the single warm dial rather
-        -- than a fresh cold sequence (see RETRY POLICY).
+        -- Warmup runs again for each ROM load and each reset. It is cleared before the dial below,
+        -- because connect_socket resyncs whatever is marked as warmed up and the caches still
+        -- describe the previous game; the global output cache is cleared with it. A reset discards
+        -- the pulse timers, so a pulse in flight is ended first.
+        if CFG and _WarmupFlushed and manager.machine.output then
+            pcall(End_Pulses, manager.machine.output)
+        end
+        _WarmupFlushed = false
+        _GlobalLastOutputs = {}
+        _ErrorCounts.frame, _ErrorCounts.native = 0, 0
+
+        -- Re-arm the retry state at every ROM start, when a dial's stall is hidden by loading.
+        -- ever_connected is not reset: once MESH has connected this session, a failure here takes
+        -- the single warm dial and not a new cold sequence (see RETRY POLICY).
         next_retry_at = 0
         relay_given_up = false
         cold_fail_count = 0
 
-        -- Remember the running game so the relay can (re)announce it on every (re)connect
-        -- (see connect_socket), then deliver it now. Opening the relay here also serves as
-        -- the one free ROM-start dial. On a native-delivery install (_UseRelay false) MAME
-        -- emits mame_start itself, so we only track + dial when the relay is our path.
+        -- Remember the running game so that connect_socket can announce it on every connect, then
+        -- send it now. Opening the relay here is the ROM-start dial. With _UseRelay false MAME
+        -- sends mame_start itself, so nothing is dialled.
         _ActiveMameStart = "mame_start = " .. rom_name .. "\r\n"
         if _UseRelay then
             if connected and sock then
-                -- Already connected (e.g. a mid-process ROM switch): announce the new game now.
-                local ok_w, n_w = pcall(sock.write, sock, _ActiveMameStart)
-                if not (ok_w and n_w and n_w > 0) then teardown_connection() end
+                -- Already connected (for example after a ROM switch): announce the new game now.
+                -- The change filter is cleared with it, so that every value of the new game is sent
+                -- after its mame_start, including one equal to the previous game's last value.
+                if not relay_write(_ActiveMameStart) then teardown_connection() end
+                last_state = {}
             elseif relay_retry_due() then
                 connect_socket()  -- on success, connect_socket sends _ActiveMameStart itself
             end
         end
-        
+
+        -- The profile's on-screen switch, read from the database because CFG is set further
+        -- down: the ROM's own value, or the '_default' value when the ROM does not set one.
+        local profile_osd = nil
+        if type(db) == "table" then
+            if type(db[rom_name]) == "table" then profile_osd = db[rom_name].ENABLE_OSD end
+            if profile_osd == nil and type(db["_default"]) == "table" then profile_osd = db["_default"].ENABLE_OSD end
+        end
+        profile_osd = (profile_osd == true)
+
         dbg_print("Checking ROM [" .. rom_name .. "] against database")
-		dbg_osd("Checking ROM [" .. rom_name .. "] against database")
-        
-        if db and type(db) == "table" and db[rom_name] then
-            
-            -- Merge game data with default template to ensure stability
+        dbg_osd("Checking ROM [" .. rom_name .. "] against database", profile_osd)
+
+        -- Every profile is layered over the '_default' template. A database without one cannot
+        -- run a profile, so the ROM is then handled as a game without a profile.
+        local has_profile = db and type(db) == "table" and db[rom_name]
+        if has_profile and type(db["_default"]) ~= "table" then
+            dbg_print("DATABASE ERROR - database.lua has no '_default' profile; ROM [" .. rom_name
+                      .. "] is handled as a game without a profile")
+            has_profile = false
+        end
+
+        if has_profile then
+
+            -- Layer the ROM's profile over the '_default' template.
             local merged = deep_merge(db["_default"], db[rom_name])
-            
-            -- Check if the user has explicitly disabled this ROM
+
+            -- A profile with ENABLE_ROM = false is not run.
             if merged.ENABLE_ROM == false then
                 dbg_print("DISABLED - ROM [" .. rom_name .. "] disabled via ENABLE_ROM flag")
-                dbg_osd("DISABLED - ROM " .. rom_name .. " disabled by user")
+                dbg_osd("DISABLED - ROM " .. rom_name .. " disabled by user", profile_osd)
                 CFG = nil
-                
+
                 Unhook_Frame()
                 return
             end
-            
+
             dbg_print("ENABLED - ROM [" .. rom_name .. "] found in database")
-            dbg_osd("ENABLED - ROM [" .. rom_name .. "]")
-            
+            dbg_osd("ENABLED - ROM [" .. rom_name .. "]", profile_osd)
+
             CFG = normalize_variables(merged)
-            
-            -- Fix JSON limitations for hex strings
-            convert_hex_strings_to_numbers(CFG) 
-            
-            -- Stable numeric identity for the MSOP_LuaROMid output: a
-            -- database-supplied LUA_ROM_ID always wins; otherwise derive a
-            -- deterministic 31-bit FNV-1a hash of the ROM short name, so the
-            -- id never changes across plugin or database updates.
+
+            -- Convert the JSON hex strings to numbers.
+            convert_hex_strings_to_numbers(CFG)
+
+            -- The numeric ROM id for the MSOP_LuaROMid output: the profile's LUA_ROM_ID if present,
+            -- otherwise the FNV-1a hash of the ROM short name.
             _RomIdNum = tonumber(CFG.LUA_ROM_ID) or fnv1a_31(rom_name)
 
-            -- Reset Engine Tracking
-            _IsShuttingDown = false
+            -- Reset the engine state.
             _HasCoinedUp = not CFG.CREDITS
-            
+
             _LastGlobalCredits = 0
             _GlobalCreditsInserted = 0
             _PendingGlobalCreditDrops = 0
-            
-            -- Reset Memory Hardware Cache
+
+            -- Reset the memory bindings and the output names.
             _MemConfig = {}
             _MemHandles = {}
             _HardwareBound = false
             _OutputNames = {}
+            _SharedOutputs = false
             _GlobalOutputs = {}
 
-            -- Reset Output Proxy Cache
-            -- Critical: each cached proxy is bound to the root device_t of the
-            -- machine that was running when it was created. Switching to a new
-            -- ROM (e.g. via a frontend, or MAME's own game-select menu) destroys
-            -- that machine and constructs a fresh one - any proxy left in this
-            -- cache would be pointing at a device/output table that no longer
-            -- exists. Since output names (e.g. "MSOP_P1_Ammo") are templated
-            -- and reused across every supported game, a stale entry here will
-            -- get hit again on the next ROM. Must be cleared every on_start.
+            -- Reset the output proxy cache on every on_start. Each cached proxy belongs to the
+            -- machine that was running when it was resolved, and a new ROM destroys that machine.
+            -- Output names are reused across games, so a stale entry would be hit again.
             _ProxyCache = {}
             _FFB.Reset() -- same staleness rule: the FFB source/proxy belongs to the old machine
 
-            -- Pass-through sets this true; without clearing it here, one unsupported
-            -- ROM would leave Forward_Native_Outputs re-resolving permanently absent
-            -- names every frame for the rest of the session. Supported ROMs resolve
-            -- their outputs at start, so the miss-cache is safe again.
+            -- Pass-through mode sets this to true. It is cleared here so that a ROM with a profile
+            -- caches a missing proxy at once on a build that has output proxies.
             _RetryMissingProxies = false
 
-            -- Resolve this ROM's native-output forward list once per load.
-            --
-            -- When this build can enumerate (device.outputs), the running machine is
-            -- the list, and the scraped databases are not consulted at all - they are
-            -- keyed by driver source file, so they both name outputs a given machine
-            -- never creates and miss machines nobody scraped; asking the machine is
-            -- exact in both directions. Without enumeration this falls back to
-            -- native_outputs_by_rom.lua's auto-scraped entry for this ROM (regenerated
-            -- wholesale by msop_native_outputs_compiler.py - never hand-edit it).
-            --
-            -- database.lua's hand-curated ADDITIONAL_OUTPUT_FORWARDS is applied on top
-            -- either way: it exists for names no discovery route can see, e.g. another
-            -- script's own output. Deduped by wire name; every part may be absent with
-            -- no error. See Forward_Native_Outputs for the record shape.
-            --
-            -- Standdown (same rule as pass-through): while MAME's own -output network
-            -- server is running it is already broadcasting every readable output on 8000
-            -- - this ROM's natives and anything ADDITIONAL_OUTPUT_FORWARDS names (all of
-            -- them live in MAME's output system, which is exactly what that server
-            -- broadcasts). Forwarding them again over the relay would deliver each one
-            -- twice to anything reading both ports, so forward nothing; MSOP's own
-            -- outputs still travel over the relay as normal.
+            -- Resolve this ROM's native output forward list. With device.outputs the running
+            -- machine supplies it. Otherwise native_outputs_by_rom.lua's entry for this ROM is used
+            -- (a generated file; never edit it by hand). ADDITIONAL_OUTPUT_FORWARDS is added in
+            -- both cases, and entries are deduplicated by wire name.
             _NativeForwards = {}
+            -- Stand down while MAME's own -output network server is running: it already broadcasts
+            -- every output in MAME's output system on port 8000, and forwarding would deliver each
+            -- one twice to a program reading both ports. MSOP's own outputs still go over the
+            -- relay.
             if _MameServesNetwork then
                 dbg_print("Native forwards skipped - MAME's own -output network server on "
                           .. "8000 is already broadcasting this ROM's native outputs")
@@ -3472,17 +3308,17 @@ function stateoutput.startplugin()
                 for _, name in ipairs(CFG.ADDITIONAL_OUTPUT_FORWARDS or {}) do add_name(name) end
             end
 
-            -- Establish exact attotime durations for the specific machine
+            -- Convert the profile's durations and intervals to attotime values.
             _RecoilDuration = emu.attotime.from_msec(CFG.RECOIL_DURATION_MS or 40)
-            _RecoilAltDuration = emu.attotime.from_msec(CFG.RECOIL_ALT_DURATION_MS or 80)
-            _RecoilGrenadeDuration = emu.attotime.from_msec(CFG.RECOIL_GRENADE_DURATION_MS or 150)
-            _MinRecoilInterval = emu.attotime.from_msec(CFG.MIN_RECOIL_INTERVAL_MS or 0)
+            _RecoilAltDuration = emu.attotime.from_msec(CFG.RECOIL_ALT_DURATION_MS or 40)
+            _RecoilGrenadeDuration = emu.attotime.from_msec(CFG.RECOIL_GRENADE_DURATION_MS or 80)
+            _MinRecoilInterval = emu.attotime.from_msec(CFG.MIN_RECOIL_INTERVAL_MS or 100)
             _RecoilHoldInterval = CFG.RECOIL_HOLD_MS and emu.attotime.from_msec(CFG.RECOIL_HOLD_MS) or _MinRecoilInterval
-			-- Safety clamp: prevent machine-gun freeze by forcing interval > duration
-			if _MinRecoilInterval <= _RecoilDuration then _MinRecoilInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
-			if _RecoilHoldInterval <= _RecoilDuration then _RecoilHoldInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
-            -- Optional recoil safety delay (off by default, absent = off): widens the pulse interval
-            -- (MIN_RECOIL_INTERVAL_MS) and the hold interval (RECOIL_HOLD_MS) to at least
+            -- An interval at or below the recoil duration is raised to the duration plus 20 ms.
+            if _MinRecoilInterval <= _RecoilDuration then _MinRecoilInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
+            if _RecoilHoldInterval <= _RecoilDuration then _RecoilHoldInterval = emu.attotime.from_msec((CFG.RECOIL_DURATION_MS or 40) + 20) end
+            -- Optional recoil safety delay (off by default, absent = off): widens the pulse
+            -- interval (MIN_RECOIL_INTERVAL_MS) and the hold interval (RECOIL_HOLD_MS) to at least
             -- RECOIL_SAFETY_DELAY_MS. Pulse lengths (RECOIL_*_DURATION_MS) are never changed.
             if CFG.ENABLE_RECOIL_SAFETY_DELAY == true then
                 local safety_delay = emu.attotime.from_msec(tonumber(CFG.RECOIL_SAFETY_DELAY_MS) or 100)
@@ -3492,57 +3328,46 @@ function stateoutput.startplugin()
             _ReloadDuration = emu.attotime.from_msec(CFG.RELOAD_DURATION_MS or 40)
             _DamageDuration = emu.attotime.from_msec(CFG.DAMAGE_DURATION_MS or 250)
             _RumbleDuration = emu.attotime.from_msec(CFG.RUMBLE_DURATION_MS or CFG.DAMAGE_DURATION_MS or 250)
-            _StartupTime = emu.attotime.from_msec(CFG.STARTUP_DELAY_MS or 0)
+            -- The startup delay runs from this start or reset. Machine time is not reset by a soft
+            -- reset, so a deadline measured from zero would already have passed.
+            _StartupDelay = emu.attotime.from_msec(CFG.STARTUP_DELAY_MS or 5000)
+            _StartupTime = manager.machine.time + _StartupDelay
             _ZeroTime = emu.attotime.from_seconds(0)
-            -- Hoisted out of the frame loop (see the declaration comment above). Identical
-            -- values to what Frame_Logic used to compute inline; CREDITS_CLEAR_TIMEOUT_SEC is
-            -- optional, so its constant stays nil when unset and the frame guard still short-
-            -- circuits exactly as before.
-            _StatusDebounce = emu.attotime.from_msec(CFG.STATUS_DEBOUNCE_MS or 0)
+            -- CREDITS_CLEAR_TIMEOUT_SEC is optional. Its constant stays nil when unset, and
+            -- Frame_Logic then skips the check.
+            _StatusDebounce = emu.attotime.from_msec(CFG.STATUS_DEBOUNCE_MS or 34)
             _CreditsClearTimeout = CFG.CREDITS_CLEAR_TIMEOUT_SEC and emu.attotime.from_seconds(CFG.CREDITS_CLEAR_TIMEOUT_SEC) or nil
 
             _GameActiveTick = _ZeroTime
             _GameInactiveTick = _ZeroTime
-            _WarmupFlushed = false -- Resets the warmup state for consecutive ROM loads
-            
-            -- Reset all multi-player arrays (prevents "dirty RAM" carrying over from past games)
+
+            -- Reset every player's state so that nothing carries over from the previous game.
             for i = 1, 4 do
-                _Player[i] = { 
+                _Player[i] = {
                     LastOutputs={}, LastAmmo=0, LastAmmoAlt=0, LastAmmoGrenade=0, LastLife=0, LastLifeAlt=0, LastDmgMem=0, LastCredits=0, LastReloadVal=0,
                     RecoilTick=_ZeroTime, ReloadTick=_ZeroTime, DamageTick=_ZeroTime, RumbleTick=_ZeroTime,
                     CurrentRecoilDuration=_RecoilDuration, LastRecoilVal=0, LastDamageVal=0, LastRumbleEventVal=0,
                     ShotCountPrimary=0, ShotCountAlt=0, ShotCountGrenade=0, DamageCount=0, LifeLostCount=0, CreditsInserted=0, CreditsConsumed=0, PendingCreditDrops=0, SpawnsAwaitingCredit=0,
-                    IsActive=false, WasActive=false, ActiveTick=_ZeroTime,
+                    IsActive=false, WasActive=false, ActiveTick=_ZeroTime, Debounced=false, PrimaryFires=true, AlternateFires=true,
                     IsRecoilActive=false, IsReloadActive=false, IsDamageActive=false, IsRumbleActive=false,
                     IsFFBAllowed=false, WasFFBAllowed=false
                 }
             end
-            
-            -- Generate strings and math offsets
+
             Resolve_Addresses_And_Strings()
-            
-            -- Engage the frame loop, dropping any prior session/soft-reset
-            -- subscription deterministically first (on_start re-fires on
-            -- every reset; stacking notifiers double-runs the engine)
+
+            -- Attach the frame notifier. The previous subscription is detached first, because
+            -- on_start fires on every reset and a second notifier would run the engine twice per
+            -- frame.
             Unhook_Frame()
-            if emu.add_machine_frame_notifier then
-                exports.subscriptions.frame = emu.add_machine_frame_notifier(Compute_Outputs)
-            else
-                emu.register_frame_done(Compute_Outputs, "frame")
-            end
+            Hook_Frame()
         else
             CFG = nil
 
-            -- PASS-THROUGH MODE
-            -- The ROM has no MSOP profile, but MAME's own native outputs still exist. Under the relay
-            -- the instance runs with -output none/console, so MAME's own network module never gets to
-            -- broadcast them and the hookers see nothing at all. Mirror whatever native names we know
-            -- for this ROM so unsupported games still deliver their lamps/LEDs/etc.
-            --
-            -- With device.outputs available, an unsupported game forwards its real outputs whether
-            -- or not anyone ever scraped its driver. Without it, the scraped-database path below
-            -- applies, and a ROM with no entry forwards nothing here - it should simply run with
-            -- -output network instead, letting MAME broadcast its own natives directly.
+            -- Pass-through mode. The ROM has no profile, but its native outputs exist, and with
+            -- -output none or console MAME does not broadcast them, so they are forwarded over the
+            -- relay. With device.outputs the machine's real outputs are used. Without it the
+            -- scraped files below are used, and a ROM with no entry forwards nothing.
             _ProxyCache = {}
             _FFB.Reset() -- an unsupported ROM never computes FFB, but its predecessor's proxy is stale
             _RetryMissingProxies = true
@@ -3561,10 +3386,9 @@ function stateoutput.startplugin()
                     end
                     via = "enumerated from the running machine"
                 else
-                    -- The ROM's own scraped entry wins (it is the more specific of the two, and can
-                    -- carry layout-derived names the driver source never declares). Only when the ROM
-                    -- has no entry at all - the normal case for a game MSOP does not support - fall
-                    -- back to whatever its driver declares, keyed by source file basename.
+                    -- The ROM's own scraped entry is used first; it can carry layout-derived names
+                    -- the driver source does not declare. When the ROM has no entry, the driver's
+                    -- entry is used, keyed by source file basename.
                     local list = driver_db[rom_name]
                     via = "rom"
                     if not list or #list == 0 then
@@ -3587,13 +3411,10 @@ function stateoutput.startplugin()
                 end
             end
 
-            -- Standdown: when MAME's own network output server is running (-output network)
-            -- it is already broadcasting every native output of every game on 8000 -
-            -- including these. Forwarding them again over the relay would deliver each one
-            -- twice to anything reading both ports, so pass-through stands down and lets
-            -- MAME do the job it is doing better (no scraped list, no missing names).
-            -- Keyed on the resolved -output mode, not on the relay port: the relay always
-            -- lives on its own ingest port, which says nothing about MAME's server.
+            -- Stand down when MAME's own network output server is running (-output network): it
+            -- already broadcasts every native output on port 8000, and forwarding would deliver
+            -- each one twice to a program reading both ports. The test is the -output mode, not the
+            -- relay port.
             if _MameServesNetwork then
                 _NativeForwards = {}
                 dbg_print("PASS-THROUGH skipped - MAME's own -output network server on 8000 is "
@@ -3604,23 +3425,16 @@ function stateoutput.startplugin()
             if _UseRelay and #_NativeForwards > 0 then
                 dbg_print("PASS-THROUGH - ROM [" .. rom_name .. "] not in database; forwarding "
                           .. #_NativeForwards .. " native output(s) over the relay")
-                dbg_osd("MSOP pass-through: " .. #_NativeForwards .. " native outputs")
-                if emu.add_machine_frame_notifier then
-                    exports.subscriptions.frame = emu.add_machine_frame_notifier(Compute_Outputs)
-                else
-                    emu.register_frame_done(Compute_Outputs, "frame")
-                end
+                dbg_osd("MSOP pass-through: " .. #_NativeForwards .. " native outputs", profile_osd)
+                Hook_Frame()
             else
                 dbg_print("DISABLED - ROM [" .. rom_name .. "] not supported in database"
                           .. (_UseRelay and " (no scraped native outputs to forward)" or ""))
-                dbg_osd("DISABLED - ROM " .. rom_name .. " not supported")
-                -- Nothing to deliver. The one free ROM-start dial above already gave a
-                -- running MESH its mame_start (game tracking / unknown-game recording); if even
-                -- that found nobody - or from here on the connection drops - there is no payload
-                -- that could ever justify another stall, so retries stop outright for this ROM.
-                -- Covers both the no-forwards case and the network standdown (where dialling
-                -- the relay for a game with no MSOP outputs bought nothing at all). Re-armed by
-                -- the usual cues: next ROM start, soft reset, or unpause.
+                dbg_osd("DISABLED - ROM " .. rom_name .. " not supported", profile_osd)
+                -- Nothing to deliver. The ROM-start dial above already gave a running MESH its
+                -- mame_start. If it did not connect, retries stop for this ROM, because no payload
+                -- justifies another stall. The usual cues re-arm dialling: the next ROM start, a
+                -- soft reset or an unpause.
                 if not connected then
                     relay_given_up = true
                     dbg_print("Relay: no MSOP payload exists for this ROM - no further dials this session")
@@ -3628,29 +3442,28 @@ function stateoutput.startplugin()
             end
         end
     end
-    
+
     -- =========================================================================
     -- COMPATIBILITY API REGISTRATION
     -- =========================================================================
-    
-    -- Prevent duplicate hook registration on consecutive ROM loads
+
+    -- The hooks are bound once per MAME session.
     if not stateoutput.api_hooks_bound then
         dbg_print("Binding API Hooks...")
-        
-        -- 0. Global Pause/Resume Notifiers (Works for all games)
+
+        -- 1. Pause and resume notifiers, for every game.
         if emu.add_machine_pause_notifier then
             exports.subscriptions.pause = emu.add_machine_pause_notifier(function()
                 broadcast_native_event("pause = 1\r\n")
             end)
         end
-        
+
         if emu.add_machine_resume_notifier then
             exports.subscriptions.resume = emu.add_machine_resume_notifier(function()
-                -- Re-arm cue: "pause the game, start MESH, unpause" grants exactly one
-                -- immediate dial (via the broadcast below). The cold counter is pinned
-                -- to the final stage rather than reset, so a failed post-give-up dial
-                -- re-latches the give-up silently instead of restarting the warnings.
-                -- No-op while connected.
+                -- Re-arm cue: an unpause grants one immediate dial, through the broadcast below.
+                -- The cold counter is capped at its final stage and not reset, so a dial that fails
+                -- after dialling had stopped stops it again without repeating the warnings. Nothing
+                -- changes while connected.
                 if not connected then
                     relay_given_up = false
                     next_retry_at = 0
@@ -3659,23 +3472,23 @@ function stateoutput.startplugin()
                 broadcast_native_event("pause = 0\r\n")
             end)
         end
-        
-        -- 1. RESET Phase: Load the ROM configuration and bind memory
+
+        -- 2. Reset notifier: load the ROM's profile and attach the frame notifier.
         if emu.add_machine_reset_notifier then
             dbg_print("Hooked on_start to machine_reset (RESET)")
             exports.subscriptions.reset = emu.add_machine_reset_notifier(on_start)
         else
             emu.register_start(on_start)
         end
-        
-        -- 2. STOP Phase: Cleanup on session end
+
+        -- 3. Stop notifier: clean up when the machine stops.
         if emu.add_machine_stop_notifier then
             exports.subscriptions.stop = emu.add_machine_stop_notifier(on_machine_stop)
         elseif emu.register_stop then
             emu.register_stop(on_machine_stop)
         end
 
-        -- 4. SAVE-STATE Phase: re-align Lua mirrors with restored output values
+        -- 4. Post-load notifier: realign the Lua-side state with a loaded save state.
         if emu.add_machine_post_load_notifier then
             dbg_print("Hooked on_post_load to post_load notifier (save-state resync)")
             exports.subscriptions.post_load = emu.add_machine_post_load_notifier(on_post_load)
@@ -3683,8 +3496,7 @@ function stateoutput.startplugin()
             dbg_print("Hooked on_post_load to register_postload (save-state resync, legacy)")
             emu.register_postload(on_post_load)
         end
-        
-        -- Mark hooks as bound so they don't stack on the next ROM launch
+
         stateoutput.api_hooks_bound = true
     end
 end

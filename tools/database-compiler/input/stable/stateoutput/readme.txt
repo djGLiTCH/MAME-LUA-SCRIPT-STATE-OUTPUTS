@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.3.6
-Plugin Date:    2026.10.09
-Database Date:  2026.10.09
+Plugin Version: 9.4.0
+Plugin Date:    2026.10.12
+Database Date:  2026.10.12
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -102,6 +102,52 @@ WITH MESH (recommended)
     relay session is live. Hooker programs keep connecting to 8000 exactly as
     they always have; nothing about the hooker changes.
 
+OUTPUT DELIVERY BY MAME VERSION
+  Where each kind of output is delivered, for every MAME output setting:
+
+  +-------------+---------------------+--------------+--------------+----------+
+  | MAME        | MAME OUTPUT         | MSOP         | NATIVE       | MESH     |
+  |             |                     | OUTPUTS      | OUTPUTS      | REQUIRED |
+  +-------------+---------------------+--------------+--------------+----------+
+  | 0.200-0.288 | none, console, auto | Relay (8004) | Relay (8004) | Yes      |
+  | 0.200-0.288 | network             | MAME (8000)  | MAME (8000)  | No       |
+  | 0.200-0.288 | windows             | MAME (Win32) | MAME (Win32) | No       |
+  +-------------+---------------------+--------------+--------------+----------+
+  | 0.289+      | none, console, auto | Relay (8004) | Relay (8004) | Yes      |
+  | 0.289+      | network             | Relay (8004) | MAME (8000)  | Yes      |
+  | 0.289+      | windows             | Relay (8004) | MAME (Win32) | Yes      |
+  |             |                     |              | and relay    |          |
+  +-------------+---------------------+--------------+--------------+----------+
+
+  MSOP OUTPUTS are what the plugin produces for a game with an MSOP profile
+  (recoil, ammo, life, game status and so on). NATIVE OUTPUTS are the ones
+  MAME's own driver creates (lamps, LEDs, a game's own recoil output), and they
+  are delivered for every game, with or without a profile, except a game whose
+  profile is switched off with ENABLE_ROM.
+
+  "Relay (8004)" means the plugin sends the outputs to MESH on 127.0.0.1:8004 by
+  default, and MESH passes them on to your hardware and hooker programs. "MAME
+  (8000)" is MAME's own network output server on port 8000, and "MAME (Win32)"
+  is MAME's Windows message output. "auto" is MAME's factory default and MAME
+  treats it as "none".
+  "MESH REQUIRED" says whether MESH must be running for that setting to deliver
+  the outputs. MESH works with every setting in the table; where it says No,
+  MAME delivers the outputs itself and MESH can still read them. For 0.289 and
+  later, "none" is the recommended setting.
+
+  * 0.289+ with "network": MSOP shows a one-shot INCORRECT OUTPUT MODE notice. A
+    hooker program reading MAME's port 8000 directly receives the native outputs
+    only.
+  * 0.289+ with "windows": this works with MESH, and MSOP shows a short one-shot
+    note. A program that only reads MAME's Windows messages, such as MAMEhooker,
+    receives the native outputs only; to send it MSOP's outputs as well, use
+    "none" and enable "Serve Win32 output" in MESH.
+  * Native outputs over the relay on 0.288 and earlier need MSOP Plugin v9.4.0
+    or newer.
+  * Up to and including MAME 0.289 the plugin finds native outputs in the output
+    tables shipped with it; from MAME 0.290 it asks MAME which outputs the
+    running game has.
+
 WHICH PORT MSOP USES
   When the relay is in use, MSOP dials MESH's MSOP ingest listener on
   127.0.0.1:8004. That is a private port dedicated to this one job - MSOP never
@@ -160,6 +206,11 @@ HOW MSOP FINDS A GAME'S NATIVE OUTPUTS TO FORWARD
   them again over the relay would deliver each one twice to anything reading both
   ports.
 
+  With '-output windows' on MAME 0.289 and later, the natives are forwarded over
+  the relay as well as sent by MAME as Windows messages. MESH takes each one
+  from MAME's own messages, so its devices and programs reading port 8000
+  receive every output once.
+
   Cost: negligible. Forwarding is a cached read per known name per frame with no
   allocation, and a value is only ever put on the wire when it CHANGES. Measured on
   Point Blank 2 (28 candidate names) it was within about 1% of running with forwarding
@@ -171,12 +222,13 @@ WHEN IS THE RELAY USED AT ALL?
   guessed from a version number. If that route does not work, MAME can hold none of
   MSOP's outputs and therefore cannot broadcast them in ANY output mode, so the
   relay is the only delivery path and is switched on regardless of the setting.
-  This is deliberately capability-based rather than version-based: custom and
+  A build that reports MAME 0.289 or later is treated as relay-only as well.
+  The check is on capability first and version second: custom and
   pre-release builds can report a version that does not match their behaviour, and
   guessing from the number alone left '-output windows' silently undelivered.
 
-  EXPECTED CONSOLE MESSAGE. That probe runs in MAME's console. When the plugin loads it
-  first prints an explicit "COMPATIBILITY TEST" line saying it is about to check whether
+  EXPECTED CONSOLE MESSAGE. That probe runs in MAME's console. When the first game of a
+  session starts it first prints an explicit "COMPATIBILITY TEST" line saying it is about to check whether
   this build can create state outputs, then makes the test call. On MAME 0.289 and newer,
   MAME answers with its OWN error/warning about an unknown output on the very next line -
   that message is EXPECTED, is not a fault in MSOP or the game, and is immediately followed
@@ -206,8 +258,8 @@ IF NOTHING IS LISTENING ON THE RELAY PORT
       STATE OUTPUTS PAUSED" appears and MSOP stops dialling for the session
 
   Reconnecting after MSOP has stopped dialling costs one deliberate action: after
-  starting MESH, pause and unpause the game (dialling never happens while paused -
-  the attempt runs at the moment of unpause), perform a soft reset, load a new ROM,
+  starting MESH, pause and unpause the game (the attempt runs at the moment of
+  unpause), perform a soft reset, load a new ROM,
   or simply restart MAME. Cold start versus lost connection is judged per MAME
   session, not per ROM: until MESH has connected once, every ROM start begins a
   fresh cold sequence; once MESH has connected, any later failure - in any ROM -
@@ -234,10 +286,15 @@ IF NOTHING IS LISTENING ON THE RELAY PORT
 
   INCORRECT OUTPUT MODE. On a MAME build that cannot create MSOP's outputs (0.289
   and above), the relay is the only delivery path in EVERY '-output' mode - so if
-  such a build is set to '-output network' or '-output windows', MSOP shows a
-  one-shot notice recommending '-output none', since those modes only deliver
-  MSOP's outputs natively on MAME 0.200 - 0.288 and external hooker programs may
-  otherwise not receive them. Note that '-output auto' (MAME's factory default) is
+  such a build is set to '-output network', MSOP shows a one-shot notice
+  recommending '-output none', since that mode only delivers MSOP's outputs
+  natively on MAME 0.200 - 0.288 and external hooker programs may otherwise not
+  receive them. '-output windows' is supported with MESH and shows a shorter note
+  instead: MAME sends the game's native outputs as Windows messages while MSOP's
+  own outputs reach MESH over the relay, and MESH reads both. Programs that only
+  read MAME's Windows messages, such as MAMEhooker, receive the native outputs
+  only in this mode; to send them MSOP's outputs as well, set '-output none' and
+  enable "Serve Win32 output" in MESH. Note that '-output auto' (MAME's factory default) is
   resolved by MAME itself to the "none" output module - MSOP treats it as "none",
   it uses the relay as normal, and it never triggers this notice.
 
@@ -274,6 +331,8 @@ work across all supported games. Every output MSOP creates is prefixed with
 may already register under the same short name (e.g. a raw "Credits" or 
 "Status" output belonging to something else entirely) - make sure your hooker 
 software's mapping file uses the full prefixed name below, not the short name.
+The three DemulShooter names (PX_CtmRecoil, PX_Damaged and PX_CtmLmpStart) are
+the only outputs without the prefix.
 
 Two tables are provided below depending on what you're building:
 
@@ -294,22 +353,24 @@ CONDENSED (force feedback / physical reaction triggers)
 
 [Output]
 MSOP_P1_LampStart=
-MSOP_P1_CtmRecoil=
 MSOP_P1_Recoil=
 MSOP_P1_Reload=
 MSOP_P1_Rumble=
-MSOP_P1_Damaged=
 MSOP_P2_LampStart=
-MSOP_P2_CtmRecoil=
 MSOP_P2_Recoil=
 MSOP_P2_Reload=
 MSOP_P2_Rumble=
-MSOP_P2_Damaged=
+P1_CtmLmpStart=
+P1_CtmRecoil=
+P1_Damaged=
+P2_CtmLmpStart=
+P2_CtmRecoil=
+P2_Damaged=
 
 Note 1: PX = Player Number (e.g. P1 = Player 1)
 Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
-Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
-Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
+Note 3: Recoil can be MSOP_PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
+Note 4: Damage can be MSOP_PX_Damage or PX_Damaged (with demulshooter compatibility)
 
 --------------------------------------------------------------------------------
 COMPLETE (all outputs: triggers plus informational values)
@@ -324,19 +385,19 @@ MSOP_LuaVersion=
 MSOP_LuaDate=
 MSOP_LuaROMid=
 MSOP_P1_LampStart=
-MSOP_P1_CtmRecoil=
 MSOP_P1_Recoil=
 MSOP_P1_Reload=
 MSOP_P1_Rumble=
-MSOP_P1_Damaged=
 MSOP_P1_Damage=
 MSOP_P1_DamageTaken=
+MSOP_P1_Credits=
 MSOP_P1_Status=
 MSOP_P1_StatusAlt=
 MSOP_P1_Life=
 MSOP_P1_LifeAlt=
 MSOP_P1_LifeLost=
 MSOP_P1_Ammo=
+MSOP_P1_Clip=
 MSOP_P1_AmmoAlt=
 MSOP_P1_AmmoGrenade=
 MSOP_P1_ShotsFired=
@@ -346,19 +407,19 @@ MSOP_P1_ShotsFiredGrenade=
 MSOP_P1_CreditsInserted=
 MSOP_P1_CreditsConsumed=
 MSOP_P2_LampStart=
-MSOP_P2_CtmRecoil=
 MSOP_P2_Recoil=
 MSOP_P2_Reload=
 MSOP_P2_Rumble=
-MSOP_P2_Damaged=
 MSOP_P2_Damage=
 MSOP_P2_DamageTaken=
+MSOP_P2_Credits=
 MSOP_P2_Status=
 MSOP_P2_StatusAlt=
 MSOP_P2_Life=
 MSOP_P2_LifeAlt=
 MSOP_P2_LifeLost=
 MSOP_P2_Ammo=
+MSOP_P2_Clip=
 MSOP_P2_AmmoAlt=
 MSOP_P2_AmmoGrenade=
 MSOP_P2_ShotsFired=
@@ -367,16 +428,24 @@ MSOP_P2_ShotsFiredAlt=
 MSOP_P2_ShotsFiredGrenade=
 MSOP_P2_CreditsInserted=
 MSOP_P2_CreditsConsumed=
+P1_CtmLmpStart=
+P1_CtmRecoil=
+P1_Damaged=
+P2_CtmLmpStart=
+P2_CtmRecoil=
+P2_Damaged=
 
-Every output above only appears once a supported ROM actually drives it away 
-from its default value - this keeps your hooker software free of names that 
-ROM never uses, and is consistent across every output MSOP produces, global 
-or per-player.
+An output is sent only by a game whose profile uses it, starting at 0 when the
+game starts - this keeps your hooker software free of names that ROM never
+uses. The exceptions are the global outputs (MSOP_GameStatus,
+MSOP_AttractStatus and the three MSOP_Lua outputs), which every game sends, and
+PX_CtmRecoil, PX_Damaged and MSOP_PX_ShotsFired, which every light gun game
+sends unless DemulShooter compatibility or the shot count is switched off.
 
 Note 1: PX = Player Number (e.g. P1 = Player 1)
 Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
-Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
-Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
+Note 3: Recoil can be MSOP_PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
+Note 4: Damage can be MSOP_PX_Damage or PX_Damaged (with demulshooter compatibility)
 
 RACING / FORCE FEEDBACK OUTPUTS:
 
@@ -417,9 +486,7 @@ MSOP_P1_FFB_EngineRumble=
 * Every game's database entry now carries a GAME_TYPE (lightgun default /
   racing / both): racing games emit only the FFB vocabulary (plus the global
   outputs) and skip the gun pipeline entirely, and gun games never emit FFB
-  names. Supported racing ROMs in this release: thrilld (Thrill Drive),
-  gticlub (GTI Club), raverace (Rave Racer - enable feedback in its service
-  menu), overrev (Over Rev - change output mode in its service menu).
+  names. The racing game profiles are in the beta channel database.
 
 --------------------------------------------------------------------------------
 MESH APP (FORMERLY MSOP CONFIGURATOR): TUTORIAL & USAGE
