@@ -449,6 +449,15 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.10.12",
+            "ChangesDatabase": [
+                "timecris: The game status output now also follows time mode. GAME_STATUS_ALT is set to 0x00E00798 (time mode) alongside GAME_STATUS 0x00E01772 (story mode), so MSOP_GameStatus is raised in either mode.",
+                "terabrst: Player 2's credits are now read from their own address (0x0023A544). They mirrored player 1's, which doubled the credit outputs.",
+                "General: Added GAME_STATUS_ALT and GAME_STATUS_ALT_ACTIVE_VALUE to the _default profile (both false).",
+                "General: Added RELOAD_MEM_ADD_VALUE and RELOAD_MEM_MIN_VALUE to the _default profile (both false), which the plugin already read. No game's behaviour changes."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.10.07",
             "ChangesDatabase": [
                 "crszone: Recoil outputs now match ammo consumption in-game, with one recoil pulse for every shot (RECOIL_DURATION_MS 30 and MIN_RECOIL_INTERVAL_MS 40). Crisis Zone fires about 20 shots a second, so take care that this rate of recoil does not overheat your lightgun solenoid if it is not rated for this output speed.",
@@ -557,6 +566,64 @@
     ],
     "PluginStable": [
         {
+            "Version": "9.4.0",
+            "ReleaseDatePlugin": "2026.10.12",
+            "ChangesPlugin": [
+                "init.lua: Added GAME_STATUS_ALT, an optional second game status memory address for a game that tracks activity in a different place per mode. The game is active when either GAME_STATUS or GAME_STATUS_ALT reads active. It shares the CPU, memory space and data width of GAME_STATUS, and GAME_STATUS_ALT_ACTIVE_VALUE optionally sets its own active value. Profiles without it behave as before.",
+                "init.lua: Native outputs are now forwarded over the relay on MAME 0.288 and earlier when MAME output is set to none or console. Those versions have no output proxies, so games without an MSOP profile sent only mame_start and mame_stop; the plugin now reads their native outputs through MAME's older output functions.",
+                "init.lua: MAME output windows on MAME 0.289 and above no longer shows the INCORRECT OUTPUT MODE notice, as it is a supported setup with MESH: MAME sends the game's native outputs as Windows messages while MSOP's own outputs reach MESH over the relay. A shorter note replaces it, explaining that programs which only read MAME's Windows messages, such as MAMEhooker, receive the native outputs only in this mode. The INCORRECT OUTPUT MODE notice still appears for MAME output network.",
+                "init.lua: RECOIL_MEM_MIN_VALUE is now read by the plugin. It was listed in the _default profile but had no effect. It sets the lowest value at a RECOIL memory address that counts as active, matching RELOAD_MEM_MIN_VALUE.",
+                "init.lua: Code comments shortened and corrected throughout. The lists of options each function and setting accepts are kept in full. No functional change.",
+                "init.lua: Fixed a previous game's outputs being sent under the next game's mame_start when MESH first connected at a game start or stop.",
+                "init.lua: Fixed a lit start lamp (MSOP_P<n>_LampStart) being reported as 0 after MESH reconnects.",
+                "init.lua: Loading a save state no longer drops MSOP_GameStatus and the player status outputs to 0 for a moment. FFB event outputs are also realigned after a load.",
+                "init.lua: After switching game on a live MESH connection, every output of the new game is now sent, including one that starts at the value the previous game ended on.",
+                "init.lua: STARTUP_DELAY_MS is now applied after a soft reset as well as at a game start, and a recoil, reload, damage or rumble pulse that is on at a reset is ended.",
+                "init.lua: After a save state loads, a MESH reconnect no longer sends the plugin identity outputs, the shot, damage, life and credit counters or the FFB channels as 0.",
+                "init.lua: After a MESH reconnect, only the outputs a game has already sent are sent again. Outputs the game never drives no longer appear at 0.",
+                "init.lua: ENABLE_OSD set in a game's profile now shows the start-up messages on screen from the game's first start.",
+                "init.lua: With SIMULTANEOUS_PLAY off and more than one player, a recoil, reload, damage or rumble pulse started by a player other than player 1 now ends on time and at its own length.",
+                "init.lua: When MESH connects during a game's startup delay, the outputs written in the frames before it connected are now sent when the delay ends.",
+                "init.lua: With ENABLE_CREDIT_COUNT off, the credit counter outputs are no longer sent at all.",
+                "init.lua: A player CREDITS of \"auto\" that shares the global credit address is now divided by COINS_PER_CREDIT, as the global credits are.",
+                "init.lua: Recoil, reload, damage and rumble are no longer sent before the startup delay ends when FORCE_FEEDBACK_ENABLER is \"gamestatus\" or \"life\".",
+                "init.lua: With SIMULTANEOUS_PLAY off and more than one player, player 1's LAMP_START alone drives the shared start lamp.",
+                "init.lua: Racing force feedback read from a native output now works on MAME 0.288 and earlier.",
+                "init.lua: On MAME 0.288 and earlier a native output the game creates after it starts is now picked up and forwarded, for games with a profile as well.",
+                "init.lua: On MAME 0.288 and earlier the start-up check no longer leaves an MSOP_LegacyCreateProbe output behind. It uses MSOP_LuaVersion, which carries the same value afterwards.",
+                "init.lua: The built-in values used when a setting is missing from a database now match the _default profile: STARTUP_DELAY_MS 5000, STATUS_DEBOUNCE_MS 34, MIN_RECOIL_INTERVAL_MS 100, RECOIL_ALT_DURATION_MS 40 and RECOIL_GRENADE_DURATION_MS 80.",
+                "init.lua: A float32 or float32be value that is not a finite number, or is beyond the integer range, no longer raises an error in every frame. It is limited to the signed 32-bit range, and NaN is sent as 0.",
+                "init.lua: An integer value beyond the signed 32-bit range, such as a 32-bit read of 0xFFFFFFFF, is limited to that range as well.",
+                "init.lua: A player with a STATUS_ALT address now has the alternate ammo, alternate life and grenade outputs held at 0 while that address reads inactive, even when the primary STATUS is active, and each ammo count triggers recoil and reload only while its own status is active. This affects Area 51 / Maximum Force Duo.",
+                "init.lua: RECOIL_METHOD \"latch\" now fires only when the value goes from 0 to active, and no longer on every rise.",
+                "init.lua: A P1 ammo or life setting of \"auto\" is treated as unset. It raised an error that left every output of the game at 0.",
+                "init.lua: LIFE_LOST \"auto\" now counts both falls when LIFE and LIFE_ALT drop in the same frame.",
+                "init.lua: A relay write that sends only part of a frame is now followed by the rest, and the connection is reset if that fails. A time setting with a fraction, such as 40.5, is rounded and no longer stops MSOP from starting for that game.",
+                "init.lua: Outputs written only in a game's first frame, such as P<n>_CtmLmpStart, MSOP_Credits for a game with per-player credits and the FFB channels, are now sent at 0 when the game starts.",
+                "init.lua: For a game with per-player credit addresses, credits already present when the game starts or a save state loads are no longer counted in MSOP_GlobalCreditsInserted.",
+                "init.lua: RECOIL, RELOAD, DAMAGE and RUMBLE memory addresses no longer trigger a pulse for a change that happened while the player was inactive.",
+                "init.lua: On MAME builds without emu.add_machine_frame_notifier, the plugin no longer runs once more per frame after each reset.",
+                "init.lua: MAX_PLAYERS is limited to 1 to 4, a P1 LAMP_START of \"auto\" is treated as unset, and SHOTS_FIRED_METHOD \"bullets\" now counts correctly with an ammo direction of \"change\".",
+                "init.lua: On a MAME build that cannot create outputs (0.289 and above), a missing output name used with the \"output\" data width no longer logs a MAME warning in every frame. For a game without a profile, a native output name that does not exist is no longer looked up after 600 frames.",
+                "init.lua: A repeating frame error is logged once and then every 600th time. A database with no _default profile is reported in the console and no longer raises an error.",
+                "init.lua: Reduced the work done in every frame: fewer time calculations, no new payload table per frame, and one lookup of MAME's output manager per game for native outputs on MAME 0.288 and earlier.",
+                "database: Added GAME_STATUS_ALT and GAME_STATUS_ALT_ACTIVE_VALUE to the _default profile (both false).",
+                "database: Added RELOAD_MEM_ADD_VALUE and RELOAD_MEM_MIN_VALUE to the _default profile (both false). The plugin already read both, and Operation Wolf 3 already sets RELOAD_MEM_MIN_VALUE, but neither was listed.",
+                "database: Teraburst now reads player 2's credits from their own address. They mirrored player 1's, which doubled MSOP_Credits and MSOP_GlobalCreditsInserted.",
+                "GUIDE.md: Documented GAME_STATUS and GAME_STATUS_ALT. README.md and readme.txt: Updated the description of the output mode notice, and added a table showing where MSOP and native outputs are delivered for each MAME version and MAME output setting.",
+                "GUIDE.md: Documented RECOIL_MEM_ADD_VALUE, RECOIL_MEM_MIN_VALUE, RELOAD_MEM_ADD_VALUE and RELOAD_MEM_MIN_VALUE, and corrected the descriptions of LUA_ROM_ID, STATUS, ADDITIONAL_OUTPUT_FORWARDS and the recoil timing settings. README.md and readme.txt: Described native output forwarding with MAME output windows.",
+                "GUIDE.md: Added a full settings reference listing every profile setting with its default. README.md and readme.txt: Corrected the output name lists. The DemulShooter names (P<n>_CtmRecoil, P<n>_Damaged and P<n>_CtmLmpStart) carry no MSOP_ prefix, and the Clip and per-player Credits outputs are now listed."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.12",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-STABLE",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "9.3.6",
             "ReleaseDatePlugin": "2026.10.09",
             "ChangesPlugin": [
@@ -566,9 +633,9 @@
             "DatabaseReleases": [
                 {
                     "IncludedDatabaseDate": "2026.10.09",
-                    "PackageLocation": "updates/plugin",
-                    "PackageName": "MSOP-PLUGIN-STABLE",
-                    "PackageType": ".zip"
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
                 }
             ]
         },
@@ -1038,6 +1105,64 @@
     ],
     "PluginBeta": [
         {
+            "Version": "9.4.0",
+            "ReleaseDatePlugin": "2026.10.12",
+            "ChangesPlugin": [
+                "init.lua: Added GAME_STATUS_ALT, an optional second game status memory address for a game that tracks activity in a different place per mode. The game is active when either GAME_STATUS or GAME_STATUS_ALT reads active. It shares the CPU, memory space and data width of GAME_STATUS, and GAME_STATUS_ALT_ACTIVE_VALUE optionally sets its own active value. Profiles without it behave as before.",
+                "init.lua: Native outputs are now forwarded over the relay on MAME 0.288 and earlier when MAME output is set to none or console. Those versions have no output proxies, so games without an MSOP profile sent only mame_start and mame_stop; the plugin now reads their native outputs through MAME's older output functions.",
+                "init.lua: MAME output windows on MAME 0.289 and above no longer shows the INCORRECT OUTPUT MODE notice, as it is a supported setup with MESH: MAME sends the game's native outputs as Windows messages while MSOP's own outputs reach MESH over the relay. A shorter note replaces it, explaining that programs which only read MAME's Windows messages, such as MAMEhooker, receive the native outputs only in this mode. The INCORRECT OUTPUT MODE notice still appears for MAME output network.",
+                "init.lua: RECOIL_MEM_MIN_VALUE is now read by the plugin. It was listed in the _default profile but had no effect. It sets the lowest value at a RECOIL memory address that counts as active, matching RELOAD_MEM_MIN_VALUE.",
+                "init.lua: Code comments shortened and corrected throughout. The lists of options each function and setting accepts are kept in full. No functional change.",
+                "init.lua: Fixed a previous game's outputs being sent under the next game's mame_start when MESH first connected at a game start or stop.",
+                "init.lua: Fixed a lit start lamp (MSOP_P<n>_LampStart) being reported as 0 after MESH reconnects.",
+                "init.lua: Loading a save state no longer drops MSOP_GameStatus and the player status outputs to 0 for a moment. FFB event outputs are also realigned after a load.",
+                "init.lua: After switching game on a live MESH connection, every output of the new game is now sent, including one that starts at the value the previous game ended on.",
+                "init.lua: STARTUP_DELAY_MS is now applied after a soft reset as well as at a game start, and a recoil, reload, damage or rumble pulse that is on at a reset is ended.",
+                "init.lua: After a save state loads, a MESH reconnect no longer sends the plugin identity outputs, the shot, damage, life and credit counters or the FFB channels as 0.",
+                "init.lua: After a MESH reconnect, only the outputs a game has already sent are sent again. Outputs the game never drives no longer appear at 0.",
+                "init.lua: ENABLE_OSD set in a game's profile now shows the start-up messages on screen from the game's first start.",
+                "init.lua: With SIMULTANEOUS_PLAY off and more than one player, a recoil, reload, damage or rumble pulse started by a player other than player 1 now ends on time and at its own length.",
+                "init.lua: When MESH connects during a game's startup delay, the outputs written in the frames before it connected are now sent when the delay ends.",
+                "init.lua: With ENABLE_CREDIT_COUNT off, the credit counter outputs are no longer sent at all.",
+                "init.lua: A player CREDITS of \"auto\" that shares the global credit address is now divided by COINS_PER_CREDIT, as the global credits are.",
+                "init.lua: Recoil, reload, damage and rumble are no longer sent before the startup delay ends when FORCE_FEEDBACK_ENABLER is \"gamestatus\" or \"life\".",
+                "init.lua: With SIMULTANEOUS_PLAY off and more than one player, player 1's LAMP_START alone drives the shared start lamp.",
+                "init.lua: Racing force feedback read from a native output now works on MAME 0.288 and earlier.",
+                "init.lua: On MAME 0.288 and earlier a native output the game creates after it starts is now picked up and forwarded, for games with a profile as well.",
+                "init.lua: On MAME 0.288 and earlier the start-up check no longer leaves an MSOP_LegacyCreateProbe output behind. It uses MSOP_LuaVersion, which carries the same value afterwards.",
+                "init.lua: The built-in values used when a setting is missing from a database now match the _default profile: STARTUP_DELAY_MS 5000, STATUS_DEBOUNCE_MS 34, MIN_RECOIL_INTERVAL_MS 100, RECOIL_ALT_DURATION_MS 40 and RECOIL_GRENADE_DURATION_MS 80.",
+                "init.lua: A float32 or float32be value that is not a finite number, or is beyond the integer range, no longer raises an error in every frame. It is limited to the signed 32-bit range, and NaN is sent as 0.",
+                "init.lua: An integer value beyond the signed 32-bit range, such as a 32-bit read of 0xFFFFFFFF, is limited to that range as well.",
+                "init.lua: A player with a STATUS_ALT address now has the alternate ammo, alternate life and grenade outputs held at 0 while that address reads inactive, even when the primary STATUS is active, and each ammo count triggers recoil and reload only while its own status is active. This affects Area 51 / Maximum Force Duo.",
+                "init.lua: RECOIL_METHOD \"latch\" now fires only when the value goes from 0 to active, and no longer on every rise.",
+                "init.lua: A P1 ammo or life setting of \"auto\" is treated as unset. It raised an error that left every output of the game at 0.",
+                "init.lua: LIFE_LOST \"auto\" now counts both falls when LIFE and LIFE_ALT drop in the same frame.",
+                "init.lua: A relay write that sends only part of a frame is now followed by the rest, and the connection is reset if that fails. A time setting with a fraction, such as 40.5, is rounded and no longer stops MSOP from starting for that game.",
+                "init.lua: Outputs written only in a game's first frame, such as P<n>_CtmLmpStart, MSOP_Credits for a game with per-player credits and the FFB channels, are now sent at 0 when the game starts.",
+                "init.lua: For a game with per-player credit addresses, credits already present when the game starts or a save state loads are no longer counted in MSOP_GlobalCreditsInserted.",
+                "init.lua: RECOIL, RELOAD, DAMAGE and RUMBLE memory addresses no longer trigger a pulse for a change that happened while the player was inactive.",
+                "init.lua: On MAME builds without emu.add_machine_frame_notifier, the plugin no longer runs once more per frame after each reset.",
+                "init.lua: MAX_PLAYERS is limited to 1 to 4, a P1 LAMP_START of \"auto\" is treated as unset, and SHOTS_FIRED_METHOD \"bullets\" now counts correctly with an ammo direction of \"change\".",
+                "init.lua: On a MAME build that cannot create outputs (0.289 and above), a missing output name used with the \"output\" data width no longer logs a MAME warning in every frame. For a game without a profile, a native output name that does not exist is no longer looked up after 600 frames.",
+                "init.lua: A repeating frame error is logged once and then every 600th time. A database with no _default profile is reported in the console and no longer raises an error.",
+                "init.lua: Reduced the work done in every frame: fewer time calculations, no new payload table per frame, and one lookup of MAME's output manager per game for native outputs on MAME 0.288 and earlier.",
+                "database: Added GAME_STATUS_ALT and GAME_STATUS_ALT_ACTIVE_VALUE to the _default profile (both false).",
+                "database: Added RELOAD_MEM_ADD_VALUE and RELOAD_MEM_MIN_VALUE to the _default profile (both false). The plugin already read both, and Operation Wolf 3 already sets RELOAD_MEM_MIN_VALUE, but neither was listed.",
+                "database: Teraburst now reads player 2's credits from their own address. They mirrored player 1's, which doubled MSOP_Credits and MSOP_GlobalCreditsInserted.",
+                "GUIDE.md: Documented GAME_STATUS and GAME_STATUS_ALT. README.md and readme.txt: Updated the description of the output mode notice, and added a table showing where MSOP and native outputs are delivered for each MAME version and MAME output setting.",
+                "GUIDE.md: Documented RECOIL_MEM_ADD_VALUE, RECOIL_MEM_MIN_VALUE, RELOAD_MEM_ADD_VALUE and RELOAD_MEM_MIN_VALUE, and corrected the descriptions of LUA_ROM_ID, STATUS, ADDITIONAL_OUTPUT_FORWARDS and the recoil timing settings. README.md and readme.txt: Described native output forwarding with MAME output windows.",
+                "GUIDE.md: Added a full settings reference listing every profile setting with its default. README.md and readme.txt: Corrected the output name lists. The DemulShooter names (P<n>_CtmRecoil, P<n>_Damaged and P<n>_CtmLmpStart) carry no MSOP_ prefix, and the Clip and per-player Credits outputs are now listed."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.12",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-BETA",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "9.3.6",
             "ReleaseDatePlugin": "2026.10.09",
             "ChangesPlugin": [
@@ -1047,9 +1172,9 @@
             "DatabaseReleases": [
                 {
                     "IncludedDatabaseDate": "2026.10.09",
-                    "PackageLocation": "updates/plugin",
-                    "PackageName": "MSOP-PLUGIN-BETA",
-                    "PackageType": ".zip"
+                    "PackageLocation": "",
+                    "PackageName": "",
+                    "PackageType": ""
                 }
             ]
         },
