@@ -20,7 +20,7 @@
         "LIFE_comment": "P1 Life = 0x002426FB or 0x0025324D"
     },
     "P2": {
-        "CREDITS_comment": "P2 Credits = 0x0023A544",
+        "CREDITS": "0x0023A544",
         "STATUS": "0x0023A97D",
         "STATUS_comment": "Status is shared between P1 and P2",
         "STATUS_ACTIVE_VALUE": [

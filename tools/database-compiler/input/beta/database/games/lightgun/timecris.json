@@ -19,6 +19,12 @@
     },
     "CREDITS": "0x00E0D2A1",
     "GAME_STATUS": "0x00E01772",
+    "GAME_STATUS_ALT": "0x00E00798",
+    "GAME_STATUS_comment": "0x00E01772 = Story Mode Active, 0x00E00798 = Time Mode Active, 0x00E0D333 = Time Mode Gameplay",
+    "GAME_STATUS_ACTIVE_VALUE": 1,
+    "GAME_STATUS_ACTIVE_VALUE_comment": "1 = Game Mode. Other values appear at 0x00E01772 during attract mode",
+    "GAME_STATUS_ALT_ACTIVE_VALUE": 1,
+    "GAME_STATUS_ALT_ACTIVE_VALUE_comment": "1 = Game Mode",
     "P1": {
         "STATUS": "auto",
         "AMMO": "0x00E00793",

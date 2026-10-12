@@ -1,13 +1,13 @@
 {
     "_default": {
-        "LUA_VERSION": 936,
-        "LUA_DATE": 20261009,
+        "LUA_VERSION": 940,
+        "LUA_DATE": 20261012,
         "LUA_GAME": "Default MSOP Plugin Values",
         "ENABLE_ROM": false,
         "GAME_TYPE": "lightgun",
         "GAME_TYPE_comment": "Genre gate (v9.2.0): lightgun (default) | racing | both. Controls which per-player output vocabulary is compiled/zero-flushed for the ROM (racing = FFB_* only, lightgun = everything except FFB_*, both = all) and whether the per-player gun pipeline runs each frame (racing skips it). Globals (Credits/GameStatus/AttractStatus) always apply. Unknown values degrade to lightgun, so existing profiles are unaffected.",
         "ENABLE_OSD_CONNECTION_STATUS": true,
-        "ENABLE_OSD_CONNECTION_STATUS_comment": "Shows on-screen (OSD) messages for genuine MESH connection problems - MESH not running, MESH disconnected, reconnect failed, the connected confirmation, and the incorrect output mode notice. Set false to silence the OSD half only; the matching console messages always print. Absent = true. Deliberately separate from the debug-gated diagnostics OSD messages.",
+        "ENABLE_OSD_CONNECTION_STATUS_comment": "Shows on-screen (OSD) messages for genuine MESH connection problems - MESH not running, MESH disconnected, reconnect failed, the connected confirmation, and the output mode notices (incorrect output mode for network, and the Windows output note). Set false to silence the OSD half only; the matching console messages always print. Absent = true. Deliberately separate from the debug-gated diagnostics OSD messages.",
         "OFFSCREEN_RELOAD": false,
         "LIGHTGUN_PATCH": false,
         "SCREEN_FLASH": false,
@@ -176,8 +176,12 @@
         "ATTRACT_STATUS": false,
         "CREDITS": false,
         "GAME_STATUS": false,
+        "GAME_STATUS_ALT": false,
+        "GAME_STATUS_ALT_comment": "Optional second game status memory address, for a game that tracks activity in a different place per mode. The game is active when either GAME_STATUS or GAME_STATUS_ALT reads active. Uses the same CPU, memory space and data width as GAME_STATUS. Only read when GAME_STATUS is a memory address.",
         "ATTRACT_STATUS_ACTIVE_VALUE": false,
         "GAME_STATUS_ACTIVE_VALUE": false,
+        "GAME_STATUS_ALT_ACTIVE_VALUE": false,
+        "GAME_STATUS_ALT_ACTIVE_VALUE_comment": "The value (or list of values) at GAME_STATUS_ALT that means active. False uses GAME_STATUS_ACTIVE_VALUE, and if that is also false any value above zero counts as active.",
         "STATUS_ACTIVE_VALUE": false,
         "STATUS_ALT_ACTIVE_VALUE": false,
         "P1": {
@@ -285,6 +289,11 @@
         "RECOIL_PRIORITY": "ammo",
         "RECOIL_MEM_ADD_VALUE": false,
         "RECOIL_MEM_MIN_VALUE": false,
+        "RECOIL_MEM_MIN_VALUE_comment": "Optional, for a RECOIL memory address. The lowest value that counts as an active recoil read. False = any value above zero. Ignored when RECOIL_MEM_ADD_VALUE is set.",
+        "RELOAD_MEM_ADD_VALUE": false,
+        "RELOAD_MEM_ADD_VALUE_comment": "Optional, for a RELOAD memory address. The exact value (or list of values) that means a reload has happened. False = not used.",
+        "RELOAD_MEM_MIN_VALUE": false,
+        "RELOAD_MEM_MIN_VALUE_comment": "Optional, for a RELOAD memory address. A reload is triggered when the value rises and is at least this value. False = any rise triggers a reload. Ignored when RELOAD_MEM_ADD_VALUE is set.",
         "ENABLE_CREDIT_COUNT": true,
         "ENABLE_RECOIL_AMMO": true,
         "ENABLE_RECOIL_AMMO_ALT": true,
@@ -3751,7 +3760,7 @@
             "LIFE_comment": "P1 Life = 0x002426FB or 0x0025324D"
         },
         "P2": {
-            "CREDITS_comment": "P2 Credits = 0x0023A544",
+            "CREDITS": "0x0023A544",
             "STATUS": "0x0023A97D",
             "STATUS_comment": "Status is shared between P1 and P2",
             "STATUS_ACTIVE_VALUE": [
@@ -4064,6 +4073,12 @@
         },
         "CREDITS": "0x00E0D2A1",
         "GAME_STATUS": "0x00E01772",
+        "GAME_STATUS_ALT": "0x00E00798",
+        "GAME_STATUS_comment": "0x00E01772 = Story Mode Active, 0x00E00798 = Time Mode Active, 0x00E0D333 = Time Mode Gameplay",
+        "GAME_STATUS_ACTIVE_VALUE": 1,
+        "GAME_STATUS_ACTIVE_VALUE_comment": "1 = Game Mode. Other values appear at 0x00E01772 during attract mode",
+        "GAME_STATUS_ALT_ACTIVE_VALUE": 1,
+        "GAME_STATUS_ALT_ACTIVE_VALUE_comment": "1 = Game Mode",
         "P1": {
             "STATUS": "auto",
             "AMMO": "0x00E00793",
