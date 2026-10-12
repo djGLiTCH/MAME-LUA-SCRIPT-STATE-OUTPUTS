@@ -196,14 +196,35 @@ To prevent conflicts between the old standalone scripts and the new plugin, you 
    > later** Lua can no longer create outputs, so MSOP's own outputs can only travel over the relay - use
    > `output none` (or `console`), the setup where MESH can serve hooker programs the complete stream on
    > 8000. `output auto` (MAME's factory default) is resolved by MAME itself to `none` and behaves
-   > identically. The plugin does not actually trust the version number for this, because custom and
+   > identically. The plugin does not rely on the version number alone for this, because custom and
    > pre-release builds can report a version that does not match their behaviour: it asks the running build
-   > whether it can create an output and decides from the answer. The version rule above is simply what
-   > that works out to on official builds.
+   > whether it can create an output. A build that cannot is always on the relay, and so is a build that
+   > reports MAME 0.289 or later.
    >
-   > This is automatic and applies to a hand-installed plugin as much as a MESH-managed one. On MAME 0.289+ set to `output network` or `output windows`, MSOP shows a one-shot **INCORRECT OUTPUT MODE** notice recommending `none`, since external hooker programs may otherwise not receive MSOP's outputs.
+   > This is automatic and applies to a hand-installed plugin as much as a MESH-managed one. On MAME 0.289+ set to `output network`, MSOP shows a one-shot **INCORRECT OUTPUT MODE** notice recommending `none`, since external hooker programs may otherwise not receive MSOP's outputs. `output windows` is supported with MESH and shows a shorter note instead *(plugin v9.4.0+)*: MAME sends the game's native outputs as Windows messages while MSOP's own outputs reach MESH over the relay, and MESH reads both. Programs that only read MAME's Windows messages, such as MAMEhooker, receive the native outputs only in this mode; to send them MSOP's outputs as well, set MAME to `output none` and enable **Serve Win32 output** in MESH.
 4. **Enable Plugins:** Ensure plugins are enabled in your `plugin.ini` file:
 `plugins 1`
+
+#### Output delivery by MAME version
+
+Where each kind of output is delivered, for every MAME output setting:
+
+| MAME version | MAME output setting | MSOP outputs delivered by | Native game outputs delivered by | MESH required |
+|---|---|---|---|---|
+| 0.200 - 0.288 | `none`, `console`, `auto` | MSOP relay (port 8004) | MSOP relay (port 8004) | Yes |
+| 0.200 - 0.288 | `network` | MAME (port 8000) | MAME (port 8000) | No |
+| 0.200 - 0.288 | `windows` | MAME (Windows messages) | MAME (Windows messages) | No |
+| 0.289 and later | `none`, `console`, `auto` (recommended) | MSOP relay (port 8004) | MSOP relay (port 8004) | Yes |
+| 0.289 and later | `network` | MSOP relay (port 8004) | MAME (port 8000) | Yes |
+| 0.289 and later | `windows` | MSOP relay (port 8004) | MAME (Windows messages) and MSOP relay (port 8004) | Yes |
+
+- **MSOP outputs** are what the plugin produces for a game with an MSOP profile (recoil, ammo, life, game status and so on). **Native game outputs** are the ones MAME's own driver creates (lamps, LEDs, a game's own recoil output), and they are delivered for every game, with or without a profile, except a game whose profile is switched off with `ENABLE_ROM`.
+- **MESH required** says whether MESH must be running for that setting to deliver the outputs. MESH works with every setting in the table; where it says No, MAME delivers the outputs itself and MESH can still read them.
+- **MSOP relay** means the plugin sends the outputs to MESH on `127.0.0.1:8004` by default, and MESH passes them on to your hardware and hooker programs. `auto` is MAME's factory default and MAME treats it as `none`.
+- **0.289 and later with `network`:** MSOP shows a one-shot INCORRECT OUTPUT MODE notice. A hooker program reading MAME's port 8000 directly receives the native outputs only.
+- **0.289 and later with `windows`:** this works with MESH, and MSOP shows a short one-shot note. A program that only reads MAME's Windows messages, such as MAMEhooker, receives the native outputs only; to send it MSOP's outputs as well, use `none` and enable **Serve Win32 output** in MESH.
+- **Native outputs over the relay on 0.288 and earlier** need MSOP Plugin v9.4.0 or newer.
+- **How native outputs are found:** up to and including MAME 0.289 the plugin uses the output tables shipped with it; from MAME 0.290 it asks MAME which outputs the running game has.
 
 #### Native output forwarding - MSOP carries MAME's own outputs too
 Under the relay (`output none` / `output console`) MAME's own output modules never broadcast the game's
@@ -226,8 +247,11 @@ two ways, always preferring the first:
 Without the files (and without enumeration), MSOP still delivers its own outputs; games it does not support
 simply produce nothing. Forwarding is not used with `output network`, because MAME is already broadcasting
 those same native outputs itself - forwarding them again would deliver everything twice.
+With `output windows` on MAME 0.289 and later, the native outputs are forwarded over the relay as well as
+sent by MAME as Windows messages. MESH takes each one from MAME's own messages, so its devices and programs
+reading port 8000 receive every output once.
 
-> ℹ️ **A deliberate console message on MAME 0.289+.** At the first output write of a session the plugin
+> ℹ️ **A deliberate console message on MAME 0.289+.** When the first game of a session starts, the plugin
 > prints a `COMPATIBILITY TEST` line and makes one deliberate test write to discover whether the build can
 > still create state outputs. On MAME 0.289 and newer, MAME answers that test with its **own** error on the
 > next console line - that error is **expected and harmless**; MSOP reads the result and switches to relay
@@ -244,7 +268,7 @@ MSOP dials the relay and never waits for one, but a *failed* connection is not a
   detected, announcing one reconnect attempt **30 seconds** later. If it fails,
   `MESH RECONNECT FAILED - STATE OUTPUTS PAUSED` appears and MSOP stops dialling.
 * **Reconnecting afterwards costs one deliberate action**: after starting MESH, pause and unpause the game
-  (dialling never happens while paused - the attempt runs at the moment of unpause), perform a soft reset,
+  (the attempt runs at the moment of unpause), perform a soft reset,
   load a new ROM, or restart MAME. Cold start versus lost connection is judged per MAME session, not per
   ROM. A successful connection shows `MESH CONNECTED` if a problem was previously reported, and a game MSOP
   has nothing to deliver for stops silently after the single ROM-start attempt.
@@ -272,20 +296,20 @@ For now, you can use the following Outputs in your per game ini file which will 
 **Condensed** _(force feedback / physical reaction triggers)_
 ```ini
 [Output]
-Credits=
-GameStatus=
-P1_LampStart=
-P1_Status=
-P1_Life=
-P1_Damaged=
+MSOP_P1_LampStart=
+MSOP_P1_Recoil=
+MSOP_P1_Reload=
+MSOP_P1_Rumble=
+MSOP_P2_LampStart=
+MSOP_P2_Recoil=
+MSOP_P2_Reload=
+MSOP_P2_Rumble=
+P1_CtmLmpStart=
 P1_CtmRecoil=
-P1_Reload=
-P2_LampStart=
-P2_Status=
-P2_Life=
-P2_Damaged=
+P1_Damaged=
+P2_CtmLmpStart=
 P2_CtmRecoil=
-P2_Reload=
+P2_Damaged=
 ```
 
 **Complete** _(all outputs: triggers plus informational values)_
@@ -299,13 +323,12 @@ MSOP_LuaVersion=
 MSOP_LuaDate=
 MSOP_LuaROMid=
 MSOP_P1_LampStart=
-MSOP_P1_CtmRecoil=
 MSOP_P1_Recoil=
 MSOP_P1_Reload=
 MSOP_P1_Rumble=
-MSOP_P1_Damaged=
 MSOP_P1_Damage=
 MSOP_P1_DamageTaken=
+MSOP_P1_Credits=
 MSOP_P1_Status=
 MSOP_P1_StatusAlt=
 MSOP_P1_Life=
@@ -322,13 +345,12 @@ MSOP_P1_ShotsFiredGrenade=
 MSOP_P1_CreditsInserted=
 MSOP_P1_CreditsConsumed=
 MSOP_P2_LampStart=
-MSOP_P2_CtmRecoil=
 MSOP_P2_Recoil=
 MSOP_P2_Reload=
 MSOP_P2_Rumble=
-MSOP_P2_Damaged=
 MSOP_P2_Damage=
 MSOP_P2_DamageTaken=
+MSOP_P2_Credits=
 MSOP_P2_Status=
 MSOP_P2_StatusAlt=
 MSOP_P2_Life=
@@ -344,14 +366,20 @@ MSOP_P2_ShotsFiredAlt=
 MSOP_P2_ShotsFiredGrenade=
 MSOP_P2_CreditsInserted=
 MSOP_P2_CreditsConsumed=
+P1_CtmLmpStart=
+P1_CtmRecoil=
+P1_Damaged=
+P2_CtmLmpStart=
+P2_CtmRecoil=
+P2_Damaged=
 ```
 
-Please note that not all outputs will be available for each supported game, but the main outputs will always be available. Every output above only appears once a supported ROM actually drives it away from its default value - this keeps your hooker software free of names that ROM never uses, and is consistent across every output MSOP produces, global or per-player.
+Please note that not all outputs will be available for each supported game, but the main outputs will always be available. An output is sent only by a game whose profile uses it, starting at 0 when the game starts - this keeps your hooker software free of names that ROM never uses. The exceptions are the global outputs (`MSOP_GameStatus`, `MSOP_AttractStatus` and the three `MSOP_Lua` outputs), which every game sends, and `P<n>_CtmRecoil`, `P<n>_Damaged` and `MSOP_P<n>_ShotsFired`, which every light gun game sends unless DemulShooter compatibility or the shot count is switched off. The three DemulShooter names (`P<n>_CtmRecoil`, `P<n>_Damaged` and `P<n>_CtmLmpStart`) are the only outputs without the `MSOP_` prefix.
 
 Note 1: PX = Player Number (e.g. P1 = Player 1)
 Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.
-Note 3: Recoil can be PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
-Note 4: Damage can be PX_Damage or PX_Damaged (with demulshooter compatibility)
+Note 3: Recoil can be MSOP_PX_Recoil or PX_CtmRecoil (with demulshooter compatibility)
+Note 4: Damage can be MSOP_PX_Damage or PX_Damaged (with demulshooter compatibility)
 Note 5: PX_Clip is a derived instant flag - 1 while the player still has ammo, 0 the moment the clip empties (reload needed). It is only published for games whose ammo genuinely counts DOWN; games whose ammo counter climbs (or is otherwise ambiguous) never emit it, so the flag can never read inverted.
 
 ---
@@ -379,7 +407,7 @@ The plugin monitors four key memory addresses (Credits, Game Status, Ammo, Life)
 ### Standardised Variables & Priority Logic
 To ensure reliable performance across all titles and prevent "phantom" hardware triggers, the plugin relies on a unified variable naming convention and strict evaluation logic:
 
-1. **Player State Priority:** The plugin evaluates activity using a strict hierarchy: player-specific STATUS > player-specific LIFE > global GAME_STATUS > fallback logic.
+1. **Player State Priority:** The plugin evaluates activity using a strict hierarchy: player-specific STATUS > global GAME_STATUS with LIFE > credits with LIFE.
 2. **Active Player Tracking:** It utilises a dedicated gamestatus variable to accurately track active players, which prevents unwanted force feedback during attract mode when nobody is playing a game.
 
 By funnelling all game events through this standardised logic flow, external tools only have to listen for simple, consistent commands (e.g., PX_Life = 1), taking the pressure off the Output Program(s) to decipher complex game states.
