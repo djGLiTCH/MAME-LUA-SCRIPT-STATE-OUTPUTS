@@ -120,7 +120,7 @@ These variables define how the plugin identifies the game and where it looks for
 * **`LUA_GAME`**: The official name for the game.
 * **`ENABLE_ROM`**: Used to enable or disable a supported game ROM for use by MSOP Plugin. This is useful if you have a custom script or build that clashes with MSOP Plugin, and you want to disable MSOP for that specific game without uninstalling MSOP Plugin entirely.
 * **`GAME_TYPE`** *(plugin v9.2.0+)*: The genre gate - `"lightgun"` (the default; existing profiles are unaffected), `"racing"`, or `"both"`. Racing profiles skip the per-player gun pipeline each frame and compile only the `FFB_*` output vocabulary, so each ROM's output stream carries only names it can actually drive; gun games never emit FFB names. Use `"both"` for hybrids (e.g. a racing game that also tracks life/damage). Unknown values degrade to `"lightgun"`.
-* **`LUA_ROM_ID`**: An optional number to report as the `MSOP_LuaROMid` output for this game. No profile needs to set it: when it is absent, the plugin derives the ID from the ROM's short name, so every ROM has a stable ID of its own.
+* **`LUA_ROM_ID`**: An optional number to report as the `MSOP_ROM_ID` output for this game. No profile needs to set it: when it is absent, the plugin derives the ID from the ROM's short name, so every ROM has a stable ID of its own.
 * **`CPU_TAG`**: Tells MAME which emulated CPU contains the game's core logic (Defaults: `":maincpu"`).
 * **`MEMORY_SPACE`**: The address space within `CPU_TAG` that the plugin reads the game's values from (e.g. `"program"`, `"data"`) (Defaults: `"program"`).
 * **`PLAYER_MEMORY_OFFSET`**: The mathematical distance (in hex) between Player 1's memory addresses and Player 2's. Setting this allows you to set Player 2, 3, and 4 variables to `"auto"`, allowing the script to calculate their memory addresses automatically using Player 1 as the starting memory address location.
@@ -226,7 +226,7 @@ A value of `false` means "not used" for an address or an optional value. Address
 | `DATA_WIDTHS` | `8`, and `16` for the counters | How each setting's address is read: `8`, `16`, `32` or `64` for an unsigned integer of that many bits, `"float32"` for a 32-bit little-endian float, or `"float32be"` for a 32-bit big-endian float. `"output"` reads one of MAME's own outputs, and the setting then holds the output's name and not an address; it works for `LAMP_START`, `STATUS`, `STATUS_ALT` and the ammo and life settings. |
 | `PLAYER_MEMORY_OFFSET` | `false` | The distance between one player's addresses and the next. A P2, P3 or P4 value of `"auto"` is the P1 address plus this offset for each player after P1. |
 | `PLAYER_CREDIT_MEMORY_OFFSET` | `false` | The same, for the players' `CREDITS` addresses only. `false` uses `PLAYER_MEMORY_OFFSET`. |
-| `STARTUP_DELAY_MS` | `5000` | How long after the game starts or resets every output is held at 0, so that the game's memory test and boot values are not reported as events. |
+| `STARTUP_DELAY_MS` | `5000` | How long after the game starts or resets every output is held at 0, so that the game's memory test and boot values are not reported as events. The identity outputs (`MSOP_Plugin_Version`, `MSOP_Plugin_Date`, `MSOP_Database_Date` and `MSOP_ROM_ID`) are not held: they are sent with their values as soon as the game starts. |
 
 #### Players
 
@@ -350,7 +350,7 @@ The `FFB` block is described in its own section above. Its defaults are:
 | --- | --- | --- |
 | `OUTPUT_SUFFIXES` | one entry per output | The last part of each output's name. A player output is `MSOP_P<n>_<suffix>` and a global output is `MSOP_<suffix>`. Changing a suffix renames the output for that game, so the programs that read it must be changed to match. A `CLIP` entry is optional and defaults to `"Clip"`. |
 | `LUA_VERSION`, `LUA_DATE`, `LUA_GAME` | set by `_default` and the profile | The database release and the game's name. |
-| `LUA_ROM_ID` | not set | An optional number for the `MSOP_LuaROMid` output. |
+| `LUA_ROM_ID` | not set | An optional number for the `MSOP_ROM_ID` output. |
 
 #### Settings the plugin does not read
 
