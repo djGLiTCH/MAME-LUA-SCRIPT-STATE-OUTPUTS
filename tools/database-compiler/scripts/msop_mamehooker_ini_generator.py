@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP MAMEhooker INI GENERATOR (Database game config -> MAMEhooker <rom>.ini skeletons)
-# Compiler Version: 1.2.0
-# Compiler Date: 2026.09.04
+# Compiler Version: 1.2.1
+# Compiler Date: 2026.10.13
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -12,13 +12,12 @@
 # prepopulated with every MSOP output the game emits (values left blank, ready for the user to fill
 # in hardware commands).
 #
-# The [Output] set is the authoritative per-game output set (mirrors init.lua), minus
-# System_AspectRatio (a plugin directive, not a MAME output). The derivation is shared with the HOTR
-# defaultLG generator via msop_output_model. By DEFAULT the skeleton ALSO includes the scraped MAME
-# native outputs from native_outputs_by_rom.lua (matching the shipped full build, which forwards
-# them at runtime); if that file is absent, the run header notes it and the natives are simply
-# omitted. Pass --exclude-driver for a deliberately MSOP-only skeleton: just the plugin's own MSOP
-# state outputs (+ each game's curated ADDITIONAL_OUTPUT_FORWARDS).
+# The [Output] set is the authoritative per-game output set (mirrors init.lua). The derivation is
+# shared with the HOTR defaultLG generator via msop_output_model. By DEFAULT the skeleton ALSO
+# includes the scraped MAME native outputs from native_outputs_by_rom.lua (matching the shipped full
+# build, which forwards them at runtime); if that file is absent, the run header notes it and the
+# natives are simply omitted. Pass --exclude-driver for a deliberately MSOP-only skeleton: just the
+# plugin's own MSOP state outputs (+ each game's curated ADDITIONAL_OUTPUT_FORWARDS).
 #
 # Output: output/<channel>/ini/<rom>.ini  (CRLF, WITH a trailing newline). --channel stable|beta
 # selects both the input database and this output tree.
@@ -41,18 +40,16 @@ from msop_output_model import (  # noqa: E402
 
 EOL = "\r\n"  # MAMEhooker reads CRLF; the skeletons carry a trailing newline.
 
-# Fixed sections. System_AspectRatio is a plugin directive, not a MAME output, so it is excluded
-# from [Output].
+# Fixed sections.
 INI_FIXED = [
     "[General]", "MameStart=", "MameStop=", "StateChange=", "OnRotate=", "OnPause=",
     "", "[KeyStates]", "RefreshTime=33",
     "", "[Output]",
 ]
-INI_OUTPUT_EXCLUDE = {"System_AspectRatio"}
 
 
 def ini_lines(game, default, natives):
-    keys = [k for k in build_outputs(game, default, natives) if k not in INI_OUTPUT_EXCLUDE]
+    keys = list(build_outputs(game, default, natives))
     return list(INI_FIXED) + [f"{k}=" for k in keys], len(keys)
 
 

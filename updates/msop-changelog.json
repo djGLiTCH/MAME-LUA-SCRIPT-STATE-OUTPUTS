@@ -1576,6 +1576,14 @@
     ],
     "DatabaseCompiler": [
         {
+            "Version": "3.5.1",
+            "ReleaseDateDatabaseCompiler": "2026.10.13",
+            "ChangesDatabaseCompiler": [
+                "msop_output_model.py: Removed the unused System_AspectRatio entry from the shared output model. It was never a MAME output and nothing reads it.",
+                "msop_mamehooker_ini_generator.py: Removed the filter that kept System_AspectRatio out of the INI skeletons, as it is no longer needed. The generated INI and defaultLG files are unchanged."
+            ]
+        },
+        {
             "Version": "3.5.0",
             "ReleaseDateDatabaseCompiler": "2026.08.24",
             "ChangesDatabaseCompiler": [
