@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.4.0
--- Plugin Date: 2026.10.12
+-- Plugin Version: 9.4.1
+-- Plugin Date: 2026.10.14
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -43,7 +43,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.4.0",
+    version = "9.4.1",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -158,11 +158,11 @@ function stateoutput.startplugin()
     -- the one-shot note in on_start says.
     local _WindowsOutputWithRelay = false
 
-    -- The plugin identity published as the MSOP_LuaVersion and MSOP_LuaDate outputs. Keep both in
-    -- step with the file header and exports.version (the version digits without the dots).
+    -- The plugin identity published as the MSOP_Plugin_Version and MSOP_Plugin_Date outputs. Keep
+    -- both in step with the file header and exports.version (the version digits without the dots).
     -- CFG.LUA_VERSION and CFG.LUA_DATE describe the database release and are not used here.
-    local PLUGIN_VERSION_NUM = 940
-    local PLUGIN_DATE_NUM    = 20261012
+    local PLUGIN_VERSION_NUM = 941
+    local PLUGIN_DATE_NUM    = 20261014
 
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -187,7 +187,7 @@ function stateoutput.startplugin()
     local _LastGlobalCredits = 0
     local _GlobalCreditsInserted = 0
     local _PendingGlobalCreditDrops = 0
-    local _RomIdNum = 0 -- numeric ROM identity for MSOP_LuaROMid (see on_start)
+    local _RomIdNum = 0 -- numeric ROM identity for MSOP_ROM_ID (see on_start)
 
     -- Memory bindings. Each data type's CPU tag and memory space are resolved once per ROM load,
     -- and the bound handles are kept here so that no frame searches MAME's device tree.
@@ -408,9 +408,10 @@ function stateoutput.startplugin()
                 end
             end
 
-            -- Resync_Relay_State does nothing before a ROM has warmed up; the warmup flush sends
-            -- the values in that case. The resync is skipped when no game is announced, because a
-            -- listener could not attribute the values to a ROM.
+            -- Before a ROM has warmed up Resync_Relay_State sends the global outputs only, the
+            -- identity outputs among them; the warmup flush sends the rest. The resync is skipped
+            -- when no game is announced, because a listener could not attribute the values to a
+            -- ROM.
             if _ActiveMameStart then Resync_Relay_State() end
         else
             if sock then sock:close() end
@@ -551,16 +552,20 @@ function stateoutput.startplugin()
     -- Sends every MSOP output that has been written, at its current value, through msop_out.
     -- connect_socket calls it after clearing last_state, because Set_Output and Set_Global_Output
     -- reach msop_out only when a value differs from their own caches, which a reconnect does not
-    -- clear. It does nothing until a ROM has completed warmup.
+    -- clear. Before a ROM has completed warmup it sends the global outputs only, which on_start
+    -- has cleared and Send_Identity_Outputs has written for the running game; the player caches
+    -- may still describe the previous game until then.
     -- -------------------------------------------------------------------------
     Resync_Relay_State = function()
-        if not CFG or not _WarmupFlushed then return end
+        if not CFG then return end
 
         -- An output with no cached value has never been written, and is skipped.
         for key, name in pairs(_GlobalOutputs) do
             local value = _GlobalLastOutputs[key]
             if value ~= nil then msop_out(name, To_Output_Int(value)) end
         end
+
+        if not _WarmupFlushed then return end
 
         for i = 1, CFG.MAX_PLAYERS do
             local p = _Player[i]
@@ -743,8 +748,8 @@ function stateoutput.startplugin()
 
     -- -------------------------------------------------------------------------
     -- fnv1a_31(s)
-    -- Returns the 31-bit FNV-1a hash of a string. It gives the MSOP_LuaROMid output a stable,
-    -- positive s32 ROM id when the profile has no LUA_ROM_ID. The hash depends only on the ROM's
+    -- Returns the 31-bit FNV-1a hash of a string. It gives the MSOP_ROM_ID output a stable,
+    -- positive s32 ROM ID when the profile has no LUA_ROM_ID. The hash depends only on the ROM's
     -- short name, so it does not change between plugin or database releases.
     -- -------------------------------------------------------------------------
     local function fnv1a_31(s)
@@ -906,6 +911,10 @@ function stateoutput.startplugin()
         -- suffix is kept.
         CFG.OUTPUT_SUFFIXES = CFG.OUTPUT_SUFFIXES or {}
         if CFG.OUTPUT_SUFFIXES.CLIP == nil then CFG.OUTPUT_SUFFIXES.CLIP = "Clip" end
+        -- A database compiled before MSOP_Database_Date existed has no entry for it either.
+        if CFG.OUTPUT_SUFFIXES.GLOBAL_DATABASE_DATE == nil then
+            CFG.OUTPUT_SUFFIXES.GLOBAL_DATABASE_DATE = "Database_Date"
+        end
 
         -- Compiles only the output names the GAME_TYPE can drive: "racing" keeps FFB_* only,
         -- "lightgun" keeps everything except FFB_*, and "both" keeps all. Global outputs are not
@@ -1070,7 +1079,7 @@ function stateoutput.startplugin()
     end
 
     -- Tests once per session whether the deprecated output.set_value() can create an output or only
-    -- resolves existing ones. The probe writes the plugin version to MSOP_LuaVersion, the value
+    -- resolves existing ones. The probe writes the plugin version to MSOP_Plugin_Version, the value
     -- that output carries anyway, and reads it back through get_value. Zero cannot be used: it is
     -- get_value's default. device:output() does not reliably show a set_value write.
     local function Probe_Legacy_Set_Value(out_handle)
@@ -1078,7 +1087,7 @@ function stateoutput.startplugin()
         if not out_handle or not out_handle.set_value or not out_handle.get_value then return end
 
         _LegacyCreateProbed = true
-        local PROBE_NAME = "MSOP_LuaVersion"
+        local PROBE_NAME = "MSOP_Plugin_Version"
         local PROBE_VALUE = PLUGIN_VERSION_NUM
 
         -- The test write makes MAME 0.289 and later print its own error on the next console line.
@@ -1240,10 +1249,36 @@ function stateoutput.startplugin()
     end
 
     -- -------------------------------------------------------------------------
+    -- Send_Identity_Outputs(out_handle)
+    -- Writes the identity outputs with their values: the plugin version and date, the date of the
+    -- loaded database and the ROM ID. on_start calls it as soon as the profile is resolved, ahead
+    -- of the startup delay, so that a listener learns from the first lines of a session that this
+    -- ROM's MSOP profile is running. Register_Outputs_Safe calls it again at warmup. The plugin
+    -- version and date are never 0. The database date is 0 when the database has no LUA_DATE.
+    -- -------------------------------------------------------------------------
+    local function Send_Identity_Outputs(out_handle)
+        if not out_handle or not CFG then return end
+
+        local function Sync_Global(key, value)
+            if _GlobalOutputs[key] then
+                Set_Output_Safe(out_handle, _GlobalOutputs[key], value)
+                _GlobalLastOutputs[key] = value
+            end
+        end
+
+        -- The plugin identity comes from this file's constants. CFG.LUA_DATE is the date of the
+        -- database release; CFG.LUA_VERSION is not sent.
+        Sync_Global("GLOBAL_LUA_VERSION", PLUGIN_VERSION_NUM)
+        Sync_Global("GLOBAL_LUA_DATE", PLUGIN_DATE_NUM)
+        Sync_Global("GLOBAL_DATABASE_DATE", tonumber(CFG.LUA_DATE) or 0)
+        Sync_Global("GLOBAL_LUA_ROM_ID", _RomIdNum)
+    end
+
+    -- -------------------------------------------------------------------------
     -- Register_Outputs_Safe(out_handle)
     -- Writes 0 to every configured output when warmup completes and sets the LastOutputs caches to
-    -- match, so that hardware left on by a previous game is switched off. The plugin identity and
-    -- ROM id outputs are written with their values.
+    -- match, so that hardware left on by a previous game is switched off. The identity outputs are
+    -- written with their values.
     -- -------------------------------------------------------------------------
     local function Register_Outputs_Safe(out_handle)
         if not out_handle then return end
@@ -1257,11 +1292,7 @@ function stateoutput.startplugin()
 
         Sync_Global("GLOBAL_GAME_STATUS", 0)
         Sync_Global("GLOBAL_ATTRACT_STATUS", 0)
-        -- The plugin identity comes from this file's constants. CFG.LUA_VERSION and CFG.LUA_DATE
-        -- describe the database release.
-        Sync_Global("GLOBAL_LUA_VERSION", PLUGIN_VERSION_NUM)
-        Sync_Global("GLOBAL_LUA_DATE", PLUGIN_DATE_NUM)
-        Sync_Global("GLOBAL_LUA_ROM_ID", _RomIdNum)
+        Send_Identity_Outputs(out_handle)
 
         if CFG.CREDITS then
             Sync_Global("GLOBAL_CREDITS", 0)
@@ -3243,7 +3274,7 @@ function stateoutput.startplugin()
             -- Convert the JSON hex strings to numbers.
             convert_hex_strings_to_numbers(CFG)
 
-            -- The numeric ROM id for the MSOP_LuaROMid output: the profile's LUA_ROM_ID if present,
+            -- The numeric ROM ID for the MSOP_ROM_ID output: the profile's LUA_ROM_ID if present,
             -- otherwise the FNV-1a hash of the ROM short name.
             _RomIdNum = tonumber(CFG.LUA_ROM_ID) or fnv1a_31(rom_name)
 
@@ -3355,6 +3386,11 @@ function stateoutput.startplugin()
             end
 
             Resolve_Addresses_And_Strings()
+
+            -- Send the identity outputs now, ahead of the startup delay. Over the relay they are
+            -- queued behind this game's mame_start and leave with the first frame; a relay that
+            -- connects later receives them from Resync_Relay_State.
+            pcall(Send_Identity_Outputs, manager.machine.output)
 
             -- Attach the frame notifier. The previous subscription is detached first, because
             -- on_start fires on every reset and a second notifier would run the engine twice per
