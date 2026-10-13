@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP DATABASE COMPILER
-# Compiler Version: 3.5.1
-# Compiler Date: 2026.09.04
+# Compiler Version: 3.5.2
+# Compiler Date: 2026.10.14
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -38,7 +38,7 @@
 # (see sync_project_metadata) - init.lua's own header/exports.version is
 # treated as the single source of truth for the plugin's version and date,
 # and gets propagated forward into init.lua's own PLUGIN_VERSION_NUM /
-# PLUGIN_DATE_NUM constants (the MSOP_LuaVersion/MSOP_LuaDate outputs),
+# PLUGIN_DATE_NUM constants (the MSOP_Plugin_Version/MSOP_Plugin_Date outputs),
 # plugin.json, readme.txt, and _default's LUA_VERSION/LUA_DATE if any of
 # them have drifted out of step. This is why running this compiler can
 # rewrite files that have nothing to do with game configuration - that's
@@ -70,8 +70,8 @@ from datetime import datetime
 # KEEP IN SYNC with the header comment above - stamped into database.lua's
 # own generated header so a compiled file can be traced back to the exact
 # compiler version that produced it.
-COMPILER_VERSION = "3.5.1"
-COMPILER_DATE = "2026.09.04"
+COMPILER_VERSION = "3.5.2"
+COMPILER_DATE = "2026.10.14"
 
 # ==========================================
 # PROJECT PATHS (root-anchored via __file__: scripts/ -> parent is the project root)
@@ -268,11 +268,11 @@ def sync_project_metadata(master_db, channel_override=None):
             if highest_v != (0,0,0):
                 new_init = re.sub(r'(?m)^(-- Plugin Version:\s*)\d+\.\d+\.\d+', rf'\g<1>{final_ver_str}', new_init)
                 new_init = re.sub(r'(?m)^(\s*version\s*=\s*")\d+\.\d+\.\d+(")', rf'\g<1>{final_ver_str}\g<2>', new_init)
-                # PLUGIN_VERSION_NUM publishes the MSOP_LuaVersion output (900 == v9.0.0) -
+                # PLUGIN_VERSION_NUM publishes the MSOP_Plugin_Version output (900 == v9.0.0) -
                 # the "KEEP IN SYNC" the constant's own comment asks for is automated here.
                 new_init = re.sub(r'(?m)^(\s*local PLUGIN_VERSION_NUM\s*=\s*)\d+', rf'\g<1>{final_ver_int}', new_init)
             if plugin_date_str != "0000.00.00":
-                # PLUGIN_DATE_NUM publishes the MSOP_LuaDate output (yyyymmdd int of the
+                # PLUGIN_DATE_NUM publishes the MSOP_Plugin_Date output (yyyymmdd int of the
                 # header's Plugin Date) - same automation as PLUGIN_VERSION_NUM above.
                 plugin_date_int = int(plugin_date_str.replace(".", ""))
                 new_init = re.sub(r'(?m)^(\s*local PLUGIN_DATE_NUM\s*=\s*)\d+', rf'\g<1>{plugin_date_int}', new_init)

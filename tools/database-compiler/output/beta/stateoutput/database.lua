@@ -1,9 +1,9 @@
 --
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP DATABASE LUA
--- Script Version: 3.5.1
--- Script Date: 2026.09.04
--- Compiled Date: 2026.10.12
+-- Script Version: 3.5.2
+-- Script Date: 2026.10.14
+-- Compiled Date: 2026.10.14
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,8 +15,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 940,
-        ["LUA_DATE"] = 20261012,
+        ["LUA_VERSION"] = 941,
+        ["LUA_DATE"] = 20261014,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
         ["GAME_TYPE"] = "lightgun",
@@ -90,9 +90,10 @@ local database = {
         ["MAX_PLAYERS"] = 2,
         ["SIMULTANEOUS_PLAY"] = true,
         ["OUTPUT_SUFFIXES"] = {
-            ["GLOBAL_LUA_VERSION"] = "LuaVersion",
-            ["GLOBAL_LUA_DATE"] = "LuaDate",
-            ["GLOBAL_LUA_ROM_ID"] = "LuaROMid",
+            ["GLOBAL_LUA_VERSION"] = "Plugin_Version",
+            ["GLOBAL_LUA_DATE"] = "Plugin_Date",
+            ["GLOBAL_DATABASE_DATE"] = "Database_Date",
+            ["GLOBAL_LUA_ROM_ID"] = "ROM_ID",
             ["GLOBAL_CREDITS"] = "Credits",
             ["GLOBAL_GAME_STATUS"] = "GameStatus",
             ["GLOBAL_ATTRACT_STATUS"] = "AttractStatus",

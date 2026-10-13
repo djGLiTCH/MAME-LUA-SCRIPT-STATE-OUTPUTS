@@ -1,8 +1,8 @@
 #
 # MAME STATE OUTPUT PROJECT (MSOP)
 # MSOP OUTPUT MODEL - shared helper library (NOT a standalone runner)
-# Version: 1.4.2
-# Date: 2026.10.13
+# Version: 1.4.3
+# Date: 2026.10.14
 # Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 # License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 # Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -257,9 +257,10 @@ def build_outputs(game, default, natives=None):
     put("MSOP_GameStatus", "false")
     put("MSOP_AttractStatus", "false")
     put("MSOP_GlobalCreditsInserted", "false")
-    put("MSOP_LuaVersion", "false")
-    put("MSOP_LuaDate", "false")
-    put("MSOP_LuaROMid", "false")
+    put("MSOP_Plugin_Version", "false")
+    put("MSOP_Plugin_Date", "false")
+    put("MSOP_Database_Date", "false")
+    put("MSOP_ROM_ID", "false")
 
     for native_name in list(natives or []) + list(game.get("ADDITIONAL_OUTPUT_FORWARDS", []) or []):
         out.setdefault(native_name, "false")
