@@ -449,6 +449,13 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.10.14",
+            "ChangesDatabase": [
+                "General: The _default profile now names the identity outputs Plugin_Version, Plugin_Date and ROM_ID (previously LuaVersion, LuaDate and LuaROMid). The profile keys themselves, such as LUA_ROM_ID, are unchanged.",
+                "General: The _default profile adds the output name Database_Date for the new MSOP_Database_Date output, under the new OUTPUT_SUFFIXES key GLOBAL_DATABASE_DATE."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.10.12",
             "ChangesDatabase": [
                 "timecris: The game status output now also follows time mode. GAME_STATUS_ALT is set to 0x00E00798 (time mode) alongside GAME_STATUS 0x00E01772 (story mode), so MSOP_GameStatus is raised in either mode.",
@@ -565,6 +572,24 @@
         }
     ],
     "PluginStable": [
+        {
+            "Version": "9.4.1",
+            "ReleaseDatePlugin": "2026.10.14",
+            "ChangesPlugin": [
+                "init.lua: Renamed the plugin identity and ROM ID outputs so that they no longer carry the word Lua. MSOP_LuaVersion is now MSOP_Plugin_Version, MSOP_LuaDate is now MSOP_Plugin_Date and MSOP_LuaROMid is now MSOP_ROM_ID. Their values are unchanged. Any hooker configuration that names the old outputs needs the new names.",
+                "init.lua: Added the MSOP_Database_Date output. It carries the date of the database the plugin loaded, as a number (YYYYMMDD), so that an older or custom database can be told apart from the plugin's own date.",
+                "init.lua: The identity outputs (MSOP_Plugin_Version, MSOP_Plugin_Date, MSOP_Database_Date and MSOP_ROM_ID) are now sent as soon as a game with a profile starts, ahead of STARTUP_DELAY_MS, over the relay and over MAME's own output delivery. A relay that connects during the startup delay receives them as well. Every other output is held until the delay ends, as before.",
+                "readme.txt: The output lists use the new names and include MSOP_Database_Date."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.14",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-STABLE",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
         {
             "Version": "9.4.0",
             "ReleaseDatePlugin": "2026.10.12",
@@ -1105,6 +1130,24 @@
     ],
     "PluginBeta": [
         {
+            "Version": "9.4.1",
+            "ReleaseDatePlugin": "2026.10.14",
+            "ChangesPlugin": [
+                "init.lua: Renamed the plugin identity and ROM ID outputs so that they no longer carry the word Lua. MSOP_LuaVersion is now MSOP_Plugin_Version, MSOP_LuaDate is now MSOP_Plugin_Date and MSOP_LuaROMid is now MSOP_ROM_ID. Their values are unchanged. Any hooker configuration that names the old outputs needs the new names.",
+                "init.lua: Added the MSOP_Database_Date output. It carries the date of the database the plugin loaded, as a number (YYYYMMDD), so that an older or custom database can be told apart from the plugin's own date.",
+                "init.lua: The identity outputs (MSOP_Plugin_Version, MSOP_Plugin_Date, MSOP_Database_Date and MSOP_ROM_ID) are now sent as soon as a game with a profile starts, ahead of STARTUP_DELAY_MS, over the relay and over MAME's own output delivery. A relay that connects during the startup delay receives them as well. Every other output is held until the delay ends, as before.",
+                "readme.txt: The output lists use the new names and include MSOP_Database_Date."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.14",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-BETA",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
+        {
             "Version": "9.4.0",
             "ReleaseDatePlugin": "2026.10.12",
             "ChangesPlugin": [
@@ -1575,6 +1618,15 @@
         }
     ],
     "DatabaseCompiler": [
+        {
+            "Version": "3.5.2",
+            "ReleaseDateDatabaseCompiler": "2026.10.14",
+            "ChangesDatabaseCompiler": [
+                "msop_output_model.py: The shared output model lists MSOP_Plugin_Version, MSOP_Plugin_Date and MSOP_ROM_ID in place of MSOP_LuaVersion, MSOP_LuaDate and MSOP_LuaROMid. The generated MAMEhooker INI files carry the new names; the defaultLG files are unchanged.",
+                "msop_output_model.py: Added MSOP_Database_Date to the shared output model, so the generated MAMEhooker INI files list it.",
+                "msop_database_compiler.py: Comments updated for the new output names."
+            ]
+        },
         {
             "Version": "3.5.1",
             "ReleaseDateDatabaseCompiler": "2026.10.13",
