@@ -1,11 +1,22 @@
 {
     "Configurator": [
         {
-            "Version": "1.1.0",
-            "ReleaseDate": "2026.09.30",
+            "Version": "1.1.1",
+            "ReleaseDate": "2026.10.15",
             "PackageLocation": "updates/configurator",
             "PackageName": "MSOP-CONFIGURATOR",
             "PackageType": ".zip",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Architectural Overhaul: Upgraded Avalonia UI to v12.1.4, and the System.IO.Ports and System.Management packages to v10.0.13. Both are bug fix and security releases, with no change to how the Configurator looks or works."
+            ]
+        },
+        {
+            "Version": "1.1.0",
+            "ReleaseDate": "2026.09.30",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
             "FileName": "MSOP_CONFIGURATOR.exe",
             "Changes": [
                 "Important: MSOP Configurator v1.1.0, or MESH v1.0.0 and newer, is required to download and install new versions of MSOP released after 30 September 2026 (2026.09.30). Please update to keep receiving MSOP updates.",

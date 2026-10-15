@@ -1,12 +1,25 @@
 {
-    "_comment": "Outdated legacy file, frozen. Kept only so MSOP Configurator v1.0.6 and earlier, which read this fixed address, are offered the upgrade to v1.1.0. The current changelog is updates/msop-changelog.json.",
+    "_comment": "Outdated legacy file, frozen. Kept only so MSOP Configurator v1.0.6 and earlier, which read this fixed address, are offered the upgrade to the final MSOP Configurator. The current changelog is updates/msop-changelog.json.",
     "Configurator": [
         {
-            "Version": "1.1.0",
-            "ReleaseDate": "2026.09.30",
+            "Version": "1.1.1",
+            "ReleaseDate": "2026.10.15",
             "PackageLocation": "updates/configurator",
             "PackageName": "MSOP-CONFIGURATOR",
             "PackageType": ".zip",
+            "FileName": "MSOP_CONFIGURATOR.exe",
+            "Changes": [
+                "Important: The MSOP download files have moved, so MSOP Configurator v1.0.6 and earlier can no longer download MSOP Plugin, Hook Of The Reaper or MAMEhooker updates, or the list of supported games. MSOP Configurator v1.1.0, or MESH v1.0.0 and newer, is required to download and install new versions of MSOP released after 30 September 2026 (2026.09.30). Please update to keep receiving MSOP updates.",
+                "General: This is the final release of the MSOP Configurator, which is being replaced by MESH (Modern Emulator State Hub). Once MESH is released, the MSOP Configurator will offer the upgrade every time it starts: it downloads MESH into the same folder and opens it, and MESH then removes the MSOP Configurator and its settings and walks you through a fresh setup. Your MAME installs and the MSOP Plugin are left as they are. The MSOP project itself (the MSOP Plugin for MAME) continues, and will be distributed via MESH moving forward. MESH GitHub: https://github.com/djGLiTCH/MESH",
+                "Architectural Overhaul: Upgraded Avalonia UI to v12.1.4, and the System.IO.Ports and System.Management packages to v10.0.13. Both are bug fix and security releases, with no change to how the Configurator looks or works."
+            ]
+        },
+        {
+            "Version": "1.1.0",
+            "ReleaseDate": "2026.09.30",
+            "PackageLocation": "",
+            "PackageName": "",
+            "PackageType": "",
             "FileName": "MSOP_CONFIGURATOR.exe",
             "Changes": [
                 "Important: The MSOP download files have moved, so MSOP Configurator v1.0.6 and earlier can no longer download MSOP Plugin, Hook Of The Reaper or MAMEhooker updates, or the list of supported games. MSOP Configurator v1.1.0, or MESH v1.0.0 and newer, is required to download and install new versions of MSOP released after 30 September 2026 (2026.09.30). Please update to keep receiving MSOP updates.",
