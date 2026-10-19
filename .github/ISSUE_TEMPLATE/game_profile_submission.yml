@@ -1,0 +1,73 @@
+name: Game Profile Submission
+description: Submit a game profile you made for a game MSOP does not yet support.
+title: "[NEW PROFILE] "
+labels: ["enhancement", "new-profile"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to submit a game profile for a new ROM. Make the profile in MESH with **Games > MSOP Game Editor > Submit to MSOP**, which saves the file and opens this form, then drag the saved `<rom>.json` into the box below.
+
+        A profile written by hand is welcome too: the [MSOP Compiler & Plugin Guide](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/blob/main/GUIDE.md) explains every setting. To change a profile MSOP already ships, use the **Existing Game / ROM Profile Correction** template instead.
+
+        Every submission is looked over before it joins the database, and a new profile is added to the Beta channel first.
+  - type: textarea
+    id: file
+    attributes:
+      label: Game Profile File
+      description: Drag the `<rom>.json` file into this box. If it will not attach, paste the file's contents instead.
+    validations:
+      required: true
+  - type: input
+    id: rom_name
+    attributes:
+      label: ROM Name
+      description: The exact short name of the ROM (e.g. `alien3`, `timecris`).
+    validations:
+      required: true
+  - type: input
+    id: mame_version
+    attributes:
+      label: Tested MAME Version
+      description: The MAME version you played the profile on.
+    validations:
+      required: true
+  - type: input
+    id: romset_version
+    attributes:
+      label: ROM Set Version
+      description: The ROM set version you are using, if you know it.
+    validations:
+      required: false
+  - type: dropdown
+    id: game_type
+    attributes:
+      label: Game Type
+      description: The profile's `GAME_TYPE`. Use `both` for a hybrid that needs the light gun outputs as well as force feedback.
+      options:
+        - lightgun
+        - racing
+        - both
+    validations:
+      required: true
+  - type: textarea
+    id: tested
+    attributes:
+      label: Results in Play
+      description: Which outputs worked as expected in play (e.g. `AMMO`, `LIFE`, `RECOIL`, `LAMP_START`), and anything that did not.
+    validations:
+      required: true
+  - type: input
+    id: credit
+    attributes:
+      label: Credit
+      description: A name or handle to credit in the changelog. Leave blank for no credit.
+    validations:
+      required: false
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Licence
+      options:
+        - label: "I made this profile, or have the right to share it, and I agree it may be included in MSOP under its [licence (GPL-3.0)](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/blob/main/LICENSE)."
+          required: true

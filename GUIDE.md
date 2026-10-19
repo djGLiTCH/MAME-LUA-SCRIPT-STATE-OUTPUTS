@@ -104,7 +104,7 @@ Running `run_stable` (or `run_beta` / `run`) executes these steps for that chann
 
 Your new plugin folder (`output/stable/stateoutput/`) is now complete - `database.lua`, the native output tables and the plugin files together - and ready to copy into MAME's `plugins/stateoutput/` folder for use with the MSOP Plugin. For the complete launcher reference - the MSOP-only variants, the single-tool launchers, and how the maintainer builds the beta channel - see the Database Compiler's own `README.md`.
 
-If you have added support for additional games, sharing this with the community via a pull request on the MSOP GitHub would be greatly appreciated. :) If you would rather not write the profile yourself, you can also request a game with the **New Game / ROM Profile Request** [issue form](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new/choose).
+If you have added support for additional games, sharing this with the community via a pull request on the MSOP GitHub would be greatly appreciated. :) You can also attach the profile to the **Game Profile Submission** [issue form](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new?template=game_profile_submission.yml), which MESH's **Submit to MSOP** button opens for a game made in its MSOP Game Editor. If you would rather not write the profile yourself, you can also request a game with the **New Game / ROM Profile Request** [issue form](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new/choose).
 
 https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 

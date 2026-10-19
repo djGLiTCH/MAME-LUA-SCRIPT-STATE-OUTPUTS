@@ -461,9 +461,9 @@ Run `MSOP_CONFIGURATOR.exe -help` in a terminal to print the full reference. Eve
 
 This is a community-driven project. If you find a game that isn't supported, please map its memory addresses in a JSON game profile and submit a Pull Request! The [GUIDE](GUIDE.md) explains every profile key with worked examples, and the Database Compiler builds the profiles into `database.lua` for you, so there is no need to edit that file by hand.
 
-Once **MESH** is publicly released, its **MSOP Game Editor** (on the Games tab, in Advanced mode) offers another way to build a profile: fill in a form with validated fields and per-player auto-fill, and MESH compiles `database.lua` for you with no Python needed. It saves your profiles as the same JSON files, so a game you add in MESH can be shared in a pull request too.
+Once **MESH** is publicly released, its **MSOP Game Editor** (on the Games tab, in Advanced mode) offers another way to build a profile: fill in a form with validated fields and per-player auto-fill, and MESH compiles `database.lua` for you with no Python needed. It saves your profiles as the same JSON files, and its **Submit to MSOP** button sends a game you added to MSOP through the **Game Profile Submission** [issue form](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new?template=game_profile_submission.yml). A profile written by hand can be attached to the same form.
 
-If you would rather not write the profile yourself, please [open an issue](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new/choose) using the **New Game / ROM Profile Request** template with any memory addresses you have found, or the **Game Profile Correction** template if an existing profile is broken.
+If you would rather not write the profile yourself, please [open an issue](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/issues/new/choose) using the **New Game / ROM Profile Request** template with any memory addresses you have found, or the **Existing Game / ROM Profile Correction** template if an existing profile is broken.
 
 **Special Thanks:**
 * **Muggins**, for all of his help and support. Without his tireless efforts in testing each release and suggesting quality of life improvements, it would not be what it is today.

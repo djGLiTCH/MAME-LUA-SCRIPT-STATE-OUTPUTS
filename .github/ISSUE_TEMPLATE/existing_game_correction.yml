@@ -66,3 +66,10 @@ body:
         New P1 LIFE: 0x00B200C4
     validations:
       required: false
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Licence
+      options:
+        - label: "I agree that the addresses and settings I share here may be included in MSOP under its [licence (GPL-3.0)](https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS/blob/main/LICENSE)."
+          required: true
