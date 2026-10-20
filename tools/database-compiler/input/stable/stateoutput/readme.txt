@@ -3,9 +3,9 @@ MAME State Output Project (MSOP)
 MSOP Plugin Readme
 ================================================================================
 
-Plugin Version: 9.4.1
-Plugin Date:    2026.10.14
-Database Date:  2026.10.14
+Plugin Version: 9.4.2
+Plugin Date:    2026.10.20
+Database Date:  2026.10.20
 Created By:     Jacob Simpson (DJ GLiTCH)
 License:        GNU General Public License GPL-v3.0
 Repository:     https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
@@ -141,7 +141,7 @@ OUTPUT DELIVERY BY MAME VERSION
   * 0.289+ with "windows": this works with MESH, and MSOP shows a short one-shot
     note. A program that only reads MAME's Windows messages, such as MAMEhooker,
     receives the native outputs only; to send it MSOP's outputs as well, use
-    "none" and enable "Serve Win32 output" in MESH.
+    "none" and enable "Serve Windows Output" in MESH.
   * Native outputs over the relay on 0.288 and earlier need MSOP Plugin v9.4.0
     or newer.
   * Up to and including MAME 0.289 the plugin finds native outputs in the output
@@ -294,9 +294,10 @@ IF NOTHING IS LISTENING ON THE RELAY PORT
   own outputs reach MESH over the relay, and MESH reads both. Programs that only
   read MAME's Windows messages, such as MAMEhooker, receive the native outputs
   only in this mode; to send them MSOP's outputs as well, set '-output none' and
-  enable "Serve Win32 output" in MESH. Note that '-output auto' (MAME's factory default) is
-  resolved by MAME itself to the "none" output module - MSOP treats it as "none",
-  it uses the relay as normal, and it never triggers this notice.
+  enable "Serve Windows Output" in MESH. Note that '-output auto' (MAME's
+  factory default) is resolved by MAME itself to the "none" output module - MSOP
+  treats it as "none", it uses the relay as normal, and it never triggers this
+  notice.
 
   If you are not using the relay at all, set '-output network' on MAME 0.288 or
   earlier and MSOP will not dial anything.
@@ -439,9 +440,10 @@ P2_Damaged=
 An output is sent only by a game whose profile uses it, starting at 0 when the
 game starts - this keeps your hooker software free of names that ROM never
 uses. The exceptions are the global outputs (MSOP_GameStatus,
-MSOP_AttractStatus and the three MSOP_Lua outputs), which every game sends, and
-PX_CtmRecoil, PX_Damaged and MSOP_PX_ShotsFired, which every light gun game
-sends unless DemulShooter compatibility or the shot count is switched off.
+MSOP_AttractStatus, MSOP_Plugin_Version, MSOP_Plugin_Date, MSOP_Database_Date
+and MSOP_ROM_ID), which every game sends, and PX_CtmRecoil, PX_Damaged and
+MSOP_PX_ShotsFired, which every light gun game sends unless DemulShooter
+compatibility or the shot count is switched off.
 
 Note 1: PX = Player Number (e.g. P1 = Player 1)
 Note 2: MSOP currently supports up to 4 players, so the above outputs extend to P4.

@@ -1,8 +1,8 @@
 -- =========================================================================================
 -- MAME STATE OUTPUT PROJECT (MSOP)
 -- MSOP PLUGIN
--- Plugin Version: 9.4.1
--- Plugin Date: 2026.10.14
+-- Plugin Version: 9.4.2
+-- Plugin Date: 2026.10.20
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -43,7 +43,7 @@
 
 local exports = {
     name = "stateoutput",
-    version = "9.4.1",
+    version = "9.4.2",
     description = "MAME State Output Project (MSOP)",
     license = "GNU GPL-v3.0",
     author = "Jacob Simpson (DJ GLiTCH)",
@@ -161,8 +161,8 @@ function stateoutput.startplugin()
     -- The plugin identity published as the MSOP_Plugin_Version and MSOP_Plugin_Date outputs. Keep
     -- both in step with the file header and exports.version (the version digits without the dots).
     -- CFG.LUA_VERSION and CFG.LUA_DATE describe the database release and are not used here.
-    local PLUGIN_VERSION_NUM = 941
-    local PLUGIN_DATE_NUM    = 20261014
+    local PLUGIN_VERSION_NUM = 942
+    local PLUGIN_DATE_NUM    = 20261020
 
     -- -------------------------------------------------------------------------
     -- ENGINE STATE VARIABLES
@@ -2176,9 +2176,10 @@ function stateoutput.startplugin()
                                   p.CurrentRecoilDuration = _RecoilDuration; Set_Output(out, i, "RECOIL", 1)
                                   if CFG.DEMULSHOOTER_COMPATIBILITY then Set_Output(out, i, "CtmRecoil", 1) end
 
-                                  -- Count the shot here when no ammo address is configured or the
+                                  -- Count the shot here when no ammo address is configured, when
+                                  -- RECOIL_PRIORITY makes this address the shot source, or when the
                                   -- primary ammo is empty.
-                                  if CFG.ENABLE_SHOT_COUNT and warmup_ok and (not cfg.AMMO or curr_ammo == 0) then
+                                  if CFG.ENABLE_SHOT_COUNT and warmup_ok and (not cfg.AMMO or CFG.RECOIL_PRIORITY ~= "ammo" or curr_ammo == 0) then
                                       p.ShotCountPrimary = p.ShotCountPrimary + 1
                                       Set_Output(out, i, "SHOTS_FIRED_PRIMARY", p.ShotCountPrimary)
                                   end
@@ -2214,7 +2215,10 @@ function stateoutput.startplugin()
                         if type(cfg.SHOTS_FIRED_PRIMARY) == "number" then
                              local val = Read_Data_Safe(_MemHandles["SHOTS_FIRED_PRIMARY"], cfg.SHOTS_FIRED_PRIMARY, CFG.DATA_WIDTHS.SHOTS_FIRED_PRIMARY)
                              Set_Output(out, i, "SHOTS_FIRED_PRIMARY", val); p.ShotCountPrimary = val
-                        elseif cfg.SHOTS_FIRED_PRIMARY == "auto" and cfg.AMMO and p.WasActive then
+                        -- An ammo drop counts shots unless a RECOIL address with RECOIL_PRIORITY
+                        -- recoil is the shot source, so that a shot is not counted twice.
+                        elseif cfg.SHOTS_FIRED_PRIMARY == "auto" and cfg.AMMO and p.WasActive
+                            and not (type(cfg.RECOIL) == "number" and CFG.RECOIL_PRIORITY ~= "ammo") then
                             local diff = Shot_Delta(CFG.AMMO_DIRECTION, curr_ammo, p.LastAmmo, t_ammo)
                             if diff > 0 then
                                 p.ShotCountPrimary = p.ShotCountPrimary + (CFG.SHOTS_FIRED_METHOD == "bullets" and diff or 1)
@@ -3184,13 +3188,13 @@ function stateoutput.startplugin()
                     .. " and the game's native outputs are sent by MAME. Programs that"
                     .. " only read MAME's Windows messages, such as MAMEhooker, receive"
                     .. " the native outputs only. To send them MSOP's outputs as well,"
-                    .. " set MAME output to \"none\" in mame.ini and enable \"Serve Win32"
-                    .. " output\" in MESH.",
+                    .. " set MAME output to \"none\" in mame.ini and enable \"Serve Windows"
+                    .. " Output\" in MESH.",
                     "MSOP: MAME OUTPUT IS SET TO WINDOWS\n"
                     .. "This works with MESH. Programs that only read MAME's Windows"
                     .. " messages, such as MAMEhooker, receive the game's native outputs"
                     .. " only. To send them MSOP's outputs as well, set MAME output to"
-                    .. " \"none\" in mame.ini and enable \"Serve Win32 output\" in MESH.")
+                    .. " \"none\" in mame.ini and enable \"Serve Windows Output\" in MESH.")
             end
         end
 
