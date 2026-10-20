@@ -3,7 +3,7 @@
 -- MSOP DATABASE LUA
 -- Script Version: 3.5.2
 -- Script Date: 2026.10.14
--- Compiled Date: 2026.10.14
+-- Compiled Date: 2026.10.20
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,8 +15,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 941,
-        ["LUA_DATE"] = 20261014,
+        ["LUA_VERSION"] = 942,
+        ["LUA_DATE"] = 20261020,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
         ["GAME_TYPE"] = "lightgun",
@@ -1240,6 +1240,27 @@ local database = {
         },
         ["ADDITIONAL_OUTPUT_FORWARDS"] = {
         }
+    },
+    ["golgo13"] = {
+        ["LUA_GAME"] = "Golgo 13",
+        ["ENABLE_ROM"] = true,
+        ["GAME_TYPE"] = "lightgun",
+        ["STARTUP_DELAY_MS"] = 43000,
+        ["MAX_PLAYERS"] = 1,
+        ["SIMULTANEOUS_PLAY"] = false,
+        ["CREDITS"] = "0x003B9344",
+        ["CREDITS_comment"] = "2 credits to start, 1 credit to continue",
+        ["GAME_STATUS"] = "0x003B9CF0",
+        ["P1"] = {
+            ["STATUS"] = "auto",
+            ["AMMO"] = "0x003B9C68",
+            ["AMMO_comment"] = "Some missions have no ammo",
+            ["LIFE"] = "0x003B9C94",
+            ["RECOIL"] = "0x003B9C6C",
+            ["RECOIL_comment"] = "Rises by 1 per shot and resets for each mission"
+        },
+        ["RECOIL_PRIORITY"] = "recoil",
+        ["RECOIL_PRIORITY_comment"] = "The shots counter also works in missions with no ammo limit, so the recoil memory address is preferred"
     },
     ["gticlub"] = {
         ["LUA_GAME"] = "GTI Club",

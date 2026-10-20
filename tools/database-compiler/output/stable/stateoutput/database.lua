@@ -3,7 +3,7 @@
 -- MSOP DATABASE LUA
 -- Script Version: 3.5.2
 -- Script Date: 2026.10.14
--- Compiled Date: 2026.10.14
+-- Compiled Date: 2026.10.20
 -- Project: https://github.com/djGLiTCH/MAME-LUA-SCRIPT-STATE-OUTPUTS
 -- License: GNU GENERAL PUBLIC LICENSE GPL-v3.0
 -- Copyright (c) 2026 Jacob Simpson (DJ GLiTCH). All Rights Reserved.
@@ -15,8 +15,8 @@
 
 local database = {
     ["_default"] = {
-        ["LUA_VERSION"] = 941,
-        ["LUA_DATE"] = 20261014,
+        ["LUA_VERSION"] = 942,
+        ["LUA_DATE"] = 20261020,
         ["LUA_GAME"] = "Default MSOP Plugin Values",
         ["ENABLE_ROM"] = false,
         ["GAME_TYPE"] = "lightgun",

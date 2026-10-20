@@ -1,6 +1,6 @@
 {
-    "LUA_VERSION": 941,
-    "LUA_DATE": 20261014,
+    "LUA_VERSION": 942,
+    "LUA_DATE": 20261020,
     "LUA_GAME": "Default MSOP Plugin Values",
     "ENABLE_ROM": false,
     "GAME_TYPE": "lightgun",
