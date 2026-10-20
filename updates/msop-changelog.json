@@ -460,6 +460,12 @@
     ],
     "DatabaseHistory": [
         {
+            "ReleaseDateDatabase": "2026.10.20",
+            "ChangesDatabase": [
+                "golgo13: Added Golgo 13 to the beta database, for one player. Recoil comes from the shots fired counter (RECOIL 0x003B9C6C with RECOIL_PRIORITY recoil), as some missions have no ammo limit. Life is the reliability percentage, and the game ends at 0."
+            ]
+        },
+        {
             "ReleaseDateDatabase": "2026.10.14",
             "ChangesDatabase": [
                 "General: The _default profile now names the identity outputs Plugin_Version, Plugin_Date and ROM_ID (previously LuaVersion, LuaDate and LuaROMid). The profile keys themselves, such as LUA_ROM_ID, are unchanged.",
@@ -583,6 +589,23 @@
         }
     ],
     "PluginStable": [
+        {
+            "Version": "9.4.2",
+            "ReleaseDatePlugin": "2026.10.20",
+            "ChangesPlugin": [
+                "init.lua: The one-shot note shown on MAME 0.289 and later with MAME output set to windows now names the MESH setting as MESH shows it, Serve Windows Output (previously Serve Win32 output).",
+                "init.lua: A profile with RECOIL_PRIORITY recoil and both a RECOIL memory address and an AMMO memory address no longer counts the shot that empties the ammo twice. The RECOIL memory address is then the only source of MSOP_P<n>_ShotsFiredPrimary and MSOP_P<n>_ShotsFired. Recoil, ammo and reload outputs are unchanged.",
+                "readme.txt: Names the MESH setting Serve Windows Output, and lists the global outputs by their current names (MSOP_Plugin_Version, MSOP_Plugin_Date, MSOP_Database_Date and MSOP_ROM_ID) in place of the three MSOP_Lua outputs."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.20",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-STABLE",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
         {
             "Version": "9.4.1",
             "ReleaseDatePlugin": "2026.10.14",
@@ -1140,6 +1163,23 @@
         }
     ],
     "PluginBeta": [
+        {
+            "Version": "9.4.2",
+            "ReleaseDatePlugin": "2026.10.20",
+            "ChangesPlugin": [
+                "init.lua: The one-shot note shown on MAME 0.289 and later with MAME output set to windows now names the MESH setting as MESH shows it, Serve Windows Output (previously Serve Win32 output).",
+                "init.lua: A profile with RECOIL_PRIORITY recoil and both a RECOIL memory address and an AMMO memory address no longer counts the shot that empties the ammo twice. The RECOIL memory address is then the only source of MSOP_P<n>_ShotsFiredPrimary and MSOP_P<n>_ShotsFired. Recoil, ammo and reload outputs are unchanged.",
+                "readme.txt: Names the MESH setting Serve Windows Output, and lists the global outputs by their current names (MSOP_Plugin_Version, MSOP_Plugin_Date, MSOP_Database_Date and MSOP_ROM_ID) in place of the three MSOP_Lua outputs."
+            ],
+            "DatabaseReleases": [
+                {
+                    "IncludedDatabaseDate": "2026.10.20",
+                    "PackageLocation": "updates/plugin",
+                    "PackageName": "MSOP-PLUGIN-BETA",
+                    "PackageType": ".zip"
+                }
+            ]
+        },
         {
             "Version": "9.4.1",
             "ReleaseDatePlugin": "2026.10.14",
